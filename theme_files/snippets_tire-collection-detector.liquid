@@ -1,0 +1,64 @@
+{% comment %}
+  Tire Collection Detector
+  Determines if a collection is tire-related and should show tire filters
+  
+  Usage: {% include 'tire-collection-detector' %}
+  Returns: is_tire_collection variable (true/false)
+{% endcomment %}
+
+{% assign is_tire_collection = false %}
+
+{% comment %} Check collection handle for tire-related keywords {% endcomment %}
+{% assign collection_handle_lower = collection.handle | downcase %}
+{% assign tire_keywords = 'tire,tires,winter,summer,all-season,all-weather,all-terrain,mud-terrain,performance,snow,mud,terrain' | split: ',' %}
+
+{% for keyword in tire_keywords %}
+  {% if collection_handle_lower contains keyword %}
+    {% assign is_tire_collection = true %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+{% comment %} Check collection title for tire-related keywords {% endcomment %}
+{% unless is_tire_collection %}
+  {% assign collection_title_lower = collection.title | downcase %}
+  {% for keyword in tire_keywords %}
+    {% if collection_title_lower contains keyword %}
+      {% assign is_tire_collection = true %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endunless %}
+
+{% comment %} Check collection tags for tire-related tags {% endcomment %}
+{% unless is_tire_collection %}
+  {% for tag in collection.all_tags %}
+    {% if tag contains 'Type_Winter' or tag contains 'Type_Summer' or tag contains 'Type_All Season' or tag contains 'Type_All Weather' or tag contains 'Type_All Terrain' or tag contains 'Type_Mud Terrain' or tag contains 'Type_Performance' %}
+      {% assign is_tire_collection = true %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endunless %}
+
+{% comment %} Check if collection has tire-sized products {% endcomment %}
+{% unless is_tire_collection %}
+  {% for product in collection.products limit: 5 %}
+    {% assign product_title_lower = product.title | downcase %}
+    {% if product_title_lower contains '/r' or product_title_lower contains 'r15' or product_title_lower contains 'r16' or product_title_lower contains 'r17' or product_title_lower contains 'r18' or product_title_lower contains 'r19' or product_title_lower contains 'r20' %}
+      {% assign is_tire_collection = true %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endunless %}
+
+{% comment %} Exclude wheel collections even if they might match tire keywords {% endcomment %}
+{% if is_tire_collection %}
+  {% if collection_handle_lower contains 'wheel' or collection_handle_lower contains 'rim' or collection_title_lower contains 'wheel' or collection_title_lower contains 'rim' %}
+    {% assign is_tire_collection = false %}
+  {% endif %}
+{% endif %}
+
+<!-- DEBUG: Collection {{ collection.handle }} is_tire_collection: {{ is_tire_collection }} -->
+<!-- DEBUG: Collection title: "{{ collection.title }}" handle: "{{ collection.handle }}" -->
+<!-- DEBUG: Collection has {{ collection.all_tags.size }} tags: {{ collection.all_tags | join: ', ' }} -->
+<!-- DEBUG: Collection has {{ collection.products.size }} products -->

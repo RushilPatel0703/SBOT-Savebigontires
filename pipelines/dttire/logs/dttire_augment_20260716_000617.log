@@ -1,0 +1,7 @@
+00:06:17 [INFO] Log file: logs\dttire_augment_20260716_000617.log
+00:06:17 [INFO] Input file : Data\cleaned\cleaned_tires_20260716_000616.csv
+00:06:17 [INFO] Rows loaded: 8804
+00:06:17 [INFO] Using qty_total for total_qty
+00:06:23 [INFO] Rows written : 8804
+00:06:23 [INFO] Output file  : Data/shopify/Shopify_SEO_dttire_tires_20260716_000623.csv
+00:06:23 [INFO] Done.

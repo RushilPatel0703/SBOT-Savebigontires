@@ -1,0 +1,287 @@
+{% comment %}
+  Simple Mobile Filter - Intelligent Type, Size, and Brand dropdowns
+  Automatically detects tire vs wheel collections and shows appropriate filters
+  
+  Usage:
+  {% include 'simple-mobile-filter' %}
+{% endcomment %}
+
+{% comment %} Detect if this is a tire-related collection {% endcomment %}
+{% include 'tire-collection-detector' %}
+
+{% comment %} Get current active tags from URL {% endcomment %}
+{% assign current_tags = collection.current_tags %}
+
+{% comment %} Always extract tags from URL path as well for comparison {% endcomment %}
+{% assign url_current_tags = '' %}
+{% assign url_path = request.path %}
+{% assign path_parts = url_path | split: '/' %}
+{% if path_parts.size > 3 and path_parts[1] == 'collections' %}
+  {% assign tag_string = path_parts[3] %}
+  {% if tag_string != blank %}
+    {% assign url_tags = tag_string | split: '+' %}
+    {% for url_tag in url_tags %}
+      {% assign decoded_tag = url_tag | url_decode %}
+      {% if url_current_tags == '' %}
+        {% assign url_current_tags = decoded_tag %}
+      {% else %}
+        {% assign url_current_tags = url_current_tags | append: ',' | append: decoded_tag %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endif %}
+
+{% comment %} Convert URL tags string to array and use as current_tags {% endcomment %}
+{% if url_current_tags != '' %}
+  {% assign current_tags = url_current_tags | split: ',' %}
+{% endif %}
+
+{% comment %} Check if this is a wheels collection {% endcomment %}
+{% assign is_wheels_collection = false %}
+{% assign collection_title_lower = collection.title | downcase %}
+{% assign collection_handle_lower = collection.handle | downcase %}
+{% if collection_title_lower contains 'wheel' or collection_handle_lower contains 'wheel' %}
+  {% assign is_wheels_collection = true %}
+{% endif %}
+
+<!-- Simple Mobile Filter -->
+<!-- DEBUG: is_tire_collection: {{ is_tire_collection }}, is_wheels_collection: {{ is_wheels_collection }} -->
+<div class="simple-mobile-filter">
+  <div class="simple-mobile-filter-row">
+    
+    {% if is_wheels_collection %}
+      <!-- WheelDiameter Filter Dropdown for Wheels Collections -->
+      <div class="simple-filter-dropdown">
+        <label for="mobile-wheeldiameter-filter" class="simple-filter-label">Wheel Diameter</label>
+        <select id="mobile-wheeldiameter-filter" class="simple-filter-select" onchange="applyMobileFilter()">
+          <option value="">All Diameters</option>
+          {% assign wheeldiameter_tags = '' %}
+          {% for tag in collection.all_tags %}
+            {% assign cat = tag | split: '_' | first %}
+            {% if cat == 'WheelDiameter' and cat != tag %}
+              {% assign wheeldiameter_value = tag | remove_first: 'WheelDiameter_' %}
+              {% unless wheeldiameter_tags contains wheeldiameter_value %}
+                {% assign wheeldiameter_tags = wheeldiameter_tags | append: wheeldiameter_value | append: ',' %}
+                {% assign is_selected = false %}
+                {% comment %} Check if this tag matches any current tag {% endcomment %}
+                {% assign current_tags_string = current_tags | join: '|' %}
+                {% if current_tags_string contains tag %}
+                  {% assign is_selected = true %}
+                {% endif %}
+                <option value="{{ tag }}"{% if is_selected %} selected{% endif %}>{{ wheeldiameter_value }}</option>
+              {% endunless %}
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- BoltPattern Filter Dropdown for Wheels Collections -->
+      <div class="simple-filter-dropdown">
+        <label for="mobile-boltpattern-filter" class="simple-filter-label">Bolt Pattern</label>
+        <select id="mobile-boltpattern-filter" class="simple-filter-select" onchange="applyMobileFilter()">
+          <option value="">All Patterns</option>
+          {% assign boltpattern_tags = '' %}
+          {% assign found_patterns = false %}
+          {% for tag in collection.all_tags %}
+            {% assign cat = tag | split: '_' | first %}
+            {% assign is_bolt_pattern = false %}
+            {% assign pattern_value = '' %}
+            
+            {% comment %} Check if it's a prefixed BoltPattern tag {% endcomment %}
+            {% if cat == 'BoltPattern' and cat != tag %}
+              {% assign is_bolt_pattern = true %}
+              {% assign pattern_value = tag | remove_first: 'BoltPattern_' %}
+              {% assign found_patterns = true %}
+            {% elsif tag contains 'x' and tag != cat %}
+              {% comment %} Check if it looks like a bolt pattern (not a wheel size) {% endcomment %}
+              {% assign tag_parts = tag | split: 'x' %}
+              {% if tag_parts.size == 2 %}
+                {% assign first_part = tag_parts[0] | plus: 0 %}
+                {% assign second_part = tag_parts[1] | split: ' ' | first | plus: 0 %}
+                {% comment %} Bolt patterns: 3-10 bolts, PCD 50-300mm. Wheel sizes: 15-24" diameter {% endcomment %}
+                {% if first_part >= 3 and first_part <= 10 and second_part >= 50 and second_part <= 300 %}
+                  {% assign is_bolt_pattern = true %}
+                  {% assign pattern_value = tag %}
+                  {% assign found_patterns = true %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+            
+            {% if is_bolt_pattern %}
+              {% unless boltpattern_tags contains pattern_value %}
+                {% assign boltpattern_tags = boltpattern_tags | append: pattern_value | append: ',' %}
+                {% assign is_selected = false %}
+                {% comment %} Check if this tag matches any current tag {% endcomment %}
+                {% assign current_tags_string = current_tags | join: '|' %}
+                {% if current_tags_string contains tag %}
+                  {% assign is_selected = true %}
+                {% endif %}
+                <option value="{{ tag }}"{% if is_selected %} selected{% endif %}>{{ pattern_value }}</option>
+              {% endunless %}
+            {% endif %}
+          {% endfor %}
+          
+          {% comment %} If no patterns found in collection tags, provide common bolt patterns as fallback {% endcomment %}
+          {% unless found_patterns %}
+            {% assign fallback_patterns = '4x100,4x100 4.25,4x100 4.5,4x137,4x137 156,4x156,5x100,5x100 112,5x100 4.5,5x105,5x108,10x225' | split: ',' %}
+            {% for pattern in fallback_patterns %}
+              {% assign is_selected = false %}
+              {% assign current_tags_string = current_tags | join: '|' %}
+              {% if current_tags_string contains pattern %}
+                {% assign is_selected = true %}
+              {% endif %}
+              <option value="{{ pattern }}"{% if is_selected %} selected{% endif %}>{{ pattern }}</option>
+            {% endfor %}
+          {% endunless %}
+        </select>
+      </div>
+    {% elsif is_tire_collection %}
+      <!-- Type Filter Dropdown for Tire Collections -->
+      <div class="simple-filter-dropdown">
+        <label for="mobile-type-filter" class="simple-filter-label">Type</label>
+        <select id="mobile-type-filter" class="simple-filter-select" onchange="applyMobileFilter()">
+          <option value="">All Types</option>
+          
+          {% comment %} Hardcoded tire type options with selection logic {% endcomment %}
+          {% assign current_tags_string = current_tags | join: '|' %}
+          
+          <option value="Type_All Season"{% if current_tags_string contains 'Type_All Season' %} selected{% endif %}>All Season</option>
+          <option value="Type_All Terrain"{% if current_tags_string contains 'Type_All Terrain' %} selected{% endif %}>All Terrain</option>
+          <option value="Type_All Weather"{% if current_tags_string contains 'Type_All Weather' %} selected{% endif %}>All Weather</option>
+          <option value="Type_Mud Terrain"{% if current_tags_string contains 'Type_Mud Terrain' %} selected{% endif %}>Mud Terrain</option>
+          <option value="Type_Performance"{% if current_tags_string contains 'Type_Performance' %} selected{% endif %}>Performance</option>
+          <option value="Type_Summer"{% if current_tags_string contains 'Type_Summer' %} selected{% endif %}>Summer</option>
+          <option value="Type_Winter"{% if current_tags_string contains 'Type_Winter' %} selected{% endif %}>Winter</option>
+        </select>
+      </div>
+
+      <!-- Size Filter Dropdown for Tire Collections -->
+      <div class="simple-filter-dropdown">
+        <label for="mobile-size-filter" class="simple-filter-label">Size</label>
+        <select id="mobile-size-filter" class="simple-filter-select" onchange="applyMobileFilter()">
+          <option value="">All Sizes</option>
+          {% assign size_tags = '' %}
+          {% for tag in collection.all_tags %}
+            {% assign cat = tag | split: '_' | first %}
+            {% if cat == 'Size' and cat != tag %}
+              {% assign size_value = tag | remove_first: 'Size_' %}
+              {% unless size_tags contains size_value %}
+                {% assign size_tags = size_tags | append: size_value | append: ',' %}
+                {% assign is_selected = false %}
+                {% comment %} Check if this tag matches any current tag {% endcomment %}
+                {% assign current_tags_string = current_tags | join: '|' %}
+                {% if current_tags_string contains tag %}
+                  {% assign is_selected = true %}
+                {% endif %}
+                <option value="{{ tag }}"{% if is_selected %} selected{% endif %}>{{ size_value }}</option>
+              {% endunless %}
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Brand Filter Dropdown for Tire Collections -->
+      <div class="simple-filter-dropdown">
+        <label for="mobile-brand-filter" class="simple-filter-label">Brand</label>
+        <select id="mobile-brand-filter" class="simple-filter-select" onchange="applyMobileFilter()">
+          <option value="">All Brands</option>
+          {% assign brand_tags = '' %}
+          {% for tag in collection.all_tags %}
+            {% assign cat = tag | split: '_' | first %}
+            {% if cat == 'Brand' and cat != tag %}
+              {% assign brand_value = tag | remove_first: 'Brand_' %}
+              {% unless brand_tags contains brand_value %}
+                {% assign brand_tags = brand_tags | append: brand_value | append: ',' %}
+                {% assign is_selected = false %}
+                {% comment %} Check if this tag matches any current tag {% endcomment %}
+                {% assign current_tags_string = current_tags | join: '|' %}
+                {% if current_tags_string contains tag %}
+                  {% assign is_selected = true %}
+                {% endif %}
+                <option value="{{ tag }}"{% if is_selected %} selected{% endif %}>{{ brand_value }}</option>
+              {% endunless %}
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  /* Simple Mobile Filter Styles */
+  .simple-mobile-filter {
+    display: none;
+  }
+  
+  @media (max-width: 768px) {
+    .simple-mobile-filter {
+      display: block;
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .simple-mobile-filter-row {
+      display: flex;
+      gap: 12px;
+      align-items: end;
+    }
+    
+    .simple-filter-dropdown {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .simple-filter-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 6px;
+      display: block;
+    }
+    
+    .simple-filter-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: white;
+      font-size: 14px;
+      color: #333;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 10px center;
+      background-repeat: no-repeat;
+      background-size: 16px;
+      padding-right: 36px;
+      
+      &:focus {
+        outline: 2px solid #e31e24;
+        outline-offset: 2px;
+        border-color: #e31e24;
+      }
+    }
+    
+    .simple-filter-select::-ms-expand {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .simple-mobile-filter-row {
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .simple-filter-dropdown {
+      width: 100%;
+    }
+  }
+</style>
+
+<!-- Include the Simple Mobile Filter JavaScript -->
+<script src="{{ 'simple-mobile-filter.js' | asset_url }}" defer></script>

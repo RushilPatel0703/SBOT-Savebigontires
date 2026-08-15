@@ -1,0 +1,99 @@
+// ==UserScript==
+// @name         WheelMart Tire Qty Counter
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  Count tires on current page with quantity > 3 (same threshold as Shopify pipeline)
+// @match        https://wheelmartcanada.ca/product/tires*
+// @grant        none
+// ==/UserScript==
+
+(function () {
+    'use strict';
+
+    // qty column is index 5: thumb(0) size(1) sku(2) desc(3) price(4) qty(5) remarks(6)
+    const QTY_COL = 5;
+    const THRESHOLD = 3; // keep if qty > THRESHOLD  (i.e. >= 4)
+
+    function parseQty(text) {
+        // parseInt handles "20+" correctly — stops at '+' and returns 20
+        const n = parseInt(text.trim());
+        return isNaN(n) ? 0 : n;
+    }
+
+    function countRows() {
+        const rows = document.querySelectorAll('#product-list table tbody tr');
+        let total = 0;
+        let qualified = 0;
+
+        rows.forEach(row => {
+            const tds = row.querySelectorAll('td');
+            if (tds.length <= QTY_COL) return;
+            const qty = parseQty(tds[QTY_COL].textContent);
+            total++;
+            if (qty > THRESHOLD) qualified++;
+        });
+
+        return { total, qualified };
+    }
+
+    function createBadge() {
+        const badge = document.createElement('div');
+        badge.id = 'wm-qty-counter';
+        Object.assign(badge.style, {
+            position:     'fixed',
+            bottom:       '20px',
+            right:        '20px',
+            background:   '#1a3c5e',
+            color:        '#fff',
+            padding:      '12px 16px',
+            borderRadius: '8px',
+            fontFamily:   'Arial, sans-serif',
+            fontSize:     '13px',
+            lineHeight:   '1.6',
+            zIndex:       '99999',
+            boxShadow:    '0 3px 10px rgba(0,0,0,0.4)',
+            cursor:       'pointer',
+            userSelect:   'none',
+            minWidth:     '160px',
+        });
+        badge.title = 'Click to refresh';
+        document.body.appendChild(badge);
+        return badge;
+    }
+
+    function updateBadge(badge) {
+        const { total, qualified } = countRows();
+        badge.innerHTML =
+            `<div style="font-weight:bold;margin-bottom:4px;font-size:14px">WheelMart Tires</div>` +
+            `Rows on page: <b>${total}</b><br>` +
+            `Qty &gt; ${THRESHOLD}: <b style="color:#7ef0a0">${qualified}</b>`;
+    }
+
+    function init() {
+        const badge = createBadge();
+        updateBadge(badge);
+        badge.addEventListener('click', () => updateBadge(badge));
+
+        // Re-count automatically when the table re-renders (pagination / filter)
+        const container = document.querySelector('#product-list');
+        if (container) {
+            const observer = new MutationObserver(() => updateBadge(badge));
+            observer.observe(container, { childList: true, subtree: true });
+        }
+    }
+
+    // Wait for table rows to be present before initialising
+    function waitForTable(retries = 40) {
+        if (document.querySelector('#product-list table tbody tr')) {
+            init();
+        } else if (retries > 0) {
+            setTimeout(() => waitForTable(retries - 1), 250);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => waitForTable());
+    } else {
+        waitForTable();
+    }
+})();

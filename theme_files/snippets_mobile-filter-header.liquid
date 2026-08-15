@@ -1,0 +1,208 @@
+{% comment %}
+  Mobile Filter Header Snippet
+  Reusable mobile filter header with toggle functionality
+  
+  Usage:
+  {% include 'mobile-filter-header' %}
+  
+  Optional parameters:
+  - title: Custom title text (default: "Filters & Categories")
+  - icon: Custom icon (default: "🔍")
+  - toggle_class: Additional CSS class for the toggle button
+{% endcomment %}
+
+{% assign filter_title = title | default: "Filters & Categories" %}
+{% assign filter_icon = icon | default: "🔍" %}
+
+<!-- Mobile filter header -->
+<div class="savebigontires-mobile-filter-header">
+  <h3 class="savebigontires-mobile-filter-title">
+    <span class="savebigontires-filter-icon">{{ filter_icon }}</span> {{ filter_title }}
+  </h3>
+  <button class="savebigontires-mobile-filter-toggle{% if toggle_class %} {{ toggle_class }}{% endif %}" type="button" aria-label="Toggle filters">
+    <span class="savebigontires-mobile-filter-icon">+</span>
+  </button>
+</div>
+
+<style>
+  /* Mobile Filter Header Styles */
+  .savebigontires-mobile-filter-header {
+    display: none;
+  }
+  
+  @media (max-width: 768px) {
+    .savebigontires-mobile-filter-header {
+      display: flex !important;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      cursor: pointer;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      margin: 0;
+      transition: all 0.2s ease;
+    }
+    
+    .savebigontires-mobile-filter-header:hover {
+      background-color: #e9ecef;
+    }
+    
+    .savebigontires-mobile-filter-header:hover .savebigontires-mobile-filter-title {
+      color: #e31e24;
+    }
+  }
+
+  .savebigontires-mobile-filter-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000000;
+    margin: 0;
+    transition: color 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .savebigontires-mobile-filter-toggle {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+    
+    &:hover {
+      background-color: #f8f9fa;
+    }
+    
+    &:focus {
+      outline: 2px solid #e31e24;
+      outline-offset: 2px;
+    }
+  }
+
+  .savebigontires-mobile-filter-icon {
+    font-size: 18px;
+    font-weight: bold;
+    color: #000000;
+    line-height: 1;
+    transition: transform 0.2s ease-in-out;
+  }
+
+  /* Rotation animation for expanded state */
+  .savebigontires-collection-sidebar.mobile-expanded .savebigontires-mobile-filter-icon,
+  .savebigontires-collection-sidebar.show-filters ~ .mobile-filter-header-container .savebigontires-mobile-filter-icon {
+    transform: rotate(45deg);
+  }
+  
+  /* Ensure sidebar shows properly when toggled */
+  @media (max-width: 768px) {
+    .savebigontires-collection-sidebar.show-filters {
+      display: block !important;
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000;
+      background-color: white;
+      padding: 20px;
+      overflow-y: auto;
+    }
+  }
+</style>
+
+<script>
+  // Unified Mobile Filter Toggle - Same implementation everywhere
+  (function() {
+    'use strict';
+    
+    // Unified toggle function that works consistently across all templates
+    function unifiedToggleFilters() {
+      const sidebar = document.querySelector('#collectionFilters') || document.querySelector('.savebigontires-collection-sidebar');
+      
+      if (!sidebar) {
+        console.log('Sidebar not found');
+        return;
+      }
+      
+      const closeBtn = sidebar.querySelector('.close-filters');
+      const isOpen = sidebar.classList.contains('show-filters');
+      
+      if (isOpen) {
+        // Close filters
+        sidebar.classList.remove('show-filters');
+        if (closeBtn) closeBtn.style.display = 'none';
+        document.body.style.overflow = '';
+        console.log('Filters closed');
+      } else {
+        // Open filters
+        sidebar.classList.add('show-filters');
+        if (closeBtn) closeBtn.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        console.log('Filters opened');
+      }
+      
+      // Update all mobile filter header icons
+      updateAllFilterIcons();
+      
+      return !isOpen; // Return new state
+    }
+    
+    // Update all filter header icons
+    function updateAllFilterIcons() {
+      const sidebar = document.querySelector('#collectionFilters') || document.querySelector('.savebigontires-collection-sidebar');
+      const isOpen = sidebar && sidebar.classList.contains('show-filters');
+      
+      document.querySelectorAll('.savebigontires-mobile-filter-icon').forEach(icon => {
+        icon.style.transform = isOpen ? 'rotate(45deg)' : 'rotate(0deg)';
+      });
+    }
+    
+    // Initialize mobile filter headers
+    function initMobileFilterHeaders() {
+      const filterHeaders = document.querySelectorAll('.savebigontires-mobile-filter-header');
+      
+      filterHeaders.forEach((header, index) => {
+        // Remove existing listeners
+        const newHeader = header.cloneNode(true);
+        header.parentNode.replaceChild(newHeader, header);
+        
+        // Add unified click handler
+        newHeader.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('Mobile filter header clicked');
+          unifiedToggleFilters();
+        });
+      });
+      
+      // Also handle close button clicks
+      const closeButtons = document.querySelectorAll('.savebigontires-collection-sidebar .close-filters');
+      closeButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          unifiedToggleFilters();
+        });
+      });
+    }
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initMobileFilterHeaders);
+    } else {
+      initMobileFilterHeaders();
+    }
+    
+    // Also try after a short delay to catch any dynamically added elements
+    setTimeout(initMobileFilterHeaders, 500);
+    
+  })();
+</script>

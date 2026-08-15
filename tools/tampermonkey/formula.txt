@@ -1,0 +1,69 @@
+// ==UserScript==
+// @name         Formula Inventory Counter (qty > 3)
+// @match        https://weborder.formuladistributors.com/*
+// @run-at       document-start
+// @grant        none
+// ==/UserScript==
+
+(function () {
+  'use strict';
+
+  // Formula pipeline (clean.py) filters on local availableQuantity only
+  // (keep if >= 4), so no related-branch fallback here — unlike NC/Emerge.
+  function effectiveQty(item) {
+    return item.availableQuantity ?? 0;
+  }
+
+  const badge = document.createElement('div');
+  badge.style.cssText = `
+    position: fixed; top: 10px; right: 10px; z-index: 999999;
+    background: #111; color: #0f0; font: bold 28px monospace;
+    padding: 16px 24px; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,.5);
+  `;
+  badge.textContent = 'qty>3: -- / --';
+  document.documentElement.appendChild(badge);
+
+  function applyResults(list) {
+    let matching = 0;
+    for (const item of list) {
+      if (effectiveQty(item) > 3) matching += 1;
+    }
+    badge.textContent = `qty>3: ${matching} / ${list.length}`;
+  }
+
+  function handleResponseText(url, text) {
+    if (typeof url !== 'string' || !url.includes('Product/Search')) return;
+    try {
+      const data = JSON.parse(text);
+      if (data && Array.isArray(data.searchResultList)) {
+        applyResults(data.searchResultList);
+      }
+    } catch (e) {}
+  }
+
+  // Patch fetch
+  const origFetch = window.fetch;
+  if (origFetch) {
+    window.fetch = function (...args) {
+      return origFetch.apply(this, args).then((resp) => {
+        const url = (args[0] && args[0].url) || args[0];
+        resp.clone().text().then((text) => handleResponseText(url, text)).catch(() => {});
+        return resp;
+      });
+    };
+  }
+
+  // Patch XHR (fallback, in case the page uses XHR instead of fetch)
+  const origOpen = XMLHttpRequest.prototype.open;
+  const origSend = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+    this._fdUrl = url;
+    return origOpen.call(this, method, url, ...rest);
+  };
+  XMLHttpRequest.prototype.send = function (...args) {
+    this.addEventListener('load', function () {
+      handleResponseText(this._fdUrl, this.responseText);
+    });
+    return origSend.apply(this, args);
+  };
+})();

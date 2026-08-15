@@ -1,0 +1,5 @@
+19:58:39 [INFO] Input file : Data/raw\wheelmart_rims_20260802_195832.csv
+19:58:39 [INFO] Rows loaded: 359
+19:58:39 [INFO] Low-qty rows dropped (qty < 4): 186 → Data/low_quantity_rims.csv
+19:58:39 [INFO] Rows after low-qty filter: 173
+19:58:39 [INFO] Output file: Data/shopify/Shopify_SEO_wheelsmart_rims_20260802_195839.csv

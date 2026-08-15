@@ -1,0 +1,62 @@
+{% comment %}
+  Toggle between collection.liquid and collection.list.liquid with the
+  ?view= parameter.
+{% endcomment %}
+
+<div class="savebigontires-collection-views">
+  {% assign current_view = request.params.view | default: 'grid' %}
+  <button type="button" title="Grid view" class="savebigontires-view-toggle{% if current_view == 'grid' %} savebigontires-view-toggle--active{% endif %}" data-view="grid">
+    <span class="icon icon-collection-view-grid"></span>
+    <span class="savebigontires-sr-only">Grid view</span>
+  </button>
+  <button type="button" title="List view" class="savebigontires-view-toggle{% if current_view == 'list' %} savebigontires-view-toggle--active{% endif %}" data-view="list">
+    <span class="icon icon-collection-view-list"></span>
+    <span class="savebigontires-sr-only">List view</span>
+  </button>
+</div>
+
+<script>
+  function replaceUrlParam(url, paramName, paramValue) {
+    var pattern = new RegExp('('+paramName+'=).*?(&|$)'),
+        newUrl = url.replace(pattern,'$1' + paramValue + '$2');
+    if ( newUrl == url ) {
+      newUrl = newUrl + (newUrl.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue;
+    }
+    return newUrl;
+  }
+
+  $(function() {
+    // Force grid view on mobile if user is on list view
+    function enforceGridViewOnMobile() {
+      if (window.innerWidth <= 768) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentView = urlParams.get('view');
+        
+        if (currentView === 'list') {
+          console.log('Mobile detected with list view, redirecting to grid view');
+          urlParams.delete('view'); // Remove view param to default to grid
+          const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+          window.location.replace(newUrl);
+        }
+      }
+    }
+    
+    // Check on page load
+    enforceGridViewOnMobile();
+    
+    // Check on window resize
+    $(window).on('resize', enforceGridViewOnMobile);
+    
+    $('.savebigontires-view-toggle').on('click', function() {
+      var view = $(this).data('view'),
+          url = document.URL,
+          hasParams = url.indexOf('?') > -1;
+
+      if (hasParams) {
+        window.location = replaceUrlParam(url, 'view', view);
+      } else {
+        window.location = url + '?view=' + view;
+      }
+    });
+  });
+</script>

@@ -1,0 +1,40 @@
+19:58:00 [INFO] Pipeline start — 7 step(s): ['scraper_tires', 'brand_sweep', 'clean_tires', 'augment_tires', 'scraper_wheels', 'clean_wheels', 'augment_wheels']
+19:58:00 [INFO] FULL: scrapers will search all terms and rebuild the zero-terms cache.
+19:58:00 [INFO] =======================================================
+19:58:00 [INFO] STEP: scraper_tires (scraper_tires.py)
+19:58:00 [INFO] =======================================================
+01:43:50 [INFO] Step 'scraper_tires' — OK
+
+01:43:50 [INFO] =======================================================
+01:43:50 [INFO] STEP: brand_sweep (brand_sweep.py)
+01:43:50 [INFO] =======================================================
+01:53:11 [INFO] Step 'brand_sweep' — OK
+
+01:53:11 [INFO] =======================================================
+01:53:11 [INFO] STEP: clean_tires (clean.py)
+01:53:11 [INFO] =======================================================
+01:53:11 [INFO] Step 'clean_tires' — OK
+
+01:53:11 [INFO] =======================================================
+01:53:11 [INFO] STEP: augment_tires (augment_tires.py)
+01:53:11 [INFO] =======================================================
+01:53:51 [INFO] Step 'augment_tires' — OK
+
+01:53:51 [INFO] =======================================================
+01:53:51 [INFO] STEP: scraper_wheels (scraper_wheels.py)
+01:53:51 [INFO] =======================================================
+02:31:21 [INFO] Step 'scraper_wheels' — OK
+
+02:31:21 [INFO] =======================================================
+02:31:21 [INFO] STEP: clean_wheels (clean.py)
+02:31:21 [INFO] =======================================================
+02:31:21 [INFO] Step 'clean_wheels' — OK
+
+02:31:21 [INFO] =======================================================
+02:31:21 [INFO] STEP: augment_wheels (augment_wheels.py)
+02:31:21 [INFO] =======================================================
+02:31:23 [INFO] Step 'augment_wheels' — OK
+
+02:31:23 [INFO] =======================================================
+02:31:23 [INFO] Pipeline complete.
+02:31:23 [INFO] =======================================================

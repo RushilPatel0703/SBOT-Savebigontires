@@ -1,0 +1,1622 @@
+<style>
+    /* Advanced Search Form Styles - Aligned with SaveBigOnTires design */
+    .form-group {
+        display: flex;
+        gap: 20px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .search-form-container {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 30px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+    }
+
+    .search-form-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #333;
+        text-align: center;
+        font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* Compact tire/wheel selection styles for header */
+    .tire-selection-container {
+        margin: 8px 0;
+        padding: 0;
+        background: transparent;
+        border: none;
+    }
+
+          .tire-option {
+        display: flex;
+        align-items: center;
+        margin: 12px 0;
+        padding: 16px 20px;
+        border-radius: 8px;
+        border: 1px solid #cecece;
+        background-color: white;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        position: relative;
+        font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+      }
+      
+      .tire-option:hover {
+        border-color: #d70000;
+        background-color: #f8f9fa;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+      
+      .tire-option.selected {
+        border-color: #d70000;
+        background-color: #f8f8f8;
+        color: #333;
+        box-shadow: 0 2px 8px rgba(215, 0, 0, 0.1);
+      }
+      
+      .tire-option.selected .tire-size {
+        color: #d70000;
+        font-weight: 600;
+      }
+      
+      /* R-size group separator */
+      .tire-option.first-in-r-group {
+        border-top: 1px dotted #dee2e6;
+        margin-top: 8px;
+        padding-top: 12px;
+      }
+
+
+
+          /* Professional radio button styling aligned with form design */
+      .tire-option input[type="radio"] {
+        width: 22px;
+        height: 22px;
+        margin-right: 20px;
+        margin-left: 0;
+        appearance: none;
+        -webkit-appearance: none;
+        border: 2px solid #cecece;
+        border-radius: 50%;
+        background-color: white;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+        box-sizing: border-box;
+      }
+      
+      .tire-option:hover input[type="radio"] {
+        border-color: #d70000;
+      }
+      
+      .tire-option input[type="radio"]:checked {
+        border-color: #d70000;
+        background-color: white;
+      }
+      
+      .tire-option.selected input[type="radio"] {
+        border-color: #d70000;
+        background-color: white;
+      }
+      
+      .tire-option input[type="radio"]:checked::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #d70000;
+      }
+      
+      .tire-option.selected input[type="radio"]:checked::after {
+        background-color: #d70000;
+      }
+
+    .tire-label {
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+        flex: 1;
+        min-width: 0;
+        padding-left: 4px;
+    }
+
+          .tire-size {
+        font-weight: 500;
+        font-size: 16px;
+        color: #333;
+        line-height: 1.4;
+        word-break: break-word;
+        letter-spacing: 0.2px;
+      }
+
+    .search-value {
+        display: none;
+        /* Hidden for compact header design */
+    }
+
+    /* Compact single item styling */
+    .single-tire {
+        font-weight: 600;
+        font-size: 14px;
+        color: #ffffff;
+        margin: 6px 0;
+        padding: 8px 12px;
+        background: #28a745;
+        border: 1px solid #28a745;
+        border-radius: 4px;
+        box-shadow: 0 2px 6px rgba(40, 167, 69, 0.2);
+    }
+
+    .selection-info {
+        display: none;
+        /* Hidden for compact header design */
+    }
+
+    @media screen and (min-width: 769px) {
+        .site-header .search-bar {
+            display: block;
+            float: left;
+        }
+    }
+
+    select {
+        padding: 16px;
+        border: 1px solid #cecece;
+        border-radius: 4px;
+        font-size: 16px;
+        min-width: 150px;
+        flex: 1;
+        transition: all 0.2s ease;
+        background-color: white;
+        color: #333;
+        font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml;utf8,<svg fill='%23333333' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+        margin: 0;
+    }
+
+    select:focus {
+        outline: none;
+        border-color: #d70000;
+        box-shadow: 0 0 0 3px rgba(215, 0, 0, 0.1);
+    }
+
+    select:disabled {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        cursor: not-allowed;
+        background-image: none;
+    }
+
+    .info-box {
+        margin-top: 20px;
+        padding: 16px 20px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        border-left: 4px solid #d70000;
+        font-size: 14px;
+        color: #333;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        font-weight: 500;
+        font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .results {
+        margin-top: 15px;
+        padding: 0;
+        border-radius: 6px;
+        font-weight: 500;
+        border: none;
+        overflow: hidden;
+    }
+
+    .results.success {
+        background-color: white;
+        border: 1px solid #cecece;
+        color: #333;
+        margin-bottom: 15px;
+        margin-top: 0;
+        padding: 15px;
+        font-size: 14px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .results.error {
+        background-color: #fff8f8;
+        border: 1px solid #ffccd1;
+        color: #d70000;
+        padding: 15px;
+        font-size: 14px;
+        box-shadow: 0 2px 6px rgba(215, 0, 0, 0.1);
+        margin-bottom: 15px;
+        margin-top: 0;
+        font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .loading {
+        color: #007bff;
+        font-style: italic;
+    }
+
+    .tire-sizes {
+        font-size: 18px;
+        margin: 12px 0 0 0;
+        font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        /* padding: 16px 20px; */
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        border-radius: 2px;
+        color: #155724;
+        box-shadow: 0 3px 10px rgba(40, 167, 69, 0.15);
+    }
+
+    /* Wheel specification styles */
+    .wheel-specs {
+        font-size: 16px;
+        margin-top: 12px;
+        font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+        background: linear-gradient(145deg, #f8f0ff, #f0e6ff);
+        border: 2px solid #7a4fb0;
+        border-radius: 8px;
+        padding: 16px 20px;
+        color: #7a4fb0;
+        box-shadow: 0 3px 10px rgba(122, 79, 176, 0.15);
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .header h1 {
+        color: #343a40;
+        margin-bottom: 10px;
+    }
+
+    .header p {
+        color: #6c757d;
+        margin: 0;
+    }
+
+    /* Search row styles */
+    .search-row {
+        display: flex;
+        gap: 24px;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+
+    .product-type-select {
+        min-width: 150px;
+        max-width: 180px;
+        padding: 16px;
+        border: 1px solid #cecece;
+        font-size: 16px;
+        background-color: white;
+        color: #333;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml;utf8,<svg fill='%23333333' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+        margin: 0;
+    }
+
+    .product-type-select:focus {
+        outline: none;
+        border-color: #d70000;
+        box-shadow: 0 0 0 3px rgba(215, 0, 0, 0.1);
+    }
+
+    .search-bar--submit {
+        padding: 16px 28px;
+        background-color: #d70000;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-width: 160px;
+        box-shadow: 0 2px 4px rgba(215, 0, 0, 0.2);
+        margin: 0;
+        height: 54px;
+    }
+
+    .search-bar--submit:hover {
+        background-color: #b30000;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(215, 0, 0, 0.2);
+    }
+
+    .search-bar--submit:active {
+        background-color: #a00000;
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(215, 0, 0, 0.2);
+    }
+    
+    .search-bar--submit svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    #tire-results {
+        margin-top: 8px;
+    }
+
+    /* Responsive design improvements */
+    @media (max-width: 768px) {
+        .search-form-container {
+            padding: 20px;
+            border: none;
+            background-color: transparent;
+            margin: 0;
+        }
+        
+        /* Mobile search form in mobile overlay needs special styling */
+        #advancedSearchForm .search-form-container {
+            padding: 15px;
+        }
+        
+        .search-form-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .form-group {
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        select {
+            width: 100%;
+            min-width: 100%;
+            font-size: 16px;
+            padding: 14px;
+            margin-bottom: 0;
+        }
+        
+        .search-row {
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .product-type-select {
+            max-width: 100%;
+            width: 100%;
+            margin-bottom: 0;
+        }
+        
+        .search-bar--submit {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            margin-top: 4px;
+            height: auto;
+        }
+        
+        .tire-option {
+            padding: 14px 16px;
+            margin: 12px 0;
+        }
+
+        .tire-option input[type="radio"] {
+            margin-right: 16px;
+            width: 22px;
+            height: 22px;
+        }
+
+        .tire-size {
+            font-size: 16px;
+        }
+        
+        .info-box {
+            margin: 15px 0;
+            padding: 12px 15px;
+        }
+        
+        .results.success,
+        .results.error {
+            margin: 15px 0;
+            padding: 12px 15px;
+        }
+        
+        /* Make sure it fits within the mobile overlay */
+        #tire-results {
+            margin-top: 5px;
+        }
+    }
+
+    /* Loading animation */
+    .loading {
+        color: #666;
+        font-style: normal;
+        position: relative;
+        font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .loading::after {
+        content: '';
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #d70000;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Enhanced focus states for accessibility */
+    select:focus,
+    .product-type-select:focus {
+        outline: none;
+        border-color: #d70000;
+        box-shadow: 0 0 0 3px rgba(215, 0, 0, 0.15);
+    }
+
+    .tire-option input[type="radio"]:focus {
+        outline: none;
+        border-color: #d70000;
+        box-shadow: 0 0 0 3px rgba(215, 0, 0, 0.15);
+    }
+
+    .search-bar--submit:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(215, 0, 0, 0.2);
+    }
+</style>
+
+<div class="search-form-container">
+    <h2 class="search-form-title">Find Tires & Wheels For Your Vehicle</h2>
+    
+    <form action="{{ routes.search_url }}" method="get" role="search" name="search-by-vehicle">
+        <input type="hidden" name="type" value="product">
+        <input type="hidden" class="search-form-q" name="q" value="{{ search.terms | escape }}"
+            placeholder="{{ 'layout.search_bar.placeholder' | t }}"
+            aria-label="{{ 'layout.search_bar.placeholder' | t }}">
+
+        <div class="form-group">
+            <select class="search-form-year">
+                <option value="">Select Year</option>
+            </select>
+            <select class="search-form-make" disabled>
+                <option>Select Year First</option>
+            </select>
+            <select class="search-form-model" disabled>
+                <option>Select Make First</option>
+            </select>
+            <select class="search-form-trim" disabled>
+                <option>Select Model First</option>
+            </select>
+        </div>
+
+        <div class="search-form-results-container" style="display:none">
+            <div class="search-form-data-info info-box" style="display:none"></div>
+            <div class="search-form-tire-results"></div>
+        </div>
+
+        <div class="search-row">
+            <select class="search-form-product-type product-type-select">
+                <option value="tires" selected>Tires</option>
+                <option value="wheels">Wheels</option>
+            </select>
+            <button type="submit" class="search-bar--submit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Search
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+(function() {
+    'use strict';
+    
+    // Prevent multiple initialization
+    if (window.searchFormInitialized) {
+        return;
+    }
+    window.searchFormInitialized = true;
+
+    // window.assetsUrl = "http://[::1]:8080/data/";
+    window.assetsUrl = window.assetsUrl || "https://tkrapui.github.io/tires";
+    // Global variables
+    let currentBrandData = null;
+    let availableDataFiles = new Set();
+
+    // Local Storage Functions
+    const STORAGE_KEY = 'tire_search_form_data';
+
+    function saveFormData() {
+        // Get selected tire if any radio button is checked
+        const selectedTireRadio = document.querySelector('input[name="tire_selection"]:checked');
+        const selectedTire = selectedTireRadio ? {
+            value: selectedTireRadio.value,
+            original: selectedTireRadio.getAttribute('data-original'),
+            id: selectedTireRadio.id
+        } : null;
+
+        // Get selected wheel if any radio button is checked
+        const selectedWheelRadio = document.querySelector('input[name="wheel_selection"]:checked');
+        const selectedWheel = selectedWheelRadio ? {
+            value: selectedWheelRadio.value,
+            original: selectedWheelRadio.getAttribute('data-original'),
+            id: selectedWheelRadio.id
+        } : null;
+
+        const formData = {
+            year: window.searchFormElements.yearEl.value,
+            make: window.searchFormElements.makeEl.value,
+            model: window.searchFormElements.modelEl.value,
+            trim: window.searchFormElements.trimEl.value,
+            productType: window.searchFormElements.productTypeEl.value,
+            selectedTire: selectedTire,
+            selectedWheel: selectedWheel,
+            searchValue: window.searchFormElements.searchEl.value,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+        console.log('Form data saved to localStorage:', formData);
+    }
+
+    function loadFormData() {
+        try {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (!savedData) return null;
+
+            const formData = JSON.parse(savedData);
+            console.log('Form data loaded from localStorage:', formData);
+            return formData;
+        } catch (error) {
+            console.error('Error loading form data from localStorage:', error);
+            return null;
+        }
+    }
+
+    function clearFormData() {
+        localStorage.removeItem(STORAGE_KEY);
+        console.log('Form data cleared from localStorage');
+    }
+
+    async function restoreFormData() {
+        const savedData = loadFormData();
+        if (!savedData) return;
+
+        try {
+            // Restore product type FIRST (before triggering any change events)
+            if (savedData.productType) {
+                window.searchFormElements.productTypeEl.value = savedData.productType;
+                console.log('Product type restored to:', savedData.productType);
+            }
+
+            // Restore search value
+            if (savedData.searchValue) {
+                window.searchFormElements.searchEl.value = savedData.searchValue;
+            }
+
+            // Restore year
+            if (savedData.year) {
+                window.searchFormElements.yearEl.value = savedData.year;
+
+                // Trigger year change to populate makes
+                const yearEvent = new Event('change');
+                window.searchFormElements.yearEl.dispatchEvent(yearEvent);
+
+                // Wait for makes to load, then restore make
+                if (savedData.make) {
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Wait for async operation
+
+                    if (Array.from(window.searchFormElements.makeEl.options).some(option => option.value === savedData.make)) {
+                        window.searchFormElements.makeEl.value = savedData.make;
+
+                        // Trigger make change to populate models
+                        const makeEvent = new Event('change');
+                        window.searchFormElements.makeEl.dispatchEvent(makeEvent);
+
+                        // Wait for models to load, then restore model
+                        if (savedData.model) {
+                            await new Promise(resolve => setTimeout(resolve, 500));
+
+                            if (Array.from(window.searchFormElements.modelEl.options).some(option => option.value === savedData.model)) {
+                                window.searchFormElements.modelEl.value = savedData.model;
+
+                                // Trigger model change to populate trims
+                                const modelEvent = new Event('change');
+                                window.searchFormElements.modelEl.dispatchEvent(modelEvent);
+
+                                // Wait for trims to load, then restore trim
+                                if (savedData.trim) {
+                                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                                    if (Array.from(window.searchFormElements.trimEl.options).some(option => option.value === savedData.trim)) {
+                                        window.searchFormElements.trimEl.value = savedData.trim;
+
+                                        // Trigger trim change to show results
+                                        const trimEvent = new Event('change');
+                                        window.searchFormElements.trimEl.dispatchEvent(trimEvent);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Restore selected tire or wheel based on product type (this will happen after trim is restored and options are generated)
+            setTimeout(() => {
+                const productType = savedData.productType || 'tires';
+
+                if (productType === 'tires' && savedData.selectedTire) {
+                    const tireRadio = document.getElementById(savedData.selectedTire.id);
+                    if (tireRadio) {
+                        tireRadio.checked = true;
+                        console.log('Restored tire selection:', savedData.selectedTire.original);
+                    }
+                } else if (productType === 'wheels' && savedData.selectedWheel) {
+                    const wheelRadio = document.getElementById(savedData.selectedWheel.id);
+                    if (wheelRadio) {
+                        wheelRadio.checked = true;
+                        console.log('Restored wheel selection:', savedData.selectedWheel.original);
+                    }
+                }
+            }, 1000); // Wait a bit longer for tire/wheel options to be generated
+        } catch (error) {
+            console.error('Error restoring form data:', error);
+        }
+    }
+
+    // DOM elements will be initialized by initSearchForm function
+    window.searchFormElements = {};
+
+    // Initialize the form
+    async function init() {
+        await discoverAvailableData();
+        populateYears();
+        showInitialInfo();
+
+        // Restore saved form data after initialization
+        await restoreFormData();
+    }
+
+    // Discover what data files are available
+    async function discoverAvailableData() {
+        try {
+            // Try to load a list of available files or discover them
+            // For now, we'll populate years based on common range and let the make selection discover files
+            window.searchFormElements.infoEl.innerHTML = '<span class="loading">🔍 Discovering available data...</span>';
+
+            // We'll populate years 2000-2026 and let make selection validate availability
+            let currentYear = new Date().getFullYear();
+            //always add 2026 to the list
+            currentYear++;
+
+            const years = [];
+            for (let year = currentYear; year >= 2000; year--) {
+                years.push(year);
+            }
+
+            // Store available years
+            window.availableYears = years;
+
+        } catch (error) {
+            console.error("Error discovering data:", error);
+            window.searchFormElements.infoEl.innerHTML = '<span style="color: #dc3545;">⚠️ Error discovering available data</span>';
+        }
+    }
+
+    // Populate years dropdown
+    function populateYears() {
+        const years = window.availableYears || [];
+        
+        // Get all year select elements in the document to handle multiple instances
+        const yearElements = document.querySelectorAll('select#year');
+        console.log('Found', yearElements.length, 'year elements to populate');
+        
+        if (years.length === 0) {
+            // Create a fallback set of years
+            console.log('No years available, creating fallback years');
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear + 1; year >= 2000; year--) {
+                years.push(year);
+            }
+            window.availableYears = years;
+        }
+        
+        const yearOptionsHTML = '<option value="">Select Year</option>' +
+            years.map(y => `<option value="${y}">${y}</option>`).join('');
+            
+        // Update all year selects in the document
+        yearElements.forEach(selectElement => {
+            if (selectElement) {
+                selectElement.innerHTML = yearOptionsHTML;
+                selectElement.disabled = false;
+                console.log('Populated year select with', years.length, 'options');
+            }
+        });
+        
+        // Also update the main yearEl if available
+        if (window.searchFormElements.yearEl) {
+            window.searchFormElements.yearEl.innerHTML = yearOptionsHTML;
+            window.searchFormElements.yearEl.disabled = false;
+        }
+    }
+
+    // Load specific brand data for a year
+    async function loadBrandData(year, brand) {
+        try {
+            window.searchFormElements.infoEl.innerHTML = `<span class="loading">📡 Loading ${year} ${brand} data...</span>`;
+
+            // Clean brand name for filename (same logic as scraper)
+            let safeBrandName = brand.replace(/[^a-zA-Z0-9\s\-_]/g, '').trim().replace(/\s+/g, '_');
+            safeBrandName = safeBrandName.replace('-', '_');
+            const filename = `${window.assetsUrl}/${year}_${safeBrandName}.json`;
+            console.log('Loading data from:', filename);
+
+            const response = await fetch(filename);
+            if (!response.ok) {
+                throw new Error(`Data file not found: ${filename}`);
+            }
+
+            const data = await response.json();
+            console.log('Loaded brand data:', data);
+            console.log('Number of vehicles:', data.vehicles ? data.vehicles.length : 0);
+            currentBrandData = data;
+
+            return data;
+
+        } catch (error) {
+            console.error(`Error loading ${year} ${brand} data:`, error);
+            currentBrandData = null;
+            throw error;
+        }
+    }
+
+    // Load data index (cached)
+    let dataIndex = null;
+    async function loadDataIndex() {
+        if (dataIndex) {
+            return dataIndex;
+        }
+
+        try {
+            const response = await fetch(`${window.assetsUrl}/index.json`);
+            if (!response.ok) {
+                throw new Error(`Failed to load data index: ${response.status}`);
+            }
+            dataIndex = await response.json();
+            return dataIndex;
+        } catch (error) {
+            console.error('Error loading data index:', error);
+            throw error;
+        }
+    }
+
+    // Discover available brands for a year using the index
+    async function discoverBrandsForYear(year) {
+        try {
+            console.log(`🔍 Discovering brands for year: ${year}`);
+            const index = await loadDataIndex();
+            console.log('📋 Index loaded:', index ? 'success' : 'failed');
+
+            if (!index.years || !index.years[year.toString()]) {
+                console.log(`⚠️ No data found for year ${year} in index`);
+                console.log('Available years:', Object.keys(index.years || {}));
+                return [];
+            }
+
+            const brands = index.years[year.toString()].brands || [];
+            console.log(`✅ Found ${brands.length} brands for ${year}:`, brands.slice(0, 5));
+            return brands;
+
+        } catch (error) {
+            console.error('Error discovering brands:', error);
+
+            // Fallback to manual brand checking if index fails
+            const commonBrands = [
+                'Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan', 'Hyundai', 'Kia',
+                'BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Mazda', 'Subaru',
+                'Lexus', 'Infiniti', 'Acura', 'Cadillac', 'Buick', 'GMC', 'Jeep',
+                'Dodge', 'Chrysler', 'Ram', 'Lincoln', 'Volvo', 'Jaguar', 'Land Rover',
+                'Porsche', 'Tesla', 'Genesis', 'Mitsubishi'
+            ];
+
+            const availableBrands = [];
+
+            for (const brand of commonBrands) {
+                try {
+                    let safeBrandName = brand.replace(/[^a-zA-Z0-9\s\-_]/g, '').trim().replace(/\s+/g, '_');
+                    safeBrandName = safeBrandName.replace('-', '_');
+
+                    console.log('Safe brand name: ', safeBrandName);
+                    const filename = `${window.assetsUrl}/${year}_${safeBrandName}.json`;
+
+                    const response = await fetch(filename, { method: 'HEAD' });
+                    if (response.ok) {
+                        availableBrands.push(brand);
+                    }
+                } catch {
+                    continue;
+                }
+            }
+
+            return availableBrands.sort();
+        }
+    }
+
+    // Show initial information
+    function showInitialInfo() {
+        if (window.searchFormElements.infoEl) {
+            window.searchFormElements.infoEl.innerHTML = '📋 Select a year to see available vehicle brands';
+        }
+    }
+
+    function removeEventListeners() {
+        // Remove existing event listeners to prevent duplicates
+        if (window.searchFormEventListeners) {
+            window.searchFormEventListeners.forEach(({ element, event, handler }) => {
+                if (element && typeof element.removeEventListener === 'function') {
+                    element.removeEventListener(event, handler);
+                }
+            });
+        }
+        window.searchFormEventListeners = [];
+    }
+
+    function addEventListeners() {
+        // Remove any existing listeners first
+        removeEventListeners();
+        
+        // Event Listeners
+        if (!window.searchFormElements.yearEl) {
+            console.warn('Year element not found, skipping event listeners');
+            return;
+        }
+        
+        const yearChangeHandler = async () => {
+            const selectedYear = window.searchFormElements.yearEl.value;
+
+            console.log("Year changed :", selectedYear);
+
+            // Reset dependent fields
+            resetField(window.searchFormElements.makeEl, "Select Year First");
+            resetField(window.searchFormElements.modelEl, "Select Make First");
+            resetField(window.searchFormElements.trimEl, "Select Model First");
+            window.searchFormElements.resultEl.innerHTML = "";
+            const resultsContainer = currentContainer.querySelector('.search-form-results-container');
+            if (resultsContainer) resultsContainer.style.display = 'none';
+            currentBrandData = null;
+
+            if (!selectedYear) {
+                // Clear localStorage when year is reset to initial value
+                clearFormData();
+                showInitialInfo();
+                return;
+            }
+
+            // Save form data when year changes
+            saveFormData();
+
+            try {
+                window.searchFormElements.infoEl.innerHTML = `<span class="loading">🔍 Finding available brands for ${selectedYear}...</span>`;
+
+                const brands = await discoverBrandsForYear(selectedYear);
+
+                if (brands.length === 0) {
+                    resetField(window.searchFormElements.makeEl, "No Brands Available for This Year");
+                    window.searchFormElements.infoEl.innerHTML = `⚠️ No vehicle data available for ${selectedYear}. Try a different year.`;
+                    return;
+                }
+
+                window.searchFormElements.makeEl.innerHTML = '<option value="">Select Make</option>' +
+                    brands.map(b => `<option value="${b}">${b}</option>`).join('');
+                window.searchFormElements.makeEl.disabled = false;
+
+                window.searchFormElements.infoEl.innerHTML = `📋 ${brands.length} brand${brands.length !== 1 ? 's' : ''} available for ${selectedYear}`;
+
+            } catch (error) {
+                console.error("Error loading brands:", error);
+                resetField(window.searchFormElements.makeEl, "Error Loading Brands");
+                window.searchFormElements.infoEl.innerHTML = `❌ Error loading brand data for ${selectedYear}`;
+            }
+        };
+        
+        window.searchFormElements.yearEl.addEventListener("change", yearChangeHandler);
+        window.searchFormEventListeners.push({
+            element: window.searchFormElements.yearEl,
+            event: "change",
+            handler: yearChangeHandler
+        });
+
+        if (window.searchFormElements.makeEl) {
+            const makeChangeHandler = async () => {
+            const selectedYear = window.searchFormElements.yearEl.value;
+            const selectedMake = window.searchFormElements.makeEl.value;
+
+            // Reset dependent fields
+            resetField(window.searchFormElements.modelEl, "Select Make First");
+            resetField(window.searchFormElements.trimEl, "Select Model First");
+            window.searchFormElements.resultEl.innerHTML = "";
+            const resultsContainer = currentContainer.querySelector('.search-form-results-container');
+            if (resultsContainer) resultsContainer.style.display = 'none';
+
+            if (!selectedMake) {
+                window.searchFormElements.infoEl.innerHTML = `📋 Select a brand to see available models for ${selectedYear}`;
+                return;
+            }
+
+            // Save form data when make changes
+            saveFormData();
+
+            try {
+                const data = await loadBrandData(selectedYear, selectedMake);
+
+                if (!data || !data.vehicles || data.vehicles.length === 0) {
+                    resetField(window.searchFormElements.modelEl, "No Models Available");
+                    window.searchFormElements.infoEl.innerHTML = `⚠️ No ${selectedMake} models available for ${selectedYear}`;
+                    return;
+                }
+
+                // Extract unique models
+                const models = [...new Set(data.vehicles.map(v => v.model))].sort();
+                console.log('Available models:', models);
+
+                window.searchFormElements.modelEl.innerHTML = '<option value="">Select Model</option>' +
+                    models.map(m => `<option value="${m}">${m}</option>`).join('');
+                window.searchFormElements.modelEl.disabled = false;
+
+                window.searchFormElements.infoEl.innerHTML = `🚗 ${models.length} ${selectedMake} model${models.length !== 1 ? 's' : ''} available for ${selectedYear} (${data.vehicles.length} total configurations)`;
+
+            } catch (error) {
+                console.error("Error loading brand data:", error);
+                resetField(window.searchFormElements.modelEl, "Error Loading Models");
+                window.searchFormElements.infoEl.innerHTML = `❌ Error loading ${selectedMake} data for ${selectedYear}. This brand may not be available.`;
+            }
+        };
+        
+        window.searchFormElements.makeEl.addEventListener("change", makeChangeHandler);
+        window.searchFormEventListeners.push({
+            element: window.searchFormElements.makeEl,
+            event: "change",
+            handler: makeChangeHandler
+        });
+
+        }
+        
+        if (window.searchFormElements.modelEl) {
+            const modelChangeHandler = () => {
+            const selectedYear = window.searchFormElements.yearEl.value;
+            const selectedMake = window.searchFormElements.makeEl.value;
+            const selectedModel = window.searchFormElements.modelEl.value;
+
+            // Reset dependent fields
+            resetField(window.searchFormElements.trimEl, "Select Model First");
+            window.searchFormElements.resultEl.innerHTML = "";
+            const resultsContainer = currentContainer.querySelector('.search-form-results-container');
+            if (resultsContainer) resultsContainer.style.display = 'none';
+
+            if (!selectedModel || !currentBrandData) {
+                return;
+            }
+
+            // Save form data when model changes
+            saveFormData();
+
+            // Extract trims for the selected model
+            const modelVehicles = currentBrandData.vehicles.filter(v => v.model === selectedModel);
+            const trims = [...new Set(modelVehicles.map(v => v.trim))].sort();
+            console.log(`Available trims for ${selectedModel}:`, trims);
+
+            if (trims.length === 0) {
+                resetField(window.searchFormElements.trimEl, "No Trims Available");
+                window.searchFormElements.infoEl.innerHTML = `⚠️ No ${selectedYear} ${selectedMake} ${selectedModel} trim data available`;
+                return;
+            }
+
+            window.searchFormElements.trimEl.innerHTML = '<option value="">Select Trim</option>' +
+                trims.map(t => `<option value="${t}">${t}</option>`).join('');
+            window.searchFormElements.trimEl.disabled = false;
+
+            window.searchFormElements.infoEl.innerHTML = `🔧 ${trims.length} trim level${trims.length !== 1 ? 's' : ''} available for ${selectedYear} ${selectedMake} ${selectedModel}`;
+        };
+        
+        window.searchFormElements.modelEl.addEventListener("change", modelChangeHandler);
+        window.searchFormEventListeners.push({
+            element: window.searchFormElements.modelEl,
+            event: "change",
+            handler: modelChangeHandler
+        });
+
+        }
+        
+        if (window.searchFormElements.trimEl) {
+            const trimChangeHandler = () => {
+            const selectedYear = window.searchFormElements.yearEl.value;
+            const selectedMake = window.searchFormElements.makeEl.value;
+            const selectedModel = window.searchFormElements.modelEl.value;
+            const selectedTrim = window.searchFormElements.trimEl.value;
+
+            if (!selectedTrim || !currentBrandData) {
+                window.searchFormElements.resultEl.innerHTML = "";
+                return;
+            }
+
+            // Save form data when trim changes
+            saveFormData();
+
+            // Find the specific vehicle configuration
+            const vehicle = currentBrandData.vehicles.find(v =>
+                v.model === selectedModel && v.trim === selectedTrim
+            );
+
+            console.log('Looking for vehicle:', { selectedModel, selectedTrim });
+            console.log('Found vehicle:', vehicle);
+            if (vehicle) {
+                console.log('Vehicle has wheels:', vehicle.wheels ? vehicle.wheels.length : 0);
+                console.log('Vehicle has tires:', vehicle.tires ? vehicle.tires.length : 0);
+            }
+
+            // Extract tire data from both old and new formats
+            let tireData = [];
+            if (vehicle && vehicle.tire_sizes && vehicle.tire_sizes.length > 0) {
+                // Old format: array of strings
+                tireData = vehicle.tire_sizes.map(size => ({ size: size }));
+            } else if (vehicle && vehicle.tires && vehicle.tires.length > 0) {
+                // New format: array of objects with size and optional position
+                tireData = vehicle.tires;
+            }
+
+            // Extract wheel data
+            let wheelData = [];
+            if (vehicle && vehicle.wheels && vehicle.wheels.length > 0) {
+                wheelData = vehicle.wheels;
+            }
+
+            console.log('Extracted wheel data:', wheelData);
+
+            // Get selected product type
+            const selectedProductType = window.searchFormElements.productTypeEl.value;
+            console.log('Selected product type:', selectedProductType);
+            console.log('Product type element value:', window.searchFormElements.productTypeEl.value);
+
+            if (selectedProductType === 'tires') {
+                // Show tire information only
+                if (tireData.length > 0) {
+                    console.log('Tire data: ', tireData);
+                    console.log('Number of tires:', tireData.length);
+
+                    // Show results container
+                    const resultsContainer = currentContainer.querySelector('.search-form-results-container');
+                    if (resultsContainer) resultsContainer.style.display = 'block';
+
+                    if (tireData.length === 1) {
+                        console.log('Single tire detected');
+                        // Single tire - auto-populate search
+                        const tire = tireData[0];
+                        const tireSize = tire.size || tire; // Handle both formats
+                        const position = tire.position ? ` (${tire.position})` : '';
+                        let searchTireSize = tireSize.replace('P', ''); // Keep the '/' and 'R' characters
+                        window.searchFormElements.searchEl.value = searchTireSize;
+
+                        // Save the single tire selection
+                        saveFormData();
+
+                        window.searchFormElements.resultEl.innerHTML = `
+                            <div class="results success">
+                                ✅ <strong>Recommended tire size:</strong>
+                                <div class="tire-sizes single-tire">${tireSize}${position}</div>
+                                <!-- <small>Search automatically populated with: ${searchTireSize}</small> -->
+                            </div>`;
+                        // window.searchFormElements.infoEl.innerHTML = `🎯 Found tire size for your ${selectedYear} ${selectedMake} ${selectedModel} ${selectedTrim}`;
+                    } else {
+                        console.log('Multiple tires detected - creating radio options');
+
+                        // Function to extract R size from tire string
+                        const extractRSize = (tireString) => {
+                            const match = tireString.match(/R(\d+)/);
+                            return match ? parseInt(match[1]) : 0;
+                        };
+
+                        // Sort tires by R size
+                        const sortedTireData = [...tireData].sort((a, b) => {
+                            const aTireSize = a.size || a;
+                            const bTireSize = b.size || b;
+                            const aRSize = extractRSize(aTireSize);
+                            const bRSize = extractRSize(bTireSize);
+                            return aRSize - bRSize;
+                        });
+
+                        // Group tires by R size and create radio options
+                        const rGroups = {};
+                        sortedTireData.forEach((tire, index) => {
+                            const tireSize = tire.size || tire;
+                            const rSize = extractRSize(tireSize);
+                            if (!rGroups[rSize]) {
+                                rGroups[rSize] = [];
+                            }
+                            rGroups[rSize].push({ ...tire, originalIndex: index });
+                        });
+
+                        
+
+                        let radioOptions = '';
+                        let globalIndex = 0;
+                        const rSizes = Object.keys(rGroups).sort((a, b) => parseInt(a) - parseInt(b));
+
+                        rSizes.forEach((rSize, groupIndex) => {
+                            const tiresInGroup = rGroups[rSize];
+                            
+                            tiresInGroup.forEach((tire, indexInGroup) => {
+                                const tireSize = tire.size || tire;
+                                const position = tire.position ? ` (${tire.position})` : '';
+                                const searchValue = tireSize.replace('P', ''); // Keep the '/' and 'R' characters
+                                
+                                // Add class for first tire in each R-size group (except the very first one)
+                                const isFirstInGroup = indexInGroup === 0 && groupIndex > 0;
+                                const firstInGroupClass = isFirstInGroup ? ' first-in-r-group' : '';
+
+                                radioOptions += `
+                                    <div class="tire-option ${globalIndex === 0 ? 'selected' : ''}${firstInGroupClass}" 
+                                        data-r-size="${rSize}">
+                                        <input type="radio" 
+                                                id="tire_${globalIndex}" 
+                                                name="tire_selection" 
+                                                value="${searchValue}" 
+                                                data-original="${tireSize}${position}"
+                                                ${globalIndex === 0 ? 'checked' : ''}
+                                                onchange="handleTireSelection(this)">
+                                        <label for="tire_${globalIndex}" class="tire-label">
+                                            <span class="tire-size">${tireSize}${position}</span>
+                                        </label>
+                                    </div>`;
+                                globalIndex++;
+                            });
+                        });
+
+                        console.log('Radio options HTML:', radioOptions);
+
+                        window.searchFormElements.resultEl.innerHTML = `
+                            <div class="results success">
+                            
+                                <div class="tire-selection-container">
+                                    ${radioOptions}
+                                </div>
+                                <div class="selection-info" style="display:none">
+                                    <small>Select a tire size to populate your search</small>
+                                </div>
+                            </div>`;
+
+                        console.log('Result element updated with radio options');
+
+                        // Check if we have saved tire selection data
+                        const savedData = loadFormData();
+                        let selectedTireRestored = false;
+
+                        if (savedData && savedData.selectedTire) {
+                            // Try to restore the saved tire selection
+                            const savedTireRadio = document.getElementById(savedData.selectedTire.id);
+                            if (savedTireRadio) {
+                                savedTireRadio.checked = true;
+                                window.searchFormElements.searchEl.value = savedData.selectedTire.value;
+                                selectedTireRestored = true;
+                                console.log('Restored saved tire selection:', savedData.selectedTire.original);
+                            }
+                        }
+
+                        if (!selectedTireRestored) {
+                            // Auto-select first option and populate search (default behavior)
+                            const firstTire = tireData[0];
+                            const firstTireSize = firstTire.size || firstTire;
+                            let searchTireSize = firstTireSize.replace('P', ''); // Keep the '/' and 'R' characters
+                            window.searchFormElements.searchEl.value = searchTireSize;
+                        }
+
+                        window.searchFormElements.infoEl.innerHTML = `🎯 Found ${tireData.length} tire options for your ${selectedYear} ${selectedMake} ${selectedModel} ${selectedTrim}`;
+                    }
+                } else {
+                    // Show results container for error message
+                    const resultsContainer = currentContainer.querySelector('.search-form-results-container');
+                    if (resultsContainer) resultsContainer.style.display = 'block';
+
+                    window.searchFormElements.resultEl.innerHTML = `
+                        <div class="results error">
+                            ❌ <strong>No tire size data found</strong><br>
+                            <small>This specific trim configuration is not in our database.</small>
+                        </div>`;
+                    window.searchFormElements.infoEl.innerHTML = `⚠️ No tire size data available for ${selectedYear} ${selectedMake} ${selectedModel} ${selectedTrim}`;
+                }
+            } else if (selectedProductType === 'wheels') {
+                // Show wheel information only
+                if (wheelData.length > 0) {
+                    console.log('Wheel data: ', wheelData);
+                    console.log('Number of wheels:', wheelData.length);
+
+                    // Show results container
+                    const resultsContainer = currentContainer.querySelector('.search-form-results-container');
+                    if (resultsContainer) resultsContainer.style.display = 'block';
+
+                    if (wheelData.length === 1) {
+                        console.log('Single wheel detected');
+                        // Single wheel - auto-populate search
+                        const wheel = wheelData[0];
+                        const rimSize = wheel.rim_size || '';
+                        const position = wheel.position ? ` (${wheel.position})` : '';
+                        const brand = wheel.brand ? ` • ${wheel.brand}` : '';
+                        const price = wheel.price ? ` • $${wheel.price}` : '';
+                        const description = wheel.description ? ` • ${wheel.description}` : '';
+                        const boltCircle = wheel.bolt_circle ? ` • ${wheel.bolt_circle}` : '';
+                        const offset = wheel.offset ? ` • ${wheel.offset}` : '';
+                        const centerHub = wheel.center_hub ? ` • ${wheel.center_hub}mm` : '';
+                        const wheelInfo = `${rimSize}${position}${brand}${price}${boltCircle}${offset}${centerHub}${description}`;
+
+                        // Generate search value in format "20x10 | 5x112"
+                        const searchWheelSize = generateWheelSearchValue(wheel);
+                        window.searchFormElements.searchEl.value = searchWheelSize;
+
+                        // Save the single wheel selection
+                        saveFormData();
+
+                        window.searchFormElements.resultEl.innerHTML = `
+                            <div class="results success">
+                                ✅ <strong>Recommended wheel specifications:</strong>
+                                <div class="wheel-specs">${wheelInfo}</div>
+                            </div>`;
+                    } else {
+                        console.log('Multiple wheels detected - creating radio options');
+                        // Multiple wheels - show radio selection
+                        const radioOptions = wheelData.map((wheel, index) => {
+                            const rimSize = wheel.rim_size || '';
+                            const position = wheel.position ? ` (${wheel.position})` : '';
+                            const brand = wheel.brand ? ` • ${wheel.brand}` : '';
+                            const price = wheel.price ? ` • $${wheel.price}` : '';
+                            const description = wheel.description ? ` • ${wheel.description}` : '';
+                            const boltCircle = wheel.bolt_circle ? ` • ${wheel.bolt_circle}` : '';
+                            const offset = wheel.offset ? ` • ${wheel.offset}` : '';
+                            const centerHub = wheel.center_hub ? ` • ${wheel.center_hub}mm` : '';
+                            const wheelInfo = `${rimSize}${position}${brand}${price}${boltCircle}${offset}${centerHub}${description}`;
+                            // Generate search value in format "20x10 | 5x112"
+                            const searchValue = generateWheelSearchValue(wheel);
+                            return `
+                                <div class="tire-option ${index === 0 ? 'selected' : ''}">
+                                    <input type="radio" 
+                                        id="wheel_${index}" 
+                                        name="wheel_selection" 
+                                        value="${searchValue}" 
+                                        data-original="${wheelInfo}"
+                                        ${index === 0 ? 'checked' : ''}
+                                        onchange="handleWheelSelection(this)">
+                                    <label for="wheel_${index}" class="tire-label">
+                                        <span class="tire-size">${wheelInfo}</span>
+                                    </label>
+                                </div>`;
+                        }).join('');
+
+                        console.log('Radio options HTML:', radioOptions);
+
+                        window.searchFormElements.resultEl.innerHTML = `
+                            <div class="results success">
+                            
+                                <div class="tire-selection-container">
+                                    ${radioOptions}
+                                </div>
+                                <div class="selection-info" style="display:none">
+                                    <small>Select a wheel specification to populate your search</small>
+                                </div>
+                            </div>`;
+
+                        console.log('Result element updated with wheel radio options');
+
+                        // Check if we have saved wheel selection data
+                        const savedData = loadFormData();
+                        let selectedWheelRestored = false;
+
+                        if (savedData && savedData.selectedWheel) {
+                            // Try to restore the saved wheel selection
+                            const savedWheelRadio = document.getElementById(savedData.selectedWheel.id);
+                            if (savedWheelRadio) {
+                                savedWheelRadio.checked = true;
+                                window.searchFormElements.searchEl.value = savedData.selectedWheel.value;
+                                selectedWheelRestored = true;
+                                console.log('Restored saved wheel selection:', savedData.selectedWheel.original);
+                            }
+                        }
+
+                        if (!selectedWheelRestored) {
+                            // Auto-select first option and populate search (default behavior)
+                            const firstWheel = wheelData[0];
+                            // Generate search value in format "20x10 | 5x112"
+                            const searchWheelSize = generateWheelSearchValue(firstWheel);
+                            window.searchFormElements.searchEl.value = searchWheelSize;
+                        }
+
+                        window.searchFormElements.infoEl.innerHTML = `🎯 Found ${wheelData.length} wheel specifications for your ${selectedYear} ${selectedMake} ${selectedModel} ${selectedTrim}`;
+                    }
+                } else {
+                    // Show results container for error message
+                    const resultsContainer = currentContainer.querySelector('.search-form-results-container');
+                    if (resultsContainer) resultsContainer.style.display = 'block';
+
+                    window.searchFormElements.resultEl.innerHTML = `
+                        <div class="results error">
+                            ❌ <strong>No wheel specification data found</strong><br>
+                            <small>This specific trim configuration is not in our database.</small>
+                        </div>`;
+                    window.searchFormElements.infoEl.innerHTML = `⚠️ No wheel specification data available for ${selectedYear} ${selectedMake} ${selectedModel} ${selectedTrim}`;
+                }
+            }
+        };
+        
+        window.searchFormElements.trimEl.addEventListener("change", trimChangeHandler);
+        window.searchFormEventListeners.push({
+            element: window.searchFormElements.trimEl,
+            event: "change",
+            handler: trimChangeHandler
+        });
+
+        }
+        
+        // Product type change handler
+        if (window.searchFormElements.productTypeEl) {
+            const productTypeChangeHandler = () => {
+            // Save form data when product type changes
+            saveFormData();
+
+            // Update the UI based on product type selection
+            const selectedType = window.searchFormElements.productTypeEl.value;
+            console.log(`Product type changed to: ${selectedType}`);
+
+            // Refresh the display if we have a selected trim
+            const selectedTrim = window.searchFormElements.trimEl.value;
+            if (selectedTrim && currentBrandData) {
+                // Trigger trim change to refresh the display with the new product type
+                const trimEvent = new Event('change');
+                window.searchFormElements.trimEl.dispatchEvent(trimEvent);
+            }
+            };
+            
+            window.searchFormElements.productTypeEl.addEventListener("change", productTypeChangeHandler);
+            window.searchFormEventListeners.push({
+                element: window.searchFormElements.productTypeEl,
+                event: "change",
+                handler: productTypeChangeHandler
+            });
+        }
+    }
+
+    // Handle tire size selection from radio buttons (make it global)
+    window.handleTireSelection = function (radioElement) {
+        const searchValue = radioElement.value;
+        const originalTireSize = radioElement.getAttribute('data-original');
+
+        console.log(`Tire selected: ${originalTireSize} -> Search value: ${searchValue}`);
+
+        // Update visual selection state
+        updateSelectionState('tire_selection', radioElement);
+
+        // Update search input with selected tire size
+        if (window.searchFormElements.searchEl) {
+            window.searchFormElements.searchEl.value = searchValue;
+        }
+
+        // Save form data when tire selection changes
+        saveFormData();
+
+        // Selection info hidden in compact mode
+    }
+
+    // Helper function to generate wheel search value in format "20x10 | 5x112"
+    function generateWheelSearchValue(wheel) {
+        const rimSize = wheel.rim_size || '';
+        const boltCircle = wheel.bolt_circle || '';
+
+        // Preserve original rim size format to keep 'x' character
+        const cleanRimSize = rimSize.replace('J', '');
+
+        // Convert bolt circle from "5-112mm" or "5x112" format to "5x112"
+        let cleanBoltCircle = '';
+        if (boltCircle) {
+            // Handle formats like "5-112mm", "5-112", "5x112", etc.
+            cleanBoltCircle = boltCircle
+                .replace('mm', '')           // Remove 'mm' suffix
+                .replace('-', 'x')           // Convert '-' to 'x' if needed
+                .replace(/x+/g, 'x');        // Replace multiple 'x' with single 'x'
+        }
+
+        // Generate search value preserving original format like "20x10 | 5x112"
+        if (cleanRimSize && cleanBoltCircle) {
+            return `${cleanRimSize} | ${cleanBoltCircle}`;
+        } else if (cleanRimSize) {
+            return cleanRimSize;
+        } else {
+            return '';
+        }
+    }
+
+    // Helper function to update visual selection state
+    function updateSelectionState(groupName, selectedElement) {
+        // Remove selected class from all options in the group
+        const allOptions = document.querySelectorAll(`input[name="${groupName}"]`);
+        allOptions.forEach(radio => {
+            const tireOption = radio.closest('.tire-option');
+            if (tireOption) {
+                tireOption.classList.remove('selected');
+            }
+        });
+
+        // Add selected class to the chosen option
+        const selectedOption = selectedElement.closest('.tire-option');
+        if (selectedOption) {
+            selectedOption.classList.add('selected');
+        }
+    }
+
+    // Handle wheel size selection from radio buttons (make it global)
+    window.handleWheelSelection = function (radioElement) {
+        const searchValue = radioElement.value;
+        const originalWheelInfo = radioElement.getAttribute('data-original');
+
+        console.log(`Wheel selected: ${originalWheelInfo} -> Search value: ${searchValue}`);
+
+        // Update visual selection state
+        updateSelectionState('wheel_selection', radioElement);
+
+        // Update search input with selected wheel size
+        if (window.searchFormElements.searchEl) {
+            window.searchFormElements.searchEl.value = searchValue;
+        }
+
+        // Save form data when wheel selection changes
+        saveFormData();
+
+        // Selection info hidden in compact mode
+    }
+
+    // Utility function to reset form fields
+    function resetField(element, placeholder) {
+        element.innerHTML = `<option>${placeholder}</option>`;
+        element.disabled = true;
+    }
+
+    // Store container reference for event handlers
+    let currentContainer = document;
+    
+    // Simple initialization function
+    async function initSearchForm(containerSelector = null) {
+        console.log('Initializing advanced search form', containerSelector ? `in container: ${containerSelector}` : '');
+        
+        // Determine which container to search within
+        currentContainer = document;
+        if (containerSelector) {
+            currentContainer = document.querySelector(containerSelector);
+            if (!currentContainer) {
+                console.warn(`Container ${containerSelector} not found, falling back to document`);
+                currentContainer = document;
+            }
+        }
+        
+        // Use currentContainer for element selection
+        const container = currentContainer;
+        
+        // Initialize or refresh window.searchFormElements using class selectors within container
+        window.searchFormElements = {
+            yearEl: container.querySelector(".search-form-year"),
+            makeEl: container.querySelector(".search-form-make"),
+            modelEl: container.querySelector(".search-form-model"),
+            trimEl: container.querySelector(".search-form-trim"),
+            productTypeEl: container.querySelector(".search-form-product-type"),
+            resultEl: container.querySelector(".search-form-tire-results"),
+            infoEl: container.querySelector(".search-form-data-info"),
+            searchEl: container.querySelector(".search-form-q")
+        };
+        
+        // Check if required elements exist
+        const requiredElements = ['yearEl', 'makeEl', 'modelEl', 'trimEl', 'productTypeEl', 'resultEl', 'infoEl', 'searchEl'];
+        const missingElements = requiredElements.filter(key => !window.searchFormElements[key]);
+        
+        if (missingElements.length > 0) {
+            console.warn('Some search form elements are missing:', missingElements);
+            // Continue with initialization even if some elements are missing
+        }
+        
+        try {
+            await discoverAvailableData();
+            populateYears();
+            showInitialInfo();
+            addEventListeners();
+            console.log('Advanced search form initialized successfully');
+            return true;
+        } catch (err) {
+            console.error('Error initializing advanced search form:', err);
+            // Fallback initialization if discovery fails
+            if (!window.availableYears) {
+                const currentYear = new Date().getFullYear();
+                window.availableYears = [];
+                for (let year = currentYear + 1; year >= 2000; year--) {
+                    window.availableYears.push(year);
+                }
+                populateYears();
+                showInitialInfo();
+                addEventListeners();
+            }
+            return false;
+        }
+    }
+    
+    // Initialize the application for the first load
+    setTimeout(async () => {
+        await initSearchForm();
+    }, 500);
+    
+    // Expose initialization function globally for both mobile tab switching and desktop modal
+    window.initAdvancedSearchForm = function(containerSelector = null) {
+        console.log('Re-initializing advanced search form...');
+        return initSearchForm(containerSelector);
+    };
+    
+    // Expose DOM elements globally for mobile search form access
+    window.getSearchFormElements = function() {
+        return window.searchFormElements;
+    };
+    
+    // Expose utility functions globally
+    window.searchFormUtils = {
+        saveFormData,
+        loadFormData,
+        clearFormData,
+        restoreFormData,
+        handleTireSelection: window.handleTireSelection,
+        handleWheelSelection: window.handleWheelSelection,
+        generateWheelSearchValue,
+        updateSelectionState
+    };
+    
+})(); // End IIFE
+</script>

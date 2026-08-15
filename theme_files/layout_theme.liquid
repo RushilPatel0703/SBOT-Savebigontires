@@ -1,0 +1,222 @@
+<!doctype html>
+<html class="no-touch no-js">
+<head>
+  <script>(function(H){H.className=H.className.replace(/\bno-js\b/,'js')})(document.documentElement)</script>
+  <!-- Basic page needs ================================================== -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <meta name="google-site-verification" content="3CoJkKajJPlCZ5ITERadzng97T88cK9Dvha2wwfQfMA" />
+
+  {% if settings.favicon %}
+  <link rel="shortcut icon" href="{{ settings.favicon | img_url: '32x32' }}" type="image/png" />
+  {% endif %}
+
+  <!-- Title and description ================================================== -->
+  <title>
+  {{ page_title }}{% if current_tags %}{% assign current_tags_joined = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: current_tags_joined }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}
+  </title>
+
+  {% if page_description %}
+    <meta name="description" content="{{ page_description | escape }}">
+  {% endif %}
+
+  <!-- Product meta ================================================== -->
+  {% include 'social-meta-tags' %}
+
+  <!-- Helpers ================================================== -->
+  <link rel="canonical" href="{{ canonical_url }}">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <!-- CSS ================================================== -->
+
+  {{ 'theme.scss.css' | asset_url | stylesheet_tag }}
+  {{ 'savebigontires-styles.css' | asset_url | stylesheet_tag }}
+  {{ 'savebigontires-mobile.css' | asset_url | stylesheet_tag }}
+
+  <!-- Header hook for plugins ================================================== -->
+  {{ content_for_header }}
+
+  {% comment %}
+    If you store has customers disabled, you can remove the following JS file
+  {% endcomment %}
+  {% if request.page_type contains 'customers/' %}
+    {{ 'shopify_common.js' | shopify_asset_url | script_tag }}
+    {{ 'customer_area.js'  | shopify_asset_url | script_tag }}
+  {% endif %}
+
+  {{ 'jquery-2.2.3.min.js' | asset_url | script_tag }}
+
+  <script src="{{ 'lazysizes.min.js' | asset_url }}" async="async"></script>
+  <script src="{{ 'hamburger-click-fix.js' | asset_url }}" async></script>
+  <script src="{{ 'vendor.js' | asset_url }}" defer="defer"></script>
+  <script>
+    // Lightweight Modernizr subset for transform checks used by ajax cart
+    window.Modernizr = window.Modernizr || {};
+    (function(M){
+      try {
+        var div = document.createElement('div');
+        M.csstransforms = ('transform' in div.style) || ('webkitTransform' in div.style) || ('msTransform' in div.style) || ('MozTransform' in div.style);
+        M.csstransforms3d = ('perspective' in div.style) || ('webkitPerspective' in div.style) || ('MozPerspective' in div.style) || ('msPerspective' in div.style);
+      } catch(e) { M.csstransforms = false; M.csstransforms3d = false; }
+    })(window.Modernizr);
+  </script>
+  <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'button-fixes.js' | asset_url }}" defer="defer"></script>
+
+
+
+
+
+  {% render 'bookthatapp-widgets' %}
+  <meta name="google-site-verification" content="oNK2Mbjld8UlHAhE27XmL-VttH3uKc4Izvj-Yj6Y0lo" />
+</head>
+
+<body id="{{ page_title | handle }}" class="{% if customer %}customer-logged-in {% endif %}template-{{ request.page_type | handle }}">
+  <!-- Mobile hamburger menu is handled by hamburger-click-fix.js -->
+  <script>
+    // Quick debug check for mobile menu
+    setTimeout(function() {
+      const hamburgerBtn = document.querySelector('.savebigontires-mobile-menu-btn, .menu-toggle');
+      const mobileNav = document.querySelector('.mobile-nav, #MobileNav');
+      
+      //console.log('🔍 Mobile Menu Debug:');
+      //console.log('Hamburger button found:', !!hamburgerBtn);
+      //console.log('Mobile nav found:', !!mobileNav);
+      
+      if (hamburgerBtn) {
+        //console.log('Button initialized:', hamburgerBtn.hasAttribute('data-menu-initialized'));
+        //console.log('Button classes:', hamburgerBtn.className);
+      }
+      
+      if (mobileNav) {
+        //console.log('Nav classes:', mobileNav.className);
+        //console.log('Nav children:', mobileNav.children.length);
+      }
+      
+      // Test if debug function is available
+      if (typeof window.debugMobileMenu === 'function') {
+        //console.log('Debug function available - run debugMobileMenu() in console');
+      }
+    }, 2000);
+  </script>
+
+  {% section 'header' %}
+
+  <main class="wrapper main-content{% if request.page_type == blank %} main-content--no-template{% endif %}" role="main">
+
+    {{ content_for_layout }}
+
+  </main>
+
+  {% section 'footer' %}
+
+  <script>
+
+  var moneyFormat = '{{ shop.money_format }}';
+
+  var theme = {
+    strings:{
+      product:{
+        unavailable: {{ 'products.product.unavailable' | t | json }},
+        will_be_in_stock_after:{{ 'products.product.will_be_in_stock_after' | t: date: '[date]' | json }},
+        only_left:{{ 'products.product.only_left' | t: count: '1' | json }},
+        unitPrice: {{ 'products.product.unit_price_label' | t | json }},
+        unitPriceSeparator: {{ 'general.accessibility.unit_price_separator' | t | json }}
+      },
+      navigation:{
+        more_link: {{ 'layout.navigation.more' | t | json }}
+      },
+      map:{
+        addressError: {{ 'map.errors.address_error' | t | json }},
+        addressNoResults: {{ 'map.errors.address_no_results' | t | json }},
+        addressQueryLimit: {{ 'map.errors.address_query_limit_html' | t | json }},
+        authError: {{ 'map.errors.auth_error_html' | t | json }}
+      }
+    },
+    settings:{
+      cartType: {{ settings.ajax_cart_method | json }}
+    }
+  }
+  </script>
+
+  {% if settings.ajax_cart_method != 'page' %}
+
+    {% include 'ajax-cart-template' %}
+
+  {% endif %}
+
+  <ul hidden>
+    <li id="a11y-refresh-page-message">{{ 'general.accessibility.refresh_page' | t }}</li>
+  </ul>
+
+
+
+  {% comment %} Global button fixes moved to separate asset file {% endcomment %}
+
+  <!-- Floating Navigation Script -->
+  <script>
+    // Simple floating navigation implementation
+    (function() {
+      let navBar, isFloating = false, originalTop = 0;
+      
+      function init() {
+        navBar = document.getElementById('navBar');
+        
+        if (!navBar) {
+          navBar = document.querySelector('.nav-bar');
+        }
+        
+        if (!navBar) return;
+        
+        // Get original position
+        originalTop = navBar.getBoundingClientRect().top + window.scrollY;
+        
+        // Add scroll listener
+        window.addEventListener('scroll', handleScroll);
+        
+        // Initial check
+        handleScroll();
+      }
+      
+      function handleScroll() {
+        if (!navBar) return;
+        
+        const scrollY = window.scrollY;
+        
+        if (scrollY > originalTop && !isFloating) {
+          // Make navigation floating
+          navBar.style.position = 'fixed';
+          navBar.style.top = '0';
+          navBar.style.left = '0';
+          navBar.style.right = '0';
+          navBar.style.zIndex = '1000';
+          navBar.style.backgroundColor = '#d70000';
+          navBar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.25)';
+          document.body.style.paddingTop = navBar.offsetHeight + 'px';
+          isFloating = true;
+        } else if (scrollY <= originalTop && isFloating) {
+          // Return navigation to normal position
+          navBar.style.position = '';
+          navBar.style.top = '';
+          navBar.style.left = '';
+          navBar.style.right = '';
+          navBar.style.zIndex = '';
+          navBar.style.backgroundColor = '';
+          navBar.style.boxShadow = '';
+          document.body.style.paddingTop = '';
+          isFloating = false;
+        }
+      }
+      
+      // Initialize when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        setTimeout(init, 500);
+      }
+    })();
+  </script>
+
+  </body>
+</html>

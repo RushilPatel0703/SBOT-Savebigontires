@@ -1,0 +1,37 @@
+<div class="savebigontires-collection-sorting">
+  {% assign sort_by = collection.sort_by | default: 'price-ascending' %}
+  <label for="sortBy" class="savebigontires-label savebigontires-sorting-label">{{ 'collections.sorting.title' | t }}</label>
+  <select name="sort_by" aria-describedby="a11y-refresh-page-message" id="sortBy" class="savebigontires-select savebigontires-sorting-select">
+    {% for option in collection.sort_options %}
+      <option value="{{ option.value }}"{% if sort_by == option.value %} selected="selected"{% endif %}>{{ option.name }}</option>
+    {% endfor %}
+  </select>
+</div>
+
+<script>
+  Shopify.queryParams = {};
+  if (location.search.length) {
+    for (var aKeyValue, i = 0, aCouples = location.search.substr(1).split('&'); i < aCouples.length; i++) {
+      aKeyValue = aCouples[i].split('=');
+      if (aKeyValue.length > 1) {
+        Shopify.queryParams[decodeURIComponent(aKeyValue[0])] = decodeURIComponent(aKeyValue[1]);
+      }
+    }
+  }
+
+  $(function() {
+    if (!Shopify.queryParams.sort_by) {
+      Shopify.queryParams.sort_by = 'price-ascending';
+      location.search = jQuery.param(Shopify.queryParams).replace(/\+/g, '%20');
+      return;
+    }
+
+    $('#sortBy')
+      .val('{{ collection.sort_by | default: 'price-ascending' | escape }}')
+      .bind('change', function() {
+        Shopify.queryParams.sort_by = jQuery(this).val();
+        location.search = jQuery.param(Shopify.queryParams).replace(/\+/g, '%20');
+      }
+    );
+  });
+</script>

@@ -1,0 +1,9 @@
+requests
+pandas
+openpyxl
+beautifulsoup4
+playwright
+google-search-results
+streamlit>=1.28
+psutil
+python-dotenv

@@ -1,0 +1,553 @@
+{% comment %}
+  Top Filters Snippet for Collection Desktop View
+{% endcomment %}
+
+{% include 'tire-collection-detector' %}
+
+<div class="savebigontires-top-filters">
+  <div class="savebigontires-top-filters-container">
+
+    {% if is_tire_collection %}
+    <div class="tire-size-guide-wrap">
+      <img
+        src="{{ 'tire-size-guide.jpg' | asset_url }}"
+        alt="Tire Size Guide: Width / Profile R Wheel-Size Load-Index Speed-Rating"
+        class="tire-size-guide-img"
+        loading="lazy"
+      >
+    </div>
+    {% endif %}
+
+    <div class="savebigontires-top-filters-row">
+
+      {% if is_tire_collection %}
+      <div class="top-filter-group tire-size-composition">
+        <div class="top-filter-item">
+          <label>Width</label>
+          <div class="custom-select-wrapper">
+            <select id="topFilterWidth" class="top-filter-select">
+              <option value="">Select Width</option>
+            </select>
+          </div>
+        </div>
+
+        <span class="tire-size-divider">/</span>
+
+        <div class="top-filter-item">
+          <label>Ratio</label>
+          <div class="custom-select-wrapper">
+            <select id="topFilterRatio" class="top-filter-select" disabled>
+              <option value="">Ratio</option>
+            </select>
+          </div>
+        </div>
+
+        <span class="tire-size-divider">R</span>
+
+        <div class="top-filter-item">
+          <label>Diameter</label>
+          <div class="custom-select-wrapper">
+            <select id="topFilterDiameter" class="top-filter-select" disabled>
+              <option value="">Diameter</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% assign is_wheels_collection = false %}
+      {% assign collection_title_lower = collection.title | downcase %}
+      {% assign collection_handle_lower = collection.handle | downcase %}
+      {% if collection_title_lower contains 'wheel' or collection_handle_lower contains 'wheel' %}
+        {% unless collection_handle_lower contains 'tire-and-wheel-packages' %}
+           {% assign is_wheels_collection = true %}
+        {% endunless %}
+      {% endif %}
+
+      {% if is_wheels_collection %}
+        <!-- Wheel Diameter Filter -->
+          {% assign current_wheeldiameter = '' %}
+          {% assign current_boltpattern = '' %}
+
+          <!-- Extract current wheel filters from URL path or params -->
+          {% assign url_params = request.url | split: '?' %}
+          {% if url_params.size > 1 %}
+            {% assign query_string = url_params[1] %}
+            {% assign params = query_string | split: '&' %}
+            {% for param in params %}
+              {% assign key_value = param | split: '=' %}
+              {% if key_value.size == 2 %}
+                {% assign key = key_value[0] %}
+                {% assign value = key_value[1] | url_decode %}
+                {% if key == 'filter.p.tag' %}
+                  {% if value contains 'WheelDiameter_' %}
+                    {% assign current_wheeldiameter = value %}
+                  {% elsif value contains 'Bolt Pattern_' %}
+                    {% assign current_boltpattern = value %}
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+
+          {% assign url_path = request.path %}
+          {% assign path_parts = url_path | split: '/' %}
+          {% for part in path_parts %}
+            {% if part contains '+' %}
+              {% assign tags = part | split: '+' %}
+              {% for tag in tags %}
+                {% assign decoded_tag = tag | url_decode %}
+                {% if decoded_tag contains 'WheelDiameter_' %}
+                  {% assign current_wheeldiameter = decoded_tag %}
+                {% elsif decoded_tag contains 'Bolt Pattern_' or decoded_tag contains 'Bolt-Pattern_' %}
+                  {% assign current_boltpattern = decoded_tag %}
+                {% endif %}
+              {% endfor %}
+            {% elsif part contains 'WheelDiameter_' %}
+              {% assign current_wheeldiameter = part | url_decode %}
+            {% elsif part contains 'Bolt Pattern_' or part contains 'Bolt-Pattern_' %}
+               {% assign current_boltpattern = part | url_decode %}
+            {% endif %}
+          {% endfor %}
+
+          {% if current_wheeldiameter == '' and collection.current_tags %}
+            {% for tag in collection.current_tags %}
+              {% if tag contains 'WheelDiameter_' %}
+                {% assign current_wheeldiameter = tag %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if current_boltpattern == '' and collection.current_tags %}
+            {% for tag in collection.current_tags %}
+              {% if tag contains 'Bolt Pattern_' %}
+                {% assign current_boltpattern = tag %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+
+        <div class="top-filter-item">
+          <label>Wheel Diameter</label>
+          <div class="custom-select-wrapper">
+            <select id="topFilterWheelDiameter" class="top-filter-select">
+              <option value="">All Diameters</option>
+              {% assign wheeldiameter_tags = '' %}
+              {% for tag in collection.all_tags %}
+                {% assign cat = tag | split: '_' | first %}
+                {% if cat == 'WheelDiameter' and cat != tag %}
+                  {% assign wheeldiameter_value = tag | remove_first: 'WheelDiameter_' %}
+                  {% unless wheeldiameter_tags contains wheeldiameter_value %}
+                    {% assign wheeldiameter_tags = wheeldiameter_tags | append: wheeldiameter_value | append: ',' %}
+                    {% assign is_selected = false %}
+                    {% assign prefixed_current = 'WheelDiameter_' | append: current_wheeldiameter %}
+                    {% if current_wheeldiameter == tag %}
+                      {% assign is_selected = true %}
+                    {% elsif tag == prefixed_current %}
+                       {% assign is_selected = true %}
+                    {% endif %}
+                    <option value="{{ tag }}"{% if is_selected %} selected{% endif %}>{{ wheeldiameter_value }}</option>
+                  {% endunless %}
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="top-filter-item">
+          <label>Bolt Pattern</label>
+          <div class="custom-select-wrapper">
+            <select id="topFilterBoltPattern" class="top-filter-select">
+              <option value="">All Patterns</option>
+              {% assign boltpattern_tags = '' %}
+              {% assign found_patterns = false %}
+              {% for tag in collection.all_tags %}
+                {% assign cat = tag | split: '_' | first %}
+                {% assign is_bolt_pattern = false %}
+                {% assign pattern_value = '' %}
+
+                {% comment %} Check for Bolt Pattern_ (with space) {% endcomment %}
+                {% if tag contains 'Bolt Pattern_' %}
+                   {% assign is_bolt_pattern = true %}
+                   {% assign pattern_value = tag | remove_first: 'Bolt Pattern_' %}
+                   {% assign found_patterns = true %}
+
+                {% comment %} Check for BoltPattern_ (no space) {% endcomment %}
+                {% elsif cat == 'BoltPattern' and cat != tag %}
+                   {% assign is_bolt_pattern = true %}
+                   {% assign pattern_value = tag | remove_first: 'BoltPattern_' %}
+                   {% assign found_patterns = true %}
+
+                {% comment %} Check for raw patterns like 5x114.3 {% endcomment %}
+                {% elsif tag contains 'x' and tag != cat %}
+                   {% assign tag_parts = tag | split: 'x' %}
+                   {% if tag_parts.size == 2 %}
+                     {% assign first_part = tag_parts[0] | plus: 0 %}
+                     {% assign second_part = tag_parts[1] | split: ' ' | first | plus: 0 %}
+                     {% comment %} Bolt patterns: 3-10 bolts, PCD 50-300mm {% endcomment %}
+                     {% if first_part >= 3 and first_part <= 10 and second_part >= 50 and second_part <= 300 %}
+                       {% assign is_bolt_pattern = true %}
+                       {% assign pattern_value = tag %}
+                       {% assign found_patterns = true %}
+                     {% endif %}
+                   {% endif %}
+                {% endif %}
+
+                {% if is_bolt_pattern %}
+                  {% unless boltpattern_tags contains pattern_value %}
+                    {% assign boltpattern_tags = boltpattern_tags | append: pattern_value | append: ',' %}
+
+                    {% assign is_selected = false %}
+                    {% assign prefixed_current_space = 'Bolt Pattern_' | append: current_boltpattern %}
+                    {% assign prefixed_current_nospace = 'BoltPattern_' | append: current_boltpattern %}
+
+                    {% if current_boltpattern == tag %}
+                        {% assign is_selected = true %}
+                    {% elsif tag == prefixed_current_space %}
+                        {% assign is_selected = true %}
+                    {% elsif tag == prefixed_current_nospace %}
+                        {% assign is_selected = true %}
+                    {% elsif current_boltpattern contains 'Bolt-Pattern_' %}
+                        {% assign handleized_tag = tag | handleize %}
+                        {% assign handleized_current = current_boltpattern | handleize %}
+                        {% if handleized_tag == handleized_current %}
+                            {% assign is_selected = true %}
+                        {% endif %}
+                    {% elsif current_boltpattern == pattern_value %}
+                        {% assign is_selected = true %}
+                    {% endif %}
+
+                    <option value="{{ tag }}"{% if is_selected %} selected{% endif %}>{{ pattern_value }}</option>
+                  {% endunless %}
+                {% endif %}
+              {% endfor %}
+
+              {% comment %} Fallback patterns if none found {% endcomment %}
+              {% unless found_patterns %}
+                {% assign fallback_patterns = '4x100,4x100 4.25,4x100 4.5,4x137,4x137 156,4x156,5x100,5x100 112,5x100 4.5,5x105,5x108,10x225' | split: ',' %}
+                {% for pattern in fallback_patterns %}
+                  {% assign is_selected = false %}
+                  {% if current_boltpattern == pattern or current_boltpattern contains pattern %}
+                    {% assign is_selected = true %}
+                  {% endif %}
+                  <option value="{{ pattern }}"{% if is_selected %} selected{% endif %}>{{ pattern }}</option>
+                {% endfor %}
+              {% endunless %}
+            </select>
+          </div>
+        </div>
+
+      {% else %}
+
+      <div class="top-filter-item">
+        <label>Type</label>
+        <div class="custom-select-wrapper">
+          <select id="topFilterType" class="top-filter-select">
+            <option value="">All Types</option>
+            {% assign type_tags = '' %}
+            {% for tag in collections['tires'].all_tags %}
+              {% if tag contains 'Type_' %}
+                {% if type_tags == '' %}{% assign type_tags = tag %}{% else %}{% assign type_tags = type_tags | append: ',' | append: tag %}{% endif %}
+              {% endif %}
+            {% endfor %}
+            {% assign type_tags_array = type_tags | split: ',' | sort %}
+            {% for tag in type_tags_array %}
+              {% assign type_val = tag | remove: 'Type_' %}
+              <option value="{{ tag }}" {% if current_tags contains tag %}selected{% endif %}>{{ type_val }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="top-filter-item">
+        <label>Brand</label>
+        <div class="custom-select-wrapper">
+          <select id="topFilterBrand" class="top-filter-select">
+            <option value="">All Brands</option>
+            {% assign brand_tags = '' %}
+            {% for tag in collections['tires'].all_tags %}
+              {% if tag contains 'Brand_' %}
+                {% assign brand_val = tag | remove: 'Brand_' %}
+                {% include 'tire-brand-validator', brand_name: brand_val %}
+                {% if is_valid_tire_brand %}
+                  {% if brand_tags == '' %}{% assign brand_tags = tag %}{% else %}{% assign brand_tags = brand_tags | append: ',' | append: tag %}{% endif %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {% assign brand_tags_array = brand_tags | split: ',' | sort %}
+            {% for tag in brand_tags_array %}
+              {% assign brand_val = tag | remove: 'Brand_' %}
+              <option value="{{ tag }}" {% if current_tags contains tag %}selected{% endif %}>{{ brand_val }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      {% endif %}
+
+      <div class="top-filter-item search-btn-item">
+        <button type="button" class="top-filter-search-btn" id="topFilterSearchBtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>SEARCH</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .savebigontires-top-filters {
+    background-color: #ffffff;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #edf2f7;
+    overflow: hidden;
+  }
+
+  .savebigontires-top-filters-container {
+    padding: 24px;
+    background-image: linear-gradient(to bottom, #ffffff, #fcfdfe);
+  }
+
+  .tire-size-guide-wrap {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .tire-size-guide-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .savebigontires-top-filters-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  /* Tire Size Grouping */
+  .tire-size-composition {
+    display: flex;
+    align-items: flex-end;
+    background-color: #f8fafc;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    gap: 12px;
+    flex: 0 0 auto;
+  }
+
+  .tire-size-divider {
+    font-size: 24px;
+    font-weight: 800;
+    color: #cbd5e0;
+    line-height: 1;
+    margin-bottom: 12px;
+    user-select: none;
+  }
+
+  .top-filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .tire-size-composition .top-filter-item {
+    min-width: 90px;
+    flex: 0 0 auto;
+  }
+
+  .top-filter-item.search-btn-item {
+    flex: 0 0 auto;
+    min-width: 160px;
+  }
+
+  .top-filter-item label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-left: 2px;
+  }
+
+  .custom-select-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .top-filter-select {
+    width: 100%;
+    height: 48px;
+    background-color: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #2d3748;
+    transition: all 0.25s ease;
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234A5568' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 12px;
+    padding-right: 40px;
+  }
+
+  .tire-size-composition .top-filter-select {
+    border: 2px solid transparent;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+
+  .top-filter-select:hover {
+    border-color: #cbd5e0;
+  }
+
+  .top-filter-select:focus {
+    border-color: #e31e24;
+    box-shadow: 0 0 0 4px rgba(227, 30, 36, 0.08);
+  }
+
+  .top-filter-search-btn {
+    width: 100%;
+    height: 48px;
+    background-color: #e31e24;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0 30px;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(227, 30, 36, 0.2);
+  }
+
+  .top-filter-search-btn:hover {
+    background-color: #c41e3a;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(227, 30, 36, 0.3);
+  }
+
+  .top-filter-search-btn:active {
+    transform: translateY(0);
+  }
+
+  .top-filter-select:disabled {
+    background-color: #edf2f7;
+    color: #a0aec0;
+    cursor: not-allowed;
+    border-color: #edf2f7;
+    opacity: 0.7;
+  }
+
+  @media (max-width: 1024px) {
+    .savebigontires-top-filters-row {
+      gap: 12px;
+    }
+    .top-filter-item {
+      min-width: calc(50% - 6px);
+    }
+    .tire-size-composition {
+      width: 100%;
+      flex: 1 1 100%;
+    }
+    .top-filter-item.search-btn-item {
+      min-width: 100%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .savebigontires-top-filters-container { padding: 16px; }
+
+    .savebigontires-top-filters-row {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .top-filter-item { min-width: 100%; }
+
+    .tire-size-composition {
+      padding: 10px 14px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .tire-size-composition .top-filter-item {
+      min-width: 0;
+      flex: 1 1 0;
+    }
+
+    .tire-size-composition .top-filter-select {
+      padding-right: 24px;
+      font-size: 13px;
+    }
+
+    .tire-size-divider {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .top-filter-item.search-btn-item { min-width: 100%; }
+
+    /* Hide old mobile tire filters — top-filters handles mobile now */
+    .mobile-tire-filters-container { display: none !important; }
+  }
+</style>
+
+<script>
+var collectionSizeTags = [
+  {%- for tag in collection.all_tags -%}
+    {%- if tag contains 'Size_' -%}{{ tag | json }},{%- endif -%}
+  {%- endfor -%}
+];
+
+document.addEventListener('DOMContentLoaded', function() {
+  var widthSelect = document.getElementById('topFilterWidth');
+  if (!widthSelect) return;
+  var tags = (collectionSizeTags && collectionSizeTags.length)
+    ? collectionSizeTags
+    : (window.collectionTags || []);
+  if (!tags.length) return;
+  var sizes = [];
+  function parseSize(raw) {
+    var s = raw.trim().replace(/×/g,'X').replace(/x/g,'X').toUpperCase();
+    var m = s.match(/^([A-Z]{0,3})(\d+)\/(\d+)(?:Z)?R(\d+(?:\.\d+)?)([A-Z]*)$/);
+    if (m) return {original:raw.trim(),width:(m[1]+m[2])||m[2],ratio:m[3],diameter:m[4]};
+    m = s.match(/^([A-Z]{0,3})(\d+(?:\.\d+)?)X(\d+(?:\.\d+)?)R(\d+(?:\.\d+)?)([A-Z]*)$/);
+    if (m) return {original:raw.trim(),width:(m[1]+m[2])||m[2],ratio:m[3],diameter:m[4]};
+    return null;
+  }
+  tags.forEach(function(tag) {
+    if (tag.indexOf('Size_') === 0) { var p = parseSize(tag.replace('Size_','')); if (p) sizes.push(p); }
+  });
+  if (!sizes.length) return;
+  window.availableTireSizes = sizes;
+  var widths = sizes.map(function(s){return s.width;}).filter(function(v,i,a){return a.indexOf(v)===i;});
+  widths.sort(function(a,b){
+    var a4=/^\d{2}$/.test(a),b4=/^\d{2}$/.test(b),aLT=a.indexOf('LT')===0,bLT=b.indexOf('LT')===0;
+    if(!a4&&!aLT&&(b4||bLT))return -1; if(!b4&&!bLT&&(a4||aLT))return 1;
+    return parseFloat(a.replace('LT',''))-parseFloat(b.replace('LT',''));
+  });
+  widthSelect.innerHTML='<option value="">Select Width</option>';
+  widths.forEach(function(w){var o=document.createElement('option');o.value=w;o.textContent=w;widthSelect.appendChild(o);});
+});
+</script>

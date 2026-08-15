@@ -1,0 +1,372 @@
+{% comment %}
+  The code below relies on the advanced-tag-loop snippet.
+  The snippet is already included in snippets/breadrumbs.liquid
+  because it is needed there too, but if you remove
+  breadcrumbs you need to include this:
+
+  {% include 'advanced-tag-loop' %}
+{% endcomment %}
+
+{% if section.settings.collection_sidebar_filters == 'groups' %}
+  {% if collection.all_tags.size > 0 %}
+
+    <div class="savebigontires-filter-groups">
+      {%- comment -%}
+        Loop through tag categories
+      {%- endcomment -%}
+      {%- for cat_item in cat_array -%}
+        {%- assign cat_label = cat_item -%}
+        {%- if cat_item == 'WheelDia' -%}{%- assign cat_label = 'Wheel Diameter' -%}
+        {%- elsif cat_item == 'BoltPattern' -%}{%- assign cat_label = 'Bolt Pattern' -%}
+        {%- elsif cat_item == 'RimDia' -%}{%- assign cat_label = 'Rim Diameter' -%}
+        {%- endif -%}
+        <div class="savebigontires-filter-group">
+          <div class="savebigontires-filter-group-header" data-filter-toggle="{{ cat_item | handle }}">
+            <div>
+            <h3 class="savebigontires-heading-4 savebigontires-filter-group-title">{{ cat_label }}</h3>
+            </div>
+            <div style="float: right;margin-top: -51px;">
+            <button type="button" class="savebigontires-filter-toggle-btn" aria-label="Toggle {{ cat_label }} filters">
+              <span class="savebigontires-filter-toggle-icon">−</span>
+            </button>
+            </div>
+          </div>
+          <ul class="savebigontires-filter-list" data-filter-content="{{ cat_item | handle }}" {% if cat_item == 'Size' %}id="desktop-size-filter-{{ cat_item | handle }}"{% endif %}>
+            {%- comment -%}
+              Special handling for Size filters - collect and sort them
+            {%- endcomment -%}
+            {%- if cat_item == 'Size' -%}
+              {%- comment -%} Collect all size options first {%- endcomment -%}
+              {%- assign size_filter_options = '' -%}
+              {%- for tag in collection.all_tags -%}
+                {%- assign cat = tag | split: '_' | first -%}
+                {%- if cat != tag and cat_item == cat -%}
+                  {%- assign tag_display_value = tag | remove_first: cat_item | remove_first: '_' -%}
+                  {%- if collection.handle contains 'wheel' -%}
+                    {%- assign is_valid_size = false -%}
+                    {%- assign formatted_size = tag_display_value -%}
+                    {%- if tag_display_value contains 'X' -%}
+                      {%- assign is_valid_size = true -%}
+                      {%- assign wheel_parts = tag_display_value | split: 'X' -%}
+                      {%- if wheel_parts.size == 2 -%}
+                        {%- assign w_raw = wheel_parts[1] | plus: 0 -%}
+                        {%- assign w_int = w_raw | divided_by: 10 -%}
+                        {%- assign w_dec = w_raw | modulo: 10 -%}
+                        {%- assign formatted_size = wheel_parts[0] | append: 'X' | append: w_int | append: '.' | append: w_dec -%}
+                      {%- endif -%}
+                    {%- endif -%}
+                  {%- else -%}
+                    {%- include 'tire-size-formatter', size_input: tag_display_value -%}
+                  {%- endif -%}
+                  {%- if is_valid_size -%}
+                    {%- assign is_selected = false -%}
+                    {%- if current_tags contains tag -%}
+                      {%- assign is_selected = true -%}
+                    {%- endif -%}
+                    {%- comment -%} Store option data: tag|formatted_size|is_selected {%- endcomment -%}
+                    {%- assign option_data = tag | append: '|' | append: formatted_size | append: '|' | append: is_selected -%}
+                    {%- if size_filter_options == '' -%}
+                      {%- assign size_filter_options = option_data -%}
+                    {%- else -%}
+                      {%- assign size_filter_options = size_filter_options | append: ',' | append: option_data -%}
+                    {%- endif -%}
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- else -%}
+              {%- comment -%}
+                Loop through collection tags for non-Size filters
+              {%- endcomment -%}
+              {%- for tag in collection.all_tags -%}
+                {%- assign cat = tag | split: '_' | first -%}
+                {%- if cat != tag and cat_item == cat -%}
+                  {%- comment -%}
+                    Validate brand tags using tire brand validator
+                  {%- endcomment -%}
+                  {%- assign should_display_tag = true -%}
+                  {%- if cat_item == 'Brand' -%}
+                    {%- assign brand_value = tag | remove_first: cat_item | remove_first: '_' -%}
+                    {%- include 'tire-brand-validator', brand_name: brand_value -%}
+                    {%- assign should_display_tag = is_valid_tire_brand -%}
+                  {%- endif -%}
+                  
+                  {%- if should_display_tag -%}
+                    {%- assign tag_display_value = tag | remove_first: cat_item | remove_first: '_' -%}
+                    
+                    {%- if current_tags contains tag -%}
+                      <li class="savebigontires-filter-item savebigontires-filter-item--active" data-group="{{ cat_item }}" data-handle="{{ tag | handle }}">
+                        <a href="#" class="custom-remove-tag-link" data-original-tag="{{ tag }}" onclick="removeFilter('{{ tag | escape }}'); return false;">{{ tag_display_value }}</a>
+                      </li>
+                    {%- else -%}
+                      <li class="savebigontires-filter-item" data-group="{{ cat_item }}" data-handle="{{ tag | handle }}">{{ tag_display_value | link_to_add_tag: tag }}</li>
+                    {%- endif -%}
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endif -%}
+          </ul>
+        </div>
+      {%- endfor -%}
+    </div>
+
+    <script>
+    $(function() {
+      var filters = $('.advanced-filter'),
+        el,
+        elGroup,
+        elHandle,
+        activeTagInGroup;
+
+      filters.on('click', function(e) {
+        el = $(this);
+        elGroup = el.data('group');
+        elHandle = el.data('handle');
+        activeTagInGroup = $('.active-filter[data-group="'+ elGroup +'"]');
+        // If the tag clicked is not already active and its group contains an active tag, we will swap tag within the group.
+        if ( !el.hasClass('active-filter')  && activeTagInGroup.size() ) {
+          e.preventDefault();
+          location.href = location.href
+            // swap tag
+            .replace(activeTagInGroup.data('handle'), elHandle)
+            // go back to page 1
+            .replace(/(&page=\d+)|(page=\d+&)|(\?page=\d+$)/, '');
+        }
+      });
+      
+      // Custom remove tag links now use inline onclick handlers
+      
+      // Filter toggle functionality
+      function initFilterToggles() {
+        // Handle header clicks (title and button)
+        $('.savebigontires-filter-group-header').on('click', function(e) {
+          e.preventDefault();
+          var $filterGroup = $(this).closest('.savebigontires-filter-group, .savebigontires-filter-section');
+          toggleFilterSection($filterGroup);
+        });
+        
+        // Handle button clicks specifically
+        $('.savebigontires-filter-toggle-btn').on('click', function(e) {
+          e.stopPropagation(); // Prevent double triggering from header click
+          var $filterGroup = $(this).closest('.savebigontires-filter-group, .savebigontires-filter-section');
+          toggleFilterSection($filterGroup);
+        });
+      }
+      
+      function toggleFilterSection($filterGroup) {
+        var $icon = $filterGroup.find('.savebigontires-filter-toggle-icon');
+        var $filterList = $filterGroup.find('.savebigontires-filter-list');
+        
+        if ($filterGroup.hasClass('collapsed')) {
+          // Expand
+          $filterGroup.removeClass('collapsed');
+          $filterList.slideDown(200);
+          $icon.text('−');
+        } else {
+          // Collapse
+          $filterGroup.addClass('collapsed');
+          $filterList.slideUp(200);
+          $icon.text('+');
+        }
+      }
+      
+      // Initialize filter toggles
+      initFilterToggles();
+    });
+
+    // Desktop tire size sorting - same logic as mobile
+    document.addEventListener('DOMContentLoaded', function() {
+      // Find all desktop size filter lists
+      const desktopSizeFilters = document.querySelectorAll('[id^="desktop-size-filter-"]');
+      
+      desktopSizeFilters.forEach(filterList => {
+        const sizeOptionsData = {{ size_filter_options | split: ',' | json | default: '[]' }};
+        
+        if (!sizeOptionsData || sizeOptionsData.length === 0) return;
+        
+        // Parse a tire size string into sort keys.
+        // Groups: 1=metric  2=metric no-aspect  3=flotation  9=unknown
+        function parseTireSize(s) {
+          var m;
+          // Standard metric [LT|ST|P]DDD/DDZ?RDD[C|LT]  e.g. 225/65R17, LT265/70R17, 175/70R14C
+          m = s.match(/^(LT|ST|P)?(\d{3})\/(\d{2})(Z?)R(\d{2})(C|LT)?$/i);
+          if (m) return { group:1, width:+m[2], aspect:+m[3], isZR:!!m[4], rim:+m[5],
+                          suffix:{'':0,'C':1,'LT':2}[(m[6]||'').toUpperCase()]||0 };
+          // No-aspect-ratio  e.g. 165R13, 185R15C, 195R14LT
+          m = s.match(/^(LT|ST|P)?(\d{3})R(\d{2})(C|LT)?$/i);
+          if (m) return { group:2, width:+m[2], aspect:100, isZR:false, rim:+m[3],
+                          suffix:{'':0,'C':1,'LT':2}[(m[4]||'').toUpperCase()]||0 };
+          // Flotation  e.g. 35X1250R17LT, 33X1250R15, LT35X1050R17
+          m = s.match(/^(LT)?(\d{2})X(\d+)R(\d{2})(LT)?$/i);
+          if (m) return { group:3, width:+m[2], aspect:+m[3], isZR:false, rim:+m[4],
+                          suffix:{'':0,'LT':2}[(m[5]||'').toUpperCase()]||0 };
+          // Wheel  e.g. 17X7.0, 20X10.5 (has decimal, no R)
+          m = s.match(/^(\d+)X(\d+\.\d+)$/);
+          if (m) return { group:4, width:+m[1], aspect:parseFloat(m[2]), isZR:false, rim:0, suffix:0 };
+          return null;
+        }
+
+        const parsedOptions = [];
+        sizeOptionsData.forEach(optionStr => {
+          if (!optionStr) return;
+          const [tag, formattedSize, isSelected] = optionStr.split('|');
+          const parsed = parseTireSize(formattedSize);
+          if (parsed) {
+            parsedOptions.push({ tag, formattedSize, isSelected: isSelected === 'true', ...parsed, sortable: true });
+          } else {
+            parsedOptions.push({ tag, formattedSize, isSelected: isSelected === 'true',
+                                  group:9, width:9999, aspect:9999, isZR:false, rim:9999, suffix:0, sortable:false });
+          }
+        });
+
+        // Sort: metric → no-aspect → flotation → unknown; within each group by width, aspect, rim, ZR, suffix
+        parsedOptions.sort((a, b) => {
+          if (a.group !== b.group) return a.group - b.group;
+          if (a.width !== b.width) return a.width - b.width;
+          if (a.aspect !== b.aspect) return a.aspect - b.aspect;
+          if (a.rim !== b.rim) return a.rim - b.rim;
+          if (a.isZR !== b.isZR) return (a.isZR ? 1 : 0) - (b.isZR ? 1 : 0);
+          return a.suffix - b.suffix;
+        });
+        
+        // Clear existing list items
+        filterList.innerHTML = '';
+        
+        // Add sorted options as list items
+        parsedOptions.forEach(option => {
+          const li = document.createElement('li');
+          li.className = 'savebigontires-filter-item' + (option.isSelected ? ' savebigontires-filter-item--active' : '');
+          li.setAttribute('data-group', 'Size');
+          li.setAttribute('data-handle', option.tag.toLowerCase().replace(/[^a-z0-9]/g, '-'));
+          
+          if (option.isSelected) {
+            // Active filter item with remove link
+            li.innerHTML = `<a href="#" class="custom-remove-tag-link" data-original-tag="${option.tag}" onclick="removeFilter('${option.tag.replace(/'/g, "\\'")}'); return false;">${option.formattedSize}</a>`;
+          } else {
+            // Build replace-size URL: swap any existing Size_ tag for this one
+            const pathParts = window.location.pathname.split('/');
+            const colIdx = pathParts.indexOf('collections');
+            const basePath = pathParts.slice(0, colIdx + 2).join('/');
+            const tagSegment = pathParts.slice(colIdx + 2).join('/');
+            const existingTags = tagSegment ? tagSegment.split('+').map(t => decodeURIComponent(t)).filter(Boolean) : [];
+            const nonSizeTags = existingTags.filter(t => !t.startsWith('Size_'));
+            const newTags = [...nonSizeTags, option.tag];
+            const newUrl = basePath + '/' + newTags.map(t => encodeURIComponent(t)).join('+');
+            li.innerHTML = `<a href="${newUrl}">${option.formattedSize}</a>`;
+          }
+          
+          filterList.appendChild(li);
+        });
+      });
+    });
+    </script>
+
+  {% endif %}
+{% else %}
+  <div class="savebigontires-filter-section">
+    <div class="savebigontires-filter-group-header" data-filter-toggle="shop-by">
+      <h3 class="savebigontires-heading-4 savebigontires-filter-section-title">{{ 'collections.sidebar.shop_by' | t }}</h3>
+      <button type="button" class="savebigontires-filter-toggle-btn" aria-label="Toggle shop by filters">
+        <span class="savebigontires-filter-toggle-icon">−</span>
+      </button>
+    </div>
+    {% if request.page_type == 'collection' and collection.all_tags.size > 0 %}
+
+      {% comment %}
+        Provide a 'catch-all' link at the top of the list,
+        we'd check against the collection.handle, product type, and vendor.
+      {% endcomment %}
+      <ul class="savebigontires-filter-list" data-filter-content="shop-by">
+        {%- if current_tags -%}
+          <li class="savebigontires-filter-item savebigontires-filter-item--active">
+            {% comment %}
+              Good for /collections/all collection and regular collections
+            {% endcomment %}
+            {%- if collection.handle -%}
+              {%- if collection.url == blank -%}
+                {% assign collection_url = routes.all_products_collection_url %}
+              {%- else -%}
+                {% assign collection_url = collection.url %}
+              {%- endif -%}
+
+              <a href="{{ collection_url }}" class="savebigontires-filter-link">
+                {{ 'collections.sidebar.all' | t }}
+                {% unless collection.title == 'Products' %}
+                {{ collection.title }}
+                {% endunless %}
+              </a>
+
+            {% comment %}
+              Good for automatic type collections
+            {% endcomment %}
+            {%- elsif collection.current_type -%}
+              <a href="{{ collection.current_type | url_for_type }}" class="savebigontires-filter-link">{{ 'collections.sidebar.all_collection' | t: collection_title: collection.title }}</a>
+
+            {% comment %}
+              Good for automatic vendor collections
+            {% endcomment %}
+            {%- elsif collection.current_vendor -%}
+              <a href="{{ collection.current_vendor | url_for_vendor }}" class="savebigontires-filter-link">{{ 'collections.sidebar.all_collection' | t: collection_title: collection.title }}</a>
+            {%- endif -%}
+          </li>
+        {%- endif -%}
+
+        {% comment %}
+          And for the good stuff, loop through the tags themselves.
+          Strip the prepended categories if they happen to exist.
+        {% endcomment %}
+        {% for tag in collection.all_tags %}
+          {% assign is_advanced_tag = false %}
+          {% assign cat = tag | split: '_' | first %}
+          {% assign should_display_tag = true %}
+          
+          {% comment %} Validate brand tags using tire brand validator {% endcomment %}
+          {% if cat == 'Brand' and cat != tag %}
+            {% assign brand_value = tag | remove_first: cat | remove_first: '_' %}
+            {% include 'tire-brand-validator', brand_name: brand_value %}
+            {% assign should_display_tag = is_valid_tire_brand %}
+          {% endif %}
+          
+          {% if should_display_tag %}
+            {% unless cat == tag %}
+              {% if cat_array contains cat and cat != 'Model' %}
+                {% assign is_advanced_tag = true %}
+                {% assign tag_display_value = tag | remove_first: cat | remove_first: '_' %}
+                
+                {% comment %} Format size tags using tire-size-formatter {% endcomment %}
+                {% if cat == 'Size' %}
+                  {% include 'tire-size-formatter', size_input: tag_display_value %}
+                  {% if is_valid_size %}
+                    {% assign tag_display_value = formatted_size %}
+                  {% else %}
+                    {% comment %} Skip invalid size formats {% endcomment %}
+                    {% assign should_display_tag = false %}
+                  {% endif %}
+                {% endif %}
+                
+                {% if should_display_tag %}
+                  {% if current_tags contains tag %}
+                    <li class="savebigontires-filter-item savebigontires-filter-item--active">{{ tag_display_value }}</li>
+                  {% else %}
+                    <li class="savebigontires-filter-item">{{ tag_display_value | link_to_tag: tag | replace: '<a', '<a class="savebigontires-filter-link"' }}</li>
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endunless %}
+
+            {% if is_advanced_tag == false and cat != 'Model' %}
+              {% if current_tags contains tag %}
+                <li class="savebigontires-filter-item savebigontires-filter-item--active">{{ tag }}</li>
+              {% else %}
+                <li class="savebigontires-filter-item">{{ tag | link_to_tag: tag | replace: '<a', '<a class="savebigontires-filter-link"' }}</li>
+              {% endif %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+
+      </ul>
+
+    {% else %}
+      <p class="savebigontires-body-text-small">{{ 'collections.sidebar.no_tags' | t }}</p>
+    {% endif %}
+  </div>
+{% endif %}

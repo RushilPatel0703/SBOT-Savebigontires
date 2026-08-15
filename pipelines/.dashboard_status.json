@@ -1,0 +1,44 @@
+{
+  "northcountry": {
+    "pid": null,
+    "status": "success",
+    "started": "2026-08-02T19:58:00.109810",
+    "log": "C:\\Users\\Rushil\\Desktop\\Freelance\\savebigontires_client_HANDOFF\\pipelines\\dashboard_logs\\northcountry_20260802_195800.log",
+    "finished": "2026-08-03T02:31:23.557667"
+  },
+  "dttire": {
+    "pid": null,
+    "status": "success",
+    "started": "2026-08-02T19:58:04.887140",
+    "log": "C:\\Users\\Rushil\\Desktop\\Freelance\\savebigontires_client_HANDOFF\\pipelines\\dashboard_logs\\dttire_20260802_195804.log",
+    "finished": "2026-08-02T21:24:30.482552"
+  },
+  "cookies": {
+    "pid": null,
+    "status": "success",
+    "started": "2026-08-02T19:48:45.647830",
+    "log": "C:\\Users\\Rushil\\Desktop\\Freelance\\savebigontires_client_HANDOFF\\pipelines\\dashboard_logs\\cookies_20260802_194845.log",
+    "finished": "2026-08-02T19:49:30.773479"
+  },
+  "formula": {
+    "pid": null,
+    "status": "success",
+    "started": "2026-08-02T19:57:59.337939",
+    "log": "C:\\Users\\Rushil\\Desktop\\Freelance\\savebigontires_client_HANDOFF\\pipelines\\dashboard_logs\\formula_20260802_195759.log",
+    "finished": "2026-08-02T22:55:15.126033"
+  },
+  "wheelsmart": {
+    "pid": null,
+    "status": "success",
+    "started": "2026-08-02T19:58:01.374354",
+    "log": "C:\\Users\\Rushil\\Desktop\\Freelance\\savebigontires_client_HANDOFF\\pipelines\\dashboard_logs\\wheelsmart_20260802_195801.log",
+    "finished": "2026-08-02T19:58:39.729302"
+  },
+  "emergetires": {
+    "pid": null,
+    "status": "success",
+    "started": "2026-08-02T19:58:02.782466",
+    "log": "C:\\Users\\Rushil\\Desktop\\Freelance\\savebigontires_client_HANDOFF\\pipelines\\dashboard_logs\\emergetires_20260802_195802.log",
+    "finished": "2026-08-02T20:06:39.917332"
+  }
+}

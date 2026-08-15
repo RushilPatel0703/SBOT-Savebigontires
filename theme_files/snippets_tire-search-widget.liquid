@@ -1,0 +1,1121 @@
+{% assign tsw_tire_sizes = '' %}
+{% assign tsw_flotation_sizes = '' %}
+{% for tag in collections['tires'].all_tags %}
+  {% if tag contains 'Size_' %}
+    {% assign sz = tag | remove_first: 'Size_' %}
+    {% if sz contains '/' %}
+      {% assign tsw_tire_sizes = tsw_tire_sizes | append: sz | append: '|' %}
+    {% elsif sz contains 'X' %}
+      {% if sz contains 'R' %}
+        {% assign tsw_flotation_sizes = tsw_flotation_sizes | append: sz | append: '|' %}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% assign tsw_wheel_sizes = '' %}
+{% for tag in collections['wheels'].all_tags %}
+  {% if tag contains 'Size_' %}
+    {% assign sz = tag | remove_first: 'Size_' %}
+    {% if sz contains 'X' %}
+      {% assign tsw_wheel_sizes = tsw_wheel_sizes | append: sz | append: '|' %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% assign tsw_speed_ratings = '' %}
+{% assign tsw_load_ranges = '' %}
+{% for tag in collections['tires'].all_tags %}
+  {% if tag contains 'SpeedRating_' %}
+    {% assign sr = tag | remove_first: 'SpeedRating_' %}
+    {% assign tsw_speed_ratings = tsw_speed_ratings | append: sr | append: '|' %}
+  {% elsif tag contains 'LoadRange_' %}
+    {% assign lr = tag | remove_first: 'LoadRange_' %}
+    {% assign tsw_load_ranges = tsw_load_ranges | append: lr | append: '|' %}
+  {% endif %}
+{% endfor %}
+
+<style>
+  .tsw-outer {
+    background: #1a1a1a;
+    font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  .tsw-section {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .tsw-tabs {
+    display: flex;
+    border-bottom: none;
+  }
+
+  .tsw-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 22px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ccc;
+    background: #2a2a2a;
+    border: none;
+    border-right: 1px solid #444;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+
+  .tsw-tab:hover { background: #333; color: #fff; }
+
+  .tsw-tab.active {
+    background: #111;
+    color: #fff;
+    border-bottom: 3px solid #d70000;
+  }
+
+  .tsw-tab svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+  .tsw-panel {
+    display: none;
+    background: #111;
+    padding: 20px 24px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .tsw-panel.active { display: flex; }
+
+  .tsw-help {
+    width: 100%;
+    font-size: 13px;
+    color: #aaa;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .tsw-help a { color: #4a9eff; text-decoration: none; }
+
+  .tsw-field { display: flex; flex-direction: column; gap: 4px; }
+
+  .tsw-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .tsw-select {
+    padding: 10px 14px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    min-width: 110px;
+    cursor: pointer;
+  }
+
+  .tsw-select:focus { outline: none; border-color: #d70000; }
+
+  .tsw-divider {
+    color: #555;
+    font-size: 20px;
+    font-weight: 300;
+    align-self: flex-end;
+    padding-bottom: 10px;
+    min-width: 14px;
+    text-align: center;
+  }
+
+  .tsw-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 28px;
+    background: #22a020;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    align-self: flex-end;
+    margin-bottom: 1px;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+    padding-right: 36px;
+    transition: background 0.2s;
+  }
+
+  .tsw-btn:hover { background: #1a8018; }
+
+  .tsw-checkbox-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .tsw-checkbox-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #d70000;
+  }
+
+  .tsw-checkbox-row label {
+    font-size: 13px;
+    color: #ccc;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  @media (max-width: 768px) {
+    .tsw-tab { padding: 12px 14px; font-size: 13px; }
+    .tsw-panel { padding: 16px; gap: 10px; }
+    .tsw-select { min-width: 90px; }
+    .tsw-btn {
+      width: 100%;
+      justify-content: center;
+      clip-path: none;
+      padding-right: 28px;
+      margin-top: 4px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .tsw-tabs { overflow-x: auto; }
+    .tsw-tab span { display: none; }
+    .tsw-select { min-width: 80px; font-size: 13px; }
+  }
+
+  .tsw-refine-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: none;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #aaa;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 16px;
+    margin-top: 4px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .tsw-refine-toggle:hover { border-color: #888; color: #fff; }
+  .tsw-refine-toggle.visible { display: flex; }
+
+  .tsw-refine-panel {
+    display: none;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 4px;
+  }
+  .tsw-refine-panel.open { display: flex; }
+
+  .tsw-supplier-bar {
+    background: #0d0d0d;
+    padding: 7px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #333;
+  }
+  .tsw-supplier-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .tsw-supplier-select {
+    padding: 4px 10px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #222;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+  }
+  .tsw-supplier-select:focus { outline: none; border-color: #d70000; }
+</style>
+
+<div class="tsw-outer">
+  <div class="tsw-section">
+
+    <div class="tsw-supplier-bar">
+      <span class="tsw-supplier-label">Supplier:</span>
+      <select id="tsw-supplier" class="tsw-supplier-select" onchange="tswSupplierChange(this.value)">
+        <option value="">All Suppliers</option>
+        <option value="Supplier_Formulatires">Formulatires</option>
+        <option value="Supplier_Northcountry">Northcountry</option>
+        <option value="Supplier_Wheelsmart">Wheelsmart</option>
+        <option value="Supplier_Dttire">Dttire</option>
+        <option value="Supplier_Emergetires">Emergetires</option>
+      </select>
+    </div>
+
+    <div class="tsw-tabs">
+      <button class="tsw-tab active" onclick="tswTab('tiresize', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+          <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
+          <line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>
+        </svg>
+        <span>Search by Tire Size</span>
+      </button>
+      <button class="tsw-tab" onclick="tswTab('vehicle', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="8" width="22" height="10" rx="2"/>
+          <path d="M5 8V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2"/>
+          <circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>
+        </svg>
+        <span>Search by Vehicle</span>
+      </button>
+      <button class="tsw-tab" onclick="tswTab('wheels', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>
+          <line x1="12" y1="2" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="22"/>
+          <line x1="2" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="22" y2="12"/>
+        </svg>
+        <span>Shop Wheels</span>
+      </button>
+    </div>
+
+    <!-- Tire Size Panel -->
+    <div id="tsw-tiresize" class="tsw-panel active">
+      <p class="tsw-help">Not sure what your tire size is? <a href="/pages/how-to-find-tire-size">Let us help</a></p>
+
+      <div class="tsw-field">
+        <span class="tsw-label" id="tsw-label-width">Width</span>
+        <select id="tsw-width" class="tsw-select" onchange="tswUpdateRatio()">
+          <option value="">Select</option>
+        </select>
+      </div>
+
+      <div class="tsw-divider" id="tsw-divider-ratio">/</div>
+
+      <div class="tsw-field">
+        <span class="tsw-label" id="tsw-label-ratio">Ratio</span>
+        <select id="tsw-ratio" class="tsw-select" onchange="tswUpdateRim()" disabled>
+          <option value="">Select</option>
+        </select>
+      </div>
+
+      <div class="tsw-divider">R</div>
+
+      <div class="tsw-field">
+        <span class="tsw-label">Rim Size</span>
+        <select id="tsw-rim" class="tsw-select" onchange="tswCheckRefine()" disabled>
+          <option value="">Select</option>
+        </select>
+      </div>
+
+      <div class="tsw-field">
+        <span class="tsw-label">Season</span>
+        <select id="tsw-season" class="tsw-select">
+          <option value="">All</option>
+          <option value="Type_All-Season">All Season</option>
+          <option value="Type_All-Weather">All Weather</option>
+          <option value="Type_Winter">Winter</option>
+          <option value="Type_Summer">Summer</option>
+          <option value="Type_All-Terrain">All Terrain</option>
+          <option value="Type_Mud-Snow">Mud Terrain</option>
+        </select>
+      </div>
+
+      <button type="button" class="tsw-btn" onclick="tswSearchTire()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Search
+      </button>
+
+      <div class="tsw-checkbox-row">
+        <input type="checkbox" id="tsw-lt-only">
+        <label for="tsw-lt-only">Light Truck (LT) tires only</label>
+      </div>
+
+      <div class="tsw-checkbox-row">
+        <button type="button" class="tsw-refine-toggle" id="tsw-refine-toggle" onclick="tswToggleRefine()">&#9660; Refine: Speed / Load Range</button>
+      </div>
+      <div class="tsw-refine-panel" id="tsw-refine-panel">
+        <div class="tsw-field">
+          <span class="tsw-label">Speed Rating</span>
+          <select id="tsw-speed" class="tsw-select">
+            <option value="">Any</option>
+          </select>
+        </div>
+        <div class="tsw-field">
+          <span class="tsw-label">Load Range</span>
+          <select id="tsw-loadrange" class="tsw-select">
+            <option value="">Any</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vehicle Panel -->
+    <div id="tsw-vehicle" class="tsw-panel">
+      <div class="tsw-field">
+        <span class="tsw-label">Year</span>
+        <select id="tsw-vy" class="tsw-select" onchange="tswVehicleYearChange()">
+          <option value="">Select</option>
+        </select>
+      </div>
+
+      <div class="tsw-field">
+        <span class="tsw-label">Make</span>
+        <select id="tsw-vmake" class="tsw-select" onchange="tswVehicleMakeChange()" disabled>
+          <option value="">Select</option>
+        </select>
+      </div>
+
+      <div class="tsw-field">
+        <span class="tsw-label">Model</span>
+        <select id="tsw-vmodel" class="tsw-select" onchange="tswVehicleModelChange()" disabled>
+          <option value="">Select</option>
+        </select>
+      </div>
+
+      <div class="tsw-field">
+        <span class="tsw-label">Trim</span>
+        <select id="tsw-vtrim" class="tsw-select" onchange="tswVehicleTrimChange()" disabled>
+          <option value="">Select</option>
+        </select>
+      </div>
+
+      <button type="button" class="tsw-btn" onclick="tswSearchVehicle()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Search
+      </button>
+
+      <div id="tsw-vresults" style="width:100%;"></div>
+    </div>
+
+    <!-- Wheels Panel -->
+    <div id="tsw-wheels" class="tsw-panel">
+      <div class="tsw-field">
+        <span class="tsw-label">Diameter</span>
+        <select id="tsw-wdiameter" class="tsw-select" onchange="tswUpdateWheelWidth()">
+          <option value="">Select</option>
+        </select>
+      </div>
+
+      <div class="tsw-divider">X</div>
+
+      <div class="tsw-field">
+        <span class="tsw-label">Width</span>
+        <select id="tsw-wwidth" class="tsw-select" disabled>
+          <option value="">Select</option>
+        </select>
+      </div>
+
+      <button type="button" class="tsw-btn" onclick="tswSearchWheels()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Search
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Per-supplier size data (generated by pipelines/shared/generate_supplier_sizes.py) -->
+<script src="{{ 'tsw-supplier-sizes.js' | asset_url }}"></script>
+
+<script>
+  var tswSupplier = '';
+
+  // ── Raw all-supplier strings from Liquid (used to restore after supplier change) ──
+  var _TSW_RAW_TIRE      = {{ tsw_tire_sizes | json }};
+  var _TSW_RAW_FLOTATION = {{ tsw_flotation_sizes | json }};
+  var _TSW_RAW_WHEEL     = {{ tsw_wheel_sizes | json }};
+  var _TSW_RAW_SPEED     = {{ tsw_speed_ratings | json }};
+  var _TSW_RAW_LOAD      = {{ tsw_load_ranges | json }};
+
+  var TSW_SIZES = {};
+  var TSW_SIZE_TAGS = {};
+  var TSW_LT_SIZES = {};
+  var TSW_LT_SIZE_TAGS = {};
+  var TSW_ST_SIZES = {};
+  var TSW_ST_SIZE_TAGS = {};
+  var TSW_SFX_SIZES = {};
+  var TSW_SFX_TAGS  = {};
+  var TSW_FLOTATION = {};
+  var TSW_FLOTATION_TAGS = {};
+  var TSW_WHEELS = {};
+  var TSW_WHEEL_TAGS = {};
+  var TSW_SPEED_RATINGS = [];
+  var TSW_LOAD_RANGES   = [];
+
+  var TSW_SR_ORDER = ['A1','A2','A3','A4','A5','A6','A7','A8','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R','S','T','U','V','W','Y','Z'];
+
+  // ── Parse functions — rebuild globals from raw pipe-separated strings ──────
+
+  function tswParseTireSizes(rawTire, rawFlotation) {
+    TSW_SIZES = {}; TSW_SIZE_TAGS = {};
+    TSW_LT_SIZES = {}; TSW_LT_SIZE_TAGS = {};
+    TSW_ST_SIZES = {}; TSW_ST_SIZE_TAGS = {};
+    TSW_SFX_SIZES = {}; TSW_SFX_TAGS = {};
+    TSW_FLOTATION = {}; TSW_FLOTATION_TAGS = {};
+
+    rawTire.split('|').filter(Boolean).forEach(function(s) {
+      var m = s.match(/^(LT|ST|HL|P|T)?(\d{3})\/(\d{2,3})(Z|W|Y)?[RD](F)?(\d{2,3}(?:\.\d+)?)(C|ST|PT)?/i);
+      if (!m) return;
+      var pfx = m[1] ? m[1].toUpperCase() : '';
+      var isLT = pfx === 'LT', isST = pfx === 'ST';
+      var w = m[2], r = m[3];
+      var rfFlag = m[5] ? 'RF' : '';
+      var sfx = rfFlag || (m[7] ? m[7].toUpperCase() : '');
+      var rim = m[6].replace('.', '');
+      var sizes, tags;
+      if (isST) {
+        sizes = TSW_ST_SIZES; tags = TSW_ST_SIZE_TAGS;
+      } else if (sfx) {
+        if (!TSW_SFX_SIZES[sfx]) TSW_SFX_SIZES[sfx] = {};
+        if (!TSW_SFX_TAGS[sfx])  TSW_SFX_TAGS[sfx]  = {};
+        sizes = TSW_SFX_SIZES[sfx]; tags = TSW_SFX_TAGS[sfx];
+      } else if (isLT) {
+        sizes = TSW_LT_SIZES; tags = TSW_LT_SIZE_TAGS;
+      } else {
+        sizes = TSW_SIZES; tags = TSW_SIZE_TAGS;
+      }
+      if (!sizes[w]) sizes[w] = {};
+      if (!sizes[w][r]) sizes[w][r] = [];
+      if (sizes[w][r].indexOf(rim) < 0) sizes[w][r].push(rim);
+      if (!tags[w]) tags[w] = {};
+      if (!tags[w][r]) tags[w][r] = {};
+      if (!tags[w][r][rim]) tags[w][r][rim] = s;
+    });
+
+    rawFlotation.split('|').filter(Boolean).forEach(function(s) {
+      var clean = s.replace(/^LT/i, '').replace(/LT$/i, '').toUpperCase();
+      var m = clean.match(/^(\d{2})X(\d+)R(\d{2})$/);
+      if (!m) return;
+      var dia = m[1], rawW = m[2], rim = m[3];
+      if (!TSW_FLOTATION[dia]) TSW_FLOTATION[dia] = {};
+      if (!TSW_FLOTATION[dia][rawW]) TSW_FLOTATION[dia][rawW] = [];
+      if (TSW_FLOTATION[dia][rawW].indexOf(rim) < 0) TSW_FLOTATION[dia][rawW].push(rim);
+      if (!TSW_FLOTATION_TAGS[dia]) TSW_FLOTATION_TAGS[dia] = {};
+      if (!TSW_FLOTATION_TAGS[dia][rawW]) TSW_FLOTATION_TAGS[dia][rawW] = {};
+      if (!TSW_FLOTATION_TAGS[dia][rawW][rim]) TSW_FLOTATION_TAGS[dia][rawW][rim] = s;
+    });
+  }
+
+  function tswParseWheelSizes(rawWheel) {
+    TSW_WHEELS = {}; TSW_WHEEL_TAGS = {};
+    rawWheel.split('|').filter(Boolean).forEach(function(s) {
+      var m = s.match(/^(\d+)X(\d+)$/);
+      if (!m) return;
+      var d = m[1], rawW = m[2];
+      var displayW = (parseInt(rawW, 10) / 10).toFixed(1);
+      if (!TSW_WHEELS[d]) TSW_WHEELS[d] = [];
+      if (!TSW_WHEEL_TAGS[d]) TSW_WHEEL_TAGS[d] = {};
+      if (TSW_WHEELS[d].indexOf(displayW) < 0) TSW_WHEELS[d].push(displayW);
+      TSW_WHEEL_TAGS[d][displayW] = s;
+      TSW_WHEELS[d].sort(function(a, b) { return parseFloat(a) - parseFloat(b); });
+    });
+  }
+
+  // ── Populate dropdown functions ───────────────────────────────────────────
+
+  function tswPopulateWidthDropdown() {
+    var sel = document.getElementById('tsw-width');
+    sel.innerHTML = '<option value="">Select</option>';
+    var entries = [];
+    Object.keys(TSW_SIZES).forEach(function(w) {
+      entries.push({ num: +w, order: 0, value: w, text: w });
+    });
+    Object.keys(TSW_LT_SIZES).forEach(function(w) {
+      entries.push({ num: +w, order: 1, value: 'lt:' + w, text: 'LT' + w });
+    });
+    Object.keys(TSW_ST_SIZES).forEach(function(w) {
+      entries.push({ num: +w, order: 2, value: 'st:' + w, text: 'ST' + w });
+    });
+    Object.keys(TSW_SFX_SIZES).sort().forEach(function(sfx) {
+      Object.keys(TSW_SFX_SIZES[sfx]).forEach(function(w) {
+        entries.push({ num: +w, order: 3, value: 'sfx:' + sfx + ':' + w, text: w + sfx });
+      });
+    });
+    entries.sort(function(a, b) { return a.num !== b.num ? a.num - b.num : a.order - b.order; });
+    entries.forEach(function(e) {
+      var o = document.createElement('option'); o.value = e.value; o.textContent = e.text; sel.appendChild(o);
+    });
+    Object.keys(TSW_FLOTATION).sort(function(a, b) { return +a - +b; }).forEach(function(d) {
+      var o = document.createElement('option'); o.value = 'f:' + d; o.textContent = d + ' (4x4)'; sel.appendChild(o);
+    });
+  }
+
+  function tswPopulateWheelDiameterDropdown() {
+    var sel = document.getElementById('tsw-wdiameter');
+    sel.innerHTML = '<option value="">Select</option>';
+    Object.keys(TSW_WHEELS).sort(function(a, b) { return +a - +b; }).forEach(function(d) {
+      var o = document.createElement('option'); o.value = d; o.textContent = d; sel.appendChild(o);
+    });
+  }
+
+  function tswRepopulateRefinement(speedRatings, loadRanges) {
+    TSW_SPEED_RATINGS = speedRatings.slice();
+    TSW_LOAD_RANGES   = loadRanges.slice();
+    TSW_SPEED_RATINGS.sort(function(a, b) {
+      var ia = TSW_SR_ORDER.indexOf(a.toUpperCase()), ib = TSW_SR_ORDER.indexOf(b.toUpperCase());
+      if (ia < 0) ia = 99; if (ib < 0) ib = 99;
+      return ia - ib;
+    });
+    TSW_LOAD_RANGES.sort();
+    var spSel = document.getElementById('tsw-speed');
+    spSel.innerHTML = '<option value="">Any</option>';
+    TSW_SPEED_RATINGS.forEach(function(sr) {
+      var o = document.createElement('option'); o.value = sr; o.textContent = sr; spSel.appendChild(o);
+    });
+    var lrSel = document.getElementById('tsw-loadrange');
+    lrSel.innerHTML = '<option value="">Any</option>';
+    TSW_LOAD_RANGES.forEach(function(lr) {
+      var o = document.createElement('option'); o.value = lr; o.textContent = lr; lrSel.appendChild(o);
+    });
+  }
+
+  // ── Supplier change: re-parse and re-populate dropdowns ───────────────────
+
+  function tswSupplierChange(val) {
+    tswSupplier = val;
+    try { sessionStorage.setItem('tsw_supplier', val); } catch(e) {}
+
+    var sd = val && typeof TSW_SUPPLIER_SIZES !== 'undefined' && TSW_SUPPLIER_SIZES[val];
+    if (sd) {
+      tswParseTireSizes(sd.tire_sizes || '', sd.flotation_sizes || '');
+      tswParseWheelSizes(sd.wheel_sizes || '');
+      tswRepopulateRefinement(
+        (sd.speed_ratings || '').split('|').filter(Boolean),
+        (sd.load_ranges || '').split('|').filter(Boolean)
+      );
+    } else {
+      tswParseTireSizes(_TSW_RAW_TIRE, _TSW_RAW_FLOTATION);
+      tswParseWheelSizes(_TSW_RAW_WHEEL);
+      tswRepopulateRefinement(
+        _TSW_RAW_SPEED.split('|').filter(Boolean),
+        _TSW_RAW_LOAD.split('|').filter(Boolean)
+      );
+    }
+
+    tswPopulateWidthDropdown();
+    tswPopulateWheelDiameterDropdown();
+
+    // Reset cascading selects
+    document.getElementById('tsw-width').value = '';
+    document.getElementById('tsw-ratio').innerHTML = '<option value="">Select</option>';
+    document.getElementById('tsw-ratio').disabled = true;
+    document.getElementById('tsw-rim').innerHTML = '<option value="">Select</option>';
+    document.getElementById('tsw-rim').disabled = true;
+    document.getElementById('tsw-wdiameter').value = '';
+    document.getElementById('tsw-wwidth').innerHTML = '<option value="">Select</option>';
+    document.getElementById('tsw-wwidth').disabled = true;
+    tswResetRefine();
+  }
+
+  // ── Wheel size AJAX fallback (used when Liquid all_tags returns empty) ────
+
+  function tswFetchWheelSizes() {
+    var sizeStr = '';
+    function fetchPage(page) {
+      fetch('/collections/wheels/products.json?fields=tags&limit=250&page=' + page)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var products = data.products || [];
+          products.forEach(function(p) {
+            (p.tags || '').split(',').forEach(function(raw) {
+              var t = raw.trim();
+              if (t.indexOf('Size_') === 0) {
+                var sz = t.slice(5);
+                if (/^\d+X\d+$/.test(sz) && sizeStr.indexOf(sz + '|') < 0) {
+                  sizeStr += sz + '|';
+                }
+              }
+            });
+          });
+          if (products.length === 250) {
+            fetchPage(page + 1);
+          } else {
+            tswParseWheelSizes(sizeStr);
+            tswPopulateWheelDiameterDropdown();
+          }
+        })
+        .catch(function() {});
+    }
+    fetchPage(1);
+  }
+
+  // ── Initialise with all-supplier data ────────────────────────────────────
+
+  tswParseTireSizes(_TSW_RAW_TIRE, _TSW_RAW_FLOTATION);
+  tswParseWheelSizes(_TSW_RAW_WHEEL);
+  tswRepopulateRefinement(
+    _TSW_RAW_SPEED.split('|').filter(Boolean),
+    _TSW_RAW_LOAD.split('|').filter(Boolean)
+  );
+  tswPopulateWidthDropdown();
+  tswPopulateWheelDiameterDropdown();
+  if (Object.keys(TSW_WHEELS).length === 0) { tswFetchWheelSizes(); }
+
+  // ── Cascading size selects ────────────────────────────────────────────────
+
+  function tswPopulateSelect(sel, values, placeholder) {
+    sel.innerHTML = '<option value="">' + placeholder + '</option>';
+    values.forEach(function(v) {
+      var o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o);
+    });
+  }
+
+  function tswIsFlotation() {
+    return document.getElementById('tsw-width').value.indexOf('f:') === 0;
+  }
+
+  function tswUpdateRatio() {
+    var width = document.getElementById('tsw-width').value;
+    var ratioSel = document.getElementById('tsw-ratio');
+    var rimSel = document.getElementById('tsw-rim');
+
+    ratioSel.innerHTML = '<option value="">Select</option>';
+    rimSel.innerHTML = '<option value="">Select</option>';
+    ratioSel.disabled = true;
+    rimSel.disabled = true;
+    tswResetRefine();
+
+    if (!width) return;
+
+    if (width.indexOf('f:') === 0) {
+      var dia = width.slice(2);
+      if (!TSW_FLOTATION[dia]) return;
+      document.getElementById('tsw-divider-ratio').textContent = 'X';
+      document.getElementById('tsw-label-ratio').textContent = 'Width';
+      document.getElementById('tsw-label-width').textContent = 'Diameter';
+      Object.keys(TSW_FLOTATION[dia]).sort(function(a, b) { return +a - +b; }).forEach(function(rawW) {
+        var o = document.createElement('option');
+        o.value = rawW;
+        o.textContent = (parseInt(rawW, 10) / 100).toFixed(2);
+        ratioSel.appendChild(o);
+      });
+    } else if (width.indexOf('lt:') === 0) {
+      var w = width.slice(3);
+      document.getElementById('tsw-divider-ratio').textContent = '/';
+      document.getElementById('tsw-label-ratio').textContent = 'Ratio';
+      document.getElementById('tsw-label-width').textContent = 'Width';
+      if (!TSW_LT_SIZES[w]) return;
+      var ratios = Object.keys(TSW_LT_SIZES[w]).sort(function(a, b) { return +a - +b; });
+      tswPopulateSelect(ratioSel, ratios, 'Select');
+    } else if (width.indexOf('st:') === 0) {
+      var w = width.slice(3);
+      document.getElementById('tsw-divider-ratio').textContent = '/';
+      document.getElementById('tsw-label-ratio').textContent = 'Ratio';
+      document.getElementById('tsw-label-width').textContent = 'Width';
+      if (!TSW_ST_SIZES[w]) return;
+      var ratios = Object.keys(TSW_ST_SIZES[w]).sort(function(a, b) { return +a - +b; });
+      tswPopulateSelect(ratioSel, ratios, 'Select');
+    } else if (width.indexOf('sfx:') === 0) {
+      var parts = width.split(':'), sfx = parts[1], w = parts[2];
+      document.getElementById('tsw-divider-ratio').textContent = '/';
+      document.getElementById('tsw-label-ratio').textContent = 'Ratio';
+      document.getElementById('tsw-label-width').textContent = 'Width';
+      if (!TSW_SFX_SIZES[sfx] || !TSW_SFX_SIZES[sfx][w]) return;
+      var ratios = Object.keys(TSW_SFX_SIZES[sfx][w]).sort(function(a, b) { return +a - +b; });
+      tswPopulateSelect(ratioSel, ratios, 'Select');
+    } else {
+      document.getElementById('tsw-divider-ratio').textContent = '/';
+      document.getElementById('tsw-label-ratio').textContent = 'Ratio';
+      document.getElementById('tsw-label-width').textContent = 'Width';
+      if (!TSW_SIZES[width]) return;
+      var ratios = Object.keys(TSW_SIZES[width]).sort(function(a, b) { return +a - +b; });
+      tswPopulateSelect(ratioSel, ratios, 'Select');
+    }
+    ratioSel.disabled = false;
+  }
+
+  function tswUpdateRim() {
+    var width = document.getElementById('tsw-width').value;
+    var ratio = document.getElementById('tsw-ratio').value;
+    var rimSel = document.getElementById('tsw-rim');
+
+    rimSel.innerHTML = '<option value="">Select</option>';
+    rimSel.disabled = true;
+    tswResetRefine();
+    if (!width || !ratio) return;
+
+    var rims;
+    if (width.indexOf('f:') === 0) {
+      var dia = width.slice(2);
+      if (!TSW_FLOTATION[dia] || !TSW_FLOTATION[dia][ratio]) return;
+      rims = TSW_FLOTATION[dia][ratio].slice().sort(function(a, b) { return +a - +b; });
+    } else if (width.indexOf('lt:') === 0) {
+      var w = width.slice(3);
+      if (!TSW_LT_SIZES[w] || !TSW_LT_SIZES[w][ratio]) return;
+      rims = TSW_LT_SIZES[w][ratio].slice().sort(function(a, b) { return +a - +b; });
+    } else if (width.indexOf('st:') === 0) {
+      var w = width.slice(3);
+      if (!TSW_ST_SIZES[w] || !TSW_ST_SIZES[w][ratio]) return;
+      rims = TSW_ST_SIZES[w][ratio].slice().sort(function(a, b) { return +a - +b; });
+    } else if (width.indexOf('sfx:') === 0) {
+      var parts = width.split(':'), sfx = parts[1], w = parts[2];
+      if (!TSW_SFX_SIZES[sfx] || !TSW_SFX_SIZES[sfx][w] || !TSW_SFX_SIZES[sfx][w][ratio]) return;
+      rims = TSW_SFX_SIZES[sfx][w][ratio].slice().sort(function(a, b) { return +a - +b; });
+    } else {
+      if (!TSW_SIZES[width] || !TSW_SIZES[width][ratio]) return;
+      rims = TSW_SIZES[width][ratio].slice().sort(function(a, b) { return +a - +b; });
+    }
+    rims.forEach(function(rim) {
+      var o = document.createElement('option');
+      o.value = rim;
+      o.textContent = parseInt(rim, 10) > 30 ? (parseInt(rim, 10) / 10).toFixed(1) : rim;
+      rimSel.appendChild(o);
+    });
+    rimSel.disabled = false;
+  }
+
+  function tswTab(name, btn) {
+    document.querySelectorAll('.tsw-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.tsw-panel').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    var panel = document.getElementById('tsw-' + name);
+    if (panel) panel.classList.add('active');
+  }
+
+  function tswSearchTire() {
+    var width  = document.getElementById('tsw-width').value;
+    var ratio  = document.getElementById('tsw-ratio').value;
+    var rim    = document.getElementById('tsw-rim').value;
+    var season = document.getElementById('tsw-season').value;
+
+    if (!width || !ratio || !rim) {
+      alert('Please select all size fields.');
+      return;
+    }
+
+    var tag;
+    if (width.indexOf('f:') === 0) {
+      var dia = width.slice(2);
+      var origTag = TSW_FLOTATION_TAGS[dia] && TSW_FLOTATION_TAGS[dia][ratio] && TSW_FLOTATION_TAGS[dia][ratio][rim];
+      tag = 'Size_' + (origTag || (dia + 'X' + ratio + 'R' + rim));
+    } else if (width.indexOf('lt:') === 0) {
+      var w = width.slice(3);
+      var origSize = TSW_LT_SIZE_TAGS[w] && TSW_LT_SIZE_TAGS[w][ratio] && TSW_LT_SIZE_TAGS[w][ratio][rim];
+      tag = 'Size_' + (origSize || ('LT' + w + '/' + ratio + 'R' + rim));
+    } else if (width.indexOf('st:') === 0) {
+      var w = width.slice(3);
+      var origSize = TSW_ST_SIZE_TAGS[w] && TSW_ST_SIZE_TAGS[w][ratio] && TSW_ST_SIZE_TAGS[w][ratio][rim];
+      tag = 'Size_' + (origSize || ('ST' + w + '/' + ratio + 'R' + rim));
+    } else if (width.indexOf('sfx:') === 0) {
+      var parts = width.split(':'), sfx = parts[1], w = parts[2];
+      var origSize = TSW_SFX_TAGS[sfx] && TSW_SFX_TAGS[sfx][w] && TSW_SFX_TAGS[sfx][w][ratio] && TSW_SFX_TAGS[sfx][w][ratio][rim];
+      tag = 'Size_' + (origSize || (w + '/' + ratio + 'R' + rim + sfx));
+    } else {
+      var origSize = TSW_SIZE_TAGS[width] && TSW_SIZE_TAGS[width][ratio] && TSW_SIZE_TAGS[width][ratio][rim];
+      tag = 'Size_' + (origSize || (width + '/' + ratio + 'R' + rim));
+    }
+
+    var speed = document.getElementById('tsw-speed').value;
+    var loadrange = document.getElementById('tsw-loadrange').value;
+    try { sessionStorage.setItem('tsw_state', JSON.stringify({
+      width: width, ratio: ratio, rim: rim, season: season,
+      ltOnly: document.getElementById('tsw-lt-only').checked,
+      speed: speed, loadrange: loadrange
+    })); } catch(e) {}
+
+    var url = '/collections/tires/' + encodeURIComponent(tag);
+    if (season) url += '+' + encodeURIComponent(season);
+    if (document.getElementById('tsw-lt-only').checked) url += '+' + encodeURIComponent('Type_Light-Truck');
+    if (speed) url += '+' + encodeURIComponent('SpeedRating_' + speed);
+    if (loadrange) url += '+' + encodeURIComponent('LoadRange_' + loadrange);
+    if (tswSupplier) url += '+' + encodeURIComponent(tswSupplier);
+    url += '?sort_by=price-ascending';
+    window.location.href = url;
+  }
+
+  function tswUpdateWheelWidth() {
+    var d = document.getElementById('tsw-wdiameter').value;
+    var wSel = document.getElementById('tsw-wwidth');
+    wSel.innerHTML = '<option value="">Select</option>';
+    wSel.disabled = true;
+    if (!d || !TSW_WHEELS[d]) return;
+    tswPopulateSelect(wSel, TSW_WHEELS[d], 'Select');
+    wSel.disabled = false;
+  }
+
+  function tswSearchWheels() {
+    var diameter = document.getElementById('tsw-wdiameter').value;
+    var width    = document.getElementById('tsw-wwidth').value;
+
+    if (!diameter || !width) {
+      alert('Please select Diameter and Width.');
+      return;
+    }
+
+    var rawSuffix = TSW_WHEEL_TAGS[diameter] && TSW_WHEEL_TAGS[diameter][width];
+    if (!rawSuffix) {
+      alert('Size combination not found.');
+      return;
+    }
+    var url = '/collections/wheels/' + encodeURIComponent('Size_' + rawSuffix);
+    if (tswSupplier) url += '+' + encodeURIComponent(tswSupplier);
+    url += '?sort_by=price-ascending';
+    window.location.href = url;
+  }
+
+  // ── Vehicle Search ────────────────────────────────────────────────────────
+
+  var TSW_V_URL = 'https://tkrapui.github.io/tires';
+  var tswVIndex = null;
+  var tswVBrandData = null;
+  var tswVTireSize = '';
+
+  (function() {
+    var sel = document.getElementById('tsw-vy');
+    var y = new Date().getFullYear() + 1;
+    for (; y >= 2000; y--) {
+      var o = document.createElement('option');
+      o.value = y; o.textContent = y;
+      sel.appendChild(o);
+    }
+  })();
+
+  async function tswVLoadIndex() {
+    if (tswVIndex) return tswVIndex;
+    var r = await fetch(TSW_V_URL + '/index.json');
+    if (!r.ok) throw new Error('index not found');
+    tswVIndex = await r.json();
+    return tswVIndex;
+  }
+
+  async function tswVLoadBrand(year, make) {
+    var safe = make.replace(/[^a-zA-Z0-9\s\-_]/g, '').trim().replace(/\s+/g, '_').replace('-', '_');
+    var r = await fetch(TSW_V_URL + '/' + year + '_' + safe + '.json');
+    if (!r.ok) throw new Error('brand not found');
+    return await r.json();
+  }
+
+  function tswVReset(sels) {
+    sels.forEach(function(s) {
+      s.innerHTML = '<option value="">Select</option>';
+      s.disabled = true;
+    });
+  }
+
+  function tswVFill(sel, values, placeholder) {
+    sel.innerHTML = '<option value="">' + placeholder + '</option>';
+    values.forEach(function(v) {
+      var o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o);
+    });
+    sel.disabled = false;
+  }
+
+  async function tswVehicleYearChange() {
+    var year = document.getElementById('tsw-vy').value;
+    var makeEl  = document.getElementById('tsw-vmake');
+    var modelEl = document.getElementById('tsw-vmodel');
+    var trimEl  = document.getElementById('tsw-vtrim');
+    tswVReset([makeEl, modelEl, trimEl]);
+    document.getElementById('tsw-vresults').innerHTML = '';
+    tswVTireSize = '';
+    if (!year) return;
+    makeEl.innerHTML = '<option value="">Loading…</option>';
+    try {
+      var idx    = await tswVLoadIndex();
+      var brands = (idx.years && idx.years[year] && idx.years[year].brands) || [];
+      if (!brands.length) { makeEl.innerHTML = '<option value="">No data for this year</option>'; return; }
+      tswVFill(makeEl, brands.sort(), 'Select Make');
+    } catch(e) { makeEl.innerHTML = '<option value="">Error loading</option>'; }
+  }
+
+  async function tswVehicleMakeChange() {
+    var year = document.getElementById('tsw-vy').value;
+    var make = document.getElementById('tsw-vmake').value;
+    var modelEl = document.getElementById('tsw-vmodel');
+    var trimEl  = document.getElementById('tsw-vtrim');
+    tswVReset([modelEl, trimEl]);
+    document.getElementById('tsw-vresults').innerHTML = '';
+    tswVBrandData = null;
+    tswVTireSize = '';
+    if (!make) return;
+    modelEl.innerHTML = '<option value="">Loading…</option>';
+    try {
+      tswVBrandData = await tswVLoadBrand(year, make);
+      var models = tswVBrandData.vehicles.map(function(v) { return v.model; })
+                   .filter(function(v, i, a) { return a.indexOf(v) === i; }).sort();
+      tswVFill(modelEl, models, 'Select Model');
+    } catch(e) { modelEl.innerHTML = '<option value="">No data for this make</option>'; }
+  }
+
+  function tswVehicleModelChange() {
+    var model = document.getElementById('tsw-vmodel').value;
+    var trimEl = document.getElementById('tsw-vtrim');
+    tswVReset([trimEl]);
+    document.getElementById('tsw-vresults').innerHTML = '';
+    tswVTireSize = '';
+    if (!model || !tswVBrandData) return;
+    var trims = tswVBrandData.vehicles
+                .filter(function(v) { return v.model === model; })
+                .map(function(v) { return v.trim; })
+                .filter(function(v, i, a) { return a.indexOf(v) === i; }).sort();
+    tswVFill(trimEl, trims, 'Select Trim');
+  }
+
+  function tswVehicleTrimChange() {
+    var model  = document.getElementById('tsw-vmodel').value;
+    var trim   = document.getElementById('tsw-vtrim').value;
+    var res    = document.getElementById('tsw-vresults');
+    tswVTireSize = '';
+    res.innerHTML = '';
+    if (!trim || !tswVBrandData) return;
+
+    var vehicle = null;
+    for (var i = 0; i < tswVBrandData.vehicles.length; i++) {
+      if (tswVBrandData.vehicles[i].model === model && tswVBrandData.vehicles[i].trim === trim) {
+        vehicle = tswVBrandData.vehicles[i]; break;
+      }
+    }
+    if (!vehicle) return;
+
+    var tires = [];
+    if (vehicle.tires && vehicle.tires.length) {
+      tires = vehicle.tires;
+    } else if (vehicle.tire_sizes && vehicle.tire_sizes.length) {
+      tires = vehicle.tire_sizes.map(function(s) { return { size: s }; });
+    }
+
+    if (!tires.length) {
+      res.innerHTML = '<p style="color:#aaa;font-size:13px;margin:8px 0 0;">No tire sizes found for this trim.</p>';
+      return;
+    }
+
+    var clean = function(s) { return s.replace(/^P/i, ''); };
+
+    if (tires.length === 1) {
+      tswVTireSize = clean(tires[0].size);
+      res.innerHTML = '<div style="color:#aaa;font-size:13px;margin:8px 0 0;">Tire size: <strong style="color:#fff;">' + tires[0].size + '</strong></div>';
+      return;
+    }
+
+    tswVTireSize = clean(tires[0].size);
+    var html = '<div style="margin-top:10px;"><span style="font-size:12px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.5px;">Select size:</span><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;">';
+    tires.forEach(function(t, idx) {
+      var sz  = clean(t.size);
+      var pos = t.position ? ' (' + t.position + ')' : '';
+      html += '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:#1e1e1e;border:1px solid '
+           + (idx === 0 ? '#d70000' : '#444')
+           + ';border-radius:4px;padding:6px 12px;">'
+           + '<input type="radio" name="tsw-vtire" value="' + sz + '" '
+           + (idx === 0 ? 'checked ' : '')
+           + 'onchange="tswVTireSize=this.value" style="accent-color:#d70000;cursor:pointer;">'
+           + '<span style="font-size:13px;color:#fff;">' + t.size + pos + '</span></label>';
+    });
+    html += '</div></div>';
+    res.innerHTML = html;
+  }
+
+  function tswSearchVehicle() {
+    if (!tswVTireSize) { alert('Please select Year, Make, Model, and Trim.'); return; }
+    var url = '/collections/tires/' + encodeURIComponent('Size_' + tswVTireSize);
+    if (tswSupplier) url += '+' + encodeURIComponent(tswSupplier);
+    url += '?sort_by=price-ascending';
+    window.location.href = url;
+  }
+
+  function tswCheckRefine() {
+    var toggle = document.getElementById('tsw-refine-toggle');
+    var rim = document.getElementById('tsw-rim').value;
+    if (rim && (TSW_SPEED_RATINGS.length > 1 || TSW_LOAD_RANGES.length > 1)) {
+      toggle.classList.add('visible');
+    } else {
+      toggle.classList.remove('visible');
+      document.getElementById('tsw-refine-panel').classList.remove('open');
+      toggle.textContent = '&#9660; Refine: Speed / Load Range';
+    }
+  }
+
+  function tswToggleRefine() {
+    var panel  = document.getElementById('tsw-refine-panel');
+    var toggle = document.getElementById('tsw-refine-toggle');
+    var open   = panel.classList.toggle('open');
+    toggle.innerHTML = (open ? '&#9650;' : '&#9660;') + ' Refine: Speed / Load Range';
+  }
+
+  function tswResetRefine() {
+    var toggle = document.getElementById('tsw-refine-toggle');
+    if (!toggle) return;
+    toggle.classList.remove('visible');
+    document.getElementById('tsw-refine-panel').classList.remove('open');
+    toggle.innerHTML = '&#9660; Refine: Speed / Load Range';
+    document.getElementById('tsw-speed').value = '';
+    document.getElementById('tsw-loadrange').value = '';
+  }
+
+  // ── Session restore ───────────────────────────────────────────────────────
+  // Supplier must be applied first (re-filters the width dropdown), then the
+  // saved tire size is restored into the now-filtered options.
+
+  (function() {
+    // 1. Restore supplier and re-filter dropdowns synchronously
+    var storedSupplier = '';
+    try { storedSupplier = sessionStorage.getItem('tsw_supplier') || ''; } catch(e) {}
+    if (storedSupplier) {
+      tswSupplier = storedSupplier;
+      var supSel = document.getElementById('tsw-supplier');
+      if (supSel) supSel.value = storedSupplier;
+      var sd = typeof TSW_SUPPLIER_SIZES !== 'undefined' && TSW_SUPPLIER_SIZES[storedSupplier];
+      if (sd) {
+        tswParseTireSizes(sd.tire_sizes || '', sd.flotation_sizes || '');
+        tswParseWheelSizes(sd.wheel_sizes || '');
+        tswRepopulateRefinement(
+          (sd.speed_ratings || '').split('|').filter(Boolean),
+          (sd.load_ranges || '').split('|').filter(Boolean)
+        );
+        tswPopulateWidthDropdown();
+        tswPopulateWheelDiameterDropdown();
+      }
+    }
+
+    // 2. Restore last tire size selection into the (possibly filtered) dropdown
+    var raw;
+    try { raw = sessionStorage.getItem('tsw_state'); } catch(e) {}
+    if (!raw) return;
+    try {
+      var s = JSON.parse(raw);
+      if (!s.width) return;
+      var wSel = document.getElementById('tsw-width');
+      wSel.value = s.width;
+      if (wSel.value !== s.width) return;
+      tswUpdateRatio();
+      if (s.ratio) {
+        var rSel = document.getElementById('tsw-ratio');
+        rSel.value = s.ratio;
+        if (rSel.value) {
+          tswUpdateRim();
+          if (s.rim) {
+            var rimSel = document.getElementById('tsw-rim');
+            rimSel.value = s.rim;
+            if (rimSel.value) tswCheckRefine();
+          }
+        }
+      }
+      if (s.season) document.getElementById('tsw-season').value = s.season;
+      if (s.ltOnly) document.getElementById('tsw-lt-only').checked = true;
+      if (s.speed) document.getElementById('tsw-speed').value = s.speed;
+      if (s.loadrange) document.getElementById('tsw-loadrange').value = s.loadrange;
+    } catch(e) {}
+  })();
+</script>

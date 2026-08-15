@@ -1,0 +1,40 @@
+{% comment %}
+  Enhanced Mobile Search Popup Usage Guide
+  
+  The mobile search popup now includes:
+  
+  1. Professional tire image (P21560R16-sidewall.jpg) at the top
+  2. Page-aware title that changes based on current page context
+  3. Three filter dropdowns: Type, Size, and Brand
+  4. Automatic population from URL parameters and collection tags
+  5. Triggerable from any button or link
+  
+  ## How to trigger search popup from any button:
+  
+  Method 1: Add the data attribute manually
+  <button data-trigger-search="winter-tires">Winter Tires</button>
+  <button data-trigger-search="summer-tires">Summer Tires</button>
+  <button data-trigger-search="all-season-tires">All-Season Tires</button>
+  
+  Method 2: Use the search-trigger snippet
+  <button {% include 'search-trigger', search_context: 'winter-tires' %}>Winter Tires</button>
+  
+  Method 3: Call JavaScript function directly
+  <button onclick="openMobileSearchWithContext('winter-tires')">Winter Tires</button>
+  
+  ## Automatic Features:
+  
+  - Dropdowns are automatically populated with common options
+  - If on a collection page, dropdowns are enhanced with actual collection tags
+  - URL parameters are automatically parsed and dropdowns are pre-selected
+  - Search title updates based on page context (e.g., "Search Winter Tires" on winter tire pages)
+  - Mobile menu items containing tire-related terms automatically become search triggers
+  
+  ## Supported Search Contexts:
+  
+  - winter, winter-tires: Pre-selects Winter type
+  - summer, summer-tires: Pre-selects Summer type  
+  - all-season, all-season-tires: Pre-selects All-Season type
+  - Any other context: Opens search without pre-selection
+  
+{% endcomment %}

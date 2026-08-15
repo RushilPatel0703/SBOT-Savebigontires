@@ -1,0 +1,1682 @@
+<style>
+  /*============================================================================
+    SaveBig Collection List Page Styles
+    Professional list layout with modern design and responsive sidebar
+  ==============================================================================*/
+  .savebigontires-collection-section {
+    background-color: #fff;
+    padding: 0 0 60px 0;
+    font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  .savebigontires-container {
+    max-width: 1296px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .savebigontires-collection-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-top: 20px;
+  }
+
+  .savebigontires-collection-layout.has-sidebar {
+    grid-template-columns: 260px 1fr;
+  }
+
+  /* Collection Sidebar */
+  .savebigontires-collection-sidebar {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+  }
+
+  .savebigontires-collection-sidebar h3 {
+    color: #000000;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .savebigontires-collection-sidebar .filter-list,
+  .savebigontires-collection-sidebar .savebigontires-filter-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .savebigontires-collection-sidebar .filter-list li,
+  .savebigontires-collection-sidebar .savebigontires-filter-list li {
+    margin-bottom: 2px;
+  }
+
+  /* Custom scrollbar styling */
+  .savebigontires-collection-sidebar .filter-list::-webkit-scrollbar,
+  .savebigontires-collection-sidebar .savebigontires-filter-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .savebigontires-collection-sidebar .filter-list::-webkit-scrollbar-track,
+  .savebigontires-collection-sidebar .savebigontires-filter-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  .savebigontires-collection-sidebar .filter-list::-webkit-scrollbar-thumb,
+  .savebigontires-collection-sidebar .savebigontires-filter-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+
+  .savebigontires-collection-sidebar .filter-list::-webkit-scrollbar-thumb:hover,
+  .savebigontires-collection-sidebar .savebigontires-filter-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+
+  .savebigontires-collection-sidebar .filter-list a {
+    color: #495057;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 4px;
+    display: block;
+    transition: all 0.2s ease;
+  }
+
+  .savebigontires-collection-sidebar .filter-list a:hover,
+  .savebigontires-collection-sidebar .filter-list a.active {
+    background-color: #000000;
+    color: white;
+    text-decoration: none;
+  }
+
+  /* Collection Main Content */
+  .savebigontires-collection-main {
+    min-width: 0; /* Prevent grid overflow */
+  }
+
+  .savebigontires-collection-header {
+    margin-bottom: 24px;
+  }
+
+  .savebigontires-collection-header--inline {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .savebigontires-collection-header--inline .savebigontires-heading-1 {
+    flex: 1;
+    min-width: 0;
+    word-wrap: break-word;
+    hyphens: auto;
+    line-height: 1.2;
+    margin-right: 20px;
+  }
+
+  .savebigontires-collection-header--inline .savebigontires-collection-controls {
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+
+  .savebigontires-heading-1 {
+    color: #000000;
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .savebigontires-collection-description {
+    color: #495057;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 16px 0 0 0;
+  }
+
+  /* Collection Controls */
+  .savebigontires-collection-controls {
+    margin-bottom: 24px;
+  }
+
+  .savebigontires-collection-controls-wrapper {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px 24px;
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Controls Filters Section */
+  .savebigontires-controls-filters {
+    display: flex;
+    align-items: center;
+    flex: 1;
+  }
+
+  /* Controls Right Section */
+  .savebigontires-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    justify-content: flex-end;
+  }
+
+  /* Sorting Controls */
+  .savebigontires-collection-sorting {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .savebigontires-sorting-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .savebigontires-sorting-select {
+    min-width: 180px;
+    padding: 8px 16px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background-color: #fff;
+    font-size: 14px;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .savebigontires-sorting-select:hover {
+    border-color: #e31e24;
+  }
+
+  .savebigontires-sorting-select:focus {
+    outline: none;
+    border-color: #e31e24;
+    box-shadow: 0 0 0 3px rgba(227, 30, 36, 0.1);
+  }
+
+  /* View Toggle Buttons */
+  .savebigontires-collection-views {
+    display: flex;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    overflow: hidden;
+    
+    /* Hide on mobile - default to grid view */
+    @media (max-width: 768px) {
+      display: none !important;
+    }
+  }
+
+  .savebigontires-view-toggle {
+    padding: 8px 12px;
+    border: none;
+    background-color: transparent;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 36px;
+  }
+
+  .savebigontires-view-toggle:hover {
+    background-color: #e9ecef;
+    color: #495057;
+  }
+
+  .savebigontires-view-toggle--active {
+    background-color: #e31e24;
+    color: white;
+  }
+
+  .savebigontires-view-toggle--active:hover {
+    background-color: #c41e3a;
+    color: white;
+  }
+
+  /* Filter Toggle Button */
+  .savebigontires-toggle-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #e31e24;
+    color: white;
+    border: 1px solid #e31e24;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .savebigontires-toggle-filters:hover {
+    background-color: #c41e3a;
+    border-color: #c41e3a;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(227, 30, 36, 0.2);
+  }
+
+  .savebigontires-filter-icon {
+    font-size: 16px;
+  }
+
+  /* Icons for view toggles */
+  .icon-collection-view-grid::before {
+    content: "⊞";
+    font-size: 16px;
+  }
+
+  .icon-collection-view-list::before {
+    content: "☰";
+    font-size: 16px;
+  }
+
+  /* Screen reader only text */
+  .savebigontires-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Product List */
+  .savebigontires-product-list {
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+
+  /* Product Grid */
+  .savebigontires-product-grid {
+    display: grid;
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .savebigontires-product-grid.grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .savebigontires-product-grid.grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .savebigontires-product-grid.grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 1200px) {
+    .savebigontires-product-grid.grid-4 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .savebigontires-product-grid.grid-4,
+    .savebigontires-product-grid.grid-3 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .savebigontires-product-grid {
+      gap: 16px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .savebigontires-product-grid.grid-4,
+    .savebigontires-product-grid.grid-3,
+    .savebigontires-product-grid.grid-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .savebigontires-product-grid-item {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+
+  /* No Products Message */
+  .savebigontires-no-products {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+  }
+
+  .savebigontires-body-text {
+    color: #6c757d;
+    font-size: 16px;
+    margin: 0;
+  }
+
+  /* Pagination */
+  .savebigontires-pagination-wrapper {
+    margin: 20px 0;
+    padding: 20px 0;
+  }
+
+  .savebigontires-pagination-wrapper.savebigontires-pagination-top {
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 20px;
+    margin-top: 0;
+  }
+
+  .savebigontires-pagination-wrapper.savebigontires-pagination-bottom {
+    border-top: 1px solid #e9ecef;
+    margin-top: 40px;
+    margin-bottom: 0;
+  }
+
+  .savebigontires-pagination-container {
+    display: flex;
+    justify-content: center;
+  }
+
+  .savebigontires-pagination {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .savebigontires-pagination-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .savebigontires-pagination-item {
+    margin: 0;
+  }
+
+  .savebigontires-pagination-link {
+    display: inline-block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: #333;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 40px;
+    text-align: center;
+  }
+
+  .savebigontires-pagination-link:hover {
+    background-color: #f8f9fa;
+    border-color: #e31e24;
+    color: #e31e24;
+    text-decoration: none;
+  }
+
+  .savebigontires-pagination-item--current .savebigontires-pagination-link {
+    background-color: #e31e24;
+    border-color: #e31e24;
+    color: white;
+  }
+
+  .savebigontires-pagination-item--disabled .savebigontires-pagination-link {
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-color: #ddd;
+    cursor: not-allowed;
+  }
+
+  .savebigontires-pagination-item--gap .savebigontires-pagination-link {
+    border: none;
+    background: none;
+    color: #6c757d;
+    cursor: default;
+  }
+
+  .savebigontires-pagination-prev,
+  .savebigontires-pagination-next {
+    font-weight: 600;
+  }
+
+  .savebigontires-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Mobile Responsiveness */
+  @media (max-width: 1024px) {
+    .savebigontires-collection-layout.has-sidebar {
+      grid-template-columns: 240px 1fr;
+      gap: 20px;
+    }
+
+    .savebigontires-collection-sidebar {
+      padding: 16px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .savebigontires-container {
+      padding: 0 16px;
+    }
+
+    .savebigontires-collection-layout.has-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .savebigontires-collection-main {
+      order: 2;
+    }
+
+    .savebigontires-collection-header--inline {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .savebigontires-collection-header--inline .savebigontires-heading-1 {
+      margin-right: 0;
+      margin-bottom: 8px;
+    }
+
+    .savebigontires-heading-1 {
+      font-size: 1.75rem;
+    }
+
+    .savebigontires-collection-controls-wrapper {
+      padding: 16px 20px;
+      gap: 16px;
+    }
+
+    .savebigontires-controls-filters {
+      width: 100%;
+      margin-bottom: 16px;
+      order: 1;
+    }
+
+    .savebigontires-controls-right {
+      width: 100%;
+      justify-content: space-between;
+      order: 2;
+    }
+    
+    .savebigontires-active-filters {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .savebigontires-heading-1 {
+      font-size: 1.5rem;
+    }
+
+    .savebigontires-collection-header--inline {
+      gap: 12px;
+    }
+  }
+
+  /* Better text wrapping for long titles */
+  @media (max-width: 1200px) {
+    .savebigontires-collection-header--inline {
+      align-items: flex-start;
+    }
+
+    .savebigontires-collection-header--inline .savebigontires-heading-1 {
+      max-width: calc(100% - 200px);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .savebigontires-collection-header--inline .savebigontires-heading-1 {
+      max-width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .savebigontires-collection-controls-wrapper {
+      padding: 12px 16px;
+    }
+
+    .savebigontires-sorting-select {
+      min-width: 140px;
+    }
+  }
+
+  /* Filter Toggle Button (Mobile) */
+  .savebigontires-filter-toggle {
+    display: none;
+    background-color: #e31e24;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: background-color 0.2s ease;
+  }
+
+  .savebigontires-filter-toggle:hover {
+    background-color: #c41e3a;
+  }
+
+  @media (max-width: 768px) {
+    .savebigontires-filter-toggle {
+      display: block;
+    }
+
+    /* Mobile filters are now visible above product list - remove display: none */
+    .savebigontires-collection-sidebar {
+      display: block !important;
+      position: static;
+      max-width: 91%;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+      order: 1; /* Show above main content */
+    }
+
+    /* Collapsed state on mobile by default */
+    .savebigontires-collection-sidebar:not(.mobile-expanded) .savebigontires-filter-groups,
+    .savebigontires-collection-sidebar:not(.mobile-expanded) .savebigontires-filter-section,
+    .savebigontires-collection-sidebar:not(.mobile-expanded) .savebigontires-filter-section .savebigontires-filter-list {
+      display: none;
+    }
+
+    /* Mobile filter styles */
+    .savebigontires-filter-groups,
+    .savebigontires-filter-section,
+    .savebigontires-filter-list {
+      display: none;
+    }
+
+    .savebigontires-filter-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .savebigontires-filter-item {
+      margin-bottom: 8px;
+    }
+
+    .savebigontires-filter-link {
+      color: #495057;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 8px 12px;
+      display: block;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .savebigontires-filter-link:hover,
+    .savebigontires-filter-item--active .savebigontires-filter-link {
+      background-color: #e31e24;
+      color: white;
+    }
+
+    .savebigontires-filter-group {
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .savebigontires-filter-group:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .savebigontires-filter-group-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #000000;
+      margin: 0 0 12px 0;
+    }
+
+    /* Show only the mobile header when collapsed */
+    .savebigontires-collection-sidebar:not(.mobile-expanded) .savebigontires-mobile-filter-header {
+      margin-bottom: 0;
+    }
+
+    /* Mobile filter header styles */
+    .savebigontires-mobile-filter-header {
+      display: flex !important;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e9ecef;
+      margin-bottom: 16px;
+      cursor: pointer;
+    }
+
+    .savebigontires-mobile-filter-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #000000;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .savebigontires-mobile-filter-toggle {
+      background: none;
+      border: none;
+      padding: 4px 8px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+
+    .savebigontires-mobile-filter-toggle:hover {
+      background-color: #e9ecef;
+    }
+
+    .savebigontires-mobile-filter-icon {
+      font-size: 18px;
+      font-weight: bold;
+      color: #000000;
+      line-height: 1;
+    }
+
+    /* Full-screen overlay when show-filters class is active */
+    .savebigontires-collection-sidebar.show-filters {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000;
+      background-color: white;
+      padding: 20px;
+      overflow-y: auto;
+      border: none;
+      border-radius: 0;
+      margin-bottom: 0;
+    }
+
+    .savebigontires-collection-sidebar .close-filters {
+      display: block;
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #000000;
+    }
+  }
+
+  /* Loading State */
+  .savebigontires-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    color: #6c757d;
+  }
+
+  /* Filter Groups and Sections */
+  .savebigontires-filter-groups {
+    margin: 0;
+  }
+
+  .savebigontires-filter-group {
+    margin-bottom: 24px;
+  }
+
+  .savebigontires-filter-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .savebigontires-filter-group-title,
+  .savebigontires-filter-section-title {
+    color: #e31e24;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e9ecef;
+  }
+
+  .savebigontires-filter-section {
+    margin-bottom: 24px;
+  }
+
+  .savebigontires-filter-item {
+    margin-bottom: 2px;
+  }
+
+  .savebigontires-filter-link {
+    color: #495057;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 16px;
+    margin-bottom: 4px;
+    border-radius: 6px;
+    display: block;
+    transition: all 0.2s ease;
+    line-height: 1.4;
+    border: 1px solid transparent;
+  }
+
+  .savebigontires-filter-link:hover,
+  .savebigontires-filter-item--active .savebigontires-filter-link,
+  .savebigontires-filter-item--active,
+  .savebigontires-filter-item--active a {
+    background-color: #e31e24 !important;
+    color: white !important;
+    text-decoration: none;
+    border-color: #e31e24 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(227, 30, 36, 0.2);
+  }
+
+  /* Ensure active filter text is white */
+  .savebigontires-filter-item--active,
+  .savebigontires-filter-item--active * {
+    color: white !important;
+  }
+
+  /* Scrollable filter lists with fade indicators */
+  .savebigontires-filter-list {
+    position: relative;
+  }
+
+  .savebigontires-filter-list::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 6px;
+    height: 10px;
+    background: linear-gradient(to bottom, #f8f9fa, transparent);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .savebigontires-filter-list::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 6px;
+    height: 10px;
+    background: linear-gradient(to top, #f8f9fa, transparent);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .savebigontires-filter-list.scrollable::before,
+  .savebigontires-filter-list.scrollable::after {
+    opacity: 1;
+  }
+
+  /* Enhanced Accessibility */
+  .savebigontires-collection-sidebar .filter-list a:focus,
+  .savebigontires-filter-link:focus {
+    outline: 2px solid #e31e24;
+    outline-offset: 2px;
+  }
+
+  .savebigontires-filter-toggle:focus {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
+  /* Mobile-specific styles to prevent horizontal overflow */
+  @media (max-width: 768px) {
+    /* Prevent horizontal scrolling */
+    body {
+      overflow-x: hidden;
+    }
+    
+    /* Constrain pagination to viewport */
+    .savebigontires-pagination-container {
+      max-width: 100%;
+      overflow-x: hidden;
+      padding: 0 10px;
+    }
+    
+    .savebigontires-pagination-list {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px;
+      max-width: 100%;
+    }
+    
+    .savebigontires-pagination-item {
+      flex-shrink: 0;
+    }
+    
+    .savebigontires-pagination-link {
+      padding: 6px 8px;
+      font-size: 12px;
+      min-width: 32px;
+    }
+    
+    /* Hide some pagination items on very small screens */
+    @media (max-width: 480px) {
+      .savebigontires-pagination-list {
+        gap: 2px;
+      }
+      
+      .savebigontires-pagination-link {
+        padding: 4px 6px;
+        font-size: 11px;
+        min-width: 28px;
+      }
+      
+      /* Hide gap items on very small screens */
+      .savebigontires-pagination-item--gap {
+        display: none;
+      }
+    }
+  }
+  
+  /* Simple Mobile Filter Container */
+  .simple-mobile-filter-container {
+    display: none;
+  }
+  
+  @media (max-width: 768px) {
+    .simple-mobile-filter-container {
+      display: block;
+      margin: 20px 0;
+    }
+    
+    /* Hide the filter toggle button since we have the simple mobile filter */
+    .savebigontires-filter-toggle {
+      display: none;
+    }
+  }
+</style>
+
+{% assign limit = section.settings.num_products %}
+
+{% paginate collection.products by limit %}
+
+{% comment %}
+ by limit
+{% endcomment %}
+
+{% comment %} Show tires banner for any collection containing "tire" (except tire-and-wheel-packages which has its own template) {% endcomment %}
+{% assign collection_name_lower = collection.title | downcase %}
+{% assign collection_handle_lower = collection.handle | downcase %}
+{% unless collection.handle == 'tire-and-wheel-packages' %}
+  {% if collection_name_lower contains 'tire' or collection_handle_lower contains 'tire' %}
+    {% include 'tires-banner' %}
+  {% endif %}
+
+  {% comment %} Show wheels banner for any collection containing "wheel" {% endcomment %}
+  {% if collection_name_lower contains 'wheel' or collection_handle_lower contains 'wheel' %}
+    {% include 'wheels-banner' %}
+  {% endif %}
+{% endunless %}
+
+{% include 'breadcrumb' %}
+
+{% comment %} Include advanced tag loop for filter groups {% endcomment %}
+{% include 'advanced-tag-loop' %}
+
+{% assign has_sidebar = false %}
+{% if collection.all_tags.size > 0 and section.settings.enable_sidebar %}
+  {% assign has_sidebar = true %}
+{% endif %}
+
+<div id="CollectionSection" class="savebigontires-collection-section" data-section-id="{{ section.id }}" data-section-type="collection-template">
+  {% include 'mobile-breadcrumbs' %}
+  <div class="savebigontires-container">
+    
+    {% comment %} Check if this collection should show filters {% endcomment %}
+    {% include 'tire-collection-detector' %}
+    
+    {% comment %} Show mobile filters for tire collections or collections with sidebar {% endcomment %}
+    {% if has_sidebar or is_tire_collection %}
+      <!-- Simple Mobile Filter - shows for tire collections -->
+      <div class="simple-mobile-filter-container">
+        {% include 'simple-mobile-filter' %}
+      </div>
+    {% endif %}
+    
+    <div class="savebigontires-collection-layout{% if has_sidebar %} has-sidebar{% endif %}">
+
+      {% if has_sidebar %}
+      <aside class="savebigontires-collection-sidebar" id="collectionFilters">
+        <button class="close-filters" onclick="toggleFilters()" aria-label="Close filters" style="display: none;">&times;</button>
+        
+        {% include 'collection-sidebar' %}
+      </aside>
+      {% endif %}
+
+      <div class="savebigontires-collection-main">
+
+        {% comment %}
+          Different markup if description is set
+        {% endcomment %}
+        {% if collection.description != blank %}
+          <header class="savebigontires-collection-header">
+            {% comment %} Generate adaptive title based on current tags {% endcomment %}
+            {% assign adaptive_title = collection.title %}
+            {% assign brand_name = '' %}
+            {% assign type_name = '' %}
+            
+            {% comment %} Extract brand and type from current tags {% endcomment %}
+            {% for tag in current_tags %}
+              {% if tag contains 'Brand_' %}
+                {% assign brand_name = tag | remove_first: 'Brand_' | upcase %}
+              {% elsif tag contains 'Type_' %}
+                {% assign type_name = tag | remove_first: 'Type_' %}
+              {% endif %}
+            {% endfor %}
+            
+            {% comment %} Build adaptive title {% endcomment %}
+            {% if brand_name != blank and type_name != blank %}
+              {% assign adaptive_title = brand_name | append: ' ' | append: type_name | append: ' ' | append: collection.title %}
+            {% elsif brand_name != blank %}
+              {% assign adaptive_title = brand_name | append: ' ' | append: collection.title %}
+            {% elsif type_name != blank %}
+              {% assign adaptive_title = type_name | append: ' ' | append: collection.title %}
+            {% endif %}
+            
+            <h1 class="savebigontires-heading-1">{{ adaptive_title }}</h1>
+            <div class="savebigontires-collection-description">
+              {{ collection.description }}
+            </div>
+          </header>
+          <div class="savebigontires-collection-controls">
+            <div class="savebigontires-collection-controls-wrapper">
+              <div class="savebigontires-controls-filters">
+                {% include 'active-filter-tags' %}
+              </div>
+              <div class="savebigontires-controls-right">
+                {% include 'collection-sorting' %}
+                {% include 'collection-views' %}
+              </div>
+            </div>
+          </div>
+        {% else %}
+        <header class="savebigontires-collection-header savebigontires-collection-header--inline">
+          {% comment %} Generate adaptive title based on current tags {% endcomment %}
+          {% assign adaptive_title = collection.title %}
+          {% assign brand_name = '' %}
+          {% assign type_name = '' %}
+          
+          {% comment %} Extract brand and type from current tags {% endcomment %}
+          {% for tag in current_tags %}
+            {% if tag contains 'Brand_' %}
+              {% assign brand_name = tag | remove_first: 'Brand_' | upcase %}
+            {% elsif tag contains 'Type_' %}
+              {% assign type_name = tag | remove_first: 'Type_' %}
+            {% endif %}
+          {% endfor %}
+          
+          {% comment %} Build adaptive title {% endcomment %}
+          {% if brand_name != blank and type_name != blank %}
+            {% assign adaptive_title = brand_name | append: ' ' | append: type_name | append: ' ' | append: collection.title %}
+          {% elsif brand_name != blank %}
+            {% assign adaptive_title = brand_name | append: ' ' | append: collection.title %}
+          {% elsif type_name != blank %}
+            {% assign adaptive_title = type_name | append: ' ' | append: collection.title %}
+          {% endif %}
+          
+          <h1 class="savebigontires-heading-1">{{ adaptive_title }}</h1>
+          <div class="savebigontires-collection-controls">
+            <div class="savebigontires-collection-controls-wrapper">
+              <div class="savebigontires-controls-filters">
+                {% include 'active-filter-tags' %}
+              </div>
+              <div class="savebigontires-controls-right">
+                {% include 'collection-sorting' %}
+                {% include 'collection-views' %}
+              </div>
+            </div>
+          </div>
+        </header>
+        {% endif %}
+
+        {% if paginate.pages > 1 %}
+        <div class="savebigontires-pagination-wrapper savebigontires-pagination-top">
+          <div class="savebigontires-pagination-container">
+            {% include 'pagination-custom' %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% comment %} Check if we should show grid or list view {% endcomment %}
+        {% assign view_mode = request.params.view | default: 'grid' %}
+        {% if view_mode == 'list' %}
+          <div class="savebigontires-product-list">
+            {% for product in collection.products %}
+              {% include 'product-list-item' %}
+            {% else %}
+              <div class="savebigontires-no-products">
+                <p class="savebigontires-body-text">{{ 'collections.general.no_matches' | t }}</p>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="savebigontires-product-grid grid-{{ section.settings.grid }} collection-grid">
+            {% for product in collection.products %}
+              <div class="savebigontires-product-grid-item">
+                {% include 'item-card', product: product %}
+              </div>
+            {% else %}
+              <div class="savebigontires-no-products">
+                <p class="savebigontires-body-text">{{ 'collections.general.no_matches' | t }}</p>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if paginate.pages > 1 %}
+        <div class="savebigontires-pagination-wrapper savebigontires-pagination-bottom">
+          <div class="savebigontires-pagination-container">
+            {% include 'pagination-custom' %}
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Mobile filter toggle functionality for full-screen overlay (old filter toggle button)
+  function toggleFilters() {
+    const sidebar = document.getElementById('collectionFilters');
+    const closeBtn = sidebar.querySelector('.close-filters');
+    
+    if (sidebar.classList.contains('show-filters')) {
+      sidebar.classList.remove('show-filters');
+      sidebar.classList.remove('mobile-overlay');
+      closeBtn.style.display = 'none';
+      document.body.style.overflow = '';
+    } else {
+      sidebar.classList.add('show-filters');
+      sidebar.classList.add('mobile-overlay');
+      closeBtn.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // Mobile filter toggle functionality
+  $(function() {
+    function toggleMobileFilters() {
+      var $sidebar = $('#collectionFilters');
+      var $toggleIcon = $sidebar.find('.savebigontires-mobile-filter-icon');
+      var $filterGroups = $sidebar.find('.savebigontires-filter-groups');
+      var $filterSection = $sidebar.find('.savebigontires-filter-section');
+      var $filterLists = $sidebar.find('.savebigontires-filter-list');
+      
+      if ($sidebar.hasClass('mobile-expanded')) {
+        $sidebar.removeClass('mobile-expanded');
+        $toggleIcon.text('+');
+        $filterGroups.slideUp(200);
+        $filterSection.slideUp(200);
+        $filterLists.slideUp(200);
+      } else {
+        $sidebar.addClass('mobile-expanded');
+        $toggleIcon.text('−');
+        $filterGroups.slideDown(200);
+        $filterSection.slideDown(200);
+        $filterLists.slideDown(200);
+      }
+    }
+    
+    // Attach click handlers
+    $('.savebigontires-mobile-filter-header, .savebigontires-mobile-filter-toggle').on('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleMobileFilters();
+    });
+  });
+
+  // Close filters when clicking outside on mobile
+  document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('collectionFilters');
+    const toggleBtn = document.querySelector('.savebigontires-filter-toggle');
+    
+    if (sidebar && sidebar.classList.contains('show-filters')) {
+      if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+        toggleFilters();
+      }
+    }
+  });
+
+  // Handle window resize
+  window.addEventListener('resize', function() {
+    const sidebar = document.getElementById('collectionFilters');
+    if (sidebar && window.innerWidth > 768) {
+      // Remove mobile overlay classes when switching to desktop
+      sidebar.classList.remove('show-filters', 'mobile-overlay', 'mobile-expanded');
+      sidebar.querySelector('.close-filters').style.display = 'none';
+      document.body.style.overflow = '';
+      
+      // Reset mobile toggle icon
+      const toggleIcon = sidebar.querySelector('.savebigontires-mobile-filter-icon');
+      if (toggleIcon) {
+        toggleIcon.textContent = '+';
+      }
+    }
+  });
+
+  // Add scrollable class to filter lists that need scrolling
+  function initScrollableFilters() {
+    const filterLists = document.querySelectorAll('.savebigontires-filter-list, .filter-list');
+    filterLists.forEach(function(list) {
+      if (list.scrollHeight > list.clientHeight) {
+        list.classList.add('scrollable');
+      }
+    });
+  }
+
+  // Make sidebar scrollable independently
+  function makeFiltersSidebarScrollable() {
+    const sidebar = document.querySelector('.savebigontires-collection-sidebar');
+    if (sidebar) {
+      // Disable scrolling on the main sidebar container
+      sidebar.style.overflow = 'visible';
+      sidebar.style.maxHeight = 'none'; // Remove height constraint
+      
+      // Remove any wheel event listeners that might interfere
+      // Individual filter lists will handle their own scrolling via CSS
+    }
+  }
+
+  // Initialize scrollable filters when DOM is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    initScrollableFilters();
+    makeFiltersSidebarScrollable();
+  });
+  
+  // Re-initialize on window resize
+  window.addEventListener('resize', function() {
+    initScrollableFilters();
+    makeFiltersSidebarScrollable();
+  });
+</script>
+
+{% endpaginate %}
+
+
+
+{% schema %}
+{
+  "name": {
+    "cs": "Kolekce",
+    "da": "Kollektion",
+    "de": "Kategorie",
+    "en": "Collection",
+    "es": "Colección",
+    "fi": "Kokoelma",
+    "fr": "Collection",
+    "hi": "कलेक्शन",
+    "it": "Collezione",
+    "ja": "コレクション",
+    "ko": "컬렉션",
+    "nb": "Samling",
+    "nl": "Collectie",
+    "pl": "Kolekcja",
+    "pt-BR": "Coleção",
+    "pt-PT": "Coleção",
+    "sv": "Produktserie",
+    "th": "คอลเลกชัน",
+    "tr": "Koleksiyon",
+    "vi": "Bộ sưu tập",
+    "zh-CN": "收藏",
+    "zh-TW": "商品系列"
+  },
+  "class": "collection-template-section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "num_products",
+      "label": {
+        "cs": "Počet produktů na stránku",
+        "da": "Produkter pr. side",
+        "de": "Produkte pro Seite",
+        "en": "Products per page",
+        "es": "Productos por página",
+        "fi": "Tuotteita sivulla",
+        "fr": "Produits par page",
+        "hi": "प्रति पेज उत्पाद",
+        "it": "Prodotti per pagina",
+        "ja": "ページあたりの商品数",
+        "ko": "페이지 별 제품",
+        "nb": "Produkter per side",
+        "nl": "Producten per pagina",
+        "pl": "Liczba produktów na stronę",
+        "pt-BR": "Produtos por página",
+        "pt-PT": "Produtos por página",
+        "sv": "Produkter per rad",
+        "th": "สินค้าต่อหน้า",
+        "tr": "Sayfa başına ürün",
+        "vi": "Sản phẩm trên một trang",
+        "zh-CN": "每页产品数",
+        "zh-TW": "每頁產品數"
+      },
+      "default": "20",
+      "options": [
+        {
+          "value": "10",
+          "label": {
+            "cs": "10",
+            "da": "10",
+            "de": "10",
+            "en": "10",
+            "es": "10",
+            "fi": "10",
+            "fr": "10",
+            "hi": "10",
+            "it": "10",
+            "ja": "10",
+            "ko": "10",
+            "nb": "10",
+            "nl": "10",
+            "pl": "10",
+            "pt-BR": "10",
+            "pt-PT": "10",
+            "sv": "10",
+            "th": "10",
+            "tr": "10",
+            "vi": "10",
+            "zh-CN": "10",
+            "zh-TW": "10"
+          }
+        },
+        {
+          "value": "15",
+          "label": {
+            "cs": "15",
+            "da": "15",
+            "de": "15",
+            "en": "15",
+            "es": "15",
+            "fi": "15",
+            "fr": "15",
+            "hi": "15",
+            "it": "15",
+            "ja": "15",
+            "ko": "15",
+            "nb": "15",
+            "nl": "15",
+            "pl": "15",
+            "pt-BR": "15",
+            "pt-PT": "15",
+            "sv": "15",
+            "th": "15",
+            "tr": "15",
+            "vi": "15",
+            "zh-CN": "15",
+            "zh-TW": "15"
+          }
+        },
+        {
+          "value": "20",
+          "label": {
+            "cs": "20",
+            "da": "20",
+            "de": "20",
+            "en": "20",
+            "es": "20",
+            "fi": "20",
+            "fr": "20",
+            "hi": "20",
+            "it": "20",
+            "ja": "20",
+            "ko": "20",
+            "nb": "20",
+            "nl": "20",
+            "pl": "20",
+            "pt-BR": "20",
+            "pt-PT": "20",
+            "sv": "20",
+            "th": "20",
+            "tr": "20",
+            "vi": "20",
+            "zh-CN": "20",
+            "zh-TW": "八折"
+          }
+        },
+        {
+          "value": "25",
+          "label": {
+            "cs": "25",
+            "da": "25",
+            "de": "25",
+            "en": "25",
+            "es": "25",
+            "fi": "25",
+            "fr": "25",
+            "hi": "25",
+            "it": "25",
+            "ja": "25",
+            "ko": "25",
+            "nb": "25",
+            "nl": "25",
+            "pl": "25",
+            "pt-BR": "25",
+            "pt-PT": "25",
+            "sv": "25",
+            "th": "25",
+            "tr": "25",
+            "vi": "25",
+            "zh-CN": "25",
+            "zh-TW": "25"
+          }
+        },
+        {
+          "value": "30",
+          "label": {
+            "cs": "30",
+            "da": "30",
+            "de": "30",
+            "en": "30",
+            "es": "30",
+            "fi": "30",
+            "fr": "30",
+            "hi": "30",
+            "it": "30",
+            "ja": "30",
+            "ko": "30",
+            "nb": "30",
+            "nl": "30",
+            "pl": "30",
+            "pt-BR": "30",
+            "pt-PT": "30",
+            "sv": "30",
+            "th": "30",
+            "tr": "30",
+            "vi": "30",
+            "zh-CN": "30",
+            "zh-TW": "30"
+          }
+        }
+      ]
+    },
+    {
+      "type": "radio",
+      "id": "collection_sidebar_filters",
+      "label": {
+        "cs": "Filtry produktů v postranní liště",
+        "da": "Produktfiltre i sidebjælke",
+        "de": "Produktfilter in Seitenleiste",
+        "en": "Sidebar product filters",
+        "es": "Filtros de productos de la barra lateral",
+        "fi": "Sivupalkin tuotesuodattimet",
+        "fr": "Filtres de produits de la barre latérale",
+        "hi": "साइडबार उत्पाद फ़िल्टर",
+        "it": "Filtri prodotto sidebar",
+        "ja": "サイドバーの商品絞り込み",
+        "ko": "사이드 바 제품 필터",
+        "nb": "Produktfiltre i sidefelt",
+        "nl": "Filters voor zijbalk",
+        "pl": "Filtry produktów w pasku bocznym",
+        "pt-BR": "Filtros de produto na barra lateral",
+        "pt-PT": "Filtros de produto na barra lateral",
+        "sv": "Sidofältets produktfilter",
+        "th": "ตัวกรองสินค้าในแถบด้านข้าง",
+        "tr": "Kenar çubuğu ürün filtreleri",
+        "vi": "Bộ lọc sản phẩm thanh bên",
+        "zh-CN": "侧边栏产品筛选器",
+        "zh-TW": "側邊欄產品篩選條件"
+      },
+      "options": [
+        {
+          "value": "tags",
+          "label": {
+            "cs": "Podle štítku",
+            "da": "Efter tag",
+            "de": "Nach Tag",
+            "en": "By tag",
+            "es": "Por etiqueta",
+            "fi": "Tunnisteen mukaan",
+            "fr": "Par balise",
+            "hi": "टैग द्वारा",
+            "it": "Per tag",
+            "ja": "タグ別",
+            "ko": "태그 별",
+            "nb": "Etter tagg",
+            "nl": "Per tag",
+            "pl": "Wg tagu",
+            "pt-BR": "Por tag",
+            "pt-PT": "Por etiqueta",
+            "sv": "Efter tagg",
+            "th": "ตามแถบป้าย",
+            "tr": "Etikete göre",
+            "vi": "Theo thẻ",
+            "zh-CN": "按标签",
+            "zh-TW": "依標籤"
+          }
+        },
+        {
+          "value": "groups",
+          "label": {
+            "cs": "Podle skupiny",
+            "da": "Efter gruppe",
+            "de": "Nach Gruppe",
+            "en": "By group",
+            "es": "Por grupo",
+            "fi": "Ryhmän mukaan",
+            "fr": "Par groupe",
+            "hi": "समूह द्वारा",
+            "it": "Per gruppo",
+            "ja": "グループ別",
+            "ko": "그룹 별",
+            "nb": "Etter gruppe",
+            "nl": "Per groep",
+            "pl": "Wg grupy",
+            "pt-BR": "Por grupo",
+            "pt-PT": "Por grupo",
+            "sv": "Efter grupp",
+            "th": "ตามกลุ่ม",
+            "tr": "Gruba göre",
+            "vi": "Theo nhóm",
+            "zh-CN": "按组",
+            "zh-TW": "依群組"
+          }
+        }
+      ],
+      "default": "groups",
+      "info": {
+        "cs": "[Zjistěte, jak nastavit skupiny filtrů](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "da": "[Få mere at vide om, hvordan du konfigurerer filtergrupper](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "de": "[Erfahre, wie du Filtergruppen einrichtest](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "en": "[Learn how to set up filter groups](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "es": "[Obtén información sobre cómo configurar los grupos de filtros](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "fi": "[Lisätietoja suodatinryhmien määrittämisestä](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "fr": "[Apprendre à configurer des groupes de filtres](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "hi": "[जानें कि फ़िल्टर समूह कैसे सेट करें](https://help.shopify.com/manual/use-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "it": "[Maggiori informazioni su come configurare i gruppi di filtri](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "ja": "[グループの絞り込みフィルターの設定方法を確認する](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific)",
+        "ko": "[필터 그룹을 설정하는 방법에 대해 알아보십시오](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "nb": "[Lær hvordan du setter opp filtergrupper](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "nl": "[Leer hoe je groepsfilters instelt](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "pl": "[Dowiedz się, jak konfigurować grupy filtrów](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "pt-BR": "[Saiba como configurar grupos de filtros](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "pt-PT": "[Aprenda a configurar os grupos de filtragem](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "sv": "[Lär dig hur du ställer in filtergrupper](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "th": "[ดูวิธีตั้งค่ากลุ่มตัวกรอง](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific)",
+        "tr": "[Filtre gruplarını nasıl ayarlayacağınızı öğrenin](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "vi": "[Tìm hiểu cách thiết lập nhóm lọc](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "zh-CN": "[了解如何设置筛选条件组](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific).",
+        "zh-TW": "[瞭解如何設定篩選條件群組](https://help.shopify.com/manual/using-themes/themes-by-shopify/supply#product-tips-tips-specific)。"
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "product_show_compare_at_price",
+      "label": {
+        "cs": "Zobrazit původní cenu",
+        "da": "Vis sammenligningspris",
+        "de": "Vergleichspreis anzeigen",
+        "en": "Show compare at price",
+        "es": "Mostrar precio de comparación",
+        "fi": "Näytä vertailuhinta",
+        "fr": "Afficher le prix normal",
+        "hi": "मूल्य पर तुलना दिखाएं",
+        "it": "Mostra Prezzo di confronto",
+        "ja": "割引前価格を表示する",
+        "ko": "비교가 표시",
+        "nb": "Vis prissammenligning",
+        "nl": "Prijsvergelijking weergeven",
+        "pl": "Pokaż cenę do porównania",
+        "pt-BR": "Exibir Comparação de preços",
+        "pt-PT": "Mostrar preço comparado",
+        "sv": "Visa ursprungspris",
+        "th": "แสดงราคาเปรียบเทียบ",
+        "tr": "Karşılaştırma fiyatını göster",
+        "vi": "Hiển thị giá gốc",
+        "zh-CN": "显示原价",
+        "zh-TW": "顯示售價"
+      },
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "product_show_saved_amount",
+      "label": {
+        "cs": "Zobrazit uloženou částku",
+        "da": "Vis besparelse",
+        "de": "Gesparten Betrag anzeigen",
+        "en": "Show saved amount",
+        "es": "Mostrar monto ahorrado",
+        "fi": "Näytä säästetty summa",
+        "fr": "Afficher le montant économisé",
+        "hi": "सहेजी गई राशि दिखाएं",
+        "it": "Mostra importo risparmiato",
+        "ja": "保存された金額を表示",
+        "ko": "저장 금액 표시",
+        "nb": "Vis spart beløp",
+        "nl": "Bespaard bedrag weergeven",
+        "pl": "Pokaż zaoszczędzoną kwotę",
+        "pt-BR": "Exibir valor salvo",
+        "pt-PT": "Mostrar valor poupado",
+        "sv": "Visa sparade belopp",
+        "th": "แสดงจำนวนที่บันทึกไว้",
+        "tr": "Tasarruf edilen tutarı göster",
+        "vi": "Hiển thị số tiền đã lưu",
+        "zh-CN": "显示已保存的金额",
+        "zh-TW": "顯示省下金額"
+      },
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sidebar",
+      "label": {
+        "en": "Enable sidebar filters"
+      },
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "product_reviews_enable",
+      "label": {
+        "cs": "Povolit recenze produktů",
+        "da": "Aktivér produktanmeldelser",
+        "de": "Produktbewertungen aktivieren",
+        "en": "Enable product reviews",
+        "es": "Habilitar reseñas de productos",
+        "fi": "Ota tuotearvostelut käyttöön",
+        "fr": "Activer les avis sur les produits",
+        "hi": "उत्पाद समीक्षा सक्षम करें",
+        "it": "Abilita recensioni di prodotto",
+        "ja": "商品レビューを有効にする",
+        "ko": "제품 리뷰 사용",
+        "nb": "Aktiver produktanmeldelser",
+        "nl": "Productbeoordelingen inschakelen",
+        "pl": "Włącz recenzje produktów",
+        "pt-BR": "Habilitar as avaliações de produtos",
+        "pt-PT": "Ativar as análises de produtos",
+        "sv": "Aktivera produktrecensioner",
+        "th": "เปิดรีวิวสินค้า",
+        "tr": "Ürün değerlendirmelerini etkinleştir",
+        "vi": "Bật đánh giá sản phẩm",
+        "zh-CN": "启用产品评论",
+        "zh-TW": "啟用產品評論"
+      },
+      "info": {
+        "cs": "Nainstalujte si zdarma aplikaci Shopify [Product Reviews](https://apps.shopify.com/product-reviews), která umožňuje přidávání recenzí produktů.",
+        "da": "Installer den gratis Shopify-app [Product Reviews](https://apps.shopify.com/product-reviews) for at tilføje produktanmeldelser.",
+        "de": "Installiere die kostenlose Shopify-App [Product Reviews](https://apps.shopify.com/product-reviews), um Produktbewertungen hinzuzufügen.",
+        "en": "Install the free Shopify [Product Reviews](https://apps.shopify.com/product-reviews) app to add product reviews.",
+        "es": "Instala la aplicación gratis de Shopify [Product Reviews](https://apps.shopify.com/product-reviews) para agregar reseñas de productos.",
+        "fi": "Asenna ilmainen Shopify [tuotearvostelut](https://apps.shopify.com/product-reviews) ‑sovellus lisätäksesi tuotearvostelut.",
+        "fr": "Installez l'application Shopify gratuite [Avis produits](https://apps.shopify.com/product-reviews) pour ajouter des avis produits.",
+        "hi": "नि: शुल्क Shopify इंस्टाल करें [उत्पाद समीक्षा](https://apps.shopify.com/product-reviews) उत्पाद समीक्षा जोड़ने के लिए ऐप.",
+        "it": "Installa l'app gratuita di Shopify [Product Reviews](https://apps.shopify.com/product-reviews) per aggiungere recensioni ai prodotti.",
+        "ja": "Shopify [商品レビュー](https://apps.shopify.com/product-reviews) アプリを無料でイントールして、商品レビューを追加しましょう。",
+        "ko": "제품 리뷰를 추가하려면 무료 Shopify [제품 리뷰](https://apps.shopify.com/product-reviews) 앱을 설치하십시오.",
+        "nb": "Installer den gratis Shopify [Product Reviews](https://apps.shopify.com/product-reviews)-appen for å legge til produktomtaler.",
+        "nl": "Installeer de gratis Shopify [Productbeoordelingne](https://apps.shopify.com/product-reviews)-app om productbeoordelingen toe te voegen.",
+        "pl": "Zainstaluj darmową aplikację Shopify [Product Reviews](https://apps.shopify.com/product-reviews), aby dodawać recenzje produktów.",
+        "pt-BR": "Instale o app gratuito [Product Reviews](https://apps.shopify.com/product-reviews) da Shopify para adicionar avaliações aos produtos.",
+        "pt-PT": "Instale a aplicação gratuita da Shopify [Avaliações de produtos](https://apps.shopify.com/product-reviews) para adicionar avaliações de produtos.",
+        "sv": "Installera den kostnadsfria Shopify [Produktrecensioner](https://apps.shopify.com/product-reviews)-appen för att lägga till produktrecensioner.",
+        "th": "ติดตั้ง [แอปรีวิวสินค้า](https://apps.shopify.com/product-reviews) ของ Shopify ฟรีเพื่อเพิ่มรีวิวสินค้า",
+        "tr": "Ürün değerlendirmeleri eklemek için ücretsiz Shopify [Product Reviews](https://apps.shopify.com/product-reviews) uygulamasını yükleyin.",
+        "vi": "Cài đặt ứng dụng [Product Reviews](https://apps.shopify.com/product-reviews) miễn phí của Shopify để thêm đánh giá sản phẩm.",
+        "zh-CN": "安装免费 Shopify [产品评论](https://apps.shopify.com/product-reviews) 应用以添加产品评论。",
+        "zh-TW": "免費安裝 Shopify [產品評論](https://apps.shopify.com/product-reviews) 應用程式以新增產品評論。"
+      }
+    }
+  ]
+}
+{% endschema %}

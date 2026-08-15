@@ -1,0 +1,113 @@
+{% comment %}
+  A loop to catch and filter out the different tag categories.
+  This is mainly for advanced tagging, but will also help us strip
+  out any tag categories from our tags (E.g. remove BRAND_ from BRAND_tag)
+{% endcomment %}
+{% if request.page_type == 'collection' and collection.all_tags.size > 0 %}
+  {% assign categories = '' %}
+  {% assign has_type = false %}
+  {% for tag in collection.all_tags %}
+    {% if tag contains '_' %}
+      {% assign cat = tag | split: '_' | first %}
+      {% if cat == 'Type' %}
+        {% assign has_type = true %}
+      {% endif %}
+      {% capture categories %}{% unless categories == blank  %}{{ categories }}|{% endunless %}{{ cat }}{% endcapture %}
+    {% endif %}
+  {% endfor %}
+
+  {% assign temp_array = categories | split: '|' | uniq %}
+  {% assign cat_array = '' %}
+  {% assign has_size = false %}
+  {% assign has_brand = false %}
+  {% assign has_wheel_dia = false %}
+  {% assign has_bolt_pattern = false %}
+
+  {% comment %} Check for Size, Brand, WheelDia, and BoltPattern categories {% endcomment %}
+  {% for cat in temp_array %}
+    {% if cat == 'Size' %}
+      {% assign has_size = true %}
+    {% elsif cat == 'Brand' %}
+      {% assign has_brand = true %}
+    {% elsif cat == 'WheelDia' %}
+      {% assign has_wheel_dia = true %}
+    {% elsif cat == 'BoltPattern' %}
+      {% assign has_bolt_pattern = true %}
+    {% endif %}
+  {% endfor %}
+
+  {% comment %} Detect wheels collection by title or handle {% endcomment %}
+  {% assign is_wheels_collection = false %}
+  {% assign collection_title_lower = collection.title | downcase %}
+  {% assign collection_handle_lower = collection.handle | downcase %}
+  {% if collection_title_lower contains 'wheel' or collection_handle_lower contains 'wheel' %}
+    {% assign is_wheels_collection = true %}
+  {% endif %}
+
+  {% comment %} Build cat_array with correct order for wheels vs tires {% endcomment %}
+  {% if is_wheels_collection %}
+    {% comment %} Wheels: WheelDia → BoltPattern → Size → Type {% endcomment %}
+    {% if has_wheel_dia %}
+      {% assign cat_array = 'WheelDia' %}
+    {% endif %}
+
+    {% if has_bolt_pattern %}
+      {% if cat_array == blank %}
+        {% assign cat_array = 'BoltPattern' %}
+      {% else %}
+        {% assign cat_array = cat_array | append: '|BoltPattern' %}
+      {% endif %}
+    {% endif %}
+
+    {% if has_size %}
+      {% if cat_array == blank %}
+        {% assign cat_array = 'Size' %}
+      {% else %}
+        {% assign cat_array = cat_array | append: '|Size' %}
+      {% endif %}
+    {% endif %}
+
+    {% if has_type %}
+      {% if cat_array == blank %}
+        {% assign cat_array = 'Type' %}
+      {% else %}
+        {% assign cat_array = cat_array | append: '|Type' %}
+      {% endif %}
+    {% endif %}
+  {% else %}
+    {% comment %} Tires: Type → Size {% endcomment %}
+    {% if has_type %}
+      {% assign cat_array = 'Type' %}
+    {% endif %}
+
+    {% if has_size %}
+      {% if cat_array == blank %}
+        {% assign cat_array = 'Size' %}
+      {% else %}
+        {% assign cat_array = cat_array | append: '|Size' %}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+
+  {% comment %} Add Brand if it exists {% endcomment %}
+  {% if has_brand %}
+    {% if cat_array == blank %}
+      {% assign cat_array = 'Brand' %}
+    {% else %}
+      {% assign cat_array = cat_array | append: '|Brand' %}
+    {% endif %}
+  {% endif %}
+
+  {% comment %} Add remaining categories, excluding all explicitly handled ones {% endcomment %}
+  {% for cat in temp_array %}
+    {% unless cat == 'Type' or cat == 'Size' or cat == 'Brand' or cat == 'WheelDia' or cat == 'BoltPattern' or cat == 'Model' or cat == 'RimDia' %}
+      {% if cat_array == blank %}
+        {% assign cat_array = cat %}
+      {% else %}
+        {% assign cat_array = cat_array | append: '|' | append: cat %}
+      {% endif %}
+    {% endunless %}
+  {% endfor %}
+
+  {% assign cat_array = cat_array | split: '|' %}
+{% endif %}

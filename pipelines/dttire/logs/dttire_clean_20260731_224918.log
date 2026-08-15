@@ -1,0 +1,30 @@
+22:49:18 [INFO] Log file: logs\dttire_clean_20260731_224918.log
+22:49:18 [INFO] Input file : Data\raw\dttire_tires_20260731_224916.csv
+22:49:18 [INFO] Rows loaded: 31634
+22:49:18 [WARNING] Dropping 2039 row(s) with unparseable prices
+22:49:18 [INFO] Duplicate SKUs dropped: 377
+22:49:19 [INFO] Excluded (farm/OTR/commercial truck): 3109
+22:49:19 [INFO] Exclusion reasons:
+0
+perf_exact             833
+perf_sub               673
+decimal_ag size        457
+ag_width size          422
+unknown_size           258
+commercial_rim size    179
+ag_prefix size         176
+skid/drive size        100
+large_L size            11
+22:49:19 [INFO] Excluded saved  : Data\cleaned\excluded_tires_20260731_224919.csv
+22:49:19 [INFO] Low qty saved   : Data\cleaned\low_quantity_tires_20260731_224919.csv
+22:49:20 [INFO] Designation breakdown:
+designation
+All Season    5212
+Winter        2486
+Summer        1416
+Unknown          1
+22:49:20 [WARNING] 1 row(s) remain Unknown after all fallbacks
+22:49:20 [WARNING] Unknown sample:
+         sku brand      model   season performance          size
+9443  106371  CEAT  FARMAX RC  Unknown         NaN  230/95R40/TL
+22:49:20 [INFO] Output file : Data\cleaned\cleaned_tires_20260731_224919.csv

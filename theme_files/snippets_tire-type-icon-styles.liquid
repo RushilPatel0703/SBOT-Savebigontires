@@ -1,0 +1,166 @@
+{% comment %}
+  Tire Type Icon Styles
+  Professional styling for tire type icons
+{% endcomment %}
+
+<style>
+  .tire-type-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #f8f9fa;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    border: 1px solid #e9ecef;
+    margin: 8px 0 0 12px;
+    transition: all 0.2s ease;
+  }
+
+  .tire-type-indicator:hover {
+    background: #e9ecef;
+    transform: translateY(-1px);
+  }
+
+  .tire-type-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .tire-type-label {
+    white-space: nowrap;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Tire type icons now have built-in colors */
+  .tire-type-icon {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  }
+
+  /* Hover effect for icons */
+  .tire-type-indicator:hover .tire-type-icon {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .tire-type-under-price {
+      bottom: 12px;
+    }
+    
+    .tire-type-under-price .tire-type-indicator {
+      padding: 4px 8px;
+      gap: 6px;
+      font-size: 12px;
+    }
+    
+    .tire-type-under-price .tire-type-icon {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .tire-type-under-price .tire-type-label {
+      font-size: 11px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .tire-type-under-price {
+      bottom: 12px;
+    }
+    
+    .tire-type-under-price .tire-type-indicator {
+      padding: 3px 6px;
+      gap: 4px;
+      font-size: 11px;
+    }
+    
+    .tire-type-under-price .tire-type-icon {
+      width: 14px;
+      height: 14px;
+    }
+    
+    .tire-type-under-price .tire-type-label {
+      font-size: 10px;
+    }
+  }
+
+  /* Collection card: overlay at bottom-center of image */
+  .tire-card-image .tire-type-under-price {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+  }
+
+  /* Product page: normal flow, no absolute positioning */
+  .tire-type-product-page.tire-type-under-price {
+    position: static;
+    transform: none;
+    left: auto;
+    bottom: auto;
+    margin: 8px 0 14px;
+  }
+
+  .tire-type-under-price .tire-type-indicator {
+    margin: 0;
+    font-size: 13px;
+    padding: 5px 10px;
+
+  }
+
+  .tire-type-under-price .tire-type-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .tire-type-under-price .tire-type-label {
+    font-size: 12px;
+  }
+
+  /* Card context adjustments */
+  .tire-card-title-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+
+  .tire-card-title-with-icon .tire-type-indicator {
+    margin-left: 8px;
+    padding: 3px 8px;
+    font-size: 12px;
+    border-radius: 12px;
+  }
+
+  .tire-card-title-with-icon .tire-type-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .tire-card-title-with-icon .tire-type-label {
+    font-size: 11px;
+  }
+
+  /* Product page — larger icon, independent of collection cards */
+  .tire-type-product-page .tire-type-indicator {
+    padding: 7px 14px;
+    font-size: 14px;
+  }
+
+  .tire-type-product-page .tire-type-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .tire-type-product-page .tire-type-label {
+    font-size: 13px;
+  }
+</style>

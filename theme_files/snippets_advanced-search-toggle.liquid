@@ -1,0 +1,230 @@
+{% comment %}
+  Advanced Search Toggle Button
+  This snippet adds a button to toggle between simple and advanced search
+{% endcomment %}
+
+<style>
+  .savebigontires-search-container {
+    position: relative;
+  }
+  
+  .advanced-search-toggle {
+    position: absolute;
+    right: 59px;
+    top: 60%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6c757d;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 5px 10px;
+    transition: color 0.2s ease;
+    z-index: 5;
+    font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    height: 20px;
+  }
+  
+  .advanced-search-toggle:hover {
+    color: #d70000;
+  }
+  
+  .advanced-search-modal {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #cecece;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    padding: 0;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .advanced-search-modal.active {
+    display: block;
+  }
+  
+  .advanced-search-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+  }
+  
+  .advanced-search-close:hover {
+    color: #d70000;
+    transform: scale(1.1);
+  }
+  
+  .desktop-search-form {
+    display: block;
+    padding: 0;
+  }
+  
+  .desktop-search-form.active {
+    display: block;
+  }
+  
+  .savebigontires-search-input {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid #cecece;
+    border-radius: 4px;
+    font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 16px;
+    transition: border-color 0.2s ease;
+    background-color: #fff;
+    flex: 1;
+    margin: 10px;
+  }
+  
+  .savebigontires-search-input:focus {
+    outline: none;
+    border-color: #d70000;
+    box-shadow: 0 0 0 3px rgba(215, 0, 0, 0.1);
+  }
+  
+  .savebigontires-btn-primary {
+    padding: 16px;
+    background: #d70000;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    box-shadow: 0 2px 4px rgba(215, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .savebigontires-btn-primary:hover {
+    background: #b30000;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(215, 0, 0, 0.3);
+  }
+  
+  .savebigontires-btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(215, 0, 0, 0.2);
+  }
+  
+  /* Mobile adjustments */
+  @media (max-width: 768px) {
+    .advanced-search-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 0;
+      max-height: none;
+      z-index: 2000;
+      padding: 50px 20px 20px;
+    }
+    
+    .advanced-search-close {
+      top: 15px;
+      right: 15px;
+    }
+  }
+</style>
+
+<!-- Advanced Search Toggle Button -->
+<button type="button" class="advanced-search-toggle" aria-label="Advanced Search" title="Advanced Search" onclick="toggleAdvancedSearch()">
+  Search by Car
+</button>
+
+<!-- Advanced Search Modal -->
+<div id="advancedSearchModal" class="advanced-search-modal">
+  <button type="button" class="advanced-search-close" aria-label="Close" onclick="toggleAdvancedSearch()">×</button>
+  
+  <!-- Advanced Search Form -->
+  <div class="desktop-search-form active">
+    {% include 'search-form' %}
+  </div>
+</div>
+
+<script>
+  function toggleAdvancedSearch() {
+    const modal = document.getElementById('advancedSearchModal');
+    modal.classList.toggle('active');
+    
+    if (modal.classList.contains('active')) {
+      // Initialize advanced search form for desktop modal
+      setTimeout(() => {
+        if (typeof window.initAdvancedSearchForm === 'function') {
+          window.initAdvancedSearchForm('#advancedSearchModal');
+        }
+        
+        // Focus on year select when opened
+        const yearSelect = document.querySelector('#advancedSearchModal .search-form-year');
+        if (yearSelect) yearSelect.focus();
+      }, 100);
+      
+      // Use scroll lock manager if available, fallback to direct manipulation
+      if (window.scrollLockManager) {
+        window.scrollLockManager.lock('advanced-search');
+      } else {
+        document.body.style.overflow = 'hidden';
+      }
+    } else {
+      // Use scroll lock manager if available, fallback to direct manipulation
+      if (window.scrollLockManager) {
+        window.scrollLockManager.unlock('advanced-search');
+      } else {
+        document.body.style.overflow = '';
+      }
+    }
+  }
+  
+  // Close modal on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('advancedSearchModal');
+      if (modal.classList.contains('active')) {
+        toggleAdvancedSearch();
+      }
+    }
+  });
+  
+  // Close modal when clicking outside
+  document.addEventListener('click', function(e) {
+    const modal = document.getElementById('advancedSearchModal');
+    const toggle = document.querySelector('.advanced-search-toggle');
+    
+    if (modal.classList.contains('active') && 
+        !modal.contains(e.target) && 
+        !toggle.contains(e.target)) {
+      toggleAdvancedSearch();
+    }
+  });
+</script>

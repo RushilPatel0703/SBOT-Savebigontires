@@ -1,0 +1,735 @@
+{% comment %}
+  Home Page Search Filters — Tires / Wheels toggle
+  Inlines widget HTML directly (skips tire-collection-detector) so Width/Ratio/Diameter
+  always renders. Add to home page via Shopify admin between the services banner and
+  the featured tires section.
+{% endcomment %}
+
+<div class="savebigontires-home-search">
+
+  <!-- Toggle -->
+  <div class="home-search-toggle-wrap">
+    <div class="home-search-toggle">
+      <button id="homeToggleTires" class="home-toggle-btn active" type="button">Shop Tires</button>
+      <button id="homeToggleWheels" class="home-toggle-btn" type="button">Shop Wheels</button>
+    </div>
+  </div>
+
+  <!-- ══ TIRE PANEL ══════════════════════════════════════════════════════════ -->
+  <div id="homeTirePanel" class="savebigontires-top-filters home-panel">
+    <div class="savebigontires-top-filters-container">
+
+      <!-- Tire size guide image -->
+      <div class="tire-size-guide-wrap">
+        <img
+          src="{{ 'tire-size-guide.jpg' | asset_url }}"
+          alt="Tire Size Guide: Width / Profile R Wheel-Size Load-Index Speed-Rating"
+          class="tire-size-guide-img"
+          loading="lazy"
+        >
+      </div>
+
+      <div class="savebigontires-top-filters-grid">
+
+        <!-- Left column: size row + type/brand row stacked -->
+        <div class="top-filter-left">
+
+          <!-- Row 1: Width / Ratio / Diameter -->
+          <div class="top-filter-left-row">
+            <div class="top-filter-group tire-size-composition">
+              <div class="top-filter-item">
+                <label>Width</label>
+                <div class="custom-select-wrapper">
+                  <select id="topFilterWidth" class="top-filter-select">
+                    <option value="">Select Width</option>
+                  </select>
+                </div>
+              </div>
+              <span class="tire-size-divider">/</span>
+              <div class="top-filter-item">
+                <label>Ratio</label>
+                <div class="custom-select-wrapper">
+                  <select id="topFilterRatio" class="top-filter-select" disabled>
+                    <option value="">Ratio</option>
+                  </select>
+                </div>
+              </div>
+              <span class="tire-size-divider">R</span>
+              <div class="top-filter-item">
+                <label>Diameter</label>
+                <div class="custom-select-wrapper">
+                  <select id="topFilterDiameter" class="top-filter-select" disabled>
+                    <option value="">Diameter</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 2: Type + Brand -->
+          <div class="top-filter-left-row">
+            <div class="top-filter-item">
+              <label>Type</label>
+              <div class="custom-select-wrapper">
+                <select id="topFilterType" class="top-filter-select">
+                  <option value="">All Types</option>
+                  {% assign type_tags = '' %}
+                  {% for tag in collections['tires'].all_tags %}
+                    {% if tag contains 'Type_' %}
+                      {% if type_tags == '' %}{% assign type_tags = tag %}{% else %}{% assign type_tags = type_tags | append: ',' | append: tag %}{% endif %}
+                    {% endif %}
+                  {% endfor %}
+                  {% assign type_tags_array = type_tags | split: ',' | sort %}
+                  {% for tag in type_tags_array %}
+                    {% assign type_val = tag | remove: 'Type_' %}
+                    <option value="{{ tag }}">{{ type_val }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div class="top-filter-item">
+              <label>Brand</label>
+              <div class="custom-select-wrapper">
+                <select id="topFilterBrand" class="top-filter-select">
+                  <option value="">All Brands</option>
+                  {% assign brand_tags = '' %}
+                  {% for tag in collections['tires'].all_tags %}
+                    {% if tag contains 'Brand_' %}
+                      {% assign brand_val = tag | remove: 'Brand_' %}
+                      {% include 'tire-brand-validator', brand_name: brand_val %}
+                      {% if is_valid_tire_brand %}
+                        {% if brand_tags == '' %}{% assign brand_tags = tag %}{% else %}{% assign brand_tags = brand_tags | append: ',' | append: tag %}{% endif %}
+                      {% endif %}
+                    {% endif %}
+                  {% endfor %}
+                  {% assign brand_tags_array = brand_tags | split: ',' | sort %}
+                  {% for tag in brand_tags_array %}
+                    {% assign brand_val = tag | remove: 'Brand_' %}
+                    <option value="{{ tag }}">{{ brand_val }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right column: Search button vertically centered -->
+        <div class="top-filter-right">
+          <button type="button" class="top-filter-search-btn" id="topFilterSearchBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <span>SEARCH</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ WHEEL PANEL ════════════════════════════════════════════════════════ -->
+  <div id="homeWheelPanel" class="savebigontires-top-filters home-panel" style="display:none">
+    <div class="savebigontires-top-filters-container">
+      <div class="savebigontires-top-filters-row">
+
+        <!-- Wheel Diameter -->
+        <div class="top-filter-item">
+          <label>Wheel Diameter</label>
+          <div class="custom-select-wrapper">
+            <select id="homeWheelDiameter" class="top-filter-select">
+              <option value="">All Diameters</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Bolt Pattern -->
+        <div class="top-filter-item">
+          <label>Bolt Pattern</label>
+          <div class="custom-select-wrapper">
+            <select id="homeWheelBoltPattern" class="top-filter-select">
+              <option value="">All Patterns</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Search -->
+        <div class="top-filter-item search-btn-item">
+          <button type="button" class="top-filter-search-btn" id="homeWheelSearchBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <span>SEARCH</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  /* ── Outer container ───────────────────────────────────────────────────── */
+  .savebigontires-home-search {
+    max-width: 1296px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
+  }
+
+  /* ── Tire size guide image ─────────────────────────────────────────────── */
+  .tire-size-guide-wrap {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .tire-size-guide-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* ── Toggle ────────────────────────────────────────────────────────────── */
+  .home-search-toggle-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .home-search-toggle {
+    display: inline-flex;
+    background-color: #f1f5f9;
+    border-radius: 999px;
+    padding: 4px;
+    gap: 2px;
+  }
+
+  .home-toggle-btn {
+    padding: 10px 28px;
+    border: none;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+    color: #64748b;
+  }
+
+  .home-toggle-btn.active {
+    background-color: #e31e24;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(227, 30, 36, 0.3);
+  }
+
+  .home-toggle-btn:not(.active):hover {
+    background-color: #e2e8f0;
+    color: #334155;
+  }
+
+  /* ── Shared panel styles ────────────────────────────────────────────────── */
+  .savebigontires-home-search .savebigontires-top-filters {
+    background-color: #ffffff;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #edf2f7;
+    overflow: hidden;
+  }
+
+  .savebigontires-top-filters-container {
+    padding: 24px;
+    background-image: linear-gradient(to bottom, #ffffff, #fcfdfe);
+  }
+
+  /* ── 2-column grid: left stacked rows + right search button ────────────── */
+  .savebigontires-top-filters-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    align-items: stretch;
+  }
+
+  .top-filter-left {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .top-filter-left-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+  }
+
+  .top-filter-right {
+    display: flex;
+    align-items: center;
+    min-width: 160px;
+  }
+
+  .top-filter-right .top-filter-search-btn {
+    height: 48px;
+    padding: 0 36px;
+    font-size: 15px;
+  }
+
+  /* ── Tire size grouping ─────────────────────────────────────────────────── */
+  .tire-size-composition {
+    display: flex;
+    align-items: flex-end;
+    background-color: #f8fafc;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .tire-size-divider {
+    font-size: 24px;
+    font-weight: 800;
+    color: #cbd5e0;
+    line-height: 1;
+    margin-bottom: 12px;
+    user-select: none;
+  }
+
+  /* ── Filter items ───────────────────────────────────────────────────────── */
+  .top-filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .tire-size-composition .top-filter-item {
+    min-width: 100px;
+    flex: 1;
+  }
+
+  .top-filter-item.search-btn-item {
+    flex: 0 0 auto;
+    min-width: 160px;
+  }
+
+  .top-filter-item label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-left: 2px;
+  }
+
+  .custom-select-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .top-filter-select {
+    width: 100%;
+    height: 48px;
+    background-color: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #2d3748;
+    transition: all 0.25s ease;
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234A5568' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 12px;
+    padding-right: 40px;
+  }
+
+  .tire-size-composition .top-filter-select {
+    border: 2px solid transparent;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    height: 48px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .top-filter-select:hover { border-color: #cbd5e0; }
+
+  .top-filter-select:focus {
+    border-color: #e31e24;
+    box-shadow: 0 0 0 4px rgba(227, 30, 36, 0.08);
+  }
+
+  .top-filter-select:disabled {
+    background-color: #edf2f7;
+    color: #a0aec0;
+    cursor: not-allowed;
+    border-color: #edf2f7;
+    opacity: 0.7;
+  }
+
+  /* ── Search button ──────────────────────────────────────────────────────── */
+  .top-filter-search-btn {
+    width: 100%;
+    height: 48px;
+    background-color: #e31e24;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0 30px;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(227, 30, 36, 0.2);
+  }
+
+  .top-filter-search-btn:hover {
+    background-color: #c41e3a;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(227, 30, 36, 0.3);
+  }
+
+  .top-filter-search-btn:active { transform: translateY(0); }
+
+  /* ── Responsive ─────────────────────────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .top-filter-left-row { gap: 12px; }
+    .top-filter-right { min-width: 140px; }
+  }
+
+  @media (max-width: 768px) {
+    .savebigontires-home-search { padding: 0 12px; }
+    .savebigontires-top-filters-container { padding: 16px; }
+
+    /* Stack grid vertically on mobile */
+    .savebigontires-top-filters-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .top-filter-left { gap: 12px; }
+    .top-filter-left-row { gap: 10px; flex-direction: column; }
+    .top-filter-right { min-width: 100%; }
+    .top-filter-right .top-filter-search-btn {
+      height: 48px;
+      min-height: unset;
+      flex-direction: row;
+      gap: 8px;
+    }
+
+    .top-filter-item { min-width: 100%; }
+    .tire-size-composition {
+      padding: 10px 14px;
+    }
+    .tire-size-composition .top-filter-item {
+      min-width: 0;
+      flex: 1 1 0;
+    }
+    .tire-size-composition .top-filter-select {
+      padding-right: 24px;
+      font-size: 13px;
+    }
+    .tire-size-divider {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .home-toggle-btn {
+      padding: 10px 20px;
+      font-size: 13px;
+    }
+  }
+</style>
+
+<script>
+// Tire and wheel data injected directly by Liquid — no AJAX or JSON parsing needed
+var tireSizeTags = [
+  {%- for tag in collections['tires'].all_tags -%}
+    {%- if tag contains 'Size_' -%}{{ tag | json }},{%- endif -%}
+  {%- endfor -%}
+];
+var homeWheelDiameters = [
+  {%- assign seen_wd = '' -%}
+  {%- for tag in collections['wheels'].all_tags -%}
+    {%- if tag contains 'WheelDia_' -%}
+      {%- unless seen_wd contains tag -%}
+        {%- if seen_wd != '' -%},{%- endif -%}"{{ tag | escape }}"
+        {%- assign seen_wd = seen_wd | append: '|' | append: tag -%}
+      {%- endunless -%}
+    {%- endif -%}
+  {%- endfor -%}
+];
+var homeWheelBoltPatterns = [
+  {%- assign seen_bp = '' -%}
+  {%- for tag in collections['wheels'].all_tags -%}
+    {%- if tag contains 'BoltPattern_' -%}
+      {%- unless seen_bp contains tag -%}
+        {%- if seen_bp != '' -%},{%- endif -%}"{{ tag | escape }}"
+        {%- assign seen_bp = seen_bp | append: '|' | append: tag -%}
+      {%- endunless -%}
+    {%- endif -%}
+  {%- endfor -%}
+];
+
+document.addEventListener('DOMContentLoaded', function() {
+
+  // ── Toggle ─────────────────────────────────────────────────────────────────
+  var btnTires  = document.getElementById('homeToggleTires');
+  var btnWheels = document.getElementById('homeToggleWheels');
+  var tirePanel  = document.getElementById('homeTirePanel');
+  var wheelPanel = document.getElementById('homeWheelPanel');
+
+  btnTires.addEventListener('click', function() {
+    btnTires.classList.add('active');
+    btnWheels.classList.remove('active');
+    tirePanel.style.display  = '';
+    wheelPanel.style.display = 'none';
+  });
+
+  btnWheels.addEventListener('click', function() {
+    btnWheels.classList.add('active');
+    btnTires.classList.remove('active');
+    wheelPanel.style.display = '';
+    tirePanel.style.display  = 'none';
+  });
+
+  // ── Tire panel ─────────────────────────────────────────────────────────────
+  var widthSelect    = document.getElementById('topFilterWidth');
+  var ratioSelect    = document.getElementById('topFilterRatio');
+  var diameterSelect = document.getElementById('topFilterDiameter');
+  var typeSelect     = document.getElementById('topFilterType');
+  var brandSelect    = document.getElementById('topFilterBrand');
+  var tireSearchBtn  = document.getElementById('topFilterSearchBtn');
+
+  window.availableTireSizes = window.availableTireSizes || [];
+
+  function parseTireSize(raw) {
+    var s = raw.trim().replace(/×/g, 'X').replace(/x/g, 'X').toUpperCase();
+    var m;
+    m = s.match(/^([A-Z]{0,3})(\d+)\/(\d+)(?:Z)?R(\d+(?:\.\d+)?)([A-Z]*)$/);
+    if (m) { window.availableTireSizes.push({ original: raw.trim(), width: (m[1]+m[2])||m[2], ratio: m[3], diameter: m[4] }); return; }
+    m = s.match(/^([A-Z]{0,3})(\d+(?:\.\d+)?)X(\d+(?:\.\d+)?)R(\d+(?:\.\d+)?)([A-Z]*)$/);
+    if (m) { window.availableTireSizes.push({ original: raw.trim(), width: (m[1]+m[2])||m[2], ratio: m[3], diameter: m[4] }); }
+  }
+
+  function populateTireWidths() {
+    if (!widthSelect || !window.availableTireSizes.length) return;
+    var widths = window.availableTireSizes.map(function(s) { return s.width; })
+      .filter(function(v, i, a) { return a.indexOf(v) === i; });
+    widths.sort(function(a, b) {
+      var a4 = /^\d{2}$/.test(a), b4 = /^\d{2}$/.test(b);
+      var aLT = a.indexOf('LT') === 0, bLT = b.indexOf('LT') === 0;
+      if (!a4 && !aLT && (b4 || bLT)) return -1;
+      if (!b4 && !bLT && (a4 || aLT)) return 1;
+      return parseFloat(a.replace('LT','')) - parseFloat(b.replace('LT',''));
+    });
+    widthSelect.innerHTML = '<option value="">Select Width</option>';
+    widths.forEach(function(w) {
+      var o = document.createElement('option'); o.value = w; o.textContent = w;
+      widthSelect.appendChild(o);
+    });
+  }
+
+  function loadTireSizes() {
+    window.availableTireSizes = [];
+    if (typeof tireSizeTags !== 'undefined' && tireSizeTags.length) {
+      tireSizeTags.forEach(function(tag) { parseTireSize(tag.replace('Size_', '')); });
+    } else if (window.collectionTags && Array.isArray(window.collectionTags)) {
+      window.collectionTags.forEach(function(tag) {
+        if (tag.indexOf('Size_') === 0) parseTireSize(tag.replace('Size_', ''));
+      });
+    }
+    if (window.availableTireSizes.length) { populateTireWidths(); return; }
+    // Fetch fallback — iterate all tags in the array
+    fetch('/search?view=tiretags')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.tags && data.tags.length) {
+          data.tags.forEach(function(tag) {
+            var t = tag.trim();
+            if (t.indexOf('Size_') === 0) parseTireSize(t.replace('Size_', ''));
+          });
+        }
+        populateTireWidths();
+      })
+      .catch(function() {
+        if (widthSelect) widthSelect.innerHTML = '<option value="">Unable to load sizes</option>';
+      });
+  }
+
+  loadTireSizes();
+
+  // Re-populate whenever the page becomes visible with an empty dropdown
+  window.addEventListener('pageshow', function() {
+    if (widthSelect && widthSelect.options.length <= 1) {
+      loadTireSizes();
+    }
+  });
+
+  if (widthSelect) {
+    widthSelect.addEventListener('change', function() {
+      var w = this.value;
+      ratioSelect.innerHTML = '<option value="">Select Ratio</option>';
+      diameterSelect.innerHTML = '<option value="">Select Ratio First</option>';
+      ratioSelect.disabled = true; diameterSelect.disabled = true;
+      if (!w) return;
+      var ratios = window.availableTireSizes
+        .filter(function(s) { return s.width === w; })
+        .map(function(s) { return s.ratio; })
+        .filter(function(v, i, a) { return a.indexOf(v) === i; })
+        .sort(function(a, b) { return parseFloat(a) - parseFloat(b); });
+      ratios.forEach(function(r) {
+        var o = document.createElement('option'); o.value = r; o.textContent = r;
+        ratioSelect.appendChild(o);
+      });
+      ratioSelect.disabled = false;
+    });
+  }
+
+  if (ratioSelect) {
+    ratioSelect.addEventListener('change', function() {
+      var w = widthSelect.value, r = this.value;
+      diameterSelect.innerHTML = '<option value="">Select Diameter</option>';
+      diameterSelect.disabled = true;
+      if (!w || !r) return;
+      var diams = window.availableTireSizes
+        .filter(function(s) { return s.width === w && s.ratio === r; })
+        .map(function(s) { return s.diameter; })
+        .filter(function(v, i, a) { return a.indexOf(v) === i; })
+        .sort(function(a, b) { return parseFloat(a) - parseFloat(b); });
+      diams.forEach(function(d) {
+        var o = document.createElement('option'); o.value = d; o.textContent = d;
+        diameterSelect.appendChild(o);
+      });
+      diameterSelect.disabled = false;
+    });
+  }
+
+  var dedicatedCollections = {
+    'Type_All Season':  '/collections/all-season',
+    'Type_All Weather': '/collections/all-weather',
+    'Type_All Terrain': '/collections/all-terrain',
+    'Type_Mud Terrain': '/collections/mud-terrain',
+    'Type_Performance': '/collections/performance',
+    'Type_Winter':      '/collections/winter',
+    'Type_Summer':      '/collections/summer'
+  };
+
+  if (tireSearchBtn) {
+    tireSearchBtn.addEventListener('click', function() {
+      var tags = [];
+      var selectedType  = typeSelect  ? typeSelect.value  : '';
+      var selectedBrand = brandSelect ? brandSelect.value : '';
+      var selectedSize  = '';
+      if (widthSelect && widthSelect.value && ratioSelect.value && diameterSelect.value) {
+        var match = window.availableTireSizes.find(function(s) {
+          return s.width === widthSelect.value && s.ratio === ratioSelect.value && s.diameter === diameterSelect.value;
+        });
+        if (match) selectedSize = 'Size_' + match.original;
+      }
+      if (selectedType)  tags.push(selectedType);
+      if (selectedSize)  tags.push(selectedSize);
+      if (selectedBrand) tags.push(selectedBrand);
+
+      var url;
+      if (!tags.length) {
+        url = '/collections/tires';
+      } else if (selectedType && tags.length === 1 && dedicatedCollections[selectedType]) {
+        url = dedicatedCollections[selectedType];
+      } else if (selectedType && dedicatedCollections[selectedType]) {
+        var others = tags.filter(function(t) { return t !== selectedType; });
+        url = dedicatedCollections[selectedType] + '/' + others.map(encodeURIComponent).join('+');
+      } else {
+        url = '/collections/tires/' + tags.map(encodeURIComponent).join('+');
+      }
+      url += (url.indexOf('?') > -1 ? '&' : '?') + 'sort_by=price-ascending';
+      window.location.href = url;
+    });
+  }
+
+  // ── Wheel panel ────────────────────────────────────────────────────────────
+  var wheelDiamSelect  = document.getElementById('homeWheelDiameter');
+  var boltPatternSelect = document.getElementById('homeWheelBoltPattern');
+  var wheelSearchBtn   = document.getElementById('homeWheelSearchBtn');
+
+  function loadWheelData() {
+    // Wheel Diameter — from Liquid-injected array at top of script
+    if (homeWheelDiameters.length) {
+      var diams = homeWheelDiameters.map(function(t) {
+        var val = t.replace('WheelDia_', '').trim();
+        return { tag: t, val: val };
+      }).filter(function(d) { return d.val; });
+      diams.sort(function(a, b) { return parseFloat(a.val) - parseFloat(b.val); });
+      wheelDiamSelect.innerHTML = '<option value="">All Diameters</option>';
+      diams.forEach(function(d) {
+        var o = document.createElement('option'); o.value = d.tag; o.textContent = d.val + '"';
+        wheelDiamSelect.appendChild(o);
+      });
+    }
+
+    // Bolt Pattern — from Liquid-injected array at top of script
+    if (homeWheelBoltPatterns.length) {
+      var patterns = homeWheelBoltPatterns.map(function(t) {
+        var val = t.replace('BoltPattern_', '').trim();
+        return { tag: t, val: val };
+      }).filter(function(p) { return p.val; });
+      patterns.sort(function(a, b) { return a.val.localeCompare(b.val); });
+      boltPatternSelect.innerHTML = '<option value="">All Patterns</option>';
+      patterns.forEach(function(p) {
+        var o = document.createElement('option'); o.value = p.tag; o.textContent = p.val;
+        boltPatternSelect.appendChild(o);
+      });
+    }
+  }
+
+  loadWheelData();
+
+  if (wheelSearchBtn) {
+    wheelSearchBtn.addEventListener('click', function() {
+      var tags = [];
+      if (wheelDiamSelect && wheelDiamSelect.value)   tags.push(wheelDiamSelect.value);
+      if (boltPatternSelect && boltPatternSelect.value) tags.push(boltPatternSelect.value);
+
+      var url;
+      if (!tags.length) {
+        url = '/collections/wheels';
+      } else {
+        url = '/collections/wheels/' + tags.map(encodeURIComponent).join('+');
+      }
+      url += (url.indexOf('?') > -1 ? '&' : '?') + 'sort_by=price-ascending';
+      window.location.href = url;
+    });
+  }
+
+});
+</script>
+
+{% schema %}
+{
+  "name": "Tire & Wheel Search",
+  "presets": [
+    {
+      "name": "Tire & Wheel Search",
+      "category": "Search"
+    }
+  ],
+  "settings": []
+}
+{% endschema %}

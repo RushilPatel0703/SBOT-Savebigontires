@@ -1,0 +1,22 @@
+{% comment %}
+  Advanced Search Page
+  This page integrates the advanced search-form.liquid snippet for tire and wheel search functionality
+{% endcomment %}
+
+<div class="page-width">
+  <div class="grid">
+    <div class="grid__item medium-up--five-sixths medium-up--push-one-twelfth">
+      <div class="section-header text-center">
+        <h1>{{ page.title }}</h1>
+      </div>
+
+      <div class="rte">
+        {{ page.content }}
+      </div>
+
+      <div class="advanced-search-container" style="margin: 40px 0;">
+        {% include 'search-form' %}
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,169 @@
+{% comment %}
+  Tire Type Icon System
+  Reads Type_* tags set by the Formula Distributors pipeline.
+  Uses custom SVG assets uploaded to theme assets folder.
+  Usage: {% include 'tire-type-icon', product: product %}
+  Returns: tire_type_icon_html, detected_tire_type
+{% endcomment %}
+
+{% comment %} Inject styles once per page regardless of how many cards render {% endcomment %}
+{% unless tire_icon_styles_loaded %}
+  {% assign tire_icon_styles_loaded = true %}
+  <style>
+    .tire-type-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: #f8f9fa;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #495057;
+      border: 1px solid #e9ecef;
+      margin: 8px 0 0 12px;
+      transition: all 0.2s ease;
+    }
+
+    .tire-type-indicator:hover {
+      background: #e9ecef;
+      transform: translateY(-1px);
+    }
+
+    .tire-type-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+    }
+
+    .tire-type-label {
+      white-space: nowrap;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+    }
+
+    /* Constrain indicator within its wrapper */
+    .tire-type-under-price {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .tire-type-under-price .tire-type-indicator {
+      margin: 0;
+      padding: 5px 10px;
+      font-size: 13px;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .tire-type-under-price .tire-type-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .tire-type-under-price .tire-type-label {
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Product page — larger (higher specificity wins over collection rules) */
+    .tire-type-under-price.tire-type-product-page .tire-type-indicator {
+      padding: 7px 14px;
+      font-size: 14px;
+    }
+
+    .tire-type-under-price.tire-type-product-page .tire-type-icon {
+      width: 32px;
+      height: 32px;
+    }
+
+    .tire-type-under-price.tire-type-product-page .tire-type-label {
+      font-size: 13px;
+    }
+
+    @media (max-width: 768px) {
+      .tire-type-under-price .tire-type-icon { width: 16px; height: 16px; }
+      .tire-type-under-price .tire-type-label { font-size: 11px; }
+      .tire-type-under-price.tire-type-product-page .tire-type-icon { width: 24px; height: 24px; }
+    }
+  </style>
+{% endunless %}
+
+{% assign tire_svg_file = '' %}
+{% assign tire_label = '' %}
+{% assign is_performance = false %}
+
+{% comment %} First pass: find primary seasonal/terrain designation from tags {% endcomment %}
+{% for tag in product.tags %}
+  {% if tag == 'Type_Winter' %}
+    {% assign tire_svg_file = 'Winter.svg' %}
+    {% assign tire_label = 'Winter' %}
+    {% break %}
+  {% elsif tag == 'Type_Summer' or tag == 'Type_All-Summer' %}
+    {% assign tire_svg_file = 'Summer.svg' %}
+    {% assign tire_label = 'Summer' %}
+    {% break %}
+  {% elsif tag == 'Type_All-Season' or tag == 'Type_All Season' %}
+    {% assign tire_svg_file = 'All-season.svg' %}
+    {% assign tire_label = 'All Season' %}
+    {% break %}
+  {% elsif tag == 'Type_All-Weather' or tag == 'Type_All Weather' %}
+    {% assign tire_svg_file = 'All-weather.svg' %}
+    {% assign tire_label = 'All Weather' %}
+    {% break %}
+  {% elsif tag == 'Type_All-Terrain' or tag == 'Type_All Terrain' %}
+    {% assign tire_svg_file = 'All-terrain.svg' %}
+    {% assign tire_label = 'All Terrain' %}
+    {% break %}
+  {% elsif tag == 'Type_Mud-Terrain' or tag == 'Type_Mud Terrain' or tag == 'Type_Mud-Snow' %}
+    {% assign tire_svg_file = 'Mud-terrain.svg' %}
+    {% assign tire_label = 'Mud Terrain' %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+{% comment %} Second pass: check for Performance tag (stacks with seasonal) {% endcomment %}
+{% for tag in product.tags %}
+  {% if tag == 'Type_Performance' %}
+    {% assign is_performance = true %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+{% comment %} Fallback: no matching tag found {% endcomment %}
+{% if tire_svg_file == blank %}
+  {% assign tire_svg_file = 'All-season.svg' %}
+  {% assign tire_label = 'All Season' %}
+{% endif %}
+
+{% if is_performance %}
+  {% assign tire_label = tire_label | append: ' · Performance' %}
+{% endif %}
+
+{% if is_product_page %}
+  {% assign _icon_px = '28px' %}
+  {% assign _font_px = '14px' %}
+  {% assign _padding = '8px 16px' %}
+  {% assign _gap = '9px' %}
+  {% assign _radius = '24px' %}
+{% else %}
+  {% assign _icon_px = '18px' %}
+  {% assign _font_px = '12px' %}
+  {% assign _padding = '4px 10px' %}
+  {% assign _gap = '6px' %}
+  {% assign _radius = '20px' %}
+{% endif %}
+
+{% capture tire_type_icon_html %}
+<div class="tire-type-indicator" title="{{ tire_label }} Tire" style="display:inline-flex;align-items:center;gap:{{ _gap }};padding:{{ _padding }};background:#f8f9fa;border:1px solid #e9ecef;border-radius:{{ _radius }};max-width:100%;box-sizing:border-box;overflow:hidden;vertical-align:top;">
+  <img src="{{ tire_svg_file | asset_url }}" alt="{{ tire_label }}" class="tire-type-icon" style="width:{{ _icon_px }};height:{{ _icon_px }};flex-shrink:0;min-width:{{ _icon_px }};">
+  <span class="tire-type-label" style="font-size:{{ _font_px }};font-weight:600;color:#495057;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;">{{ tire_label }}</span>
+</div>
+{% endcapture %}
+
+{% assign detected_tire_type = tire_label %}
+{% assign tire_icon_only = '' %}

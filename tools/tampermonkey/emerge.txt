@@ -1,0 +1,69 @@
+// ==UserScript==
+// @name         Emerge Inventory Counter (qty > 3)
+// @match        https://order.emergetires.com/*
+// @run-at       document-start
+// @grant        none
+// ==/UserScript==
+
+(function () {
+  'use strict';
+
+  // Same logic as NC: prefer local on-hand qty, fall back to related branches.
+  function effectiveQty(item) {
+    const local = item.availableQuantity ?? 0;
+    return local > 0 ? local : (item.availableQuantityAtRelatedBranches ?? 0);
+  }
+
+  const badge = document.createElement('div');
+  badge.style.cssText = `
+    position: fixed; top: 10px; right: 10px; z-index: 999999;
+    background: #111; color: #0f0; font: bold 28px monospace;
+    padding: 16px 24px; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,.5);
+  `;
+  badge.textContent = 'qty>3: -- / --';
+  document.documentElement.appendChild(badge);
+
+  function applyResults(list) {
+    let matching = 0;
+    for (const item of list) {
+      if (effectiveQty(item) > 3) matching += 1;
+    }
+    badge.textContent = `qty>3: ${matching} / ${list.length}`;
+  }
+
+  function handleResponseText(url, text) {
+    if (typeof url !== 'string' || !url.includes('Product/Search')) return;
+    try {
+      const data = JSON.parse(text);
+      if (data && Array.isArray(data.searchResultList)) {
+        applyResults(data.searchResultList);
+      }
+    } catch (e) {}
+  }
+
+  // Patch fetch
+  const origFetch = window.fetch;
+  if (origFetch) {
+    window.fetch = function (...args) {
+      return origFetch.apply(this, args).then((resp) => {
+        const url = (args[0] && args[0].url) || args[0];
+        resp.clone().text().then((text) => handleResponseText(url, text)).catch(() => {});
+        return resp;
+      });
+    };
+  }
+
+  // Patch XHR (fallback)
+  const origOpen = XMLHttpRequest.prototype.open;
+  const origSend = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+    this._etUrl = url;
+    return origOpen.call(this, method, url, ...rest);
+  };
+  XMLHttpRequest.prototype.send = function (...args) {
+    this.addEventListener('load', function () {
+      handleResponseText(this._etUrl, this.responseText);
+    });
+    return origSend.apply(this, args);
+  };
+})();

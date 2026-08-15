@@ -1,0 +1,1387 @@
+{% assign limit = section.settings.grid | times: section.settings.rows %}
+
+{% paginate collection.products by 50 %}
+
+<style>
+  /*============================================================================
+    Tire & Wheel Packages Collection - Matching SaveBigOnTires Design
+    Using exact same styling as the main tires collection page
+  ==============================================================================*/
+  .savebigontires-collection-section {
+    background-color: #fff;
+    padding: 0 0 60px 0;
+    font-family: 'Gibson', 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  .savebigontires-container {
+    max-width: 1296px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .savebigontires-collection-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-top: 20px;
+  }
+
+  .savebigontires-collection-layout.has-sidebar {
+    grid-template-columns: 260px 1fr;
+  }
+
+  /* Collection Sidebar - Exact same styling as tires page */
+  .savebigontires-collection-sidebar {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+  }
+
+  .savebigontires-collection-sidebar h3 {
+    color: #e31e24;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 15px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e9ecef;
+  }
+
+  .savebigontires-collection-sidebar .filter-list,
+  .savebigontires-collection-sidebar .savebigontires-filter-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .savebigontires-collection-sidebar .filter-list li,
+  .savebigontires-collection-sidebar .savebigontires-filter-list li {
+    margin-bottom: 2px;
+  }
+
+  .savebigontires-collection-sidebar .filter-list a {
+    color: #495057;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 16px;
+    margin-bottom: 4px;
+    border-radius: 6px;
+    display: block;
+    transition: all 0.2s ease;
+    line-height: 1.4;
+    border: 1px solid transparent;
+  }
+
+  .savebigontires-collection-sidebar .filter-list a:hover,
+  .savebigontires-collection-sidebar .filter-list a.active {
+    background-color: #e31e24 !important;
+    color: white !important;
+    text-decoration: none;
+    border-color: #e31e24 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(227, 30, 36, 0.2);
+  }
+
+  /* Collection Main Content */
+  .savebigontires-collection-main {
+    min-width: 0;
+  }
+
+  .savebigontires-collection-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e9ecef;
+  }
+
+  .savebigontires-collection-header--inline {
+    display: block;
+  }
+
+  .savebigontires-heading-1 {
+    color: #000000;
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .savebigontires-collection-description {
+    color: #495057;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 16px 0 0 0;
+  }
+
+  /* Collection Controls - Same as tires page */
+  .savebigontires-collection-controls {
+    margin-bottom: 24px;
+  }
+
+  .savebigontires-collection-controls-wrapper {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px 24px;
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+
+  .savebigontires-controls-filters {
+    display: flex;
+    align-items: center;
+    flex: 1;
+  }
+
+  .savebigontires-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    justify-content: flex-end;
+  }
+
+  /* Package Grid - Clean 2 column layout */
+  .savebigontires-product-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin: 0 0 40px 0;
+  }
+
+  .savebigontires-product-grid-item {
+    width: 100%;
+  }
+
+  /* Package Items - Styled like product cards but for packages */
+  .package-item {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+    position: relative;
+    height: fit-content;
+  }
+
+  .package-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .package-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .package-title {
+    color: #000000;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+  }
+
+  .package-size-info {
+    color: #495057;
+    font-size: 14px;
+    margin: 0 0 10px 0;
+  }
+
+  .compatibility-badge {
+    background: #e31e24;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+  }
+
+  /* Package Visual Display */
+  .package-visual {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+  }
+
+  .component-images {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    position: relative;
+  }
+
+  .tire-image, .wheel-image {
+    text-align: center;
+    flex: 1;
+  }
+
+  .tire-image img, .wheel-image img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    background: white;
+    padding: 5px;
+  }
+
+  .placeholder-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 10px;
+    text-align: center;
+    margin: 0 auto;
+    background: #dee2e6;
+    color: #495057;
+    border: 1px solid #e9ecef;
+  }
+
+  .plus-symbol {
+    font-size: 20px;
+    font-weight: 700;
+    color: #e31e24;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 50%;
+    border: 2px solid #e31e24;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .image-label {
+    display: block;
+    margin-top: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #6c757d;
+  }
+
+  /* Package Components */
+  .package-components {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .package-component {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+  }
+
+  .component-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .component-type {
+    font-size: 12px;
+    font-weight: 600;
+    color: #e31e24;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .component-quantity {
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .component-brand {
+    font-size: 14px;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 4px;
+  }
+
+  .component-model {
+    font-size: 13px;
+    color: #495057;
+    margin-bottom: 8px;
+  }
+
+  .component-specs {
+    font-size: 11px;
+    color: #6c757d;
+    font-family: monospace;
+    margin-bottom: 8px;
+  }
+
+  .component-price {
+    font-size: 14px;
+    font-weight: 600;
+    color: #000000;
+  }
+
+
+
+  /* Package Pricing */
+  .package-pricing {
+    border-top: 1px solid #e9ecef;
+    padding-top: 15px;
+  }
+
+  .pricing-breakdown {
+    margin-bottom: 10px;
+  }
+
+  .individual-pricing, .package-savings-highlight {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    font-size: 13px;
+  }
+
+  .package-savings-highlight {
+    color: #e31e24;
+    font-weight: 600;
+  }
+
+  .package-total-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-top: 1px solid #e9ecef;
+    margin-bottom: 15px;
+  }
+
+  .total-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+  }
+
+  .total-amount {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000000;
+  }
+
+  /* Package Actions - Same button style as tires page */
+  .package-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .package-form {
+    flex: 1;
+    display: flex;
+  }
+
+  .package-cta {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .package-cta.primary {
+    background: #e31e24;
+    color: white;
+  }
+
+  .package-cta.primary .cta-icon {
+    color: white;
+  }
+
+  .package-cta.primary:hover {
+    background: #c41e3a;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(227, 30, 36, 0.2);
+  }
+
+  .package-cta.secondary {
+    background: white;
+    color: #495057;
+    border: 1px solid #dee2e6;
+  }
+
+  .package-cta.secondary:hover {
+    background: #f8f9fa;
+    border-color: #e31e24;
+    color: #e31e24;
+  }
+
+  /* Filter Toggle Button - Same as tires page */
+  .savebigontires-toggle-filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #e31e24;
+    color: white;
+    border: 1px solid #e31e24;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .savebigontires-toggle-filters:hover {
+    background-color: #c41e3a;
+    border-color: #c41e3a;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(227, 30, 36, 0.2);
+  }
+
+  /* Filter notification */
+  .filter-notification {
+    background: #e31e24;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    margin-top: 15px;
+  }
+
+  /* Package Badge */
+  .package-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #e31e24;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    z-index: 2;
+  }
+
+  .badge-text {
+    display: block;
+    line-height: 1;
+  }
+
+  .badge-subtext {
+    display: block;
+    font-size: 9px;
+    opacity: 0.9;
+    margin-top: 2px;
+  }
+
+  /* Package Navigation Styles */
+  .package-carousel {
+    position: relative;
+  }
+
+  .package-navigation {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    transform: translateY(-50%);
+    padding: 0 10px;
+  }
+
+  .nav-btn {
+    background: rgba(227, 30, 36, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    pointer-events: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .nav-btn:hover {
+    background: rgba(227, 30, 36, 1);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .nav-btn:active {
+    transform: scale(0.95);
+  }
+
+  .nav-btn svg {
+    transition: transform 0.2s ease;
+  }
+
+  .nav-btn:hover svg {
+    transform: translateX(2px);
+  }
+
+  .nav-btn.nav-prev:hover svg {
+    transform: translateX(-2px);
+  }
+
+  .package-indicator {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 10;
+  }
+
+  /* Show navigation on hover */
+  .package-carousel:hover .package-navigation {
+    opacity: 1;
+  }
+
+  .package-navigation {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Mobile responsive navigation */
+  @media (max-width: 768px) {
+    .package-navigation {
+      opacity: 1; /* Always visible on mobile */
+    }
+    
+    .nav-btn {
+      width: 35px;
+      height: 35px;
+    }
+    
+    .nav-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .package-indicator {
+      font-size: 11px;
+      padding: 3px 6px;
+    }
+  }
+
+  /* Sorting Controls - Same as tires page */
+  .savebigontires-collection-sorting {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .savebigontires-sorting-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .savebigontires-sorting-select {
+    min-width: 180px;
+    padding: 8px 16px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background-color: #fff;
+    font-size: 14px;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .savebigontires-sorting-select:hover {
+    border-color: #e31e24;
+  }
+
+  .savebigontires-sorting-select:focus {
+    outline: none;
+    border-color: #e31e24;
+    box-shadow: 0 0 0 3px rgba(227, 30, 36, 0.1);
+  }
+
+  /* View Toggle Buttons - Same as tires page */
+  .savebigontires-collection-views {
+    display: flex;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    overflow: hidden;
+    
+    /* Hide on mobile - default to grid view */
+    @media (max-width: 768px) {
+      display: none !important;
+    }
+  }
+
+  .savebigontires-view-toggle {
+    padding: 8px 12px;
+    border: none;
+    background-color: transparent;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 36px;
+  }
+
+  .savebigontires-view-toggle:hover {
+    background-color: #e9ecef;
+    color: #495057;
+  }
+
+  .savebigontires-view-toggle--active {
+    background-color: #e31e24;
+    color: white;
+  }
+
+  .savebigontires-view-toggle--active:hover {
+    background-color: #c41e3a;
+    color: white;
+  }
+
+  /* Icons for view toggles */
+  .icon-collection-view-grid::before {
+    content: "⊞";
+    font-size: 16px;
+  }
+
+  .icon-collection-view-list::before {
+    content: "☰";
+    font-size: 16px;
+  }
+
+  /* Pagination - Same as tires page */
+  .savebigontires-pagination-wrapper {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+  }
+
+  .savebigontires-pagination-container {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Mobile Responsiveness - Exact same as tires page */
+  @media (max-width: 1024px) {
+    .savebigontires-collection-layout.has-sidebar {
+      grid-template-columns: 240px 1fr;
+      gap: 20px;
+    }
+
+    .savebigontires-collection-sidebar {
+      padding: 16px;
+    }
+
+    .savebigontires-product-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .savebigontires-container {
+      padding: 0 16px;
+    }
+
+    .savebigontires-collection-layout.has-sidebar {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .savebigontires-collection-sidebar {
+      position: static;
+      order: 2;
+      margin-top: 20px;
+    }
+
+    .savebigontires-collection-header--inline .savebigontires-heading-1 {
+      margin-bottom: 16px;
+    }
+
+    .savebigontires-heading-1 {
+      font-size: 1.75rem;
+    }
+
+    .savebigontires-collection-controls-wrapper {
+      padding: 16px 20px;
+      gap: 16px;
+    }
+
+    .savebigontires-controls-filters {
+      width: 100%;
+      margin-bottom: 16px;
+      order: 1;
+    }
+
+    .savebigontires-controls-right {
+      width: 100%;
+      justify-content: space-between;
+      order: 2;
+    }
+
+    .savebigontires-product-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .package-components {
+      grid-template-columns: 1fr;
+    }
+
+    .component-images {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .plus-symbol {
+      transform: rotate(90deg);
+      width: 35px;
+      height: 35px;
+      font-size: 16px;
+    }
+
+    .package-benefits {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-align: left;
+    }
+
+    .benefit-icon {
+      margin-bottom: 0;
+    }
+
+    .package-actions {
+      flex-direction: column;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .savebigontires-heading-1 {
+      font-size: 1.5rem;
+    }
+
+    .savebigontires-collection-header--inline .savebigontires-heading-1 {
+      margin-bottom: 12px;
+    }
+
+    .savebigontires-collection-controls-wrapper {
+      padding: 12px 16px;
+    }
+
+    .savebigontires-sorting-select {
+      min-width: 140px;
+    }
+  }
+
+  /* Filter Toggle Button (Mobile) - Same as tires page */
+  .savebigontires-filter-toggle {
+    display: none;
+    background-color: #e31e24;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: background-color 0.2s ease;
+  }
+
+  .savebigontires-filter-toggle:hover {
+    background-color: #c41e3a;
+  }
+  
+  /* Simple Mobile Filter Container */
+  .simple-mobile-filter-container {
+    display: none;
+  }
+  
+  @media (max-width: 768px) {
+    .simple-mobile-filter-container {
+      display: block;
+      margin: 20px 0;
+    }
+    
+    /* Hide the filter toggle button since we have the mobile filter header */
+    .savebigontires-filter-toggle {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .savebigontires-filter-toggle {
+      display: block;
+    }
+
+    .savebigontires-collection-sidebar {
+      display: none;
+    }
+
+    .savebigontires-collection-sidebar.show-filters {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000;
+      background-color: white;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .savebigontires-collection-sidebar .close-filters {
+      display: block;
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #000000;
+    }
+  }
+</style>
+
+{% comment %} Tires Banner for Packages Collection {% endcomment %}
+{% include 'tires-banner' %}
+
+{% include 'breadcrumb' %}
+
+{% comment %} Include advanced tag loop for filter groups {% endcomment %}
+{% include 'advanced-tag-loop' %}
+
+{% assign has_sidebar = true %}
+
+<div id="CollectionSection" class="savebigontires-collection-section" data-section-id="{{ section.id }}" data-section-type="collection-template">
+  {% include 'mobile-breadcrumbs' %}
+  <div class="savebigontires-container">
+    
+    {% if has_sidebar %}
+      <button class="savebigontires-filter-toggle" onclick="toggleFilters()" aria-label="Show filters">
+        <span>🔍</span> Filters & Categories
+      </button>
+      
+      <!-- Simple Mobile Filter - shows outside sidebar -->
+      <div class="simple-mobile-filter-container">
+        {% include 'simple-mobile-filter' %}
+      </div>
+    {% endif %}
+
+    <div class="savebigontires-collection-layout{% if has_sidebar %} has-sidebar{% endif %}">
+
+      {% if has_sidebar %}
+      <aside class="savebigontires-collection-sidebar" id="collectionFilters">
+        <button class="close-filters" onclick="toggleFilters()" aria-label="Close filters" style="display: none;">&times;</button>
+        
+        {% comment %} Size Filters {% endcomment %}
+        <div class="savebigontires-filter-section">
+          <h3 class="savebigontires-filter-section-title">Size</h3>
+          <ul class="savebigontires-filter-list">
+            <li class="savebigontires-filter-item savebigontires-filter-item--active">
+              <a href="#" class="savebigontires-filter-link size-filter" data-size="all">All Sizes</a>
+            </li>
+            <li class="savebigontires-filter-item">
+              <a href="#" class="savebigontires-filter-link size-filter" data-size="15">15"</a>
+            </li>
+            <li class="savebigontires-filter-item">
+              <a href="#" class="savebigontires-filter-link size-filter" data-size="16">16"</a>
+            </li>
+            <li class="savebigontires-filter-item">
+              <a href="#" class="savebigontires-filter-link size-filter" data-size="17">17"</a>
+            </li>
+            <li class="savebigontires-filter-item">
+              <a href="#" class="savebigontires-filter-link size-filter" data-size="18">18"</a>
+            </li>
+            <li class="savebigontires-filter-item">
+              <a href="#" class="savebigontires-filter-link size-filter" data-size="19">19"</a>
+            </li>
+            <li class="savebigontires-filter-item">
+              <a href="#" class="savebigontires-filter-link size-filter" data-size="20">20"</a>
+            </li>
+          </ul>
+        </div>
+
+        {% comment %} Package Type Filters {% endcomment %}
+        <div class="savebigontires-filter-section">
+          <h3 class="savebigontires-filter-section-title">Type</h3>
+          <ul class="savebigontires-filter-list">
+            <li class="savebigontires-filter-item savebigontires-filter-item--active">
+              <a href="#" class="savebigontires-filter-link type-filter" data-type="all">All Types</a>
+            </li>
+            <li class="savebigontires-filter-item">
+              <a href="#" class="savebigontires-filter-link type-filter" data-type="featured">Best Value</a>
+            </li>
+            <li class="savebigontires-filter-item">
+              <a href="#" class="savebigontires-filter-link type-filter" data-type="premium">Premium</a>
+            </li>
+            <li class="savebigontires-filter-item">
+              <a href="#" class="savebigontires-filter-link type-filter" data-type="sport">Sport</a>
+            </li>
+          </ul>
+        </div>
+
+      </aside>
+      {% endif %}
+
+      <div class="savebigontires-collection-main">
+
+        <header class="savebigontires-collection-header savebigontires-collection-header--inline">
+          <h1 class="savebigontires-heading-1">Tire & Wheel Packages</h1>
+          <div class="savebigontires-collection-description">
+            Discover our extensive range of tire and wheel packages for all vehicles. Perfect combinations professionally matched for your vehicle. Save up to 10% when you buy together!
+          </div>
+          <div class="savebigontires-collection-controls">
+            <div class="savebigontires-collection-controls-wrapper">
+              <div class="savebigontires-controls-filters">
+                {% include 'active-filter-tags' %}
+              </div>
+              <div class="savebigontires-controls-right">
+                <div class="savebigontires-collection-sorting">
+                  <label class="savebigontires-sorting-label" for="SortBy">Sort by</label>
+                  <select name="sort_by" id="SortBy" class="savebigontires-sorting-select">
+                    <option value="best-selling">Best selling</option>
+                    <option value="price-ascending">Price, low to high</option>
+                    <option value="price-descending">Price, high to low</option>
+                    <option value="title-ascending">Alphabetically, A-Z</option>
+                    <option value="title-descending">Alphabetically, Z-A</option>
+                  </select>
+                </div>
+                <div class="savebigontires-collection-views">
+                  <button type="button" class="savebigontires-view-toggle savebigontires-view-toggle--active" data-view="grid">
+                    <span class="icon-collection-view-grid"></span>
+                    <span class="savebigontires-sr-only">Grid view</span>
+                  </button>
+                  <button type="button" class="savebigontires-view-toggle" data-view="list">
+                    <span class="icon-collection-view-list"></span>
+                    <span class="savebigontires-sr-only">List view</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div class="savebigontires-product-grid">
+          {% comment %} This is where the dynamic packages will be generated {% endcomment %}
+          {% include 'tire-wheel-package-generator' %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Enhanced filtering functionality - Matching tires page behavior
+document.addEventListener('DOMContentLoaded', function() {
+  const sizeFilters = document.querySelectorAll('.size-filter');
+  const typeFilters = document.querySelectorAll('.type-filter');
+  const packageItems = document.querySelectorAll('.package-item');
+  
+  let currentFilters = {
+    size: 'all',
+    type: 'all'
+  };
+  
+  // Size filter functionality
+  sizeFilters.forEach(filter => {
+    filter.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Update active state in sidebar
+      document.querySelectorAll('.size-filter').forEach(f => {
+        f.closest('.savebigontires-filter-item').classList.remove('savebigontires-filter-item--active');
+      });
+      this.closest('.savebigontires-filter-item').classList.add('savebigontires-filter-item--active');
+      
+      currentFilters.size = this.dataset.size;
+      applyAllFilters();
+    });
+  });
+  
+  // Type filter functionality
+  typeFilters.forEach(filter => {
+    filter.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Update active state in sidebar
+      document.querySelectorAll('.type-filter').forEach(f => {
+        f.closest('.savebigontires-filter-item').classList.remove('savebigontires-filter-item--active');
+      });
+      this.closest('.savebigontires-filter-item').classList.add('savebigontires-filter-item--active');
+      
+      currentFilters.type = this.dataset.type;
+      applyAllFilters();
+    });
+  });
+  
+  // Apply all filters function
+  function applyAllFilters() {
+    let visibleCount = 0;
+    
+    packageItems.forEach(item => {
+      let shouldShow = true;
+      
+      // Size filter
+      if (currentFilters.size !== 'all' && item.dataset.wheelSize !== currentFilters.size) {
+        shouldShow = false;
+      }
+      
+      // Type filter
+      if (currentFilters.type !== 'all') {
+        const hasClass = item.classList.contains(currentFilters.type + '-package');
+        if (!hasClass) {
+          shouldShow = false;
+        }
+      }
+      
+      // Apply visibility with smooth animation
+      item.style.transition = 'all 0.3s ease';
+      if (shouldShow) {
+        item.style.opacity = '1';
+        item.style.transform = 'scale(1)';
+        item.style.display = 'block';
+        visibleCount++;
+      } else {
+        item.style.opacity = '0';
+        item.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          if (item.style.opacity === '0') {
+            item.style.display = 'none';
+          }
+        }, 300);
+      }
+    });
+    
+    // Show results notification
+    showFilterNotification(`Showing ${visibleCount} package${visibleCount !== 1 ? 's' : ''}`);
+  }
+  
+  // Results notification function
+  function showFilterNotification(message) {
+    const existing = document.querySelector('.filter-notification');
+    if (existing) existing.remove();
+    
+    const notification = document.createElement('div');
+    notification.className = 'filter-notification';
+    notification.textContent = message;
+    
+    const sidebar = document.querySelector('.savebigontires-collection-sidebar');
+    if (sidebar) {
+      sidebar.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+  }
+});
+
+// Mobile filter toggle functionality - Same as tires page
+function toggleFilters() {
+  const sidebar = document.getElementById('collectionFilters');
+  const closeBtn = sidebar.querySelector('.close-filters');
+  
+  if (sidebar.classList.contains('show-filters')) {
+    sidebar.classList.remove('show-filters');
+    closeBtn.style.display = 'none';
+    document.body.style.overflow = '';
+  } else {
+    sidebar.classList.add('show-filters');
+    closeBtn.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+// Close filters when clicking outside on mobile
+document.addEventListener('click', function(event) {
+  const sidebar = document.getElementById('collectionFilters');
+  const toggleBtn = document.querySelector('.savebigontires-filter-toggle');
+  
+  if (sidebar && sidebar.classList.contains('show-filters')) {
+    if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+      toggleFilters();
+    }
+  }
+});
+
+// Handle window resize
+window.addEventListener('resize', function() {
+  const sidebar = document.getElementById('collectionFilters');
+  if (sidebar && window.innerWidth > 768) {
+    sidebar.classList.remove('show-filters');
+    sidebar.querySelector('.close-filters').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+});
+
+// Package Navigation Functionality
+function navigatePackage(button, direction) {
+  const packageItem = button.closest('.package-carousel');
+  if (!packageItem) return;
+  
+  // Get or initialize combinations data
+  let combinations = packageItem.dataset.combinations;
+  if (!combinations) {
+    combinations = initializePackageCombinations(packageItem);
+  } else {
+    combinations = JSON.parse(combinations);
+  }
+  
+  if (combinations.length <= 1) return;
+  
+  let currentIndex = parseInt(packageItem.dataset.currentIndex) || 0;
+  let newIndex;
+  
+  if (direction === 'next') {
+    newIndex = (currentIndex + 1) % combinations.length;
+  } else {
+    newIndex = currentIndex === 0 ? combinations.length - 1 : currentIndex - 1;
+  }
+  
+  // Update package content with animation
+  updatePackageContent(packageItem, combinations[newIndex]);
+  
+  // Update index and indicator
+  packageItem.dataset.currentIndex = newIndex;
+  updatePackageIndicator(packageItem, newIndex, combinations.length);
+  
+  // Add visual feedback
+  button.style.transform = 'scale(0.9)';
+  setTimeout(() => {
+    button.style.transform = 'scale(1)';
+  }, 150);
+}
+
+function initializePackageCombinations(packageItem) {
+  const wheelSize = packageItem.dataset.wheelSize;
+  
+  // Sample combinations based on wheel size
+  const combinationSets = {
+    '17': [
+      {
+        tire: { brand: 'Michelin', model: 'CrossClimate 2', size: '235/65R17', price: 640 },
+        wheel: { brand: 'Konig', model: 'Hypergram', size: '17x8J ET45', price: 520 },
+        discount: 6
+      },
+      {
+        tire: { brand: 'Continental', model: 'TrueContact Tour', size: '235/65R17', price: 580 },
+        wheel: { brand: 'Enkei', model: 'RPF1', size: '17x8J ET35', price: 480 },
+        discount: 5
+      },
+      {
+        tire: { brand: 'Bridgestone', model: 'Turanza QuietTrack', size: '235/65R17', price: 720 },
+        wheel: { brand: 'BBS', model: 'CH-R', size: '17x8J ET40', price: 680 },
+        discount: 8
+      }
+    ],
+    '18': [
+      {
+        tire: { brand: 'Continental', model: 'PremiumContact 6', size: '245/45R18', price: 780 },
+        wheel: { brand: 'BBS', model: 'CH-R', size: '18x8.5J ET35', price: 1200 },
+        discount: 8
+      },
+      {
+        tire: { brand: 'Michelin', model: 'Pilot Sport 4', size: '245/45R18', price: 820 },
+        wheel: { brand: 'Enkei', model: 'RS05RR', size: '18x8.5J ET38', price: 960 },
+        discount: 7
+      },
+      {
+        tire: { brand: 'Pirelli', model: 'Cinturato P7', size: '245/45R18', price: 740 },
+        wheel: { brand: 'Konig', model: 'Ampliform', size: '18x8.5J ET42', price: 800 },
+        discount: 6
+      }
+    ],
+    '19': [
+      {
+        tire: { brand: 'Pirelli', model: 'P Zero', size: '255/40R19', price: 920 },
+        wheel: { brand: 'Enkei', model: 'RPF1', size: '19x9J ET45', price: 1400 },
+        discount: 10
+      },
+      {
+        tire: { brand: 'Michelin', model: 'Pilot Sport 4S', size: '255/40R19', price: 1080 },
+        wheel: { brand: 'BBS', model: 'FI-R', size: '19x9J ET40', price: 1800 },
+        discount: 12
+      },
+      {
+        tire: { brand: 'Continental', model: 'ExtremeContact Sport', size: '255/40R19', price: 860 },
+        wheel: { brand: 'Konig', model: 'Hypergram', size: '19x9J ET35', price: 1200 },
+        discount: 9
+      }
+    ],
+    '20': [
+      {
+        tire: { brand: 'Bridgestone', model: 'Potenza S007A', size: '275/35R20', price: 1200 },
+        wheel: { brand: 'HRE', model: 'P101', size: '20x10J ET40', price: 2400 },
+        discount: 12
+      },
+      {
+        tire: { brand: 'Michelin', model: 'Pilot Sport Cup 2', size: '275/35R20', price: 1400 },
+        wheel: { brand: 'BBS', model: 'FI-R', size: '20x10J ET35', price: 2800 },
+        discount: 15
+      },
+      {
+        tire: { brand: 'Pirelli', model: 'P Zero Corsa', size: '275/35R20', price: 1300 },
+        wheel: { brand: 'Enkei', model: 'RS05RR', size: '20x10J ET38', price: 2200 },
+        discount: 13
+      }
+    ]
+  };
+  
+  const combinations = combinationSets[wheelSize] || combinationSets['17'];
+  packageItem.dataset.combinations = JSON.stringify(combinations);
+  return combinations;
+}
+
+function updatePackageContent(packageItem, combination) {
+  const tire = combination.tire;
+  const wheel = combination.wheel;
+  const discount = combination.discount;
+  
+  // Calculate prices
+  const tireSetPrice = tire.price * 4;
+  const wheelSetPrice = wheel.price * 4;
+  const individualTotal = tireSetPrice + wheelSetPrice;
+  const packageDiscount = Math.round(individualTotal * discount / 100);
+  const packageTotal = individualTotal - packageDiscount;
+  
+  // Add transition effect
+  packageItem.style.transition = 'opacity 0.3s ease';
+  packageItem.style.opacity = '0.7';
+  
+  setTimeout(() => {
+    // Update tire information
+    const tireBrand = packageItem.querySelector('.tire-component .component-brand');
+    const tireModel = packageItem.querySelector('.tire-component .component-model');
+    const tireSpecs = packageItem.querySelector('.tire-component .component-specs');
+    const tirePrice = packageItem.querySelector('.tire-component .component-price');
+    
+    if (tireBrand) tireBrand.textContent = tire.brand;
+    if (tireModel) tireModel.textContent = tire.model;
+    if (tireSpecs) tireSpecs.textContent = tire.size;
+    if (tirePrice) tirePrice.textContent = '$' + tireSetPrice.toLocaleString() + '.00';
+    
+    // Update wheel information
+    const wheelBrand = packageItem.querySelector('.wheel-component .component-brand');
+    const wheelModel = packageItem.querySelector('.wheel-component .component-model');
+    const wheelSpecs = packageItem.querySelector('.wheel-component .component-specs');
+    const wheelPrice = packageItem.querySelector('.wheel-component .component-price');
+    
+    if (wheelBrand) wheelBrand.textContent = wheel.brand;
+    if (wheelModel) wheelModel.textContent = wheel.model;
+    if (wheelSpecs) wheelSpecs.textContent = wheel.size;
+    if (wheelPrice) wheelPrice.textContent = '$' + wheelSetPrice.toLocaleString() + '.00';
+    
+    // Update pricing
+    const individualPrice = packageItem.querySelector('.individual-price');
+    const savingsAmount = packageItem.querySelector('.savings-amount');
+    const totalAmount = packageItem.querySelector('.total-amount');
+    
+    if (individualPrice) individualPrice.textContent = '$' + individualTotal.toLocaleString() + '.00';
+    if (savingsAmount) savingsAmount.textContent = '-$' + packageDiscount.toLocaleString() + '.00';
+    if (totalAmount) totalAmount.textContent = '$' + packageTotal.toLocaleString() + '.00';
+    
+    // Update discount badge
+    const badgeText = packageItem.querySelector('.badge-text');
+    if (badgeText) badgeText.textContent = discount + '% OFF';
+    
+    // Update package size info
+    const sizeInfo = packageItem.querySelector('.package-size-info');
+    if (sizeInfo) sizeInfo.textContent = tire.size + ' + ' + wheel.size;
+    
+    // Restore opacity
+    packageItem.style.opacity = '1';
+  }, 150);
+}
+
+function updatePackageIndicator(packageItem, currentIndex, totalCount) {
+  const currentSpan = packageItem.querySelector('.current-package');
+  const totalSpan = packageItem.querySelector('.total-packages');
+  
+  if (currentSpan) currentSpan.textContent = currentIndex + 1;
+  if (totalSpan) totalSpan.textContent = totalCount;
+}
+
+// Initialize package navigation when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize all package carousels
+  const packageCarousels = document.querySelectorAll('.package-carousel');
+  packageCarousels.forEach(packageItem => {
+    // Initialize combinations
+    initializePackageCombinations(packageItem);
+    
+    // Set initial index
+    packageItem.dataset.currentIndex = '0';
+    
+    // Update indicator
+    const combinations = JSON.parse(packageItem.dataset.combinations);
+    updatePackageIndicator(packageItem, 0, combinations.length);
+  });
+});
+</script>
+
+<!-- Load the tire-wheel-packages JavaScript -->
+<script src="{{ 'tire-wheel-packages.js' | asset_url }}" defer></script>
+
+{% endpaginate %}

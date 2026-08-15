@@ -1,0 +1,150 @@
+{% comment %}
+  Unified Product Card Template
+  Usage: {% include 'item-card', product: product %}
+{% endcomment %}
+
+{% unless current_collection %}
+  {% assign current_collection = collection %}
+{% endunless %}
+
+{% assign on_sale = false %}
+{% if product.compare_at_price > product.price %}
+  {% assign on_sale = true %}
+{% endif %}
+
+{% assign sold_out = true %}
+{% if product.available %}
+  {% assign sold_out = false %}
+{% endif %}
+
+{% comment %} Detect if this is a tire product {% endcomment %}
+{% assign is_tire_product = false %}
+{% assign product_title_lower = product.title | downcase %}
+{% if product_title_lower contains 'r13' or product_title_lower contains 'r14' or product_title_lower contains 'r15' or product_title_lower contains 'r16' or product_title_lower contains 'r17' or product_title_lower contains 'r18' or product_title_lower contains 'r19' or product_title_lower contains 'r20' or product_title_lower contains 'r21' or product_title_lower contains 'r22' or product_title_lower contains 'r24' %}
+  {% assign is_tire_product = true %}
+{% endif %}
+{% for tag in product.tags %}
+  {% if tag == 'Type_Winter' or tag == 'Type_Summer' or tag == 'Type_All-Season' or tag == 'Type_All-Weather' or tag == 'Type_All-Terrain' or tag == 'Type_Mud-Terrain' or tag == 'Type_Mud-Snow' or tag == 'Type_All-Summer' %}
+    {% assign is_tire_product = true %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+{% if product.type == 'Tire' or product.type == 'Tires' or product.type == 'Vehicle Tires' %}
+  {% assign is_tire_product = true %}
+{% endif %}
+
+{% comment %} Include centralized styles and scripts only once {% endcomment %}
+{% if tire_card_styles_included != true %}
+  {% include 'tire-card-styles' %}
+  {% assign tire_card_styles_included = true %}
+{% endif %}
+
+{% if tire_card_scripts_included != true %}
+  {% include 'tire-card-scripts' %}
+  {% assign tire_card_scripts_included = true %}
+{% endif %}
+
+<div class="tire-card">
+  <a href="{{ product.url | within: current_collection }}" class="tire-card-link">
+    <div class="tire-card-image" style="position:relative;">
+      <div class="tire-card-price-top">
+        {% if on_sale %}
+          <span class="tire-card-price-sale">${{ product.price | money_without_currency }}</span>
+        {% else %}
+          <span class="tire-card-price-regular">${{ product.price | money_without_currency }}</span>
+        {% endif %}
+      </div>
+
+      {% if product.featured_image %}
+        <img
+          class="tire-card-img lazyload"
+          data-src="{{ product.featured_image | img_url: '400x400' }}"
+          data-widths="[200, 300, 400, 600]"
+          data-aspectratio="{{ product.featured_image.aspect_ratio }}"
+          data-sizes="auto"
+          alt="{{ product.featured_image.alt | default: product.title | escape }}"
+          loading="lazy">
+      {% else %}
+        {% if is_tire_product %}
+          <img
+            src="{{ 'tire-placeholder.jpg' | asset_url }}"
+            alt="Generic tire placeholder"
+            class="tire-card-img"
+            loading="lazy">
+        {% else %}
+          {% capture current %}{% cycle 1, 2, 3, 4 %}{% endcapture %}
+          {{ 'product-' | append: current | placeholder_svg_tag: 'tire-card-placeholder' }}
+        {% endif %}
+      {% endif %}
+
+      {% if is_tire_product %}
+        {% include 'tire-type-icon', product: product %}
+        <div class="tire-type-under-price">
+          {{ tire_type_icon_html }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="tire-card-content">
+      <h2 class="tire-card-title">{{ product.title }}</h2>
+
+      <p class="tire-card-description">
+        {% if product.content != blank %}
+          {{ product.content | strip_html | truncatewords: 12 }}
+        {% else %}
+          {% if is_tire_product %}
+            Choose professional-grade winter tires trusted by emergency responders and...
+          {% else %}
+            High-quality product designed for performance and reliability.
+          {% endif %}
+        {% endif %}
+      </p>
+
+      {% if is_tire_product %}
+        {% assign tire_size = product.metafields.tire.size | default: product.tags | where: 'contains', '/' | first %}
+        {% assign load_index = product.metafields.tire.load_index | default: '91' %}
+        {% assign speed_rating = product.metafields.tire.speed_rating | default: 'H' %}
+        {% assign season = product.metafields.tire.season | default: 'All Season' %}
+
+        <!--
+        <div class="tire-card-specs">
+          <div class="tire-card-spec-item">
+            <span class="tire-card-spec-label">Load:</span>
+            <span class="tire-card-spec-value">{{ load_index }}</span>
+          </div>
+          <div class="tire-card-spec-item">
+            <span class="tire-card-spec-label">Speed:</span>
+            <span class="tire-card-spec-value">{{ speed_rating }}</span>
+          </div>
+          <div class="tire-card-spec-item">
+            <span class="tire-card-spec-label">Season:</span>
+            <span class="tire-card-spec-value">{{ season }}</span>
+          </div>
+        </div>
+        -->
+      {% endif %}
+
+      {% if on_sale %}
+        <div class="tire-card-compare-price">
+          <span class="tire-card-price-compare">${{ product.compare_at_price | money_without_currency }}</span>
+        </div>
+      {% endif %}
+    </div>
+  </a>
+
+  <div class="tire-card-actions">
+    <a href="{{ product.url | within: current_collection }}" class="tire-card-btn-view">VIEW DETAILS</a>
+    {% if product.available %}
+      <button class="tire-card-btn-cart" onclick="event.preventDefault(); addToCart('{{ product.selected_or_first_available_variant.id }}')">
+        <svg class="tire-card-cart-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 2L3 6V20C3 20.5304 3.21071 21.0391 3.58579 21.4142C3.96086 21.7893 4.46957 22 5 22H19C19.5304 22 20.0391 21.7893 20.4142 21.4142C20.7893 21.0391 21 20.5304 21 20V6L18 2H6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 6H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 10C16 11.0609 15.5786 12.0783 14.8284 12.8284C14.0783 13.5786 13.0609 14 12 14C10.9391 14 9.92172 13.5786 9.17157 12.8284C8.42143 12.0783 8 11.0609 8 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        ADD TO CART
+      </button>
+    {% else %}
+      <button class="tire-card-btn-cart tire-card-btn-cart--disabled" disabled>OUT OF STOCK</button>
+    {% endif %}
+  </div>
+</div>

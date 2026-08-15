@@ -1,0 +1,16 @@
+{% comment %}
+  Search Trigger Snippet
+  
+  Usage: Add to any button or link to make it trigger the mobile search popup
+  
+  {% include 'search-trigger', search_context: 'winter-tires' %}
+  {% include 'search-trigger', search_context: 'summer-tires' %}
+  {% include 'search-trigger', search_context: 'all-season-tires' %}
+  
+  Or add the attribute manually:
+  <button data-trigger-search="winter-tires">Winter Tires</button>
+{% endcomment %}
+
+{% if search_context %}
+  data-trigger-search="{{ search_context }}"
+{% endif %}

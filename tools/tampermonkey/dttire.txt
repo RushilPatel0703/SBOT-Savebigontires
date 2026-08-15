@@ -1,0 +1,72 @@
+// ==UserScript==
+// @name         DT Tire – Local Qty > 3 Counter
+// @namespace    http://tampermonkey.net/
+// @version      1.2
+// @description  Counts tire results where locally available qty > 3
+// @match        https://dttirehub.ca/*
+// @grant        none
+// ==/UserScript==
+
+(function () {
+    'use strict';
+
+    function parseQty(text) {
+        const t = text.trim();
+        if (t.includes('+')) return 999;
+        return parseInt(t, 10) || 0;
+    }
+
+    let badge = null;
+    let debounceTimer = null;
+
+    function recount() {
+        const list = document.getElementById('search-results-list');
+        if (!list) return;
+
+        // Exclude the sticky header <li>, only count actual tire items
+        const items = list.querySelectorAll('li.search-results__item');
+        let qualifying = 0;
+        items.forEach(item => {
+            const el = item.querySelector('.search-results__on-hand-item--local_count p');
+            if (el && parseQty(el.textContent) > 3) qualifying++;
+        });
+
+        if (!badge) {
+            badge = document.createElement('div');
+            badge.id = 'dttire-qty-badge';
+            Object.assign(badge.style, {
+                position: 'fixed', top: '90px', right: '18px',
+                background: '#1b3a5e', color: '#fff',
+                padding: '10px 16px', borderRadius: '8px',
+                fontFamily: 'sans-serif', fontSize: '13px',
+                zIndex: '99999', boxShadow: '0 2px 10px rgba(0,0,0,.35)',
+                lineHeight: '1.5', textAlign: 'center', minWidth: '110px',
+                userSelect: 'none',
+            });
+            document.body.appendChild(badge);
+        }
+
+        badge.innerHTML =
+            `<div style="font-size:28px;font-weight:700">${qualifying}</div>` +
+            `<div style="font-size:11px;opacity:.85">of ${items.length} results<br>have local qty &gt; 3</div>`;
+    }
+
+    function debouncedRecount() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(recount, 300);
+    }
+
+    function init() {
+        recount();
+
+        const list = document.getElementById('search-results-list');
+        if (list) {
+            // Observe only the results list — badge lives on body, no feedback loop possible
+            new MutationObserver(debouncedRecount).observe(list, { childList: true, subtree: false });
+        }
+    }
+
+    document.readyState === 'loading'
+        ? document.addEventListener('DOMContentLoaded', init)
+        : setTimeout(init, 600);
+})();

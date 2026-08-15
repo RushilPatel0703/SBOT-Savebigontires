@@ -1,0 +1,833 @@
+22:12:41 [INFO] Pipeline start — 7 step(s): ['scraper', 'scraper_wheels', 'clean_tires', 'clean_wheels', 'serp_enrich', 'augment', 'augment_wheels']
+22:12:41 [INFO] =======================================================
+22:12:41 [INFO] STEP: scraper (scraper.py)
+22:12:41 [INFO] =======================================================
+============================================================
+Formula Distributors Tire Scraper
+============================================================
+Attempting empty-string search to fetch all products...
+  Empty search returned no results. Falling back to A-Z + size search...
+  Searching: 'A'
+    +75 new products (total: 75)
+  Searching: 'B'
+    +75 new products (total: 150)
+  Searching: 'C'
+    +75 new products (total: 225)
+  Searching: 'D'
+    +43 new products (total: 268)
+  Searching: 'E'
+    +33 new products (total: 301)
+  Searching: 'F'
+    +48 new products (total: 349)
+  Searching: 'G'
+    +40 new products (total: 389)
+  Searching: 'H'
+    +49 new products (total: 438)
+  Searching: 'I'
+    +62 new products (total: 500)
+  Searching: 'J'
+    +1 new products (total: 501)
+  Searching: 'K'
+    +0 new products (total: 501)
+  Searching: 'L'
+    +50 new products (total: 551)
+  Searching: 'M'
+    +8 new products (total: 559)
+  Searching: 'N'
+    +0 new products (total: 559)
+  Searching: 'O'
+    +3 new products (total: 562)
+  Searching: 'P'
+    +30 new products (total: 592)
+  Searching: 'Q'
+    +32 new products (total: 624)
+  Searching: 'R'
+    +36 new products (total: 660)
+  Searching: 'S'
+    +1 new products (total: 661)
+  Searching: 'T'
+    +57 new products (total: 718)
+  Searching: 'U'
+    +9 new products (total: 727)
+  Searching: 'V'
+    +3 new products (total: 730)
+  Searching: 'W'
+    +3 new products (total: 733)
+  Searching: 'X'
+    +0 new products (total: 733)
+  Searching: 'Y'
+    +15 new products (total: 748)
+  Searching: 'Z'
+    +54 new products (total: 802)
+  Searching: '105'
+    +47 new products (total: 849)
+  Searching: '115'
+    +24 new products (total: 873)
+  Searching: '125'
+    +27 new products (total: 900)
+  Searching: '135'
+  Searching: '145'
+  Searching: '155'
+    +0 new products (total: 900)
+  Searching: '165'
+    +1 new products (total: 901)
+  Searching: '175'
+    +2 new products (total: 903)
+  Searching: '185'
+    +3 new products (total: 906)
+  Searching: '195'
+    +9 new products (total: 915)
+  Searching: '205'
+    +27 new products (total: 942)
+  Searching: '215'
+    +32 new products (total: 974)
+  Searching: '225'
+    +24 new products (total: 998)
+  Searching: '235'
+    +19 new products (total: 1017)
+  Searching: '245'
+    +18 new products (total: 1035)
+  Searching: '255'
+    +34 new products (total: 1069)
+  Searching: '265'
+    +22 new products (total: 1091)
+  Searching: '275'
+    +21 new products (total: 1112)
+  Searching: '285'
+    +32 new products (total: 1144)
+  Searching: '295'
+    +47 new products (total: 1191)
+  Searching: '305'
+    +33 new products (total: 1224)
+  Searching: '315'
+    +22 new products (total: 1246)
+  Searching: '325'
+    +8 new products (total: 1254)
+  Searching: '335'
+    +0 new products (total: 1254)
+  Searching: '345'
+    +1 new products (total: 1255)
+  Searching: '355'
+    +0 new products (total: 1255)
+  Searching: '365'
+    +1 new products (total: 1256)
+  Searching: '375'
+  Searching: '385'
+  Searching: '395'
+
+Total unique products found: 1256
+
+Fetching specs for 1256 products in 26 batches...
+  Batch 1/26 (50 products)...
+  Batch 2/26 (50 products)...
+  Batch 3/26 (50 products)...
+  Batch 4/26 (50 products)...
+  Batch 5/26 (50 products)...
+  Batch 6/26 (50 products)...
+  Batch 7/26 (50 products)...
+  Batch 8/26 (50 products)...
+  Batch 9/26 (50 products)...
+  Batch 10/26 (50 products)...
+  Batch 11/26 (50 products)...
+  Batch 12/26 (50 products)...
+  Batch 13/26 (50 products)...
+  Batch 14/26 (50 products)...
+  Batch 15/26 (50 products)...
+  Batch 16/26 (50 products)...
+  Batch 17/26 (50 products)...
+  Batch 18/26 (50 products)...
+  Batch 19/26 (50 products)...
+  Batch 20/26 (50 products)...
+  Batch 21/26 (50 products)...
+  Batch 22/26 (50 products)...
+  Batch 23/26 (50 products)...
+  Batch 24/26 (50 products)...
+  Batch 25/26 (50 products)...
+  Batch 26/26 (6 products)...
+  Specs collected for 1256 products.
+
+Branches found: ['FORMULA DISTRIBUTORS LTD.', 'RIVER ROAD WAREHOUSE']
+Saved 1256 products to: Data/raw/formula_tires_20260715_221243.csv
+
+Done!
+22:14:53 [INFO] Step 'scraper' — OK
+
+22:14:53 [INFO] =======================================================
+22:14:53 [INFO] STEP: scraper_wheels (scraper_wheels.py)
+22:14:53 [INFO] =======================================================
+============================================================
+Formula Distributors Wheel Scraper
+============================================================
+Attempting empty-string search to fetch all products...
+  Empty search returned no results. Falling back to A-Z + size search...
+  Searching: 'A'
+    +75 new products (total: 75)
+  [CAPPED] term 'A' hit 75-result limit
+  Searching: 'B'
+    +35 new products (total: 110)
+  [CAPPED] term 'B' hit 75-result limit
+  Searching: 'C'
+    +62 new products (total: 172)
+  [CAPPED] term 'C' hit 75-result limit
+  Searching: 'D'
+    +52 new products (total: 224)
+  [CAPPED] term 'D' hit 75-result limit
+  Searching: 'E'
+    +10 new products (total: 234)
+  Searching: 'F'
+    +16 new products (total: 250)
+  [CAPPED] term 'F' hit 75-result limit
+  Searching: 'G'
+    +11 new products (total: 261)
+  [CAPPED] term 'G' hit 75-result limit
+  Searching: 'H'
+    +15 new products (total: 276)
+  [CAPPED] term 'H' hit 75-result limit
+  Searching: 'I'
+    +6 new products (total: 282)
+  Searching: 'J'
+  Searching: 'K'
+    +27 new products (total: 309)
+  Searching: 'L'
+    +22 new products (total: 331)
+  [CAPPED] term 'L' hit 75-result limit
+  Searching: 'M'
+    +0 new products (total: 331)
+  [CAPPED] term 'M' hit 75-result limit
+  Searching: 'N'
+    +0 new products (total: 331)
+  [CAPPED] term 'N' hit 75-result limit
+  Searching: 'O'
+    +14 new products (total: 345)
+  Searching: 'P'
+    +0 new products (total: 345)
+  [CAPPED] term 'P' hit 75-result limit
+  Searching: 'Q'
+  Searching: 'R'
+    +12 new products (total: 357)
+  [CAPPED] term 'R' hit 75-result limit
+  Searching: 'S'
+    +10 new products (total: 367)
+  [CAPPED] term 'S' hit 75-result limit
+  Searching: 'T'
+    +0 new products (total: 367)
+  [CAPPED] term 'T' hit 75-result limit
+  Searching: 'U'
+    +5 new products (total: 372)
+  Searching: 'V'
+    +23 new products (total: 395)
+  Searching: 'W'
+    +6 new products (total: 401)
+  [CAPPED] term 'W' hit 75-result limit
+  Searching: 'X'
+    +6 new products (total: 407)
+  Searching: 'Y'
+  Searching: 'Z'
+  Searching: '10 4-98'
+  Searching: '10 4-100'
+  Searching: '10 4-108'
+  Searching: '10 4-110'
+  Searching: '10 4-114.3'
+  Searching: '10 4-115'
+  Searching: '10 4-156'
+  Searching: '10 4on4'
+  Searching: '10 5-98'
+  Searching: '10 5-100'
+    +2 new products (total: 409)
+  Searching: '10 5-105'
+  Searching: '10 5-108'
+  Searching: '10 5-110'
+  Searching: '10 5-112'
+    +1 new products (total: 410)
+  Searching: '10 5-114.3'
+    +2 new products (total: 412)
+  Searching: '10 5-115'
+  Searching: '10 5-120'
+    +0 new products (total: 412)
+  Searching: '10 5-127'
+    +0 new products (total: 412)
+  Searching: '10 5-130'
+  Searching: '10 5-139.7'
+    +0 new products (total: 412)
+  Searching: '10 5-150'
+  Searching: '10 5-160'
+  Searching: '10 5on4.5'
+  Searching: '10 5-4.50'
+  Searching: '10 6-114.3'
+  Searching: '10 6-120'
+  Searching: '10 6-127'
+  Searching: '10 6-130'
+  Searching: '10 6-132'
+  Searching: '10 6-135'
+    +27 new products (total: 439)
+  Searching: '10 6-139.7'
+    +34 new products (total: 473)
+  [CAPPED] term '10 6-139.7' hit 75-result limit
+  Searching: '10 6-180'
+  Searching: '10 6-205'
+  Searching: '10 7-150'
+  Searching: '10 8-165.1'
+    +3 new products (total: 476)
+  Searching: '10 8-170'
+    +1 new products (total: 477)
+  Searching: '10 8-180'
+    +0 new products (total: 477)
+  Searching: '10 8-200'
+    +1 new products (total: 478)
+  Searching: '10 8-210'
+  Searching: '10 8-225'
+  Searching: '10 8-275'
+  Searching: '10 10-184.1'
+  Searching: '10 10-225'
+    +0 new products (total: 478)
+  Searching: '10 10-285'
+  Searching: '12 4-98'
+  Searching: '12 4-100'
+  Searching: '12 4-108'
+  Searching: '12 4-110'
+  Searching: '12 4-114.3'
+  Searching: '12 4-115'
+  Searching: '12 4-156'
+  Searching: '12 4on4'
+  Searching: '12 5-98'
+  Searching: '12 5-100'
+  Searching: '12 5-105'
+  Searching: '12 5-108'
+  Searching: '12 5-110'
+  Searching: '12 5-112'
+  Searching: '12 5-114.3'
+    +6 new products (total: 484)
+  Searching: '12 5-115'
+    +1 new products (total: 485)
+  Searching: '12 5-120'
+    +0 new products (total: 485)
+  Searching: '12 5-127'
+    +4 new products (total: 489)
+  Searching: '12 5-130'
+  Searching: '12 5-139.7'
+    +2 new products (total: 491)
+  Searching: '12 5-150'
+    +0 new products (total: 491)
+  Searching: '12 5-160'
+  Searching: '12 5on4.5'
+  Searching: '12 5-4.50'
+  Searching: '12 6-114.3'
+  Searching: '12 6-120'
+  Searching: '12 6-127'
+  Searching: '12 6-130'
+  Searching: '12 6-132'
+  Searching: '12 6-135'
+    +9 new products (total: 500)
+  Searching: '12 6-139.7'
+    +1 new products (total: 501)
+  Searching: '12 6-180'
+  Searching: '12 6-205'
+  Searching: '12 7-150'
+  Searching: '12 8-165.1'
+    +11 new products (total: 512)
+  Searching: '12 8-170'
+    +9 new products (total: 521)
+  Searching: '12 8-180'
+    +6 new products (total: 527)
+  Searching: '12 8-200'
+  Searching: '12 8-210'
+  Searching: '12 8-225'
+  Searching: '12 8-275'
+  Searching: '12 10-184.1'
+  Searching: '12 10-225'
+  Searching: '12 10-285'
+  Searching: '13 4-98'
+  Searching: '13 4-100'
+  Searching: '13 4-108'
+  Searching: '13 4-110'
+  Searching: '13 4-114.3'
+  Searching: '13 4-115'
+  Searching: '13 4-156'
+  Searching: '13 4on4'
+  Searching: '13 5-98'
+  Searching: '13 5-100'
+  Searching: '13 5-105'
+  Searching: '13 5-108'
+  Searching: '13 5-110'
+  Searching: '13 5-112'
+    +0 new products (total: 527)
+  Searching: '13 5-114.3'
+    +1 new products (total: 528)
+  Searching: '13 5-115'
+  Searching: '13 5-120'
+  Searching: '13 5-127'
+    +7 new products (total: 535)
+  Searching: '13 5-130'
+  Searching: '13 5-139.7'
+    +0 new products (total: 535)
+  Searching: '13 5-150'
+  Searching: '13 5-160'
+  Searching: '13 5on4.5'
+  Searching: '13 5-4.50'
+  Searching: '13 6-114.3'
+  Searching: '13 6-120'
+  Searching: '13 6-127'
+  Searching: '13 6-130'
+  Searching: '13 6-132'
+  Searching: '13 6-135'
+    +16 new products (total: 551)
+  Searching: '13 6-139.7'
+    +0 new products (total: 551)
+  Searching: '13 6-180'
+  Searching: '13 6-205'
+  Searching: '13 7-150'
+  Searching: '13 8-165.1'
+    +1 new products (total: 552)
+  Searching: '13 8-170'
+  Searching: '13 8-180'
+  Searching: '13 8-200'
+  Searching: '13 8-210'
+  Searching: '13 8-225'
+  Searching: '13 8-275'
+  Searching: '13 10-184.1'
+  Searching: '13 10-225'
+  Searching: '13 10-285'
+  Searching: '14 4-98'
+  Searching: '14 4-100'
+  Searching: '14 4-108'
+  Searching: '14 4-110'
+  Searching: '14 4-114.3'
+  Searching: '14 4-115'
+  Searching: '14 4-156'
+  Searching: '14 4on4'
+  Searching: '14 5-98'
+  Searching: '14 5-100'
+  Searching: '14 5-105'
+  Searching: '14 5-108'
+  Searching: '14 5-110'
+  Searching: '14 5-112'
+  Searching: '14 5-114.3'
+    +2 new products (total: 554)
+  Searching: '14 5-115'
+    +1 new products (total: 555)
+  Searching: '14 5-120'
+  Searching: '14 5-127'
+    +0 new products (total: 555)
+  Searching: '14 5-130'
+  Searching: '14 5-139.7'
+  Searching: '14 5-150'
+  Searching: '14 5-160'
+  Searching: '14 5on4.5'
+  Searching: '14 5-4.50'
+  Searching: '14 6-114.3'
+  Searching: '14 6-120'
+  Searching: '14 6-127'
+  Searching: '14 6-130'
+  Searching: '14 6-132'
+  Searching: '14 6-135'
+  Searching: '14 6-139.7'
+    +0 new products (total: 555)
+  Searching: '14 6-180'
+  Searching: '14 6-205'
+  Searching: '14 7-150'
+  Searching: '14 8-165.1'
+  Searching: '14 8-170'
+  Searching: '14 8-180'
+    +0 new products (total: 555)
+  Searching: '14 8-200'
+    +0 new products (total: 555)
+  Searching: '14 8-210'
+  Searching: '14 8-225'
+  Searching: '14 8-275'
+  Searching: '14 10-184.1'
+  Searching: '14 10-225'
+  Searching: '14 10-285'
+  Searching: '15 4-98'
+  Searching: '15 4-100'
+    +1 new products (total: 556)
+  Searching: '15 4-108'
+    +1 new products (total: 557)
+  Searching: '15 4-110'
+  Searching: '15 4-114.3'
+  Searching: '15 4-115'
+  Searching: '15 4-156'
+  Searching: '15 4on4'
+  Searching: '15 5-98'
+  Searching: '15 5-100'
+    +0 new products (total: 557)
+  Searching: '15 5-105'
+  Searching: '15 5-108'
+    +0 new products (total: 557)
+  Searching: '15 5-110'
+  Searching: '15 5-112'
+  Searching: '15 5-114.3'
+    +11 new products (total: 568)
+  Searching: '15 5-115'
+    +1 new products (total: 569)
+  Searching: '15 5-120'
+    +2 new products (total: 571)
+  Searching: '15 5-127'
+    +2 new products (total: 573)
+  Searching: '15 5-130'
+  Searching: '15 5-139.7'
+    +5 new products (total: 578)
+  Searching: '15 5-150'
+    +0 new products (total: 578)
+  Searching: '15 5-160'
+  Searching: '15 5on4.5'
+  Searching: '15 5-4.50'
+  Searching: '15 6-114.3'
+  Searching: '15 6-120'
+  Searching: '15 6-127'
+  Searching: '15 6-130'
+  Searching: '15 6-132'
+  Searching: '15 6-135'
+    +0 new products (total: 578)
+  Searching: '15 6-139.7'
+    +1 new products (total: 579)
+  Searching: '15 6-180'
+  Searching: '15 6-205'
+  Searching: '15 7-150'
+  Searching: '15 8-165.1'
+  Searching: '15 8-170'
+  Searching: '15 8-180'
+  Searching: '15 8-200'
+  Searching: '15 8-210'
+    +0 new products (total: 579)
+  Searching: '15 8-225'
+  Searching: '15 8-275'
+  Searching: '15 10-184.1'
+  Searching: '15 10-225'
+  Searching: '15 10-285'
+  Searching: '16 4-98'
+  Searching: '16 4-100'
+    +1 new products (total: 580)
+  Searching: '16 4-108'
+    +1 new products (total: 581)
+  Searching: '16 4-110'
+  Searching: '16 4-114.3'
+  Searching: '16 4-115'
+  Searching: '16 4-156'
+  Searching: '16 4on4'
+  Searching: '16 5-98'
+  Searching: '16 5-100'
+    +2 new products (total: 583)
+  Searching: '16 5-105'
+    +0 new products (total: 583)
+  Searching: '16 5-108'
+    +0 new products (total: 583)
+  Searching: '16 5-110'
+    +0 new products (total: 583)
+  Searching: '16 5-112'
+    +0 new products (total: 583)
+  Searching: '16 5-114.3'
+    +3 new products (total: 586)
+  Searching: '16 5-115'
+    +0 new products (total: 586)
+  Searching: '16 5-120'
+    +0 new products (total: 586)
+  Searching: '16 5-127'
+  Searching: '16 5-130'
+  Searching: '16 5-139.7'
+  Searching: '16 5-150'
+  Searching: '16 5-160'
+    +1 new products (total: 587)
+  Searching: '16 5on4.5'
+  Searching: '16 5-4.50'
+  Searching: '16 6-114.3'
+  Searching: '16 6-120'
+  Searching: '16 6-127'
+  Searching: '16 6-130'
+  Searching: '16 6-132'
+  Searching: '16 6-135'
+  Searching: '16 6-139.7'
+    +1 new products (total: 588)
+  Searching: '16 6-180'
+  Searching: '16 6-205'
+  Searching: '16 7-150'
+  Searching: '16 8-165.1'
+    +1 new products (total: 589)
+  Searching: '16 8-170'
+  Searching: '16 8-180'
+  Searching: '16 8-200'
+  Searching: '16 8-210'
+  Searching: '16 8-225'
+  Searching: '16 8-275'
+  Searching: '16 10-184.1'
+  Searching: '16 10-225'
+  Searching: '16 10-285'
+  Searching: '17 4-98'
+  Searching: '17 4-100'
+    +2 new products (total: 591)
+  Searching: '17 4-108'
+  Searching: '17 4-110'
+  Searching: '17 4-114.3'
+  Searching: '17 4-115'
+  Searching: '17 4-156'
+  Searching: '17 4on4'
+  Searching: '17 5-98'
+  Searching: '17 5-100'
+    +1 new products (total: 592)
+  Searching: '17 5-105'
+    +0 new products (total: 592)
+  Searching: '17 5-108'
+    +2 new products (total: 594)
+  Searching: '17 5-110'
+    +0 new products (total: 594)
+  Searching: '17 5-112'
+    +1 new products (total: 595)
+  Searching: '17 5-114.3'
+    +11 new products (total: 606)
+  Searching: '17 5-115'
+    +0 new products (total: 606)
+  Searching: '17 5-120'
+    +0 new products (total: 606)
+  Searching: '17 5-127'
+    +0 new products (total: 606)
+  Searching: '17 5-130'
+  Searching: '17 5-139.7'
+    +0 new products (total: 606)
+  Searching: '17 5-150'
+    +2 new products (total: 608)
+  Searching: '17 5-160'
+  Searching: '17 5on4.5'
+  Searching: '17 5-4.50'
+  Searching: '17 6-114.3'
+  Searching: '17 6-120'
+    +1 new products (total: 609)
+  Searching: '17 6-127'
+    +0 new products (total: 609)
+  Searching: '17 6-130'
+  Searching: '17 6-132'
+  Searching: '17 6-135'
+    +2 new products (total: 611)
+  Searching: '17 6-139.7'
+    +5 new products (total: 616)
+  Searching: '17 6-180'
+  Searching: '17 6-205'
+  Searching: '17 7-150'
+  Searching: '17 8-165.1'
+    +3 new products (total: 619)
+  Searching: '17 8-170'
+    +0 new products (total: 619)
+  Searching: '17 8-180'
+    +0 new products (total: 619)
+  Searching: '17 8-200'
+    +0 new products (total: 619)
+  Searching: '17 8-210'
+    +0 new products (total: 619)
+  Searching: '17 8-225'
+  Searching: '17 8-275'
+  Searching: '17 10-184.1'
+  Searching: '17 10-225'
+    +0 new products (total: 619)
+  Searching: '17 10-285'
+  Searching: '17.5 4-98'
+  Searching: '17.5 4-100'
+  Searching: '17.5 4-108'
+  Searching: '17.5 4-110'
+  Searching: '17.5 4-114.3'
+  Searching: '17.5 4-115'
+  Searching: '17.5 4-156'
+  Searching: '17.5 4on4'
+  Searching: '17.5 5-98'
+  Searching: '17.5 5-100'
+  Searching: '17.5 5-105'
+  Searching: '17.5 5-108'
+  Searching: '17.5 5-110'
+  Searching: '17.5 5-112'
+  Searching: '17.5 5-114.3'
+  Searching: '17.5 5-115'
+  Searching: '17.5 5-120'
+  Searching: '17.5 5-127'
+  Searching: '17.5 5-130'
+  Searching: '17.5 5-139.7'
+  Searching: '17.5 5-150'
+  Searching: '17.5 5-160'
+  Searching: '17.5 5on4.5'
+  Searching: '17.5 5-4.50'
+  Searching: '17.5 6-114.3'
+  Searching: '17.5 6-120'
+  Searching: '17.5 6-127'
+  Searching: '17.5 6-130'
+  Searching: '17.5 6-132'
+  Searching: '17.5 6-135'
+  Searching: '17.5 6-139.7'
+  Searching: '17.5 6-180'
+  Searching: '17.5 6-205'
+  Searching: '17.5 7-150'
+  Searching: '17.5 8-165.1'
+  Searching: '17.5 8-170'
+  Searching: '17.5 8-180'
+  Searching: '17.5 8-200'
+  Searching: '17.5 8-210'
+  Searching: '17.5 8-225'
+  Searching: '17.5 8-275'
+  Searching: '17.5 10-184.1'
+  Searching: '17.5 10-225'
+  Searching: '17.5 10-285'
+  Searching: '18 4-98'
+  Searching: '18 4-100'
+    +0 new products (total: 619)
+  Searching: '18 4-108'
+  Searching: '18 4-110'
+  Searching: '18 4-114.3'
+  Searching: '18 4-115'
+  Searching: '18 4-156'
+  Searching: '18 4on4'
+  Searching: '18 5-98'
+  Searching: '18 5-100'
+    +1 new products (total: 620)
+  Searching: '18 5-105'
+    +1 new products (total: 621)
+  Searching: '18 5-108'
+    +0 new products (total: 621)
+  Searching: '18 5-110'
+    +0 new products (total: 621)
+  Searching: '18 5-112'
+    +2 new products (total: 623)
+  Searching: '18 5-114.3'
+    +15 new products (total: 638)
+  Searching: '18 5-115'
+    +0 new products (total: 638)
+  Searching: '18 5-120'
+    +2 new products (total: 640)
+  Searching: '18 5-127'
+    +1 new products (total: 641)
+  Searching: '18 5-130'
+  Searching: '18 5-139.7'
+    +1 new products (total: 642)
+  Searching: '18 5-150'
+    +0 new products (total: 642)
+  Searching: '18 5-160'
+  Searching: '18 5on4.5'
+  Searching: '18 5-4.50'
+  Searching: '18 6-114.3'
+  Searching: '18 6-120'
+    +1 new products (total: 643)
+  Searching: '18 6-127'
+  Searching: '18 6-130'
+  Searching: '18 6-132'
+    +0 new products (total: 643)
+  Searching: '18 6-135'
+    +1 new products (total: 644)
+  Searching: '18 6-139.7'
+    +2 new products (total: 646)
+  Searching: '18 6-180'
+  Searching: '18 6-205'
+  Searching: '18 7-150'
+  Searching: '18 8-165.1'
+    +0 new products (total: 646)
+  Searching: '18 8-170'
+    +5 new products (total: 651)
+  Searching: '18 8-180'
+    +0 new products (total: 651)
+  Searching: '18 8-200'
+  Searching: '18 8-210'
+  Searching: '18 8-225'
+  Searching: '18 8-275'
+  Searching: '18 10-184.1'
+  Searching: '18 10-225'
+  Searching: '18 10-285'
+  Searching: '19 4-98'
+  Searching: '19 4-100'
+  Searching: '19 4-108'
+  Searching: '19 4-110'
+  Searching: '19 4-114.3'
+  Searching: '19 4-115'
+  Searching: '19 4-156'
+  Searching: '19 4on4'
+  Searching: '19 5-98'
+  Searching: '19 5-100'
+    +0 new products (total: 651)
+  Searching: '19 5-105'
+  Searching: '19 5-108'
+  Searching: '19 5-110'
+  Searching: '19 5-112'
+    +1 new products (total: 652)
+  Searching: '19 5-114.3'
+    +0 new products (total: 652)
+  Searching: '19 5-115'
+  Searching: '19 5-120'
+    +0 new products (total: 652)
+  Searching: '19 5-127'
+    +1 new products (total: 653)
+  Searching: '19 5-130'
+  Searching: '19 5-139.7'
+    +0 new products (total: 653)
+  Searching: '19 5-150'
+  Searching: '19 5-160'
+  Searching: '19 5on4.5'
+  Searching: '19 5-4.50'
+  Searching: '19 6-114.3'
+  Searching: '19 6-120'
+    +0 new products (total: 653)
+  Searching: '19 6-127'
+  Searching: '19 6-130'
+  Searching: '19 6-132'
+  Searching: '19 6-135'
+    +0 new products (total: 653)
+  Searching: '19 6-139.7'
+    +0 new products (total: 653)
+  Searching: '19 6-180'
+  Searching: '19 6-205'
+  Searching: '19 7-150'
+  Searching: '19 8-165.1'
+  Searching: '19 8-170'
+    +1 new products (total: 654)
+  Searching: '19 8-180'
+  Searching: '19 8-200'
+  Searching: '19 8-210'
+  Searching: '19 8-225'
+  Searching: '19 8-275'
+  Searching: '19 10-184.1'
+  Searching: '19 10-225'
+    +0 new products (total: 654)
+  Searching: '19 10-285'
+  Searching: '19.5 4-98'
+  Searching: '19.5 4-100'
+  Searching: '19.5 4-108'
+  Searching: '19.5 4-110'
+  Searching: '19.5 4-114.3'
+  Searching: '19.5 4-115'
+  Searching: '19.5 4-156'
+  Searching: '19.5 4on4'
+  Searching: '19.5 5-98'
+  Searching: '19.5 5-100'
+  Searching: '19.5 5-105'
+  Searching: '19.5 5-108'
+  Searching: '19.5 5-110'
+  Searching: '19.5 5-112'
+  Searching: '19.5 5-114.3'
+  Searching: '19.5 5-115'
+  Searching: '19.5 5-120'
+  Searching: '19.5 5-127'
+  Searching: '19.5 5-130'
+  Searching: '19.5 5-139.7'
+  Searching: '19.5 5-150'
+  Searching: '19.5 5-160'
+  Searching: '19.5 5on4.5'
+  Searching: '19.5 5-4.50'
+  Searching: '19.5 6-114.3'
+  Searching: '19.5 6-120'
+  Searching: '19.5 6-127'
+  Searching: '19.5 6-130'
+  Searching: '19.5 6-132'
+  Searching: '19.5 6-135'
+  Searching: '19.5 6-139.7'
+  Searching: '19.5 6-180'
+  Searching: '19.5 6-205'
+  Searching: '19.5 7-150'
+  Searching: '19.5 8-165.1'
+  Searching: '19.5 8-170'
+  Searching: '19.5 8-180'
+  Searching: '19.5 8-200'
+  Searching: '19.5 8-210'
+  Searching: '19.5 8-225'
+  Searching: '19.5 8-275'
+  Searching: '19.5 10-184.1'
+  Searching: '19.5 10-225'
+    +0 new products (total: 654)
+  Searching: '19.5 10-285'
+  Searching: '20 4-98'
+  Searching: '20 4-100'
+    +0 new products (total: 654)
+  Searching: '20 4-108'
+  Searching: '20 4-110'
+  Searching: '20 4-114.3'
+22:23:02 [ERROR] Step 'scraper_wheels' failed (exit 3221225786). Pipeline stopped.

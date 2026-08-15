@@ -1,0 +1,8 @@
+22:51:17 [INFO] Log file: logs\dttire_augment_wheels_20260731_225117.log
+22:51:17 [INFO] Input file : Data\cleaned\cleaned_wheels_20260731_225116.csv
+22:51:17 [INFO] Rows loaded: 507
+22:51:17 [INFO] Rows written : 507
+22:51:17 [INFO] Output file  : Data/shopify/Shopify_SEO_dttire_wheels_20260731_225117.csv
+22:51:17 [INFO] Missing diameter parse : 0
+22:51:17 [INFO] Missing bolt pattern   : 0
+22:51:17 [INFO] Done.
