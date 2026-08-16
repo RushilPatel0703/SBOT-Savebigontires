@@ -405,10 +405,16 @@ def apply_cached(fields, supplier_filter=None, write=False):
 # (which is never invoked). Pure function: no network, safe to read/review.
 # ---------------------------------------------------------------------------
 
-# Retailers whose catalogue photography is consistently a three-quarter angled
-# view showing the TREAD, not a flat face-on shot of the sidewall. That is the
-# look the client wants on the storefront (the SimpleTire result in the live
-# test is the reference). These outrank every other source.
+# Retailers whose catalogue photography SKEWS toward a three-quarter angled
+# view showing the TREAD rather than a flat face-on shot. That is the look the
+# client wants on the storefront. These outrank every other source.
+#
+# Treat this as a weak prior, not a guarantee. The live test disproved the
+# strong version: SimpleTire sits in this set and still returned a flat face-on
+# wheel-face shot for the Antares INGENS EV — the exact framing the client
+# rejected. Source reputation does not predict framing, so the real check is
+# image_view.analyze_image(), which opens the picture. This table only orders
+# the queue that check walks through.
 ANGLED_TREAD_RETAILERS = {
     "simpletire.com", "tirerack.com", "blackcircles.ca", "blackcircles.com",
     "prioritytire.com", "tirebuyer.com", "discounttire.com", "1010tires.com",
@@ -552,7 +558,7 @@ def filter_image_candidates(results, brand="", model="", product_type="tires"):
 # (e) — live search. Gated. NEVER invoked in this task.
 # ---------------------------------------------------------------------------
 
-def run_live(fields, supplier_filter, budget):
+def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6):
     """The only path in this module that can spend the client's money.
 
     Four independent gates, all must pass:
@@ -562,13 +568,19 @@ def run_live(fields, supplier_filter, budget):
       4. Cache checked before every single candidate — a cache hit never
          counts against budget or fires a network call.
 
-    Rehosting vs hotlinking (images): this function only retrieves and
-    ranks candidate URLs (via filter_image_candidates). It does NOT download
-    or upload anything to Shopify — see SERP_LAYER_DESIGN.md §6 for why
-    rehosting is recommended over hotlinking (source stability, licensing)
-    and why that step is intentionally out of scope for this task. The seam
-    is here: a caller with approval would take filter_image_candidates()'s
-    top result's URL and hand it to a (not-yet-built) download+upload step.
+    Image verification (verify_images=True): after ranking, each candidate is
+    downloaded and inspected by image_view.pick_verified_image() until one
+    passes. This spends NO extra SerpAPI credit — all ~50 candidates come from
+    the single search already paid for — so a rejected top result costs only
+    an HTTP GET. It catches what metadata cannot: dead URLs, placeholder
+    images, and flat face-on shots. Set verify_images=False to fall back to
+    trusting the metadata ranking alone.
+
+    Rehosting vs hotlinking (images): this function stores the winning URL. It
+    does NOT upload anything to Shopify — see SERP_LAYER_DESIGN.md §6 for why
+    rehosting is recommended over hotlinking (source stability, licensing).
+    The seam is here: the verified bytes are already fetched at this point, so
+    a rehost step would reuse them rather than re-download.
     """
     if os.path.exists(KILL_SWITCH):
         print(f"ABORT: kill switch present at {KILL_SWITCH}. Delete it to re-enable live runs.")
@@ -591,9 +603,18 @@ def run_live(fields, supplier_filter, budget):
     sys.path.insert(0, os.path.join(ROOT, "pipelines", "formula_distributors"))
     from tire_designation_inference import _keyword_lookup
 
+    if verify_images:
+        try:
+            from image_view import pick_verified_image
+        except ImportError as exc:
+            print(f"ERROR: image verification needs Pillow + numpy ({exc}). "
+                  f"Install them, or pass --no-verify-images to skip the check.")
+            sys.exit(1)
+
     cache = load_cache()
     spent = 0
     seen = set()
+    verify_logs = {}
 
     for field in fields:
         cands = discover_candidates(field, supplier_filter)
@@ -624,13 +645,37 @@ def run_live(fields, supplier_filter, budget):
                     "api_key": SERPAPI_KEY_CLIENT,
                 }).get_dict()
                 candidates_raw = results.get("images_results", [])
-                best = filter_image_candidates(candidates_raw, c["brand"], c["model"], c.get("type", "tires"))
-                value = (best[0].get("original") or best[0].get("link") or "") if best else ""
+                ptype = c.get("type", "tires")
+                best = filter_image_candidates(candidates_raw, c["brand"], c["model"], ptype)
+                # Metadata ranking picks the queue; pixels pick the winner.
+                # Walking down the list costs NO extra SerpAPI credit — every
+                # candidate came from the one search already paid for above.
+                if verify_images and best:
+                    winner, check_log = pick_verified_image(
+                        best, ptype, max_fetch=verify_depth, verbose=True)
+                    verify_logs[c["cache_key"]] = check_log
+                    value = (winner.get("original") or winner.get("link") or "") if winner else ""
+                else:
+                    value = (best[0].get("original") or best[0].get("link") or "") if best else ""
 
-            cache[c["cache_key"]] = {field: value, "query": c["query"]}
+            entry = {field: value, "query": c["query"]}
+            if field == "image" and c["cache_key"] in verify_logs:
+                entry["verified"] = verify_logs[c["cache_key"]]
+            cache[c["cache_key"]] = entry
             save_cache(cache)
             spent += 1
             print(f"  [{spent}/{budget}] {field}: {c['query']!r} -> {value!r}")
+
+    if verify_logs:
+        checked = sum(len(v) for v in verify_logs.values())
+        rejected = sum(1 for v in verify_logs.values() for e in v
+                       if e.get("status") not in ("accepted", None))
+        empty = sum(1 for v in verify_logs.values()
+                    if not any(e.get("status") == "accepted" for e in v))
+        print(f"Image verification: {checked} candidate(s) downloaded, "
+              f"{rejected} rejected or demoted, {empty} product(s) left without "
+              f"a clean image. Per-candidate detail is in the cache under "
+              f"'verified' — no extra SerpAPI credit was spent on any of it.")
 
     print(f"Live run complete. Spent {spent} / {budget}.")
 
@@ -910,13 +955,23 @@ def main():
     ap.add_argument("--apply", action="store_true",
                      help="Write (d) cache-hit fixes into the cleaned/raw CSV in place. "
                           "No network call regardless — only reuses already-paid results.")
+    ap.add_argument("--no-verify-images", dest="verify_images", action="store_false",
+                     help="Skip the pixel check on image results. Verification costs no "
+                          "SerpAPI credit (it re-uses candidates from the same search), "
+                          "so the only reason to skip it is speed.")
+    ap.add_argument("--verify-depth", type=int, default=6,
+                     help="How far down the ranked list to walk while looking for an "
+                          "image that passes the pixel check (default 6).")
     args = ap.parse_args()
 
     fields = list(SUPPORTED_FIELDS) if args.field == "all" else [args.field]
 
     if args.live and args.budget:
-        print(f"LIVE MODE requested — budget={args.budget}, fields={fields}, supplier={args.supplier or 'all'}")
-        run_live(fields, args.supplier, args.budget)
+        print(f"LIVE MODE requested — budget={args.budget}, fields={fields}, "
+              f"supplier={args.supplier or 'all'}, "
+              f"image verification={'on' if args.verify_images else 'OFF'}")
+        run_live(fields, args.supplier, args.budget,
+                 verify_images=args.verify_images, verify_depth=args.verify_depth)
         return
 
     if args.live and not args.budget:
