@@ -16,11 +16,15 @@ Usage:
 
 import json
 import os
+import sys
 import time
 import argparse
 import glob
 import pandas as pd
 from config import SHOP, API_VERSION, SKU_MAP_FILE, api_get, api_post, get_logger
+
+sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "shared")))
+from sku_normalize import normalize_sku
 
 # Maps CLI --type to the Shopify product_type field stored in sku_map
 PRODUCT_TYPE_MAP = {
@@ -66,13 +70,6 @@ def set_inventory(inventory_item_id, location_id, qty, dry_run):
         "available":          qty,
     }
     api_post(url, payload)
-
-
-def normalize_sku(val):
-    try:
-        return str(int(float(val)))
-    except (ValueError, OverflowError):
-        return str(val).strip()
 
 
 def main():

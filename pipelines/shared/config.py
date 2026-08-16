@@ -3,18 +3,33 @@
 All pipeline scripts import from this file via their local config.py re-exporter.
 """
 
+import os as _os_env
+
+# Secrets resolve from the environment first, falling back to the literals below
+# so existing runs keep working unchanged. Set them in the environment (or a
+# .env loaded by your shell) and the literals become dead — at which point they
+# should be rotated and deleted, since anything committed here is in git history.
+# See PRODUCTION_READINESS.md.
+def _secret(name, fallback):
+    return _os_env.environ.get(name) or fallback
+
+
 # ── Shopify ───────────────────────────────────────────────────────────────────
-SHOP        = "database-testing-2.myshopify.com"
-TOKEN       = "shpua_d032a667ceb661c96c27dcfbd11fa33f"
-API_VERSION = "2026-01"
+SHOP        = _secret("SBOT_SHOPIFY_SHOP", "database-testing-2.myshopify.com")
+TOKEN       = _secret("SBOT_SHOPIFY_TOKEN", "shpua_d032a667ceb661c96c27dcfbd11fa33f")
+API_VERSION = _secret("SBOT_SHOPIFY_API_VERSION", "2026-01")
 
 # ── SerpAPI ───────────────────────────────────────────────────────────────────
 # Dev/testing key — used by the Streamlit dashboard. NOT the client's paid key.
-SERPAPI_KEY = "48085de7f5e2e78afae54edad4bc9c9da80d9acd4cf246845a7ccc3acaf12c95"
+SERPAPI_KEY = _secret(
+    "SBOT_SERPAPI_KEY_DEV",
+    "48085de7f5e2e78afae54edad4bc9c9da80d9acd4cf246845a7ccc3acaf12c95")
 
 # Client-paid key. Every search on this key costs the client money and must be
 # explicitly approved before a live run — see monitoring/SERP_LAYER_DESIGN.md.
-SERPAPI_KEY_CLIENT = "d64a4db1926cf1a1a7f7c6796403bf0a22dc78b2519bdaad48e41514b2861e59"
+SERPAPI_KEY_CLIENT = _secret(
+    "SBOT_SERPAPI_KEY_CLIENT",
+    "d64a4db1926cf1a1a7f7c6796403bf0a22dc78b2519bdaad48e41514b2861e59")
 
 # ── Per-supplier markup (updated July 2026) ───────────────────────────────────
 # Flat dollar amount added to the supplier's COST price to produce the Shopify

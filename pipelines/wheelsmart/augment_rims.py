@@ -12,6 +12,7 @@ import logging
 import os
 import re
 import sys
+import time
 from datetime import datetime
 
 import pandas as pd
@@ -22,7 +23,17 @@ from config import markup_for
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 MARKUP            = markup_for("wheelsmart")
+
+# Canonical SKU collision resolution, shared with production/steps/ingest.py so
+# both derivations of the WheelMart rim SKU stay identical.
+from config import disambiguate_skus
 LOW_QTY_THRESHOLD = 4   # qty >= 4 kept; qty <= 3 dropped
+
+# WheelMart has no separate clean.py — this augment step reads the raw scrape
+# directly, so it's also where a stale "latest" raw file (scraper step
+# silently produced nothing this run) would otherwise go unnoticed. See
+# dttire/clean.py for the fuller rationale.
+STALE_INPUT_WARN_HOURS = 24
 
 VENDOR  = "Save Big On Tires"
 SUPPLIER_TAG = "Supplier_Wheelsmart"
@@ -166,38 +177,6 @@ def name_prefix(name):
     return parts[0].upper() if parts else ""
 
 
-def disambiguate_skus(raw_skus, prefixes):
-    """Resolve raw (last-colon-segment) SKUs that collide across differing
-    name prefixes into distinct SKUs, in original row order.
-
-    WheelMart lists some models under both a generic 'WHEEL:' listing and a
-    'RAC:' branded listing that share the same trailing model code (e.g.
-    'WHEEL:22\' WHEEL:L09GB-229512045' and 'RAC: L09GB-229512045') — the
-    client confirmed these are different products (different retail/cost,
-    sometimes different stock) and must not collapse onto one SKU.
-
-    The first prefix seen for a given raw code keeps the plain, byte-identical
-    SKU — this is the row production's existing drop_duplicates(keep="first")
-    already lets through today, so whatever is already live in Shopify under
-    the old single-segment derivation is unaffected. A raw code repeated
-    under a *different* prefix gets that prefix appended
-    ('L09GB-229512045-RAC') so it becomes its own product instead of being
-    silently dropped. A raw code repeated under the *same* prefix (a true
-    duplicate row) still gets the plain SKU, unchanged from today — downstream
-    dedup collapses it exactly as before.
-    """
-    first_prefix_for = {}
-    out = []
-    for raw, prefix in zip(raw_skus, prefixes):
-        established = first_prefix_for.get(raw)
-        if established is None:
-            first_prefix_for[raw] = prefix
-            out.append(raw)
-        elif prefix == established:
-            out.append(raw)
-        else:
-            out.append(f"{raw}-{prefix}")
-    return out
 
 
 # ── Brand extraction ───────────────────────────────────────────────────────────
@@ -577,11 +556,23 @@ def main():
 
     input_file = find_input_file()
     log.info(f"Input file : {input_file}")
+    age_hours = (time.time() - os.path.getmtime(input_file)) / 3600
+    if age_hours > STALE_INPUT_WARN_HOURS:
+        log.warning(
+            f"input file is {age_hours / 24:.1f} day(s) old "
+            f"(> {STALE_INPUT_WARN_HOURS}h threshold). Proceeding, but this "
+            f"usually means scraper_rims.py didn't produce a fresh file this "
+            f"run — verify before trusting this output."
+        )
 
     df = pd.read_csv(input_file, dtype=str, low_memory=False)
     df = df.fillna("")
     total_loaded = len(df)
     log.info(f"Rows loaded: {total_loaded}")
+    if total_loaded == 0:
+        log.error(f"{input_file} has 0 rows — refusing to write an empty Shopify SEO CSV. "
+                   f"Check scraper_rims.py's output for this run before re-running augment.")
+        sys.exit(1)
 
     # ── Quantity ──────────────────────────────────────────────────────────────
     df["total_qty"] = df["quantity_on_hand"].apply(parse_qty)
@@ -599,6 +590,11 @@ def main():
 
     df = df[~low_qty_mask].copy()
     log.info(f"Rows after low-qty filter: {len(df)}")
+    if len(df) == 0:
+        log.error(f"No rows remain after the qty >= {LOW_QTY_THRESHOLD} filter "
+                   f"({total_loaded} loaded, all dropped) — refusing to write an empty Shopify SEO CSV. "
+                   f"Check the raw scrape quantities before re-running.")
+        sys.exit(1)
 
     # ── SKU derivation ────────────────────────────────────────────────────────
     # Resolved on the post-low-qty-filter frame (in file order) so "first

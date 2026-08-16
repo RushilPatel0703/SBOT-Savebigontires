@@ -12,11 +12,17 @@ Usage:
 import sys
 import glob
 import os
+import time
 import argparse
 import csv
 from datetime import datetime
 
 LOW_QTY_THRESHOLD = 4
+
+# See dttire/clean.py for the rationale: a "latest" raw file this old is more
+# likely a stale leftover (scraper step silently produced nothing this run)
+# than genuinely fresh input, and must be flagged rather than used silently.
+STALE_INPUT_WARN_HOURS = 24
 
 TIRE_ACCESSORY_CODES = {
     # Non-tire accessories
@@ -62,6 +68,17 @@ def clean_sale_date(val):
     return "" if val in (None, "None", "null", "") else val
 
 
+def check_input_freshness(input_file):
+    age_hours = (time.time() - os.path.getmtime(input_file)) / 3600
+    if age_hours > STALE_INPUT_WARN_HOURS:
+        print(
+            f"  WARNING: input file is {age_hours / 24:.1f} day(s) old "
+            f"(> {STALE_INPUT_WARN_HOURS}h threshold). Proceeding, but this "
+            f"usually means the scraper step didn't produce a fresh file this "
+            f"run — verify before trusting this output."
+        )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--type", choices=["tires", "wheels"], required=True)
@@ -71,6 +88,7 @@ def main():
     input_file = find_input_file(product_type)
     print(f"Input  : {input_file}")
     print(f"Type   : {product_type}")
+    check_input_freshness(input_file)
 
     with open(input_file, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -192,6 +210,11 @@ def main():
     for r in rows:
         r["sale_begins"] = clean_sale_date(r.get("sale_begins", ""))
         r["sale_ends"]   = clean_sale_date(r.get("sale_ends", ""))
+
+    if not rows:
+        print(f"ERROR: 0 rows survive cleaning — refusing to write an empty "
+              f"cleaned_{product_type} CSV. Check the raw scrape before re-running.")
+        sys.exit(1)
 
     # Output
     os.makedirs("Data/cleaned", exist_ok=True)

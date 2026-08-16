@@ -8,11 +8,17 @@
 import sys
 import glob
 import os
+import time
 import argparse
 import pandas as pd
 from tire_designation_inference import infer_designation
 
 LOW_QTY_THRESHOLD = 4
+
+# See dttire/clean.py for the rationale: a "latest" raw file this old is more
+# likely a stale leftover (scraper step silently produced nothing this run)
+# than genuinely fresh input, and must be flagged rather than used silently.
+STALE_INPUT_WARN_HOURS = 24
 
 # Columns that must all match for a duplicate to be considered truly identical.
 # product_guid is the strongest confirming field — if two rows share an item
@@ -44,8 +50,21 @@ def main():
     print(f"Input file   : {input_file}")
     print(f"Product type : {product_type}")
 
+    age_hours = (time.time() - os.path.getmtime(input_file)) / 3600
+    if age_hours > STALE_INPUT_WARN_HOURS:
+        print(
+            f"  WARNING: input file is {age_hours / 24:.1f} day(s) old "
+            f"(> {STALE_INPUT_WARN_HOURS}h threshold). Proceeding, but this "
+            f"usually means the scraper step didn't produce a fresh file this "
+            f"run — verify before trusting this output."
+        )
+
     df = pd.read_csv(input_file, dtype=str, low_memory=False)
     print(f"Rows loaded  : {len(df)}")
+    if len(df) == 0:
+        print(f"ERROR: {input_file} has 0 rows — refusing to write an empty cleaned CSV. "
+              f"Check the raw scrape before re-running.")
+        sys.exit(1)
 
     # ── Cost price — backfill missing/zero cost_price from retail_price ───────
     # cost_price may be entirely absent from raw scrapes that predate this
@@ -144,6 +163,11 @@ def main():
                 ["brand_name", "model", "description", "size", "designation_reason"]
             ].head(10)
             print(unknown_samples.to_string())
+
+    if len(main_df) == 0:
+        print(f"ERROR: 0 rows survive cleaning (low-qty filter + dedup) — refusing to write "
+              f"an empty cleaned_{product_type} CSV. Check the raw scrape before re-running.")
+        sys.exit(1)
 
     # ── Output ─────────────────────────────────────────────────────────────────
     # Restore available_quantity to original numeric string form

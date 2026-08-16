@@ -366,6 +366,10 @@ def main():
 
     df = pd.read_csv(input_file, dtype=str, low_memory=False).fillna("")
     print(f"Rows loaded: {len(df)}")
+    if len(df) == 0:
+        print(f"ERROR: {input_file} has 0 rows — refusing to write an empty Shopify SEO CSV. "
+              f"Check clean.py's output for this run before re-running augment.")
+        sys.exit(1)
 
     # Detect bolt pattern and hub bore spec columns at runtime (codes vary by API version)
     bp_met_cols = sorted([c for c in df.columns if re.search(r'boltpattern.*met', c)])

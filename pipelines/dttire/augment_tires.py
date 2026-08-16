@@ -198,6 +198,10 @@ def main():
 
     df = pd.read_csv(input_file, dtype=str, low_memory=False).fillna("")
     log.info(f"Rows loaded: {len(df)}")
+    if len(df) == 0:
+        log.error(f"{input_file} has 0 rows — refusing to write an empty Shopify SEO CSV. "
+                   f"Check clean.py's output for this run before re-running augment.")
+        sys.exit(1)
 
     # total_qty: use qty_total column if present, else fall back to qty_local + qty_other
     if "qty_total" in df.columns:

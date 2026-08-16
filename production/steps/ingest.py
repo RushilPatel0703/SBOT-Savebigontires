@@ -7,6 +7,7 @@ warehouse keyed by run_id. Freshness and row-count facts are recorded here and
 judged in the validate step.
 """
 
+import importlib.util
 import os
 import time
 from datetime import datetime
@@ -15,21 +16,24 @@ import pandas as pd
 
 import config
 
+# normalize_sku is the single canonical implementation, shared with the
+# pipelines/ layer — loaded by file path (matching the pipelines/*/config.py
+# re-export pattern) rather than duplicated here, since this exact logic
+# duplicating and drifting between the pipelines/merged and production paths
+# is what previously caused leading-zero SKUs to collide only on one side.
+# See pipelines/shared/sku_normalize.py for the rationale.
+_sku_normalize_spec = importlib.util.spec_from_file_location(
+    "_sku_normalize", config.PIPELINES_DIR / "shared" / "sku_normalize.py")
+_sku_normalize_mod = importlib.util.module_from_spec(_sku_normalize_spec)
+_sku_normalize_spec.loader.exec_module(_sku_normalize_mod)
+normalize_sku = _sku_normalize_mod.normalize_sku
+disambiguate_skus = _sku_normalize_mod.disambiguate_skus
+
 
 def find_latest(pattern_path):
     import glob
     matches = sorted(glob.glob(str(pattern_path)), key=os.path.getmtime, reverse=True)
     return matches[0] if matches else None
-
-
-def normalize_sku(val, split_colon=False):
-    s = str(val).strip()
-    if split_colon and ":" in s:
-        s = s.split(":")[-1].strip()
-    try:
-        return str(int(float(s)))       # numeric SKUs: "12345.0" → "12345"
-    except (ValueError, OverflowError):
-        return s
 
 
 def coerce_qty(val):
@@ -90,6 +94,10 @@ def load_supplier_frame(supplier, cfg, product_type, log):
     split_colon = cfg.get("sku_split_colon", False)
     sku_prefix  = cfg.get("sku_prefix", "")
     df["_sku"]   = df[sku_col].apply(lambda v: normalize_sku(v, split_colon))
+    # Keep the pre-split name prefix ("WHEEL:" / "RAC:") for collision
+    # resolution further down — see the disambiguation block below.
+    df["_name_prefix"] = (
+        df[sku_col].apply(lambda v: str(v).split(":")[0].strip()) if split_colon else "")
     if sku_prefix:
         df["_sku"] = df["_sku"].apply(
             lambda s: s if not s or s.startswith(sku_prefix) else sku_prefix + s)
@@ -103,6 +111,20 @@ def load_supplier_frame(supplier, cfg, product_type, log):
         before = len(df)
         df = df[df["_qty"] >= cfg.get("min_qty", 4)]
         log.info(f"[{supplier}/{product_type}] low-qty filter: {before} → {len(df)}")
+
+    # WheelMart lists some rims under both a "WHEEL:" and a "RAC:" name sharing
+    # one trailing model code. They are DIFFERENT products (client-confirmed),
+    # so without this the drop_duplicates below silently deletes one of the two.
+    # Runs after the qty filter and before the dedup so "first occurrence wins"
+    # resolves identically to pipelines/wheelsmart/augment_rims.py, which uses
+    # this same shared helper — the two derivations must not drift.
+    if cfg.get("disambiguate_name_prefix") and split_colon:
+        before_dis = df["_sku"].tolist()
+        df["_sku"] = disambiguate_skus(before_dis, df["_name_prefix"].tolist())
+        changed = sum(1 for a, b in zip(before_dis, df["_sku"]) if a != b)
+        if changed:
+            log.info(f"[{supplier}/{product_type}] disambiguated {changed} "
+                     f"prefix-colliding SKU(s)")
 
     # duplicates within one supplier feed would double-count qty at merge
     before = len(df)

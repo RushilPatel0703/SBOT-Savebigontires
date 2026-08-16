@@ -13,11 +13,18 @@ import sys
 import glob
 import os
 import re
+import time
 import requests
 import pandas as pd
 from datetime import datetime
 
 from config import markup_for
+
+# WheelMart has no separate clean.py — this augment step reads the raw scrape
+# directly, so it's also where a stale "latest" raw file (scraper step
+# silently produced nothing this run) would otherwise go unnoticed. See
+# dttire/clean.py for the fuller rationale.
+STALE_INPUT_WARN_HOURS = 24
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from size_parser import parse_tire_size
@@ -562,10 +569,22 @@ def main():
     # ── Step 0: find input ────────────────────────────────────────────────────
     input_file = find_input_file()
     print(f"Input file : {input_file}")
+    age_hours = (time.time() - os.path.getmtime(input_file)) / 3600
+    if age_hours > STALE_INPUT_WARN_HOURS:
+        print(
+            f"  WARNING: input file is {age_hours / 24:.1f} day(s) old "
+            f"(> {STALE_INPUT_WARN_HOURS}h threshold). Proceeding, but this "
+            f"usually means scraper_tires.py didn't produce a fresh file this "
+            f"run — verify before trusting this output."
+        )
 
     df = pd.read_csv(input_file, dtype=str, low_memory=False).fillna("")
     total_loaded = len(df)
     print(f"Rows loaded: {total_loaded}")
+    if total_loaded == 0:
+        print(f"ERROR: {input_file} has 0 rows — refusing to write an empty Shopify SEO CSV. "
+              f"Check scraper_tires.py's output for this run before re-running augment.")
+        sys.exit(1)
 
     # Deduplicate by SKU (raw CSV sometimes contains the same SKU twice)
     before_dedup = len(df)
@@ -602,7 +621,10 @@ def main():
     print(f"Total rows: {total_loaded} | Dropped (low qty): {total_dropped} | Kept: {total_kept}")
 
     if total_kept == 0:
-        print("WARNING: No rows remain after filtering — output file will be empty.")
+        print(f"ERROR: No rows remain after the qty >= {LOW_QTY_THRESHOLD} filter "
+              f"({total_loaded} loaded, all dropped) — refusing to write an empty Shopify SEO CSV. "
+              f"Check the raw scrape / WheelMart API quantity fetch before re-running.")
+        sys.exit(1)
 
     # ── Step 3: field extraction ──────────────────────────────────────────────
     df["description"] = df["description"].apply(clean_description)

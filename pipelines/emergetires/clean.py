@@ -12,11 +12,28 @@ import sys
 import glob
 import os
 import re
+import time
 import argparse
 import csv
 from datetime import datetime
 
 LOW_QTY_THRESHOLD = 4  # keep if max(qty, related_branches_qty) >= 4
+
+# See dttire/clean.py for the rationale: a "latest" raw file this old is more
+# likely a stale leftover (scraper step silently produced nothing this run)
+# than genuinely fresh input, and must be flagged rather than used silently.
+STALE_INPUT_WARN_HOURS = 24
+
+
+def check_input_freshness(input_file):
+    age_hours = (time.time() - os.path.getmtime(input_file)) / 3600
+    if age_hours > STALE_INPUT_WARN_HOURS:
+        print(
+            f"  WARNING: input file is {age_hours / 24:.1f} day(s) old "
+            f"(> {STALE_INPUT_WARN_HOURS}h threshold). Proceeding, but this "
+            f"usually means the scraper step didn't produce a fresh file this "
+            f"run — verify before trusting this output."
+        )
 
 # Phase 0 finding (OQ-6 resolved): Emerge's productTypeCode values are NUMERIC strings:
 #   '2'  = standard all-season tire
@@ -137,6 +154,7 @@ def clean_wheels():
     input_file = find_input_file("wheels")
     print(f"Input  : {input_file}")
     print(f"Type   : wheels")
+    check_input_freshness(input_file)
 
     with open(input_file, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -322,6 +340,7 @@ def main():
     input_file = find_input_file(product_type)
     print(f"Input  : {input_file}")
     print(f"Type   : {product_type}")
+    check_input_freshness(input_file)
 
     with open(input_file, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)

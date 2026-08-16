@@ -118,6 +118,9 @@ SUPPLIERS = {
         "pattern":   "wheelsmart/Data/raw/wheelmart_{type}_*.csv",
         "seo_pattern": "wheelsmart/Data/shopify/Shopify_SEO_wheelsmart_{type}_*.csv",
         "type_alias": {"tires": "tires", "wheels": "rims"},   # file naming uses 'rims'
+        # WheelMart rims collide across WHEEL:/RAC: name prefixes; resolve them
+        # instead of letting dedup delete one of the two real products.
+        "disambiguate_name_prefix": True,
         "sku_col":   {"tires": "sku", "wheels": "name"},
         # WheelMart's cost price is the "product-price" span scraped out of the
         # description cell — stored as user_group_price. retail_price (tds[4]) is

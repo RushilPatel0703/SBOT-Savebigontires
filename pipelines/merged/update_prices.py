@@ -18,11 +18,15 @@ not add markup again — doing so would double-count it.
 
 import json
 import os
+import sys
 import time
 import argparse
 import glob
 import pandas as pd
 from config import SHOP, API_VERSION, SKU_MAP_FILE, api_put, get_logger
+
+sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "shared")))
+from sku_normalize import normalize_sku
 
 log = get_logger("update_prices")
 
@@ -38,13 +42,6 @@ def load_sku_map():
         raise SystemExit(1)
     with open(SKU_MAP_FILE, encoding="utf-8") as f:
         return json.load(f)
-
-
-def normalize_sku(val):
-    try:
-        return str(int(float(val)))
-    except (ValueError, OverflowError):
-        return str(val).strip()
 
 
 def main():

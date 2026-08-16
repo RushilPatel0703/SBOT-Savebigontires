@@ -26,6 +26,8 @@ from datetime import datetime
 from config import markup_for
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.normpath(os.path.join(_HERE, "..", "shared")))
+from sku_normalize import normalize_sku
 
 SUPPLIER_CONFIGS = {
     "formula": {
@@ -82,7 +84,7 @@ def load_supplier(name, config, product_type):
         print(f"  [{name}] WARNING: cost column '{config['price_cols'][0]}' absent — "
               f"falling back to '{price_col}' (re-scrape to price off cost).")
 
-    df["_sku"]   = df[sku_col].apply(lambda v: str(int(float(v))) if _is_numeric(v) else str(v).strip())
+    df["_sku"]   = df[sku_col].apply(normalize_sku)
 
     # Markup is per supplier, so it must be applied HERE — before merge() takes
     # the min — because min(cost) and min(cost + markup) no longer select the
@@ -99,14 +101,6 @@ def load_supplier(name, config, product_type):
     df["_source"] = name
 
     return df[["_sku", "_price", "_qty", "_source"]].copy()
-
-
-def _is_numeric(val):
-    try:
-        float(val)
-        return True
-    except (ValueError, TypeError):
-        return False
 
 
 def merge(frames):

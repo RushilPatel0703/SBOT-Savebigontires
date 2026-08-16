@@ -308,6 +308,10 @@ def main():
     df = pd.read_csv(input_file, dtype=str, low_memory=False)
     df = df.fillna("")
     log.info(f"Rows loaded: {len(df)}")
+    if len(df) == 0:
+        log.error(f"{input_file} has 0 rows — refusing to write an empty Shopify SEO CSV. "
+                   f"Check clean.py's output for this run before re-running augment.")
+        sys.exit(1)
 
     df["load_range"]    = df.apply(lambda r: extract_load_range(r["size"], r.get("description", "")), axis=1)
     df["size"]          = df["size"].apply(strip_load_range)

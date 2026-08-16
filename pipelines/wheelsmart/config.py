@@ -23,3 +23,15 @@ api_post        = _m.api_post
 get_logger      = _m.get_logger
 SUPPLIER_MARKUP = _m.SUPPLIER_MARKUP
 markup_for      = _m.markup_for
+
+# Canonical SKU helpers live in shared/sku_normalize.py; re-exported here so the
+# wheelsmart scripts import them the same way they import everything else shared.
+_skun_path = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "shared", "sku_normalize.py")
+)
+_skun_spec = importlib.util.spec_from_file_location("_shared_sku_normalize", _skun_path)
+_skun      = importlib.util.module_from_spec(_skun_spec)
+_skun_spec.loader.exec_module(_skun)
+
+normalize_sku      = _skun.normalize_sku
+disambiguate_skus  = _skun.disambiguate_skus

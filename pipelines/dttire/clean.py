@@ -19,6 +19,7 @@ Run from pipelines/dttire/ as working directory:
 import os
 import re
 import sys
+import time
 import argparse
 import datetime
 import pandas as pd
@@ -26,6 +27,25 @@ import pandas as pd
 from config import find_latest, get_logger
 
 LOW_QTY_THRESHOLD = 3
+
+# Above this age, the "latest" raw file found on disk is old enough that it's
+# more likely a stale leftover (scraper step silently produced nothing this
+# run) than genuinely fresh input. clean.py still uses it — a full pipeline
+# run legitimately reuses existing raw data via --skip scraper_* — but the
+# age must be flagged loudly rather than silently accepted (this is exactly
+# how a 12-day-old raw file got used for a wheels clean run with no warning).
+STALE_INPUT_WARN_HOURS = 24
+
+
+def _check_input_freshness(input_file, log):
+    age_hours = (time.time() - os.path.getmtime(input_file)) / 3600
+    if age_hours > STALE_INPUT_WARN_HOURS:
+        log.warning(
+            f"Input file {input_file} is {age_hours / 24:.1f} day(s) old "
+            f"(> {STALE_INPUT_WARN_HOURS}h threshold). Proceeding, but this "
+            f"usually means the scraper step didn't produce a fresh file this "
+            f"run — verify before trusting this output."
+        )
 
 # ---------------------------------------------------------------------------
 # Tire-type filter — keep passenger, LT, ST only
@@ -271,6 +291,7 @@ def _clean_tires():
         log.error(f"No file matching {pattern}. Run scraper_tires.py first.")
         sys.exit(1)
     log.info(f"Input file : {input_file}")
+    _check_input_freshness(input_file, log)
 
     # ── Load ───────────────────────────────────────────────────────────────────
     df = pd.read_csv(input_file, dtype=str, low_memory=False)
@@ -315,6 +336,12 @@ def _clean_tires():
 
     rows_removed = len(low_qty_df)
     rows_out     = len(main_df)
+
+    if rows_out == 0:
+        log.error(f"0 rows survive cleaning ({rows_in} loaded, {rows_excluded} excluded, "
+                   f"{rows_removed} low-qty) — refusing to write an empty cleaned_tires CSV. "
+                   f"Check the raw scrape before re-running.")
+        sys.exit(1)
 
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     os.makedirs("Data/cleaned", exist_ok=True)
@@ -374,6 +401,7 @@ def _clean_wheels():
         log.error(f"No file matching {pattern}. Run scraper_wheels.py first.")
         sys.exit(1)
     log.info(f"Input file : {input_file}")
+    _check_input_freshness(input_file, log)
 
     # ── Load ───────────────────────────────────────────────────────────────────
     df = pd.read_csv(input_file, dtype=str, low_memory=False)
@@ -407,6 +435,12 @@ def _clean_wheels():
 
     rows_removed = len(low_qty_df)
     rows_out     = len(main_df)
+
+    if rows_out == 0:
+        log.error(f"0 rows survive cleaning ({rows_in} loaded, {rows_removed} low-qty/bad-price) "
+                   f"— refusing to write an empty cleaned_wheels CSV. "
+                   f"Check the raw scrape before re-running.")
+        sys.exit(1)
 
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     os.makedirs("Data/cleaned", exist_ok=True)
