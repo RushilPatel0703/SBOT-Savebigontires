@@ -55,6 +55,7 @@ import argparse
 import glob
 import json
 import os
+import re
 import sys
 from urllib.parse import urlparse
 
@@ -404,6 +405,41 @@ def apply_cached(fields, supplier_filter=None, write=False):
 # (which is never invoked). Pure function: no network, safe to read/review.
 # ---------------------------------------------------------------------------
 
+# Retailers whose catalogue photography is consistently a three-quarter angled
+# view showing the TREAD, not a flat face-on shot of the sidewall. That is the
+# look the client wants on the storefront (the SimpleTire result in the live
+# test is the reference). These outrank every other source.
+ANGLED_TREAD_RETAILERS = {
+    "simpletire.com", "tirerack.com", "blackcircles.ca", "blackcircles.com",
+    "prioritytire.com", "tirebuyer.com", "discounttire.com", "1010tires.com",
+    "pmctire.com", "tiredirect.ca",
+}
+
+# Other well-known tire/wheel retailers — good, consistent product photography,
+# but the framing is less predictable (some face-on, some angled).
+TIRE_RETAILER_BIAS = {
+    "walmart.com", "walmart.ca", "walmartimages.com",
+    "canadiantire.ca", "kaltire.com", "fountaintire.com", "costco.ca",
+    "costco.com", "americastire.com", "tiresplus.com", "ntb.com",
+    "onlinetires.com", "mavis.com", "tirecraft.com", "activegreenross.com",
+    "sailun.ca", "goodyear.ca", "cncwheels.com.au", "torquewheels.com",
+    "wheelpros.com", "customwheeloffset.com", "tiresbyweb.com",
+}
+
+# A retailer's own domain often never appears in the image URL — PMCtire serves
+# from cdn.shopify.com, Walmart from i5.walmartimages.com, others from
+# bigcommerce/cloudfront. SerpAPI reports the origin separately in `source`, so
+# match on the source/title text too rather than the CDN host alone.
+def _retailer_tier(domain, source_text):
+    hay = f"{domain} {source_text}".lower()
+    def hit(names):
+        return any(n.split(".")[0] in hay for n in names)
+    if hit(ANGLED_TREAD_RETAILERS):
+        return 6
+    if hit(TIRE_RETAILER_BIAS):
+        return 4
+    return 0
+
 DOMAIN_ALLOWLIST_BIAS = {
     "michelin.com", "goodyear.com", "bfgoodrichtires.com", "bridgestonetire.com",
     "continentaltire.com", "pirelli.com", "hankooktire.com", "toyotires.com",
@@ -419,7 +455,7 @@ MIN_SIDE_PX      = 800    # hard floor — below this, reject outright
 TARGET_LONG_EDGE = 1200   # soft preference — scored, not required
 
 
-def filter_image_candidates(results, brand="", model=""):
+def filter_image_candidates(results, brand="", model="", product_type="tires"):
     """Given a list of SerpAPI `images_results`-shaped dicts (keys:
     original/link, original_width, original_height, title, source), return
     them filtered + ranked best-first per SERP_LAYER_DESIGN.md §6:
@@ -460,25 +496,52 @@ def filter_image_candidates(results, brand="", model=""):
             continue
         long_edge_bonus = 1 if max(w, h) >= TARGET_LONG_EDGE else 0
 
-        # 4. Keyword association (checked before scoring so a match is
-        # required, not just preferred — a photo with zero textual link to
-        # the query is a weak match even with a great resolution/ratio)
+        # 4. Keyword association. WHEELS are strict: finish and spoke design
+        # ARE the product, so a near-miss model is a visibly wrong picture on
+        # the listing (the live test returned a "GT Form Torque" for a
+        # "Torque F027"). Tires are lenient: a model's photo shows its tread
+        # pattern and is reused across every size anyway, so brand-or-model is
+        # enough. A wheel with no confident match gets NO image rather than a
+        # confidently wrong one.
         text = f"{c.get('title', '')} {c.get('source', '')}".lower()
-        if brand_l and brand_l not in text and model_l and model_l not in text:
-            continue
-        if not brand_l and not model_l:
-            pass  # no brand/model available to check against — don't over-reject
+        is_wheel = str(product_type).lower() in ("wheels", "rims")
+        if is_wheel:
+            # Token overlap, not exact substring. Wheel "models" are a mix of
+            # distinctive codes ("F027") and plain descriptions ("Steel Winter
+            # Wheel"). Requiring the whole string verbatim throws away correct
+            # photos of the descriptive ones, while a single shared word is far
+            # too weak for the coded ones. Requiring the brand plus half the
+            # model tokens rejects "GT Form Torque" for a "Torque F027" (0 of 1
+            # token) while keeping "DTD - Steel - Take-Off" for a "DTD Steel
+            # Winter Wheel" (2 of 3).
+            if brand_l and brand_l not in text:
+                continue
+            tokens = [t for t in re.split(r"[^a-z0-9]+", model_l) if len(t) > 1]
+            if not tokens:
+                continue
+            hits = sum(1 for t in tokens if t in text)
+            if hits / len(tokens) < 0.5:
+                continue
+        else:
+            if brand_l and brand_l not in text and model_l and model_l not in text:
+                continue
 
-        # 3. Domain bias (soft — scored, never a hard reject)
+        # 3. Source bias (soft — scored, never a hard reject). Matched on the
+        # reported source as well as the URL host, since retailers commonly
+        # serve from a CDN that carries none of their branding.
         url = c.get("original") or c.get("link") or ""
         domain = urlparse(url).netloc.lower()
-        domain_score = 0
-        if any(d in domain for d in DOMAIN_ALLOWLIST_BIAS):
-            domain_score = 2
-        elif any(d in domain for d in DOMAIN_DEPRIORITIZE):
-            domain_score = -2
+        domain_score = _retailer_tier(domain, f"{c.get('source','')} {c.get('title','')}")
+        if domain_score == 0:
+            if any(d in domain for d in DOMAIN_ALLOWLIST_BIAS):
+                domain_score = 2          # manufacturer — good, but hero/lifestyle heavy
+            elif any(d in domain for d in DOMAIN_DEPRIORITIZE):
+                domain_score = -2
 
-        score = domain_score + long_edge_bonus
+        # Square-ish shots sit better in a product grid than 4:3.
+        squareness_bonus = 1 if 0.9 <= ratio <= 1.11 else 0
+
+        score = domain_score + long_edge_bonus + squareness_bonus
         scored.append((score, w * h, c))
 
     scored.sort(key=lambda t: (-t[0], -t[1]))
@@ -561,7 +624,7 @@ def run_live(fields, supplier_filter, budget):
                     "api_key": SERPAPI_KEY_CLIENT,
                 }).get_dict()
                 candidates_raw = results.get("images_results", [])
-                best = filter_image_candidates(candidates_raw, c["brand"], c["model"])
+                best = filter_image_candidates(candidates_raw, c["brand"], c["model"], c.get("type", "tires"))
                 value = (best[0].get("original") or best[0].get("link") or "") if best else ""
 
             cache[c["cache_key"]] = {field: value, "query": c["query"]}
