@@ -153,12 +153,42 @@ def main():
     rows               = list(seen_skus.values()) + no_sku_rows
     removed["duplicate_sku"] = before_dedup - len(rows)
 
-    # 6. Format prices
+    # 6. Cost price — backfill missing/zero cost_price from retail_price.
+    # cost_price may be entirely absent from raw scrapes that predate this
+    # column (schema migration in progress — never hard-fail on it, warn and
+    # fall back to retail per the safety requirement covering in-flight runs).
+    # Deliberately do NOT synthesize cost_price when the raw scrape has no such
+    # column: writing cost_price = retail_price would make every downstream
+    # consumer (augment, merge_suppliers, production ingest) see a cost column
+    # that is present but actually holds retail, silently pricing off the wrong
+    # basis with no warning anywhere. Leaving it absent is what makes those
+    # consumers fall back loudly.
+    has_cost_col = any("cost_price" in r for r in rows)
+    if not has_cost_col:
+        print(f"  WARNING: cost_price absent from raw scrape ({len(rows)} rows) — "
+              f"leaving it unset so downstream pricing falls back to retail_price "
+              f"with a warning. Re-scrape to price off true cost.")
+    else:
+        cost_fallback_count = 0
+        for r in rows:
+            try:
+                cost_val = float(r.get("cost_price", "") or 0)
+            except (ValueError, TypeError):
+                cost_val = 0.0
+            if cost_val <= 0:
+                r["cost_price"] = r.get("retail_price", "")
+                cost_fallback_count += 1
+        if cost_fallback_count:
+            print(f"  WARNING: {cost_fallback_count} rows had missing/zero cost_price — fell back to retail_price.")
+
+    # 7. Format prices
     for r in rows:
         r["retail_price"]    = format_price(r.get("retail_price", ""))
+        if has_cost_col:
+            r["cost_price"]  = format_price(r.get("cost_price", ""))
         r["suggested_price"] = format_price(r.get("suggested_price", ""))
 
-    # 7. Normalize sale dates
+    # 8. Normalize sale dates
     for r in rows:
         r["sale_begins"] = clean_sale_date(r.get("sale_begins", ""))
         r["sale_ends"]   = clean_sale_date(r.get("sale_ends", ""))

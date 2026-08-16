@@ -66,7 +66,10 @@ create table if not exists merged_snapshot (
     run_id       bigint not null references pipeline_runs(run_id) on delete cascade,
     product_type text not null,
     sku          text not null,
-    merged_price numeric(10,2),                     -- min positive supplier price (pre-markup)
+    merged_price numeric(10,2),                     -- FINAL selling price: min(cost + that
+                                                    -- supplier's markup). Markup is per supplier,
+                                                    -- so it is applied inside the min() at merge —
+                                                    -- do NOT add markup again downstream.
     merged_qty   integer not null,
     sources      text not null,
     primary key (run_id, product_type, sku)

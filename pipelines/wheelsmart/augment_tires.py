@@ -17,12 +17,14 @@ import requests
 import pandas as pd
 from datetime import datetime
 
+from config import markup_for
+
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from size_parser import parse_tire_size
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
-MARKUP = 30.00
+MARKUP = markup_for("wheelsmart")
 LOW_QTY_THRESHOLD = 4          # keep if qty >= 4; drop if qty < 4
 API_URL = (
     "https://wheelmartcanada.ca/v1/tires/"
@@ -700,8 +702,28 @@ def main():
     out["Variant Inventory Policy"]    = "continue"
     out["Variant Fulfillment Service"] = "manual"
 
-    retail_prices        = pd.to_numeric(df["retail_price"], errors="coerce").fillna(0)
-    out["Variant Price"] = (retail_prices + MARKUP).round(2).astype(str)
+    # Price off true cost (user_group_price — the wholesale login price span),
+    # not the supplier's suggested retail_price. Some rows have a missing/blank/
+    # zero user_group_price (no price span found on the page), and older raw
+    # CSVs may not have the column at all — in either case, warn and fall back
+    # to retail_price for those rows rather than failing.
+    retail_prices = pd.to_numeric(df["retail_price"], errors="coerce").fillna(0)
+    if "user_group_price" in df.columns:
+        cost_prices = pd.to_numeric(df["user_group_price"], errors="coerce")
+    else:
+        print("  WARNING: raw CSV has no user_group_price column — using retail_price for all rows.")
+        cost_prices = pd.Series(float("nan"), index=df.index)
+
+    missing_cost_mask = cost_prices.isna() | (cost_prices <= 0)
+    missing_cost_count = int(missing_cost_mask.sum())
+    if missing_cost_count:
+        print(
+            f"  WARNING: {missing_cost_count} / {total_kept} rows have missing/zero "
+            f"user_group_price — falling back to retail_price for those rows."
+        )
+
+    df["_cost_price"]    = cost_prices.where(~missing_cost_mask, retail_prices)
+    out["Variant Price"] = (df["_cost_price"] + MARKUP).round(2).astype(str)
 
     out["Variant Requires Shipping"] = "TRUE"
     out["Variant Taxable"]           = "TRUE"
@@ -787,6 +809,7 @@ def main():
     print(f"Missing brand    : {missing_brand}")
     print(f"Missing desig.   : {missing_designation}  (designation=Unknown)")
     print(f"Missing speed    : {missing_speed}")
+    print(f"Missing cost     : {missing_cost_count}  (fell back to retail_price)")
     print("Done.")
 
 

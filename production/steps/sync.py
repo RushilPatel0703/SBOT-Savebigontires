@@ -7,7 +7,8 @@ not the whole 10k catalog. Every intended change lands in sync_actions with its
 outcome. A circuit breaker aborts if the failure rate climbs.
 
 Actions:
-  price_update   — round(merged_price + markup) differs from live price
+  price_update   — round(merged_price) differs from live price
+                   (merged_price is already the final, marked-up price)
   inventory_set  — merged_qty differs from live qty
   inventory_zero — mapped SKU of this type absent from snapshot, live qty ≠ 0
 """
@@ -48,15 +49,15 @@ def run_prices(ctx, shopify, dry_run):
         diff = ctx.hasura.select(f"""
             select ms.sku, sp.product_id, sp.variant_id,
                    sp.current_price::float as old_price,
-                   round(ms.merged_price + {config.PRICE_MARKUP}, 2)::float as new_price
+                   round(ms.merged_price, 2)::float as new_price
             from merged_snapshot ms
             join shopify_products sp on sp.sku = ms.sku
             where ms.run_id = {ctx.run_id}
               and ms.product_type in ({_types_sql(ctx)})
               and ms.merged_price > 0
-              and round(ms.merged_price + {config.PRICE_MARKUP}, 2)
+              and round(ms.merged_price, 2)
                   between {config.MIN_PRICE} and {config.MAX_PRICE}
-              and round(ms.merged_price + {config.PRICE_MARKUP}, 2)
+              and round(ms.merged_price, 2)
                   is distinct from sp.current_price
             order by ms.sku;
         """)

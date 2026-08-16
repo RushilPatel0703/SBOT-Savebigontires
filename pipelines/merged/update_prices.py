@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Sync prices from the merged supplier CSV to Shopify.
-Reads the latest merged_tires_*.csv (or merged_wheels_*.csv), applies $30 markup,
-and pushes to Shopify via SKU → variant_id lookup from shared sku_map.
+Reads the latest merged_tires_*.csv (or merged_wheels_*.csv), applies each row's
+per-supplier markup, and pushes to Shopify via SKU → variant_id lookup from
+shared sku_map.
 
 Only updates SKUs already in the sku_map (existing products).
 New products are handled by each supplier's augment + create_products pipeline.
@@ -9,6 +10,10 @@ New products are handled by each supplier's augment + create_products pipeline.
 Usage:
     python update_prices.py --type tires
     python update_prices.py --type wheels
+
+Markup note: merge_suppliers.py applies each supplier's markup at load time,
+before the min(), so merged_price is the FINAL selling price. This script must
+not add markup again — doing so would double-count it.
 """
 
 import json
@@ -18,8 +23,6 @@ import argparse
 import glob
 import pandas as pd
 from config import SHOP, API_VERSION, SKU_MAP_FILE, api_put, get_logger
-
-MARKUP = 30.00
 
 log = get_logger("update_prices")
 
@@ -78,7 +81,12 @@ def main():
             skipped += 1
             continue
 
-        new_price = round(raw_price + MARKUP, 2)
+        # merged_price already includes the winning supplier's markup — it is
+        # applied per supplier in merge_suppliers.py, before the min(), so that
+        # the min picks the cheapest FINAL price rather than the cheapest cost.
+        # Do not add markup again here.
+        sources   = [s for s in str(row.get("sources", "")).strip().split("|") if s]
+        new_price = round(raw_price, 2)
 
         entry = sku_map.get(sku)
         if not entry:
@@ -90,7 +98,7 @@ def main():
 
         try:
             api_put(url, {"variant": {"id": variant_id, "price": str(new_price)}})
-            log.info(f"SKU {sku}: price=${new_price:.2f}")
+            log.info(f"SKU {sku}: sources={'|'.join(sources) or '?'} price=${new_price:.2f}")
             updated += 1
         except Exception as e:
             log.error(f"ERROR SKU {sku}: {e}")

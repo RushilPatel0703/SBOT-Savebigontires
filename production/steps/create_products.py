@@ -128,7 +128,8 @@ def run(ctx, shopify, dry_run):
                 no_seo += 1
                 continue
 
-            price = round(float(row["price"] or 0) + config.PRICE_MARKUP, 2)
+            # merged_price already includes that supplier's markup (see steps/merge.py)
+            price = round(float(row["price"] or 0), 2)
             if not (config.MIN_PRICE <= price <= config.MAX_PRICE):
                 skipped_price += 1
                 actions.append({"sku": sku, "action": "product_create",

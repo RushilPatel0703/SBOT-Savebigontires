@@ -16,7 +16,9 @@ import csv
 import re
 from collections import Counter
 
-MARKUP = 30.00
+from config import markup_for
+
+MARKUP = markup_for("emerge")
 
 # ── Thresholds ────────────────────────────────────────────────────────────────
 RIMDIATAG_MIN_PCT   = 99.0

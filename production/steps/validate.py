@@ -109,12 +109,12 @@ def run(ctx, ingest_meta):
                                    "pct": round(pct, 1), "max_pct": config.MAX_ZERO_OUT_PCT})
             failures += not ok
 
-        # 4 — price sanity on final (marked-up) prices
+        # 4 — price sanity on final prices (merged_price is already marked up)
         row = ctx.hasura.select_one(f"""
             select
                 count(*) filter (where merged_price is null or merged_price <= 0)::int as unpriced,
-                count(*) filter (where merged_price + {config.PRICE_MARKUP} < {config.MIN_PRICE}
-                              or merged_price + {config.PRICE_MARKUP} > {config.MAX_PRICE})::int as out_of_bounds
+                count(*) filter (where merged_price < {config.MIN_PRICE}
+                              or merged_price > {config.MAX_PRICE})::int as out_of_bounds
             from merged_snapshot where run_id = {ctx.run_id};
         """)
         ctx.record_validation("price_bounds", True, "warning", {
@@ -130,7 +130,7 @@ def run(ctx, ingest_meta):
             join shopify_products sp on sp.sku = ms.sku
             where ms.run_id = {ctx.run_id}
               and ms.merged_price > 0 and sp.current_price > 0
-              and abs((ms.merged_price + {config.PRICE_MARKUP}) - sp.current_price)
+              and abs(ms.merged_price - sp.current_price)
                   / sp.current_price * 100 > {config.MAX_PRICE_SWING_PCT};
         """)
         ctx.record_validation("price_swings", True, "warning", {

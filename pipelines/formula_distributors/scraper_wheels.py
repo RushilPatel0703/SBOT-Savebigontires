@@ -22,7 +22,7 @@ OUTPUT_FILE = f"Data/raw/formula_wheels_{datetime.now().strftime('%Y%m%d_%H%M%S'
 # ── Cookies ──────────────────────────────────────────────────────────────────
 # Paste the full cookie string from the browser (copy as cURL → -b "...") here.
 # At minimum you need ASP.NET_SessionId + the CostarWeb* cookies.
-COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=j2tgG82DEmJzPxfO1ysuHg%3d%3d&UserID=4aa2a6c5-d498-4b90-9fa1-f19c9bd2794d; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.7.138.0&DbVersion=0005.0007.0138.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=1T1zn%2bYVF%2bO61pWCbaTisC371R2XYyrJQEVnYGWuy3gyea7p4Evem65pgNHKUdjx&UnifiedBuildNumber=5.7.138.0&Ux=R64Q46VF&CostarLanguage=&SessionID=d0115188-8dab-4fa9-a942-dafca00ab16c; ASP.NET_SessionId=yq1h44kutjutsvhrvh2hswpv"
+COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=j2tgG82DEmJzPxfO1ysuHg%3d%3d&UserID=2bcc6f00-2606-4444-9cf5-7a35065ed1be; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.7.138.0&DbVersion=0005.0007.0138.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=sbltdMHIefA6i17%2faiycUJKIVC782Qi2tygHwXqKQNvzgsQs4IN74y9r9IcGoxN3&UnifiedBuildNumber=5.7.138.0&Ux=R64Q46VF&CostarLanguage=&SessionID=0e18c19a-6a4b-48e7-8191-2060deb39551; ASP.NET_SessionId=qxysyqvjeef4rdiuudn23eum"
 
 # ── Signing key (extracted from costar.min.js) ───────────────────────────────
 _SIGNING_KEY = "5318f4ce4b9bab05c09df20c3d5d8d4c26570542501b1d58231159cd42e65505"
@@ -252,7 +252,39 @@ def fetch_product_specs(session, product_guids):
     return specs, images
 
 
-def save_to_csv(products, qty_by_branch, specs, images, output_file):
+def fetch_cost_prices(session, product_guids):
+    """
+    Returns {productGuid: cost_price}.
+    Cost price comes from ShoppingCart/GetShoppingCartCustomerItemPrice —
+    NOT Product/Search or Product/ProductInfo, which only expose retailPrice
+    (the supplier's suggested retail, not our actual cost). Uses the same
+    signed post() helper and ProductGuidList payload shape as ProductInfo.
+    Verified idempotent/side-effect-free: repeated calls return the same
+    shoppingCartDetailGuid with orderQuantity 0.0 and don't touch the cart.
+    """
+    costs = {}
+    total = len(product_guids)
+    batches = [product_guids[i:i + BATCH_SIZE] for i in range(0, total, BATCH_SIZE)]
+    print(f"\nFetching cost prices for {total} products in {len(batches)} batches...")
+
+    for idx, batch in enumerate(batches, 1):
+        print(f"  Batch {idx}/{len(batches)} ({len(batch)} products)...")
+        data = post(session, f"{API_BASE}/ShoppingCart/GetShoppingCartCustomerItemPrice",
+                    build_product_info_payload(batch))
+        if data:
+            for entry in data.get("shoppingCartDetailList", []):
+                guid  = entry.get("productGuid")
+                price = entry.get("priceToDisplay", "")
+                if guid:
+                    costs[guid] = price
+
+        time.sleep(REQUEST_DELAY)
+
+    print(f"  Cost prices collected for {len(costs)} products.")
+    return costs
+
+
+def save_to_csv(products, qty_by_branch, specs, images, costs, output_file):
     # Discover all branch names dynamically
     branch_names = sorted({
         branch
@@ -264,7 +296,7 @@ def save_to_csv(products, qty_by_branch, specs, images, output_file):
     # Build header row
     base_fields = [
         "item", "description", "size", "model", "brand_name",
-        "retail_price", "available_quantity",
+        "retail_price", "cost_price", "available_quantity",
         "product_guid", "model_code", "category", "sub_category",
         "unit_of_measure", "weight", "image_url",
     ]
@@ -298,6 +330,7 @@ def save_to_csv(products, qty_by_branch, specs, images, output_file):
                 "model":              p.get("model", ""),
                 "brand_name":         p.get("brandName", ""),
                 "retail_price":       p.get("retailPrice", ""),
+                "cost_price":         costs.get(guid, ""),
                 "available_quantity": p.get("availableQuantity", ""),
                 "product_guid":       guid,
                 "model_code":         p.get("modelCode", ""),
@@ -347,8 +380,11 @@ def main():
     product_guids = [p["productGuid"] for p in products if p.get("productGuid")]
     specs, images = fetch_product_specs(session, product_guids)
 
-    # Step 3: Write CSV
-    save_to_csv(products, qty_by_branch, specs, images, OUTPUT_FILE)
+    # Step 3: Fetch true cost prices in batches
+    costs = fetch_cost_prices(session, product_guids)
+
+    # Step 4: Write CSV
+    save_to_csv(products, qty_by_branch, specs, images, costs, OUTPUT_FILE)
     print("\nDone!")
 
 

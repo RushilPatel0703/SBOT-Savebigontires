@@ -11,10 +11,12 @@ import logging
 import pandas as pd
 from datetime import datetime
 
+from config import markup_for
+
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from size_parser import parse_tire_size, parse_load_speed
 
-MARKUP = 30.00
+MARKUP = markup_for("formula")
 
 
 def normalize_size(size):
@@ -365,8 +367,21 @@ def main():
     out["Variant Inventory Tracker"]   = "shopify"
     out["Variant Inventory Policy"]    = "continue"
     out["Variant Fulfillment Service"] = "manual"
+    # Price basis: true cost_price when available, falling back to retail_price
+    # per-row when cost_price is missing/zero (e.g. raw CSVs scraped before the
+    # cost-price capture was added, or a ShoppingCart batch that failed).
     retail_prices = pd.to_numeric(df["retail_price"], errors="coerce").fillna(0)
-    out["Variant Price"]               = (retail_prices + MARKUP).round(2).astype(str)
+    if "cost_price" in df.columns:
+        cost_prices = pd.to_numeric(df["cost_price"], errors="coerce").fillna(0)
+    else:
+        log.warning("cost_price column missing — falling back to retail_price for all rows.")
+        cost_prices = pd.Series(0, index=df.index)
+    fallback_mask = cost_prices <= 0
+    if fallback_mask.any():
+        log.warning(f"{fallback_mask.sum()} / {len(df)} rows missing/zero cost_price — "
+                    f"falling back to retail_price for Variant Price basis.")
+    price_basis = cost_prices.where(~fallback_mask, retail_prices)
+    out["Variant Price"]               = (price_basis + MARKUP).round(2).astype(str)
     out["Variant Requires Shipping"]   = "TRUE"
     out["Variant Taxable"]             = "TRUE"
 

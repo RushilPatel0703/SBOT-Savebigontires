@@ -10,11 +10,13 @@ import re
 import pandas as pd
 from datetime import datetime
 
+from config import markup_for
+
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from size_parser import parse_wheel_size, format_wheel_size
 from dedupe import dedupe_titles
 
-MARKUP = 30.00
+MARKUP = markup_for("northcountry")
 
 LOCATIONS = [
     "Burnaby", "Langley", "MapleRidge",
@@ -451,8 +453,21 @@ def main():
     out["Variant Requires Shipping"]   = "TRUE"
     out["Variant Taxable"]             = "TRUE"
 
-    retail_prices        = pd.to_numeric(df["retail_price"], errors="coerce").fillna(0)
-    out["Variant Price"] = (retail_prices + MARKUP).round(2).astype(str)
+    # Price basis: true cost_price when available, falling back to retail_price
+    # per-row when cost_price is missing/zero (e.g. raw CSVs scraped before the
+    # cost-price capture was added, or a ShoppingCart batch that failed).
+    retail_prices = pd.to_numeric(df["retail_price"], errors="coerce").fillna(0)
+    if "cost_price" in df.columns:
+        cost_prices = pd.to_numeric(df["cost_price"], errors="coerce").fillna(0)
+    else:
+        print("WARNING: cost_price column missing — falling back to retail_price for all rows.")
+        cost_prices = pd.Series(0, index=df.index)
+    fallback_mask = cost_prices <= 0
+    if fallback_mask.any():
+        print(f"WARNING: {fallback_mask.sum()} / {len(df)} rows missing/zero cost_price — "
+              f"falling back to retail_price for Variant Price basis.")
+    price_basis = cost_prices.where(~fallback_mask, retail_prices)
+    out["Variant Price"] = (price_basis + MARKUP).round(2).astype(str)
 
     out["Image Src"]      = df["image_url"] if "image_url" in df.columns else ""
     out["Image Position"] = out["Image Src"].apply(lambda s: 1 if str(s).strip() else "")
@@ -468,7 +483,7 @@ def main():
     out["Google Shopping / Custom Product"] = "FALSE"
     out["Google Shopping / MPN"] = df.apply(
         lambda r: (
-            f"{str(r.get('brand','')).strip()}"
+            f"{_resolve_brand(r)}"
             f"-{str(r.get('model','')).strip()}"
             f"-{format_wheel_size(str(r.get('size','')))}"
         ),
@@ -477,7 +492,10 @@ def main():
 
     out["Type"]             = "Wheels"
     out["Product Type"]     = "Wheels"
-    out["Brand"]            = df["brand"].str.strip().str.title()
+    # Brand column previously read df["brand"] directly, bypassing the
+    # brand -> manufacturer_code fallback that _resolve_brand() already
+    # applies for Title/Tags/Body — MPN above and Brand here now use it too.
+    out["Brand"]            = df.apply(_resolve_brand, axis=1).str.strip().str.title()
     out["Identifier Exist"] = "FALSE"
     out["total_qty"]        = pd.to_numeric(
         df.get("available_quantity_related_branches", df["available_quantity"]),

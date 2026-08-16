@@ -63,11 +63,29 @@ def load_supplier_frame(supplier, cfg, product_type, log):
         log.error(f"[{supplier}/{product_type}] SKU column '{sku_col}' missing in {path}")
         return [], meta
 
-    qty_col = next((c for c in cfg["qty_cols"] if c in df.columns), None)
-    if qty_col is None:
+    # Take the MAX across every qty column present, not the first one that
+    # happens to exist. Emerge carries both columns but
+    # available_quantity_related_branches is always 0 for that supplier (qty
+    # lives entirely in available_quantity — see emergetires/clean.py), so
+    # first-present-column-wins picked the always-zero one and would have
+    # zeroed ~624 of 625 emerge tires in Shopify. Emerge's own clean.py already
+    # takes the max of the two; this matches it.
+    qty_cols_present = [c for c in cfg["qty_cols"] if c in df.columns]
+    if not qty_cols_present:
         log.error(f"[{supplier}/{product_type}] none of qty columns {cfg['qty_cols']} in {path}")
         return [], meta
-    price_col = cfg["price_col"]
+
+    # price_cols is ordered cost-first, retail last — a feed scraped before the
+    # cost-price migration has no cost column and must fall back rather than
+    # price the whole feed at 0. Never default a missing price column to "":
+    # that silently zeroes every SKU and would push markup-only prices store-wide.
+    price_col = next((c for c in cfg["price_cols"] if c in df.columns), None)
+    if price_col is None:
+        log.error(f"[{supplier}/{product_type}] none of price columns {cfg['price_cols']} in {path}")
+        return [], meta
+    if price_col != cfg["price_cols"][0]:
+        log.warning(f"[{supplier}/{product_type}] cost column '{cfg['price_cols'][0]}' absent — "
+                    f"falling back to '{price_col}' (re-scrape to price off cost)")
 
     split_colon = cfg.get("sku_split_colon", False)
     sku_prefix  = cfg.get("sku_prefix", "")
@@ -75,8 +93,10 @@ def load_supplier_frame(supplier, cfg, product_type, log):
     if sku_prefix:
         df["_sku"] = df["_sku"].apply(
             lambda s: s if not s or s.startswith(sku_prefix) else sku_prefix + s)
-    df["_price"] = pd.to_numeric(df.get(price_col, ""), errors="coerce").fillna(0).round(2)
-    df["_qty"]   = df[qty_col].apply(coerce_qty)
+    df["_price"] = pd.to_numeric(df[price_col], errors="coerce").fillna(0).round(2)
+    df["_qty"]   = pd.concat(
+        [df[c].apply(coerce_qty) for c in qty_cols_present], axis=1
+    ).max(axis=1)
 
     df = df[df["_sku"] != ""]
     if not cfg.get("prefiltered", True):

@@ -9,7 +9,42 @@ TOKEN       = "shpua_d032a667ceb661c96c27dcfbd11fa33f"
 API_VERSION = "2026-01"
 
 # ── SerpAPI ───────────────────────────────────────────────────────────────────
+# Dev/testing key — used by the Streamlit dashboard. NOT the client's paid key.
 SERPAPI_KEY = "48085de7f5e2e78afae54edad4bc9c9da80d9acd4cf246845a7ccc3acaf12c95"
+
+# Client-paid key. Every search on this key costs the client money and must be
+# explicitly approved before a live run — see monitoring/SERP_LAYER_DESIGN.md.
+SERPAPI_KEY_CLIENT = "d64a4db1926cf1a1a7f7c6796403bf0a22dc78b2519bdaad48e41514b2861e59"
+
+# ── Per-supplier markup (updated July 2026) ───────────────────────────────────
+# Flat dollar amount added to the supplier's COST price to produce the Shopify
+# selling price. These differ per supplier — do not collapse back to one flat
+# rate. Keys match the supplier keys used in production/config.py and
+# pipelines/merged/merge_suppliers.py.
+SUPPLIER_MARKUP = {
+    "northcountry": 46.50,
+    "dttire":       46.50,
+    "formula":      46.50,
+    "wheelsmart":   36.50,
+    "emerge":       36.50,
+    "wheelspro":    46.50,   # no pipeline exists yet — recorded for when it lands
+}
+
+
+def markup_for(supplier):
+    """Return the markup for a supplier key.
+
+    Raises on an unknown supplier rather than falling back to a default: a
+    silently-wrong markup is a pricing error on every SKU that supplier feeds,
+    which is far worse than a loud failure.
+    """
+    try:
+        return SUPPLIER_MARKUP[supplier]
+    except KeyError:
+        raise KeyError(
+            f"No markup configured for supplier {supplier!r}. "
+            f"Known suppliers: {sorted(SUPPLIER_MARKUP)}"
+        ) from None
 
 # ── Shared SKU/handle map paths (absolute — always written/read from shared/Data/) ──
 import os as _os

@@ -1,0 +1,1014 @@
+{
+  "designation:antares|ingens ev|185/60r15": {
+    "designation": "",
+    "query": "Antares INGENS EV 185/60R15 tire"
+  },
+  "designation:antares|su-810|195r14lt": {
+    "designation": "",
+    "query": "Antares SU-810 195R14LT tire"
+  },
+  "designation:rolling big power|repulsor r/t|33x13.50r22": {
+    "designation": "",
+    "query": "Rolling Big Power REPULSOR R/T 33X13.50R22 tire"
+  },
+  "designation:rolling big power|repulsor r/t|35x12.50r24": {
+    "designation": "",
+    "query": "Rolling Big Power REPULSOR R/T 35x12.50R24 tire"
+  },
+  "designation:federal|evoluzion st-1|205/50r17": {
+    "designation": "",
+    "query": "Federal EVOLUZION ST-1 205/50R17 tire"
+  },
+  "designation:federal|evoluzion st-1|225/45r17": {
+    "designation": "",
+    "query": "Federal EVOLUZION ST-1 225/45R17 tire"
+  },
+  "designation:antares|comfort a5|255/60r17": {
+    "designation": "",
+    "query": "Antares COMFORT A5 255/60R17 tire"
+  },
+  "designation:antares|comfort a5|285/65r17": {
+    "designation": "",
+    "query": "Antares COMFORT A5 285/65R17 tire"
+  },
+  "designation:cargomax|yt301|st175/80r13": {
+    "designation": "",
+    "query": "CargoMax YT301 ST175/80R13 tire"
+  },
+  "designation:venezia|crusade hp|235/30r22": {
+    "designation": "",
+    "query": "VENEZIA CRUSADE HP 235/30R22 tire"
+  },
+  "designation:antares|deep digger|lt245/75r16": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER LT245/75R16 tire"
+  },
+  "designation:antares|deep digger|lt265/70r17": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER LT265/70R17 tire"
+  },
+  "designation:antares|deep digger|lt275/70r18": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER LT275/70R18 tire"
+  },
+  "designation:antares|deep digger|lt285/55r22": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER LT285/55R22 tire"
+  },
+  "designation:antares|deep digger|lt285/70r17": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER LT285/70R17 tire"
+  },
+  "designation:antares|deep digger|lt285/75r16": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER LT285/75R16 tire"
+  },
+  "designation:antares|deep digger|lt305/70r16": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER LT305/70R16 tire"
+  },
+  "designation:antares|deep digger|30x9.50r15lt": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER 30X9.50R15LT tire"
+  },
+  "designation:antares|deep digger|lt315/75r16": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER LT315/75R16 tire"
+  },
+  "designation:antares|deep digger|33x12.50r15": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER 33X12.50R15 tire"
+  },
+  "designation:antares|deep digger|33x12.50r17": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER 33X12.50R17 tire"
+  },
+  "designation:antares|deep digger|33x12.50r18": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER 33X12.50R18 tire"
+  },
+  "designation:antares|deep digger|35x12.50r15": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER 35X12.50R15 tire"
+  },
+  "designation:antares|deep digger|35x12.50r18": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER 35X12.50R18 tire"
+  },
+  "designation:antares|deep digger|35x12.50r20": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER 35X12.50R20 tire"
+  },
+  "designation:antares|deep digger|35x12.50r22lt": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER 35X12.50R22LT tire"
+  },
+  "designation:antares|deep digger|37x13.50r22lt": {
+    "designation": "",
+    "query": "Antares DEEP DIGGER 37X13.50R22LT tire"
+  },
+  "designation:lexani|volt-ec|245/35r21": {
+    "designation": "",
+    "query": "Lexani VOLT-EC 245/35R21 tire"
+  },
+  "designation:lexani|volt-ec|255/45r20": {
+    "designation": "",
+    "query": "Lexani VOLT-EC 255/45R20 tire"
+  },
+  "designation:lexani|volt-ec|255/50r20": {
+    "designation": "",
+    "query": "Lexani VOLT-EC 255/50R20 tire"
+  },
+  "designation:lexani|volt-ec|265/35r21": {
+    "designation": "",
+    "query": "Lexani VOLT-EC 265/35R21 tire"
+  },
+  "designation:lexani|volt-ec|265/35r22": {
+    "designation": "",
+    "query": "Lexani VOLT-EC 265/35R22 tire"
+  },
+  "designation:lexani|volt-ec|275/35r21": {
+    "designation": "",
+    "query": "Lexani VOLT-EC 275/35R21 tire"
+  },
+  "designation:lexani|volt-ec|285/35r22": {
+    "designation": "",
+    "query": "Lexani VOLT-EC 285/35R22 tire"
+  },
+  "designation:minerva|eco stud suv|lt265/70r17": {
+    "designation": "",
+    "query": "Minerva ECO STUD SUV LT265/70R17 tire"
+  },
+  "designation:falken|wildpeak r/t01|lt295-55-20": {
+    "designation": "",
+    "query": "Falken WILDPEAK R/T01 LT295-55-20 tire"
+  },
+  "designation:falken|wildpeak r/t01|lt305-55-20": {
+    "designation": "",
+    "query": "Falken WILDPEAK R/T01 LT305-55-20 tire"
+  },
+  "designation:greentrac|journey-x pro|175/70r14": {
+    "designation": "",
+    "query": "Greentrac JOURNEY-X PRO 175/70R14 tire"
+  },
+  "designation:greentrac|journey-x pro|185/60r15": {
+    "designation": "",
+    "query": "Greentrac JOURNEY-X PRO 185/60R15 tire"
+  },
+  "designation:greentrac|journey-x pro|185/65r14": {
+    "designation": "",
+    "query": "Greentrac JOURNEY-X PRO 185/65R14 tire"
+  },
+  "designation:greentrac|journey-x pro|185/65r15": {
+    "designation": "",
+    "query": "Greentrac JOURNEY-X PRO 185/65R15 tire"
+  },
+  "designation:greentrac|journey-x pro|195/55r15": {
+    "designation": "",
+    "query": "Greentrac JOURNEY-X PRO 195/55R15 tire"
+  },
+  "designation:greentrac|journey-x pro|195/60r15": {
+    "designation": "",
+    "query": "Greentrac JOURNEY-X PRO 195/60R15 tire"
+  },
+  "designation:greentrac|journey-x pro|195/60r16": {
+    "designation": "",
+    "query": "Greentrac JOURNEY-X PRO 195/60R16 tire"
+  },
+  "designation:greentrac|quest-x|205/50r17": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 205/50R17 tire"
+  },
+  "designation:greentrac|journey-x pro|205/55r16": {
+    "designation": "",
+    "query": "Greentrac JOURNEY-X PRO 205/55R16 tire"
+  },
+  "designation:greentrac|journey-x pro|205/60r16": {
+    "designation": "",
+    "query": "Greentrac JOURNEY-X PRO 205/60R16 tire"
+  },
+  "designation:greentrac|journey-x pro|205/65r16": {
+    "designation": "",
+    "query": "Greentrac JOURNEY-X PRO 205/65R16 tire"
+  },
+  "designation:greentrac|journey-x pro|215/50r17": {
+    "designation": "",
+    "query": "Greentrac JOURNEY-X PRO 215/50R17 tire"
+  },
+  "designation:greentrac|quest-x|215/55r17": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 215/55R17 tire"
+  },
+  "designation:greentrac|journey-x pro|215/60r16": {
+    "designation": "",
+    "query": "Greentrac JOURNEY-X PRO 215/60R16 tire"
+  },
+  "designation:greentrac|quest-x suv|215/60r17": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV 215/60R17 tire"
+  },
+  "designation:greentrac|journey-x pro|215/65r16": {
+    "designation": "",
+    "query": "Greentrac JOURNEY-X PRO 215/65R16 tire"
+  },
+  "designation:greentrac|quest-x suv|215/70r16": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV 215/70R16 tire"
+  },
+  "designation:greentrac|quest-x|225/35r19": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 225/35R19 tire"
+  },
+  "designation:greentrac|quest-x|225/40r18": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 225/40R18 tire"
+  },
+  "designation:greentrac|quest-x|225/45r18": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 225/45R18 tire"
+  },
+  "designation:greentrac|quest-x|225/45r19": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 225/45R19 tire"
+  },
+  "designation:greentrac|quest-x|225/50r17": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 225/50R17 tire"
+  },
+  "designation:greentrac|quest-x suv|225/60r17": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV 225/60R17 tire"
+  },
+  "designation:greentrac|quest-x suv|225/70r16": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV 225/70R16 tire"
+  },
+  "designation:greentrac|quest-x|235/35r19": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 235/35R19 tire"
+  },
+  "designation:lexani|lxuhp-207|225/55r17": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 225/55R17 tire"
+  },
+  "designation:lexani|lxuhp-207|225/55zr18": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 225/55ZR18 tire"
+  },
+  "designation:lexani|lxht-206|225/60r17": {
+    "designation": "",
+    "query": "Lexani LXHT-206 225/60R17 tire"
+  },
+  "designation:lexani|lxuhp-207|225/60r18": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 225/60R18 tire"
+  },
+  "designation:lexani|lxht-206|225/70r16": {
+    "designation": "",
+    "query": "Lexani LXHT-206 225/70R16 tire"
+  },
+  "designation:lexani|lxuhp-207|235/45zr17": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 235/45ZR17 tire"
+  },
+  "designation:lexani|lxuhp-207|235/45zr19": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 235/45ZR19 tire"
+  },
+  "designation:lexani|lxuhp-207|235/50zr18": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 235/50ZR18 tire"
+  },
+  "designation:lexani|lxuhp-207|235/55zr17": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 235/55ZR17 tire"
+  },
+  "designation:lexani|lxht-206|235/55r18": {
+    "designation": "",
+    "query": "Lexani LXHT-206 235/55R18 tire"
+  },
+  "designation:lexani|lxht-206|235/60r18": {
+    "designation": "",
+    "query": "Lexani LXHT-206 235/60R18 tire"
+  },
+  "designation:lexani|lxht-206|235/65r17": {
+    "designation": "",
+    "query": "Lexani LXHT-206 235/65R17 tire"
+  },
+  "designation:lexani|lxht-206|235/65r18": {
+    "designation": "",
+    "query": "Lexani LXHT-206 235/65R18 tire"
+  },
+  "designation:lexani|lxht-206|235/70r16": {
+    "designation": "",
+    "query": "Lexani LXHT-206 235/70R16 tire"
+  },
+  "designation:atturo|az800|235/30r22": {
+    "designation": "",
+    "query": "Atturo AZ800 235/30R22 tire"
+  },
+  "designation:antares|majoris m5|245/30zr20": {
+    "designation": "",
+    "query": "Antares MAJORIS M5 245/30ZR20 tire"
+  },
+  "designation:antares|majoris m5|245/35zr20": {
+    "designation": "",
+    "query": "Antares MAJORIS M5 245/35ZR20 tire"
+  },
+  "designation:lexani|lxuhp-207|245/45zr18": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 245/45ZR18 tire"
+  },
+  "designation:antares|majoris m5|255/30zr22": {
+    "designation": "",
+    "query": "Antares MAJORIS M5 255/30ZR22 tire"
+  },
+  "designation:lexani|lxuhp-207|255/35zr18": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 255/35ZR18 tire"
+  },
+  "designation:lexani|lxuhp-207|255/45zr18": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 255/45ZR18 tire"
+  },
+  "designation:antares|majoris m5|265/30zr22": {
+    "designation": "",
+    "query": "Antares MAJORIS M5 265/30ZR22 tire"
+  },
+  "designation:lexani|lxuhp-207|265/35zr18": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 265/35ZR18 tire"
+  },
+  "designation:lexani|lxht-206|265/70r17": {
+    "designation": "",
+    "query": "Lexani LXHT-206 265/70R17 tire"
+  },
+  "designation:lexani|lxht-206|lt265/70r17": {
+    "designation": "",
+    "query": "Lexani LXHT-206 LT265/70R17 tire"
+  },
+  "designation:antares|majoris m5|275/45zr22": {
+    "designation": "",
+    "query": "Antares MAJORIS M5 275/45ZR22 tire"
+  },
+  "designation:antares|majoris m5|275/55zr20": {
+    "designation": "",
+    "query": "Antares MAJORIS M5 275/55ZR20 tire"
+  },
+  "designation:antares|smt a7|275/70r16": {
+    "designation": "",
+    "query": "Antares SMT A7 275/70R16 tire"
+  },
+  "designation:antares|majoris m5|285/35zr22": {
+    "designation": "",
+    "query": "Antares MAJORIS M5 285/35ZR22 tire"
+  },
+  "designation:lexani|lx-twenty|285/30r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 285/30R20 tire"
+  },
+  "designation:lexani|lx-thirty|285/45r22": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 285/45R22 tire"
+  },
+  "designation:lexani|lx-thirty|285/50r20": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 285/50R20 tire"
+  },
+  "designation:atturo|az800|285/45r19": {
+    "designation": "",
+    "query": "Atturo AZ800 285/45R19 tire"
+  },
+  "designation:lexani|lx-twenty|295/25r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 295/25R20 tire"
+  },
+  "designation:lexani|lx-twenty|295/25r22": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 295/25R22 tire"
+  },
+  "designation:lexani|lx-twenty|295/25r24": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 295/25R24 tire"
+  },
+  "designation:lexani|lx-twenty|295/25r26": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 295/25R26 tire"
+  },
+  "designation:lexani|lx-thirty|295/30r22": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 295/30R22 tire"
+  },
+  "designation:lexani|lx-thirty|295/30zr26": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 295/30ZR26 tire"
+  },
+  "designation:lexani|lx-twenty|295/35r21": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 295/35R21 tire"
+  },
+  "designation:lexani|lx-twenty|295/40r21": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 295/40R21 tire"
+  },
+  "designation:antares|majoris r1|305/40zr22": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 305/40ZR22 tire"
+  },
+  "designation:antares|majoris m5|305/40zr22": {
+    "designation": "",
+    "query": "Antares MAJORIS M5 305/40ZR22 tire"
+  },
+  "designation:lexani|lx-twenty|305/25r22": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 305/25R22 tire"
+  },
+  "designation:lexani|lx-twenty|305/30r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 305/30R20 tire"
+  },
+  "designation:lexani|lx-thirty|305/30zr26": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 305/30ZR26 tire"
+  },
+  "designation:lexani|lx-twenty|305/35r22": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 305/35R22 tire"
+  },
+  "designation:lexani|lx-thirty|305/40r22": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 305/40R22 tire"
+  },
+  "designation:lexani|lx-thirty|305/45r22": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 305/45R22 tire"
+  },
+  "designation:antares|majoris m5|315/35zr20": {
+    "designation": "",
+    "query": "Antares MAJORIS M5 315/35ZR20 tire"
+  },
+  "designation:lexani|lx-thirty|315/20r30": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 315/20R30 tire"
+  },
+  "designation:lexani|lx-twenty|315/25r22": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 315/25R22 tire"
+  },
+  "designation:lexani|lx-thirty|315/35r20": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 315/35R20 tire"
+  },
+  "designation:lexani|lx-twenty|325/25r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 325/25R20 tire"
+  },
+  "designation:lexani|lx-twenty|345/25r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 345/25R20 tire"
+  },
+  "designation:antares|ingens-locus|225/40r19": {
+    "designation": "",
+    "query": "Antares INGENS-LOCUS 225/40R19 tire"
+  },
+  "designation:antares|ingens-locus|235/35zr19": {
+    "designation": "",
+    "query": "Antares INGENS-LOCUS 235/35ZR19 tire"
+  },
+  "designation:antares|ingens-locus|235/50zr17": {
+    "designation": "",
+    "query": "Antares INGENS-LOCUS 235/50ZR17 tire"
+  },
+  "designation:antares|ingens-locus|245/35r19": {
+    "designation": "",
+    "query": "Antares INGENS-LOCUS 245/35R19 tire"
+  },
+  "designation:antares|ingens-locus|245/40r19": {
+    "designation": "",
+    "query": "Antares INGENS-LOCUS 245/40R19 tire"
+  },
+  "designation:antares|ingens-locus|245/40zr20": {
+    "designation": "",
+    "query": "Antares INGENS-LOCUS 245/40ZR20 tire"
+  },
+  "designation:antares|ingens-locus|245/45zr18": {
+    "designation": "",
+    "query": "Antares INGENS-LOCUS 245/45ZR18 tire"
+  },
+  "designation:antares|ingens-locus|275/35r21": {
+    "designation": "",
+    "query": "Antares INGENS-LOCUS 275/35R21 tire"
+  },
+  "designation:greentrac|rough master rt|lt275/55r20": {
+    "designation": "",
+    "query": "Greentrac ROUGH MASTER RT LT275/55R20 tire"
+  },
+  "designation:antares|ingens-locus|295/40r21": {
+    "designation": "",
+    "query": "Antares INGENS-LOCUS 295/40R21 tire"
+  },
+  "designation:antares|ingens-locus|305/45r22": {
+    "designation": "",
+    "query": "Antares INGENS-LOCUS 305/45R22 tire"
+  },
+  "designation:lexani|lxtr-203|195/55r16": {
+    "designation": "",
+    "query": "Lexani LXTR-203 195/55R16 tire"
+  },
+  "designation:lexani|lxtr-203|195/65r15": {
+    "designation": "",
+    "query": "Lexani LXTR-203 195/65R15 tire"
+  },
+  "designation:lexani|lxuhp-207|205/40r17": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 205/40R17 tire"
+  },
+  "designation:lexani|lxtr-203|205/45r16": {
+    "designation": "",
+    "query": "Lexani LXTR-203 205/45R16 tire"
+  },
+  "designation:lexani|lxtr-203|205/50r16": {
+    "designation": "",
+    "query": "Lexani LXTR-203 205/50R16 tire"
+  },
+  "designation:greentrac|quest-x suv|p265/70r17": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV P265/70R17 tire"
+  },
+  "designation:predator|mutant x-at|p275/55r20": {
+    "designation": "",
+    "query": "Predator MUTANT X-AT P275/55R20 tire"
+  },
+  "designation:predator|mutant x-rt|lt275/55r20": {
+    "designation": "",
+    "query": "Predator MUTANT X-RT LT275/55R20 tire"
+  },
+  "designation:predator|mutant x-at|lt285/55r20": {
+    "designation": "",
+    "query": "Predator MUTANT X-AT LT285/55R20 tire"
+  },
+  "designation:predator|mutant x-at|lt35x10.50r17": {
+    "designation": "",
+    "query": "Predator MUTANT X-AT LT35X10.50R17 tire"
+  },
+  "designation:greentrac|quest-x|235/50r18": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 235/50R18 tire"
+  },
+  "designation:greentrac|quest-x|235/50r19": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 235/50R19 tire"
+  },
+  "designation:greentrac|quest-x|235/55r18": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 235/55R18 tire"
+  },
+  "designation:greentrac|quest-x|235/55r19": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 235/55R19 tire"
+  },
+  "designation:greentrac|quest-x suv|235/60r16": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV 235/60R16 tire"
+  },
+  "designation:greentrac|quest-x suv|235/60r18": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV 235/60R18 tire"
+  },
+  "designation:greentrac|quest-x suv|235/65r17": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV 235/65R17 tire"
+  },
+  "designation:greentrac|quest-x suv|235/70r16": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV 235/70R16 tire"
+  },
+  "designation:greentrac|quest-x|245/40r20": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 245/40R20 tire"
+  },
+  "designation:greentrac|quest-x|245/45r18": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 245/45R18 tire"
+  },
+  "designation:greentrac|quest-x|245/50r18": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 245/50R18 tire"
+  },
+  "designation:greentrac|quest-x suv|245/70r16": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV 245/70R16 tire"
+  },
+  "designation:greentrac|quest-x suv|255/70r16": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV 255/70R16 tire"
+  },
+  "designation:greentrac|quest-x|265/45r20": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 265/45R20 tire"
+  },
+  "designation:greentrac|quest-x suv|265/60r18": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV 265/60R18 tire"
+  },
+  "designation:greentrac|quest-x suv|265/65r17": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV 265/65R17 tire"
+  },
+  "designation:greentrac|quest-x suv|265/70r16": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV 265/70R16 tire"
+  },
+  "designation:greentrac|quest-x|275/35r19": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 275/35R19 tire"
+  },
+  "designation:greentrac|quest-x|275/40r20": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 275/40R20 tire"
+  },
+  "designation:greentrac|quest-x suv|285/60r18": {
+    "designation": "",
+    "query": "Greentrac QUEST-X SUV 285/60R18 tire"
+  },
+  "designation:greentrac|quest-x|315/35r20": {
+    "designation": "",
+    "query": "Greentrac QUEST-X 315/35R20 tire"
+  },
+  "designation:gladiator|qr25-ts|st205/75r14": {
+    "designation": "",
+    "query": "Gladiator QR25-TS ST205/75R14 tire"
+  },
+  "designation:gladiator|qr25-ts|st205/75r15": {
+    "designation": "",
+    "query": "Gladiator QR25-TS ST205/75R15 tire"
+  },
+  "designation:gladiator|qr25-ts|st215/75r14": {
+    "designation": "",
+    "query": "Gladiator QR25-TS ST215/75R14 tire"
+  },
+  "designation:gladiator|qr25-ts|st225/75r15": {
+    "designation": "",
+    "query": "Gladiator QR25-TS ST225/75R15 tire"
+  },
+  "designation:gladiator|qr25-ts|st235/80r16": {
+    "designation": "",
+    "query": "Gladiator QR25-TS ST235/80R16 tire"
+  },
+  "designation:antares|majoris r1|215/55r18": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 215/55R18 tire"
+  },
+  "designation:antares|majoris r1|215/65r17": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 215/65R17 tire"
+  },
+  "designation:antares|majoris r1|215/70r17": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 215/70R17 tire"
+  },
+  "designation:antares|majoris r1|235/50zr18": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 235/50ZR18 tire"
+  },
+  "designation:antares|majoris r1|235/55zr18": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 235/55ZR18 tire"
+  },
+  "designation:antares|majoris r1|235/60r17": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 235/60R17 tire"
+  },
+  "designation:antares|majoris r1|235/65r17": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 235/65R17 tire"
+  },
+  "designation:antares|majoris r1|245/55r19": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 245/55R19 tire"
+  },
+  "designation:antares|majoris r1|245/65r17": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 245/65R17 tire"
+  },
+  "designation:antares|majoris r1|255/55zr19": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 255/55ZR19 tire"
+  },
+  "designation:antares|majoris r1|255/60r18": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 255/60R18 tire"
+  },
+  "designation:antares|majoris r1|265/30zr22": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 265/30ZR22 tire"
+  },
+  "designation:antares|majoris r1|265/60r18": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 265/60R18 tire"
+  },
+  "designation:antares|majoris r1|265/65r17": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 265/65R17 tire"
+  },
+  "designation:antares|majoris r1|265/65r18": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 265/65R18 tire"
+  },
+  "designation:antares|majoris r1|275/45zr22": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 275/45ZR22 tire"
+  },
+  "designation:antares|majoris r1|275/55r19": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 275/55R19 tire"
+  },
+  "designation:antares|majoris r1|285/30r22": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 285/30R22 tire"
+  },
+  "designation:antares|majoris r1|285/50zr20": {
+    "designation": "",
+    "query": "Antares MAJORIS R1 285/50ZR20 tire"
+  },
+  "designation:lexani|lx-twenty|225/30r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 225/30R20 tire"
+  },
+  "designation:lexani|lx-twenty|225/35r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 225/35R19 tire"
+  },
+  "designation:lexani|lx-twenty|225/35r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 225/35R20 tire"
+  },
+  "designation:lexani|lx-twenty|225/40r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 225/40R19 tire"
+  },
+  "designation:lexani|lx-twenty|225/45r18": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 225/45R18 tire"
+  },
+  "designation:lexani|lx-twenty|225/45r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 225/45R19 tire"
+  },
+  "designation:lexani|lx-twenty|225/55r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 225/55R19 tire"
+  },
+  "designation:lexani|lx-twenty|235/30r22": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 235/30R22 tire"
+  },
+  "designation:lexani|lx-twenty|235/45r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 235/45R20 tire"
+  },
+  "designation:lexani|lx-twenty|235/55r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 235/55R19 tire"
+  },
+  "designation:lexani|lx-twenty|245/30r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 245/30R20 tire"
+  },
+  "designation:lexani|lx-twenty|245/35r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 245/35R19 tire"
+  },
+  "designation:lexani|lx-twenty|245/35r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 245/35R20 tire"
+  },
+  "designation:lexani|lx-twenty|245/35r21": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 245/35R21 tire"
+  },
+  "designation:lexani|lx-twenty|245/40r17": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 245/40R17 tire"
+  },
+  "designation:lexani|lx-twenty|245/40r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 245/40R19 tire"
+  },
+  "designation:lexani|lx-twenty|245/40r21": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 245/40R21 tire"
+  },
+  "designation:lexani|lx-twenty|245/45r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 245/45R19 tire"
+  },
+  "designation:lexani|lx-twenty|245/45r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 245/45R20 tire"
+  },
+  "designation:lexani|lx-twenty|245/50r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 245/50R20 tire"
+  },
+  "designation:lexani|lx-twenty|255/30r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 255/30R19 tire"
+  },
+  "designation:lexani|lx-twenty|255/30r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 255/30R20 tire"
+  },
+  "designation:lexani|lx-twenty|255/30r21": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 255/30R21 tire"
+  },
+  "designation:lexani|lx-twenty|255/30r22": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 255/30R22 tire"
+  },
+  "designation:lexani|lx-thirty|255/30r26": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 255/30R26 tire"
+  },
+  "designation:lexani|lx-twenty|255/35r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 255/35R20 tire"
+  },
+  "designation:lexani|lx-twenty|255/40r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 255/40R19 tire"
+  },
+  "designation:lexani|lx-twenty|255/40r21": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 255/40R21 tire"
+  },
+  "designation:lexani|lx-twenty|255/45r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 255/45R20 tire"
+  },
+  "designation:lexani|lx-twenty|255/50r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 255/50R19 tire"
+  },
+  "designation:lexani|lx-twenty|255/55r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 255/55R19 tire"
+  },
+  "designation:lexani|lx-twenty|265/30zr22": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 265/30ZR22 tire"
+  },
+  "designation:lexani|lx-twenty|265/40r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 265/40R20 tire"
+  },
+  "designation:lexani|lx-twenty|265/40r22": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 265/40R22 tire"
+  },
+  "designation:lexani|lx-twenty|265/45r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 265/45R20 tire"
+  },
+  "designation:lexani|lx-thirty|275/25zr24": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 275/25ZR24 tire"
+  },
+  "designation:lexani|lx-thirty|275/25zr26": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 275/25ZR26 tire"
+  },
+  "designation:lexani|lx-twenty|275/30r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 275/30R19 tire"
+  },
+  "designation:lexani|lx-twenty|275/35r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 275/35R19 tire"
+  },
+  "designation:lexani|lx-twenty|275/35r24": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 275/35R24 tire"
+  },
+  "designation:lexani|lx-twenty|275/40r22": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 275/40R22 tire"
+  },
+  "designation:lexani|lx-twenty|275/45r19": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 275/45R19 tire"
+  },
+  "designation:lexani|lx-thirty|275/55r20": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 275/55R20 tire"
+  },
+  "designation:lexani|lx-twenty|285/25r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 285/25R20 tire"
+  },
+  "designation:lexani|lxht-206|245/60r18": {
+    "designation": "",
+    "query": "Lexani LXHT-206 245/60R18 tire"
+  },
+  "designation:lexani|lxht-206|245/65r17": {
+    "designation": "",
+    "query": "Lexani LXHT-206 245/65R17 tire"
+  },
+  "designation:lexani|lx-twenty|295/35r20": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 295/35R20 tire"
+  },
+  "designation:lexani|lx-twenty|305/30r22": {
+    "designation": "",
+    "query": "Lexani LX-TWENTY 305/30R22 tire"
+  },
+  "designation:lexani|lx-thirty|315/25r26": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 315/25R26 tire"
+  },
+  "designation:lexani|lx-thirty|335/25r22": {
+    "designation": "",
+    "query": "Lexani LX-THIRTY 335/25R22 tire"
+  },
+  "designation:lexani|lxtr-203|205/55r16": {
+    "designation": "",
+    "query": "Lexani LXTR-203 205/55R16 tire"
+  },
+  "designation:lexani|lxtr-203|205/60r16": {
+    "designation": "",
+    "query": "Lexani LXTR-203 205/60R16 tire"
+  },
+  "designation:lexani|lxtr-203|205/65r16": {
+    "designation": "",
+    "query": "Lexani LXTR-203 205/65R16 tire"
+  },
+  "designation:lexani|lxuhp-207|215/35zr18": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 215/35ZR18 tire"
+  },
+  "designation:lexani|lxuhp-207|215/40zr18": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 215/40ZR18 tire"
+  },
+  "designation:lexani|lxuhp-207|215/45zr17": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 215/45ZR17 tire"
+  },
+  "designation:lexani|lxuhp-207|215/45zr18": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 215/45ZR18 tire"
+  },
+  "designation:lexani|lxuhp-207|215/50zr17": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 215/50ZR17 tire"
+  },
+  "designation:lexani|lxuhp-207|215/55zr17": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 215/55ZR17 tire"
+  },
+  "designation:lexani|lxuhp-207|215/55zr18": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 215/55ZR18 tire"
+  },
+  "designation:lexani|lxtr-203|215/60r16": {
+    "designation": "",
+    "query": "Lexani LXTR-203 215/60R16 tire"
+  },
+  "designation:lexani|lxht-206|215/65r17": {
+    "designation": "",
+    "query": "Lexani LXHT-206 215/65R17 tire"
+  },
+  "designation:antares|majoris m5|225/35zr20": {
+    "designation": "",
+    "query": "Antares MAJORIS M5 225/35ZR20 tire"
+  },
+  "designation:lexani|lxuhp-207|225/45zr17": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 225/45ZR17 tire"
+  },
+  "designation:lexani|lxuhp-207|225/50zr17": {
+    "designation": "",
+    "query": "Lexani LXUHP-207 225/50ZR17 tire"
+  },
+  "designation:lexani|lxtr-203|225/55r16": {
+    "designation": "",
+    "query": "Lexani LXTR-203 225/55R16 tire"
+  },
+  "designation:greentrac|journey-x pro|225/45r17": {
+    "designation": "All Season",
+    "query": "Greentrac JOURNEY-X PRO 225/45R17 tire"
+  },
+  "designation:greentrac|quest-x|255/50r19": {
+    "designation": "All Season",
+    "query": "Greentrac QUEST-X 255/50R19 tire"
+  },
+  "designation:greentrac|rough master xt|33x12.50r20": {
+    "designation": "Winter",
+    "query": "Greentrac ROUGH MASTER XT 33x12.50R20 tire"
+  },
+  "designation:greentrac|rough master xt|35x12.50r20": {
+    "designation": "Winter",
+    "query": "Greentrac ROUGH MASTER XT 35x12.50R20 tire"
+  }
+}

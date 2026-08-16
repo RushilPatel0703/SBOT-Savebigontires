@@ -4,18 +4,26 @@
 Steps (in order):
   1. scraper       — scrape raw tire data from Emerge Tires Costar portal
   2. clean_tires   — clean/deduplicate tire raw data (qty >= 4 filter)
-  3. augment_tires — build Shopify_SEO_emergetires_tires_<ts>.csv
-  4. qa_check      — internal QA gate (exit 1 on FAIL, blocks sign-off)
+  3. enrich        — shared enrichment layer (pipelines/shared/enrichment.py
+                      --apply --supplier emergetires): applies already-cached
+                      (already-paid-for) image fixes to the cleaned CSV before
+                      augment reads it. Zero network calls.
+  4. augment_tires — build Shopify_SEO_emergetires_tires_<ts>.csv
+  5. qa_check      — internal QA gate (exit 1 on FAIL, blocks sign-off)
 
 Note: build_sku_map and price/inventory sync are handled by pipelines/merged/run_sync.py
       (Phase 8 — out of scope until sign-off).
       scraper_wheels / augment_wheels added here only if OQ-1 confirms Emerge sells wheels.
+
+See monitoring/ENRICHMENT_APPROVAL.md and monitoring/SERP_LAYER_DESIGN.md for the
+enrichment layer's design and current free-vs-paid numbers.
 
 Usage:
   python run_pipeline.py                              # full run
   python run_pipeline.py --skip scraper               # skip scraping, use existing raw data
   python run_pipeline.py --only augment_tires         # run one step only
   python run_pipeline.py --from clean_tires           # run from a step onwards
+  python run_pipeline.py --enable-enrich              # include the enrich step
 
 IMPORTANT — before first run, complete Phase 0 (see SCRAPER_SPEC.md):
   1. Verify/refresh COOKIE_STRING in scraper_tires.py
@@ -49,6 +57,7 @@ _UTF8_ENV = {**os.environ, "PYTHONUTF8": "1"}
 STEPS = [
     ("scraper",       "scraper_tires.py",  []),
     ("clean_tires",   "clean.py",          ["--type", "tires"]),
+    ("enrich",        "../shared/enrichment.py", ["--apply", "--supplier", "emergetires"]),
     ("augment_tires", "augment_tires.py",  []),
     ("qa_check",      "qa_check.py",       []),
     ("create_tires",  "create_products.py", []),
@@ -57,6 +66,10 @@ STEPS = [
 ]
 
 DRY_RUN_STEPS = {"create_tires"}
+
+# enrich only ever runs with --apply (cache-hit fixes, zero network calls).
+# Opt-in only, like the other steps that mutate the cleaned CSV.
+ENRICH_OPT_IN_STEPS = {"enrich"}
 
 STEP_NAMES = [n for n, _, _ in STEPS]
 
@@ -83,9 +96,15 @@ def main():
                         help="Run from this step onwards")
     parser.add_argument("--dry-run", action="store_true",
                         help="Pass --dry-run to create steps (no Shopify writes)")
+    parser.add_argument("--enable-enrich", action="store_true",
+                        help="Include the 'enrich' step in a full/--skip run. It only applies "
+                             "already-cached (already-paid-for) image fixes — zero network "
+                             "calls — but still rewrites the cleaned CSV in place, so it's "
+                             "opt-in like the other steps that mutate data.")
     args = parser.parse_args()
 
     steps_to_run = STEPS
+    explicit_enrich = args.only in ENRICH_OPT_IN_STEPS or args.from_step in ENRICH_OPT_IN_STEPS
 
     if args.only:
         steps_to_run = [(n, s, a) for n, s, a in STEPS if n == args.only]
@@ -104,6 +123,15 @@ def main():
             log.error(f"Unknown steps to skip: {unknown}. Valid: {STEP_NAMES}")
             sys.exit(1)
         steps_to_run = [(n, s, a) for n, s, a in STEPS if n not in args.skip]
+
+    if not explicit_enrich and not args.enable_enrich:
+        before = len(steps_to_run)
+        steps_to_run = [(n, s, a) for n, s, a in steps_to_run if n not in ENRICH_OPT_IN_STEPS]
+        if len(steps_to_run) < before:
+            log.warning(
+                "Skipping 'enrich' — it rewrites the cleaned CSV in place. Pass "
+                "--enable-enrich to include it, or run it explicitly with --only enrich."
+            )
 
     log.info(f"Pipeline start — {len(steps_to_run)} step(s): {[n for n, _, _ in steps_to_run]}")
 

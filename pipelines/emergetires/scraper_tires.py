@@ -37,7 +37,7 @@ BASE_URL = "https://order.emergetires.com/WebOrder/CostarApi"
 _SIGNING_KEY = "5318f4ce4b9bab05c09df20c3d5d8d4c26570542501b1d58231159cd42e65505"
 
 # >>> Update when session expires (~2 weeks). Captured 2026-06 — verify in Phase 0.1.
-COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=Gjg2uck6Y7pl%2fZtRFx567g%3d%3d&UserID=b72c4c92-5b4b-4e5b-9109-60bf900446e1; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.6.15.0&DbVersion=0005.0006.0015.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=%2bXR%2fYsREZu%2bRNi08ng5v11P0GNu%2fD5EaRKKcYuCrJnlGPT27IpdiENF%2bo2HSLOBJ&UnifiedBuildNumber=5.6.15.0&Ux=I34R06XR&CostarLanguage=&SessionID=099b4b2d-1f81-4971-aaeb-aa8d3842c8d3; ASP.NET_SessionId=22esgtlqj4bit2serqy14y31"
+COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=Gjg2uck6Y7pl%2fZtRFx567g%3d%3d&UserID=881da3c4-d072-41b3-9cd5-6c3a55f73752; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.6.15.0&DbVersion=0005.0006.0015.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=yIecmNFG7sacG0QQy7p2dwu4guhDaZoE98B79AfWCpltwMDmhdNm29vPEIe7eZEq&UnifiedBuildNumber=5.6.15.0&Ux=I34R06XR&CostarLanguage=&SessionID=cf66a72c-0b23-4e00-a8f9-ad8fadef4f8a; ASP.NET_SessionId=h32fmzmb5mfnc5y0x4l3wzsb"
 
 HEADERS = {
     "Accept": "application/json, text/plain, */*",
@@ -234,6 +234,7 @@ def flatten_product(p: dict) -> dict:
         "available_quantity":                  p.get("availableQuantity", ""),
         "available_quantity_related_branches": p.get("availableQuantityAtRelatedBranches", ""),
         "retail_price":                        p.get("retailPrice", ""),
+        "cost_price":                          "",
         "suggested_price":                     p.get("suggestedPrice", ""),
         "is_winter_tire":                      p.get("isWinterTire", ""),
         "is_all_weather":                      p.get("isAllWeather", ""),
@@ -290,6 +291,34 @@ def get_product_info(guids: list) -> tuple:
         guid_to_specs[guid][code] = value
 
     return guid_to_image, guid_to_specs
+
+
+def get_cost_prices(guids: list) -> dict:
+    """Fetch true cost price for a batch of GUIDs via the ShoppingCart pricing
+    endpoint — NOT Product/Search or Product/ProductInfo, which only expose
+    retailPrice/suggestedPrice (the supplier's suggested retail, not our cost).
+    Returns {guid: cost_price}. Verified idempotent/side-effect-free: repeated
+    calls return the same shoppingCartDetailGuid with orderQuantity 0.0 and do
+    not add anything to the supplier's actual cart.
+    """
+    body = {
+        "criteriaList": [{
+            "dataField": "ProductGuidList",
+            "criteriaList": [
+                {"dataField": "ProductGuid", "guid": g} for g in guids
+            ],
+        }],
+        "requestId": str(uuid.uuid4()).upper(),
+    }
+    data = api_post("ShoppingCart/GetShoppingCartCustomerItemPrice", body)
+
+    guid_to_cost = {}
+    for entry in data.get("shoppingCartDetailList") or []:
+        guid  = entry.get("productGuid", "")
+        price = entry.get("priceToDisplay", "")
+        if guid:
+            guid_to_cost[guid] = price
+    return guid_to_cost
 
 
 _CHECKPOINT_FILE = "Data/raw/emergetires_tires_checkpoint.json"
@@ -488,6 +517,25 @@ def main():
 
     print(f"Images found : {images_found} / {len(products)}")
     print(f"Specs found  : {specs_found} / {len(products)}")
+
+    # ── Third pass: fetch true cost price via ShoppingCart pricing endpoint ──
+    print(f"\nFetching cost prices via ShoppingCart ({len(products)} products, "
+          f"batch size {PRODUCT_INFO_BATCH_SIZE})...")
+    cost_found = 0
+
+    for batch_start in range(0, len(guids), PRODUCT_INFO_BATCH_SIZE):
+        batch = guids[batch_start:batch_start + PRODUCT_INFO_BATCH_SIZE]
+        try:
+            guid_to_cost = get_cost_prices(batch)
+            for guid, cost in guid_to_cost.items():
+                if guid in guid_map and cost not in (None, ""):
+                    products[guid_map[guid]]["cost_price"] = cost
+                    cost_found += 1
+        except Exception as e:
+            print(f"  WARNING: Cost price batch {batch_start}-{batch_start+len(batch)} failed: {e}")
+        time.sleep(0.5)
+
+    print(f"Cost prices found: {cost_found} / {len(products)}")
 
     sorted_codes = sorted(all_spec_codes)
     if sorted_codes:

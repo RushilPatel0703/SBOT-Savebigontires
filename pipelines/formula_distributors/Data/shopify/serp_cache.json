@@ -994,5 +994,21 @@
   "lexani|lxtr-203|225/55r16": {
     "designation": "",
     "query": "Lexani LXTR-203 225/55R16 tire"
+  },
+  "greentrac|journey-x pro|225/45r17": {
+    "designation": "All Season",
+    "query": "Greentrac JOURNEY-X PRO 225/45R17 tire"
+  },
+  "greentrac|quest-x|255/50r19": {
+    "designation": "All Season",
+    "query": "Greentrac QUEST-X 255/50R19 tire"
+  },
+  "greentrac|rough master xt|33x12.50r20": {
+    "designation": "Winter",
+    "query": "Greentrac ROUGH MASTER XT 33x12.50R20 tire"
+  },
+  "greentrac|rough master xt|35x12.50r20": {
+    "designation": "Winter",
+    "query": "Greentrac ROUGH MASTER XT 35x12.50R20 tire"
   }
 }

@@ -1,7 +1,0 @@
-06:51:45 [INFO] Input file : Data/cleaned\cleaned_tires_20260731_212324.csv
-06:51:45 [INFO] Rows loaded: 532
-06:51:45 [INFO] Size column normalized; load_range and speed_rating extracted
-06:51:45 [INFO] Using available_quantity for total_qty
-06:51:45 [INFO] Rows written : 532
-06:51:45 [INFO] Output file  : Data/shopify/Shopify_SEO_tires_20260801_065145.csv
-06:51:45 [INFO] Done!

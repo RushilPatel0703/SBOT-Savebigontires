@@ -1,4 +1,0 @@
-22:13:18 [INFO] Pipeline start — 7 step(s): ['scraper_tires', 'brand_sweep', 'clean_tires', 'augment_tires', 'scraper_wheels', 'clean_wheels', 'augment_wheels']
-22:13:18 [INFO] =======================================================
-22:13:18 [INFO] STEP: scraper_tires (scraper_tires.py)
-22:13:18 [INFO] =======================================================

@@ -21,3 +21,5 @@ api_put         = _m.api_put
 api_delete      = _m.api_delete
 api_post        = _m.api_post
 get_logger      = _m.get_logger
+SUPPLIER_MARKUP = _m.SUPPLIER_MARKUP
+markup_for      = _m.markup_for

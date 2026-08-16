@@ -31,7 +31,33 @@ PIPELINES_DIR = HERE.parent / "pipelines"   # existing supplier pipelines (raw l
 LOGS_DIR      = HERE / "logs"
 
 # ── Business rules ─────────────────────────────────────────────────────────────
-PRICE_MARKUP = 30.00                        # flat markup applied at sync, all types
+# Per-supplier flat markup added to COST to get the Shopify selling price
+# (client-updated July 2026). Mirrors pipelines/shared/config.py SUPPLIER_MARKUP,
+# which is the source of truth for the supplier pipelines — keep the two in sync.
+#
+# These differ per supplier, which breaks an assumption the merge step used to
+# rely on: with one flat markup, min(cost) and min(cost + markup) always picked
+# the same supplier, so markup could safely be added at the very end. They now
+# diverge (cost 100 + 46.50 = 146.50 loses to cost 105 + 36.50 = 141.50), so the
+# markup is applied per supplier during merge and merged_price is FINAL.
+SUPPLIER_MARKUP = {
+    "northcountry": 46.50,
+    "dttire":       46.50,
+    "formula":      46.50,
+    "wheelsmart":   36.50,
+    "emerge":       36.50,
+}
+
+
+def markup_for(supplier):
+    """Markup for a supplier code. Raises on an unknown supplier rather than
+    defaulting — a silently-wrong markup misprices every SKU that supplier feeds.
+    """
+    try:
+        return SUPPLIER_MARKUP[supplier]
+    except KeyError:
+        raise KeyError(f"No markup configured for supplier {supplier!r}. "
+                       f"Known suppliers: {sorted(SUPPLIER_MARKUP)}") from None
 
 PRODUCT_TYPES = ("tires", "wheels")
 SHOPIFY_PRODUCT_TYPE = {                    # pipeline type → Shopify product_type
@@ -42,6 +68,9 @@ SHOPIFY_PRODUCT_TYPE = {                    # pipeline type → Shopify product_
 # ── Supplier ingest mappings ───────────────────────────────────────────────────
 # pattern is relative to PIPELINES_DIR; {type} → tires|wheels.
 # prefiltered: cleaned CSVs already had the low-qty threshold applied upstream.
+# price_cols: ordered candidates, first present column wins — cost first, retail
+# last. Feeds scraped before the cost-price migration lack the cost column and
+# fall back (with a warning) instead of pricing the feed at 0.
 # sku_split_colon: WheelMart SKUs arrive as "TIRE:18\" TIRE:2HH2385H1" — Shopify
 # holds only the last ':'-segment, so ingest must match that.
 SUPPLIERS = {
@@ -50,7 +79,7 @@ SUPPLIERS = {
         "pattern":   "formula_distributors/Data/cleaned/cleaned_{type}_*.csv",
         "seo_pattern": "formula_distributors/Data/shopify/Shopify_SEO_{type}_*.csv",
         "sku_col":   "item",
-        "price_col": "retail_price",
+        "price_cols": ("cost_price", "retail_price"),
         "qty_cols":  ("available_quantity",),
         "prefiltered": True,
     },
@@ -59,7 +88,7 @@ SUPPLIERS = {
         "pattern":   "northcountry/Data/cleaned/cleaned_{type}_*.csv",
         "seo_pattern": "northcountry/Data/shopify/Shopify_SEO_northcountry_{type}_*.csv",
         "sku_col":   "sku",
-        "price_col": "retail_price",
+        "price_cols": ("cost_price", "retail_price"),
         "qty_cols":  ("available_quantity_related_branches", "available_quantity"),
         "prefiltered": True,
     },
@@ -68,7 +97,7 @@ SUPPLIERS = {
         "pattern":   "dttire/Data/cleaned/cleaned_{type}_*.csv",
         "seo_pattern": "dttire/Data/shopify/Shopify_SEO_dttire_{type}_*.csv",
         "sku_col":   "sku",
-        "price_col": "cost_price",
+        "price_cols": ("cost_price",),   # dttire has always scraped true cost
         "qty_cols":  ("qty_total",),
         "prefiltered": True,
     },
@@ -77,7 +106,7 @@ SUPPLIERS = {
         "pattern":   "emergetires/Data/cleaned/cleaned_{type}_*.csv",
         "seo_pattern": "emergetires/Data/shopify/Shopify_SEO_emergetires_{type}_*.csv",
         "sku_col":   "sku",
-        "price_col": "retail_price",
+        "price_cols": ("cost_price", "retail_price"),
         "qty_cols":  ("available_quantity_related_branches", "available_quantity"),
         "prefiltered": True,
         # augment prefixes SKUs before Shopify import, so the store (and the SEO
@@ -90,7 +119,10 @@ SUPPLIERS = {
         "seo_pattern": "wheelsmart/Data/shopify/Shopify_SEO_wheelsmart_{type}_*.csv",
         "type_alias": {"tires": "tires", "wheels": "rims"},   # file naming uses 'rims'
         "sku_col":   {"tires": "sku", "wheels": "name"},
-        "price_col": "retail_price",
+        # WheelMart's cost price is the "product-price" span scraped out of the
+        # description cell — stored as user_group_price. retail_price (tds[4]) is
+        # only the supplier's suggested retail.
+        "price_cols": ("cost_price", "user_group_price", "retail_price"),
         "qty_cols":  ("quantity_on_hand",),
         "prefiltered": False,
         "min_qty": 4,                        # keep qty >= 4 (matches augment_tires/rims)

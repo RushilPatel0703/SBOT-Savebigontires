@@ -12,13 +12,13 @@ import re
 import pandas as pd
 from datetime import datetime
 
-from config import find_latest, get_logger
+from config import find_latest, get_logger, markup_for
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from size_parser import parse_tire_size
 from dedupe import dedupe_titles
 
-MARKUP = 30.00
+MARKUP = markup_for("dttire")
 
 # Maps cleaned designation → Shopify Type_ tag value
 # "Unknown" is intentionally omitted — no Type_ tag is added

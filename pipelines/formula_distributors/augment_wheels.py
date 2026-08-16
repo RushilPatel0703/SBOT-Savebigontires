@@ -4,7 +4,7 @@ Reads Data/formula_wheels_*.csv and outputs Data/Shopify_SEO_wheels.csv.
 
 Key differences from augment.py (tires):
   - SKU goes in "Variant SKU" (not "SKU") to match create_products.py --type wheels
-  - Price = retail_price + $30 (markup applied here, not in update_prices.py)
+  - Price = retail_price + per-supplier markup (markup applied here, not in update_prices.py)
   - Bolt pattern, diameter, offset, hub bore parsed from size + description fields
   - Title includes bolt pattern to keep products with same model/size unique
 """
@@ -17,11 +17,13 @@ import logging
 import pandas as pd
 from datetime import datetime
 
+from config import markup_for
+
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from size_parser import parse_wheel_size, format_wheel_size
 from dedupe import dedupe_titles
 
-MARKUP            = 30.00
+MARKUP            = markup_for("formula")
 LOW_QTY_THRESHOLD = 3
 
 
@@ -349,9 +351,21 @@ def main():
     out["Variant Requires Shipping"]    = "TRUE"
     out["Variant Taxable"]             = "TRUE"
 
-    # Price = retail + flat $30 markup
+    # Price = cost + per-supplier markup, falling back to retail_price per-row when
+    # cost_price is missing/zero (e.g. raw CSVs scraped before the cost-price
+    # capture was added, or a ShoppingCart batch that failed).
     retail_prices = pd.to_numeric(df["retail_price"], errors="coerce").fillna(0)
-    out["Variant Price"] = (retail_prices + MARKUP).round(2).astype(str)
+    if "cost_price" in df.columns:
+        cost_prices = pd.to_numeric(df["cost_price"], errors="coerce").fillna(0)
+    else:
+        log.warning("cost_price column missing — falling back to retail_price for all rows.")
+        cost_prices = pd.Series(0, index=df.index)
+    fallback_mask = cost_prices <= 0
+    if fallback_mask.any():
+        log.warning(f"{fallback_mask.sum()} / {len(df)} rows missing/zero cost_price — "
+                    f"falling back to retail_price for Variant Price basis.")
+    price_basis = cost_prices.where(~fallback_mask, retail_prices)
+    out["Variant Price"] = (price_basis + MARKUP).round(2).astype(str)
 
     out["Image Src"]      = df["image_url"]
     out["Image Position"] = out["Image Src"].apply(lambda s: 1 if str(s).strip() else "")

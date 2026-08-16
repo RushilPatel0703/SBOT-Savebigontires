@@ -1,6 +1,0 @@
-00:08:14 [INFO] Log file: logs\dttire_clean_wheels_20260716_000814.log
-00:08:14 [INFO] Input file : Data\raw\dttire_wheels_20260716_000813.csv
-00:08:14 [INFO] Rows loaded: 1630
-00:08:14 [WARNING] Dropping 294 row(s) with missing/zero cost_price
-00:08:14 [INFO] Low qty saved   : Data\cleaned\low_quantity_wheels_20260716_000814.csv
-00:08:14 [INFO] Output file : Data\cleaned\cleaned_wheels_20260716_000814.csv

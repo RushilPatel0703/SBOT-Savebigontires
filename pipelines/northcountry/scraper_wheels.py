@@ -23,7 +23,7 @@ BASE_URL     = "https://online.northcountrytire.ca/WebOrder/CostarApi"
 _SIGNING_KEY = "5318f4ce4b9bab05c09df20c3d5d8d4c26570542501b1d58231159cd42e65505"
 
 # ── Update this when session expires ─────────────────────────────────────────
-COOKIE_STRING = "CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.7.151.0&DbVersion=0005.0007.0151.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=jL6ZMc7YXSYbvy0fZRX0SOZYf%2bgvl4iTn62P8LwabBgZdoLVCVTtGb23RTHbf4VN&UnifiedBuildNumber=5.7.151.0&Ux=M48B07OD&CostarLanguage=&SessionID=2e91d014-47a1-48f2-8b77-7684e3d748c3; CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=&UserID=62753762-445e-44ac-afdc-0606628d7cbf; ASP.NET_SessionId=0u4djskt1a4bzh20xit3xhau"
+COOKIE_STRING = "CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.7.151.0&DbVersion=0005.0007.0151.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=3w%2bczgMX6A7n3RHKeBte4NRwZMbXBiom1HbS2aNXu3MudpUukoAAvqK8Ff0xxPsn&UnifiedBuildNumber=5.7.151.0&Ux=M48B07OD&CostarLanguage=&SessionID=9ec756ef-07dc-49ac-8a90-e7ec881ec1cb; CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=&UserID=3a743520-dce4-4a69-b4f0-ee2960e625d7; ASP.NET_SessionId=gi0rolmr5in13jmb113q41pn"
 # ─────────────────────────────────────────────────────────────────────────────
 
 HEADERS = {
@@ -167,6 +167,34 @@ def get_product_info(guids: list) -> tuple:
     return guid_to_image, guid_to_specs
 
 
+def get_cost_prices(guids: list) -> dict:
+    """Fetch true cost price for a batch of GUIDs via the ShoppingCart pricing
+    endpoint — NOT Product/Search or Product/ProductInfo, which only expose
+    retailPrice/suggestedPrice (the supplier's suggested retail, not our cost).
+    Returns {guid: cost_price}. Verified idempotent/side-effect-free: repeated
+    calls return the same shoppingCartDetailGuid with orderQuantity 0.0 and do
+    not add anything to the supplier's actual cart.
+    """
+    body = {
+        "criteriaList": [{
+            "dataField": "ProductGuidList",
+            "criteriaList": [
+                {"dataField": "ProductGuid", "guid": g} for g in guids
+            ],
+        }],
+        "requestId": str(uuid.uuid4()).upper(),
+    }
+    data = api_post("ShoppingCart/GetShoppingCartCustomerItemPrice", body)
+
+    guid_to_cost = {}
+    for entry in data.get("shoppingCartDetailList") or []:
+        guid  = entry.get("productGuid", "")
+        price = entry.get("priceToDisplay", "")
+        if guid:
+            guid_to_cost[guid] = price
+    return guid_to_cost
+
+
 def flatten_product(p: dict) -> dict:
     global _first_result_logged
     if not _first_result_logged:
@@ -186,6 +214,7 @@ def flatten_product(p: dict) -> dict:
         "available_quantity":                  p.get("availableQuantity", ""),
         "available_quantity_related_branches": p.get("availableQuantityAtRelatedBranches", ""),
         "retail_price":                p.get("retailPrice", ""),
+        "cost_price":                  "",
         "suggested_price":             p.get("suggestedPrice", ""),
         "is_active":                   p.get("isActive", ""),
         "is_discontinued":             p.get("isDiscontinued", ""),
@@ -316,6 +345,27 @@ def main():
 
     print(f"Images found : {images_found} / {len(all_products)}")
     print(f"Specs found  : {specs_found} / {len(all_products)}")
+
+    # ── Third pass: fetch true cost price via ShoppingCart pricing endpoint ──
+    print(f"\nFetching cost prices via ShoppingCart ({len(all_products)} products, "
+          f"batch size {PRODUCT_INFO_BATCH_SIZE}, {MAX_WORKERS} workers)...")
+    cost_found = 0
+
+    def _fetch_cost_batch(batch):
+        try:
+            return get_cost_prices(batch)
+        except Exception as e:
+            print(f"  WARNING: Cost price batch failed: {e}")
+            return {}
+
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+        for guid_to_cost in pool.map(_fetch_cost_batch, batches):
+            for guid, cost in guid_to_cost.items():
+                if guid in guid_map and cost not in (None, ""):
+                    all_products[guid_map[guid]]["cost_price"] = cost
+                    cost_found += 1
+
+    print(f"Cost prices found: {cost_found} / {len(all_products)}")
 
     sorted_codes = sorted(all_spec_codes)
     if sorted_codes:

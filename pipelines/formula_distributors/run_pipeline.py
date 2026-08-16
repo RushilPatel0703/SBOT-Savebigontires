@@ -6,7 +6,10 @@ Regular sync steps (in order):
   2. scraper_wheels   — scrape raw wheel data from Formula Distributors portal
   3. clean_tires      — clean/deduplicate tire raw data (qty >= 4 filter applied)
   4. clean_wheels     — clean/deduplicate wheel raw data (qty >= 4 filter applied)
-  5. serp_enrich      — SerpAPI designation enrichment for Layer 4/5 and Unknown rows
+  5. enrich           — shared enrichment layer (pipelines/shared/enrichment.py):
+                         applies already-cached designation/image fixes to the
+                         cleaned/raw CSVs before augment reads them. No network
+                         calls ever (see --enable-enrich below).
   6. augment          — build Shopify_SEO_tires_<ts>.csv (prices include $30 markup)
   7. augment_wheels   — build Shopify_SEO_wheels_<ts>.csv
 
@@ -14,11 +17,21 @@ Note: build_sku_map and price/inventory sync are handled by pipelines/merged/run
       create_products.py is run manually for initial product import only.
       update_wheels.py is run manually to push updated tags/body to existing wheel products.
 
+The old per-supplier `serp_enrich.py` step (SerpAPI designation-only enrichment,
+wired into every plain pipeline run with no per-search approval) has been
+retired in favour of the shared layer above, which covers all five suppliers
+and both designation + image, and defaults to dry-run/report-only. See
+monitoring/ENRICHMENT_APPROVAL.md for the numbers and monitoring/SERP_LAYER_DESIGN.md
+for the design. serp_enrich.py itself is kept as a thin deprecation shim (it
+makes no calls) — its cache file (Data/shopify/serp_cache.json, 253 already-paid
+queries) has been migrated into the shared cache and is preserved on disk.
+
 Usage:
   python run_pipeline.py                        # full run
   python run_pipeline.py --skip scraper         # skip scraping, use existing raw data
   python run_pipeline.py --only augment         # run one step only
-  python run_pipeline.py --from serp_enrich     # run from a step onwards
+  python run_pipeline.py --from clean_tires     # run from a step onwards
+  python run_pipeline.py --enable-enrich        # include the free/cache-only enrich step
 """
 
 import sys
@@ -48,7 +61,7 @@ STEPS = [
     ("scraper_wheels", "scraper_wheels.py", []),
     ("clean_tires",    "clean.py",          ["--type", "tires"]),
     ("clean_wheels",   "clean.py",          ["--type", "wheels"]),
-    ("serp_enrich",    "serp_enrich.py",    []),
+    ("enrich",         "../shared/enrichment.py", ["--apply", "--supplier", "formula_distributors"]),
     ("augment",        "augment.py",        []),
     ("augment_wheels", "augment_wheels.py", []),
     ("create_tires",   "create_products.py", ["--type", "tires"]),
@@ -56,6 +69,13 @@ STEPS = [
 ]
 
 DRY_RUN_STEPS = {"create_tires", "create_wheels"}
+
+# enrich only ever applies already-cached (already-paid-for) results — see
+# pipelines/shared/enrichment.py. It makes zero network calls with --apply
+# (the only flag this pipeline ever passes it). Still excluded from default
+# runs and opt-in only, same conservative principle the old serp_enrich step
+# used: nothing that rewrites cleaned/raw CSVs runs unattended by default.
+SERP_OPT_IN_STEPS = {"enrich"}
 
 STEP_NAMES = [n for n, _, _ in STEPS]
 
@@ -82,9 +102,19 @@ def main():
                         help="Run from this step onwards")
     parser.add_argument("--dry-run", action="store_true",
                         help="Pass --dry-run to create steps (no Shopify writes)")
+    parser.add_argument("--enable-enrich", action="store_true",
+                        help="Include the 'enrich' step in a full/--skip run. It applies "
+                             "already-cached designation/image fixes (zero network calls) to "
+                             "the cleaned/raw CSVs before augment runs, so it is excluded from "
+                             "default runs unless this flag is passed, or the step is "
+                             "explicitly selected via --only/--from. Live SERP spend is a "
+                             "separate, manually-invoked step: "
+                             "python ../shared/enrichment.py --live --budget N — never run by "
+                             "this orchestrator.")
     args = parser.parse_args()
 
     steps_to_run = STEPS
+    explicit_serp = args.only in SERP_OPT_IN_STEPS or args.from_step in SERP_OPT_IN_STEPS
 
     if args.only:
         steps_to_run = [(n, s, a) for n, s, a in STEPS if n == args.only]
@@ -103,6 +133,16 @@ def main():
             log.error(f"Unknown steps to skip: {unknown}. Valid: {STEP_NAMES}")
             sys.exit(1)
         steps_to_run = [(n, s, a) for n, s, a in STEPS if n not in args.skip]
+
+    if not explicit_serp and not args.enable_enrich:
+        before = len(steps_to_run)
+        steps_to_run = [(n, s, a) for n, s, a in steps_to_run if n not in SERP_OPT_IN_STEPS]
+        if len(steps_to_run) < before:
+            log.warning(
+                "Skipping 'enrich' — rewrites the cleaned/raw CSV in place. Pass "
+                "--enable-enrich to include it in this run, or run it explicitly with "
+                "--only enrich."
+            )
 
     log.info(f"Pipeline start — {len(steps_to_run)} step(s): {[n for n, _, _ in steps_to_run]}")
 

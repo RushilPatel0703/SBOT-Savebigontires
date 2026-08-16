@@ -4,6 +4,8 @@
 Rules:
   - Each supplier's cleaned CSV already has the qty >= 4 filter applied (per-supplier threshold).
   - Matching key: SKU (formula uses 'item' column, NC uses 'sku' column).
+  - Each supplier's price has its per-supplier markup applied at load, so merged_price
+    is the FINAL selling price. Downstream must not add markup again.
   - For SKUs present in multiple suppliers: price = min, qty = sum of qualifying supplier quantities.
   - Only quantities from suppliers that individually pass the threshold contribute (handled
     upstream by clean.py — if a supplier's cleaned CSV has a SKU, it passed their filter).
@@ -21,25 +23,27 @@ import sys
 import pandas as pd
 from datetime import datetime
 
+from config import markup_for
+
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
 SUPPLIER_CONFIGS = {
     "formula": {
         "pattern": os.path.join(_HERE, "..", "formula_distributors", "Data", "cleaned", "cleaned_{type}_*.csv"),
         "sku_col":   "item",
-        "price_col": "retail_price",
+        "price_cols": ("cost_price", "retail_price"),
         "qty_col":   "available_quantity",
     },
     "northcountry": {
         "pattern": os.path.join(_HERE, "..", "northcountry", "Data", "cleaned", "cleaned_{type}_*.csv"),
         "sku_col":   "sku",
-        "price_col": "retail_price",
+        "price_cols": ("cost_price", "retail_price"),
         "qty_col":   "available_quantity_related_branches",
     },
     "dttire": {
         "pattern": os.path.join(_HERE, "..", "dttire", "Data", "cleaned", "cleaned_{type}_*.csv"),
         "sku_col":   "sku",
-        "price_col": "cost_price",
+        "price_cols": ("cost_price",),
         "qty_col":   "qty_total",
     },
 }
@@ -61,15 +65,36 @@ def load_supplier(name, config, product_type):
     print(f"  [{name}] Loaded {len(df)} rows from {os.path.basename(path)}")
 
     sku_col   = config["sku_col"]
-    price_col = config["price_col"]
     qty_col   = config["qty_col"]
 
     if sku_col not in df.columns:
         print(f"  [{name}] WARNING: expected SKU column '{sku_col}' not found — skipping.")
         return None
 
+    # price_cols is ordered cost-first, retail last. A feed scraped before the
+    # cost-price migration has no cost column and falls back to retail with a
+    # warning rather than failing the whole merge.
+    price_col = next((c for c in config["price_cols"] if c in df.columns), None)
+    if price_col is None:
+        print(f"  [{name}] WARNING: none of price columns {config['price_cols']} found — skipping.")
+        return None
+    if price_col != config["price_cols"][0]:
+        print(f"  [{name}] WARNING: cost column '{config['price_cols'][0]}' absent — "
+              f"falling back to '{price_col}' (re-scrape to price off cost).")
+
     df["_sku"]   = df[sku_col].apply(lambda v: str(int(float(v))) if _is_numeric(v) else str(v).strip())
-    df["_price"] = pd.to_numeric(df[price_col], errors="coerce").fillna(0)
+
+    # Markup is per supplier, so it must be applied HERE — before merge() takes
+    # the min — because min(cost) and min(cost + markup) no longer select the
+    # same supplier once markups differ (cost 100 + 46.50 = 146.50 loses to
+    # cost 105 + 36.50 = 141.50). Adding markup after the min would pick the
+    # cheapest cost rather than the cheapest price and overcharge on every
+    # multi-supplier SKU. _price is therefore the FINAL selling price, and
+    # update_prices.py must not add markup again.
+    # Zero/unparseable costs stay 0 so they aren't turned into a bare markup
+    # value that could win the min as a fake price.
+    cost         = pd.to_numeric(df[price_col], errors="coerce").fillna(0)
+    df["_price"] = (cost + markup_for(name)).where(cost > 0, 0.0).round(2)
     df["_qty"]   = pd.to_numeric(df[qty_col],   errors="coerce").fillna(0).astype(int)
     df["_source"] = name
 
