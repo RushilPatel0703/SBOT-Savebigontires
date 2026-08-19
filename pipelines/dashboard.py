@@ -534,92 +534,25 @@ CSV_LIMIT_MB  = 15.0   # Shopify hard limit per import file
 CSV_TARGET_MB = 14.5   # split target — safety margin under the hard limit
 UPLOAD_READY  = BASE.parent / "upload_ready"   # project root — easy for the client to find
 
+sys.path.append(str(BASE / "shared"))
+import upload_bundle as _upload_bundle
+
 def collect_source_csvs() -> list[Path]:
     """Return the most recent Shopify_SEO_*.csv per product-type per supplier."""
-    import re as _re
-    _ts_pat = _re.compile(r"_\d{8}_\d{6}$")
-    found = []
-    for cfg in PIPELINES.values():
-        shopify_dir = cfg["dir"] / "Data" / "shopify"
-        if not shopify_dir.exists():
-            continue
-        csvs = sorted(shopify_dir.glob("Shopify_SEO_*.csv"), key=lambda p: p.stat().st_mtime, reverse=True)
-        # Keep only the most recent file per product-type (strip timestamp suffix to group)
-        seen_bases: set[str] = set()
-        for p in csvs:
-            base = _ts_pat.sub("", p.stem)
-            if base not in seen_bases:
-                seen_bases.add(base)
-                found.append(p)
-    return found
+    return _upload_bundle.collect_source_csvs([cfg["dir"] for cfg in PIPELINES.values()])
 
 def prepare_upload_files() -> tuple[list[Path], str]:
-    """Merge all supplier CSVs, split at 15 MB, write to a dated upload_ready/ folder."""
-    import csv
-    import io
+    """Merge all supplier CSVs, split at 15 MB, write to a dated upload_ready/ folder.
 
-    import pandas as pd
+    Delegates to pipelines/shared/upload_bundle.py so the button here and the
+    command-line build stay identical. That module also writes a manifest.txt
+    recording which source CSV each bundle was built from — without it, a
+    bundle's folder timestamp is the only clue to its contents, and that lies
+    whenever a supplier CSV is regenerated moments after a build.
+    """
+    return _upload_bundle.prepare_upload_files(
+        [cfg["dir"] for cfg in PIPELINES.values()])
 
-    sources = collect_source_csvs()
-    if not sources:
-        return [], "No Shopify CSV files found — run Step 2 first."
-
-    dfs = []
-    for p in sources:
-        try:
-            dfs.append(pd.read_csv(p, dtype=str, keep_default_na=False))
-        except Exception as e:
-            return [], f"Error reading {p.name}: {e}"
-
-    merged = pd.concat(dfs, ignore_index=True)
-    # Suppliers without a given column (e.g. wheels files lack Cost/Compare-At
-    # Price) leave those cells as NaN after concat, which csv.writer renders
-    # as the literal string "nan" — Shopify then rejects it as an invalid price.
-    merged = merged.fillna("")
-
-    # Dated output folder — e.g. "9 July 2026 14-30-22"
-    now       = datetime.now()
-    ts_folder = f"{now.day} {now.strftime('%B %Y')} {now.strftime('%H-%M-%S')}"
-    out_dir   = UPLOAD_READY / ts_folder
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    # Split by exact encoded size, targeting 14.5 MB so no chunk ever
-    # comes close to the 15 MB Shopify limit.
-    limit_bytes = int(CSV_TARGET_MB * 1024 * 1024)
-    row_io = io.StringIO()
-    row_w  = csv.writer(row_io, lineterminator="\n")
-
-    row_w.writerow(merged.columns)
-    header = row_io.getvalue()
-    header_bytes = len(header.encode("utf-8"))
-
-    chunks: list[list[str]] = []
-    current: list[str] = []
-    current_bytes = header_bytes
-    for row in merged.itertuples(index=False, name=None):
-        row_io.seek(0)
-        row_io.truncate(0)
-        row_w.writerow(row)
-        line = row_io.getvalue()
-        line_bytes = len(line.encode("utf-8"))
-        if current and current_bytes + line_bytes > limit_bytes:
-            chunks.append(current)
-            current = []
-            current_bytes = header_bytes
-        current.append(line)
-        current_bytes += line_bytes
-    if current:
-        chunks.append(current)
-
-    out_files = []
-    total = len(chunks)
-    for idx, chunk in enumerate(chunks, 1):
-        name = f"shopify_upload_{idx}of{total}.csv" if total > 1 else "shopify_upload.csv"
-        out_path = out_dir / name
-        out_path.write_text(header + "".join(chunk), encoding="utf-8", newline="")
-        out_files.append(out_path)
-
-    return out_files, ""
 
 # Show existing upload_ready folders — sort by actual mtime, not folder name (names like "9 July" sort after "10 July" alphabetically)
 existing_runs = sorted(UPLOAD_READY.glob("*/"), key=lambda p: p.stat().st_mtime, reverse=True) if UPLOAD_READY.exists() else []
