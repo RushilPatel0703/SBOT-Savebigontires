@@ -24,7 +24,12 @@ from size_parser import parse_wheel_size, format_wheel_size
 from dedupe import dedupe_titles
 
 MARKUP            = markup_for("formula")
-LOW_QTY_THRESHOLD = 3
+# Keep qty >= 4, matching every other supplier. This was 3, which quietly let
+# formula wheels onto the store at a stock level every other feed treats as too
+# low to list. See northcountry/emergetires/formula clean.py and
+# wheelsmart/augment_{tires,rims}.py, all of which keep qty >= 4; dttire spells
+# the same rule as "drop qty <= 3".
+LOW_QTY_THRESHOLD = 4
 
 
 def get_output_file():

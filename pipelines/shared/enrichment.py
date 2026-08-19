@@ -276,7 +276,7 @@ def _qty_keep_mask(df, qty_filter):
         else:
             qty_cols = [c for c in df.columns if c.startswith("qty_")]
             qty = df[qty_cols].apply(pd.to_numeric, errors="coerce").fillna(0).sum(axis=1) if qty_cols else 0
-        return qty >= 3   # augment_wheels.py LOW_QTY_THRESHOLD
+        return qty >= 4   # augment_wheels.py LOW_QTY_THRESHOLD
     if qty_filter == "wheelsmart_tires":
         return df["quantity_on_hand"].apply(_coerce_qty) >= 4   # augment_tires.py LOW_QTY_THRESHOLD
     if qty_filter == "wheelsmart_rims":
