@@ -18,6 +18,13 @@ import requests
 import pandas as pd
 from datetime import datetime
 
+# APPEND, never insert(0): every pipeline has its own config.py and so does
+# shared/. Putting shared/ first on the path shadows the local one and silently
+# swaps in the wrong markup.
+sys.path.append(os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "shared")))
+import no_price
+
 from config import markup_for
 
 # WheelMart has no separate clean.py — this augment step reads the raw scrape
@@ -612,6 +619,18 @@ def main():
     low_qty_df = df[~keep_mask].copy()
     df = df[keep_mask].reset_index(drop=True)
 
+    # ── Step 2b: quarantine rows with no usable cost price ───────────────────
+    # Wheelsmart prices off user_group_price (the wholesale login span). Rows
+    # where that span is absent used to fall back to retail_price, which priced
+    # them at retail + markup instead of cost + markup. They are now excluded
+    # and written to the repo-level "no price detected" folder. Done here, on
+    # the post-low-qty frame and BEFORE `out` is built, so the two frames stay
+    # index-aligned.
+    df, _, no_price_summary = no_price.split_frame(
+        df, "wheelsmart", "tires", cost_col="user_group_price")
+    no_price.report(no_price_summary, "wheelsmart", "tires", "user_group_price")
+    df = df.reset_index(drop=True)
+
     total_dropped = len(low_qty_df)
     total_kept    = len(df)
 
@@ -736,6 +755,10 @@ def main():
         print("  WARNING: raw CSV has no user_group_price column — using retail_price for all rows.")
         cost_prices = pd.Series(float("nan"), index=df.index)
 
+    # Rows with no usable cost were quarantined in step 2b, so this can only
+    # still fire when the column is absent from the raw CSV entirely — a
+    # pre-migration scrape, where falling back to retail beats dropping the
+    # whole catalogue.
     missing_cost_mask = cost_prices.isna() | (cost_prices <= 0)
     missing_cost_count = int(missing_cost_mask.sum())
     if missing_cost_count:

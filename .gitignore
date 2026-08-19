@@ -30,3 +30,6 @@ pipelines/.dashboard_status.json
 # already PAID for. Losing it means re-buying those searches. It stays in
 # version control on purpose. Same for the zero_terms_*.json scrape caches
 # and the shared sku/handle maps.
+
+# Quarantined no-cost-price rows are regenerated every run (data, not source)
+no price detected/*.csv

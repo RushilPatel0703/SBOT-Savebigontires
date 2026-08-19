@@ -17,6 +17,13 @@ import argparse
 import csv
 from datetime import datetime
 
+# APPEND, never insert(0): every pipeline has its own config.py and so does
+# shared/. Putting shared/ first on the path shadows the local one and silently
+# swaps in the wrong markup.
+sys.path.append(os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "shared")))
+import no_price
+
 LOW_QTY_THRESHOLD = 4  # keep if max(qty, related_branches_qty) >= 4
 
 # See dttire/clean.py for the rationale: a "latest" raw file this old is more
@@ -170,6 +177,7 @@ def clean_wheels():
         "code_filter":   0,
         "inactive":      0,
         "zero_price":    0,
+        "no_price":      0,
         "low_qty":       0,
         "duplicate_sku": 0,
     }
@@ -255,33 +263,17 @@ def clean_wheels():
     if no_sku_rows:
         print(f"  NOTE: {len(no_sku_rows)} rows have blank SKU — kept aside.")
 
-    # ── 6. Cost price — backfill missing/zero cost_price from retail_price ────
-    # cost_price may be entirely absent from raw scrapes that predate this
-    # column (schema migration in progress — never hard-fail on it, warn and
-    # fall back to retail per the safety requirement covering in-flight runs).
-    # Deliberately do NOT synthesize cost_price when the raw scrape has no such
-    # column: writing cost_price = retail_price would make every downstream
-    # consumer (augment, merge_suppliers, production ingest) see a cost column
-    # that is present but actually holds retail, silently pricing off the wrong
-    # basis with no warning anywhere. Leaving it absent is what makes those
-    # consumers fall back loudly.
-    has_cost_col = any("cost_price" in r for r in rows)
-    if not has_cost_col:
-        print(f"  WARNING: cost_price absent from raw scrape ({len(rows)} rows) — "
-              f"leaving it unset so downstream pricing falls back to retail_price "
-              f"with a warning. Re-scrape to price off true cost.")
-    else:
-        cost_fallback_count = 0
-        for r in rows:
-            try:
-                cost_val = float(r.get("cost_price", "") or 0)
-            except (ValueError, TypeError):
-                cost_val = 0.0
-            if cost_val <= 0:
-                r["cost_price"] = r.get("retail_price", "")
-                cost_fallback_count += 1
-        if cost_fallback_count:
-            print(f"  WARNING: {cost_fallback_count} rows had missing/zero cost_price — fell back to retail_price.")
+    # ── 6. Cost price — quarantine rows we cannot price ─────────────────────
+    # Backfilling from retail_price kept the row but priced it off the wrong
+    # basis (retail + markup, ~1.7x the correct figure). Rows with no usable
+    # cost are now excluded from the final dataset and written to the
+    # repo-level "no price detected" folder instead. A cost column that is
+    # missing entirely is a pre-migration scrape, not bad data, so those rows
+    # are kept and the loud downstream fallback still applies.
+    rows, _, no_price_summary = no_price.split_records(rows, "emergetires", "wheels")
+    no_price.report(no_price_summary, "emergetires", "wheels")
+    has_cost_col = not no_price_summary["column_absent"]
+    removed["no_price"] = no_price_summary["quarantined"]
 
     # ── 7. Format prices ──────────────────────────────────────────────────────
     for r in rows:
@@ -317,6 +309,7 @@ def clean_wheels():
     print(f"  Code filter (non-wheel product_type_code) : {removed['code_filter']}")
     print(f"  Inactive products                         : {removed['inactive']}")
     print(f"  Zero-price products                       : {removed['zero_price']}")
+    print(f"  No cost price detected                    : {removed['no_price']}")
     print(f"  Low quantity (qty < {LOW_QTY_THRESHOLD})                   : {removed['low_qty']}")
     print(f"  Duplicate SKUs                            : {removed['duplicate_sku']}")
     print(f"\nRaw rows      : {raw_count}")
@@ -359,6 +352,7 @@ def main():
         "accessories":   0,
         "inactive":      0,
         "zero_price":    0,
+        "no_price":      0,
         "low_qty":       0,
         "duplicate_sku": 0,
     }
@@ -444,33 +438,17 @@ def main():
         r["size"] = normalize_size(r.get("size", ""), r.get("description", ""))
         r["size"] = r["size"].replace("x", "X")
 
-    # ── 7. Cost price — backfill missing/zero cost_price from retail_price ────
-    # cost_price may be entirely absent from raw scrapes that predate this
-    # column (schema migration in progress — never hard-fail on it, warn and
-    # fall back to retail per the safety requirement covering in-flight runs).
-    # Deliberately do NOT synthesize cost_price when the raw scrape has no such
-    # column: writing cost_price = retail_price would make every downstream
-    # consumer (augment, merge_suppliers, production ingest) see a cost column
-    # that is present but actually holds retail, silently pricing off the wrong
-    # basis with no warning anywhere. Leaving it absent is what makes those
-    # consumers fall back loudly.
-    has_cost_col = any("cost_price" in r for r in rows)
-    if not has_cost_col:
-        print(f"  WARNING: cost_price absent from raw scrape ({len(rows)} rows) — "
-              f"leaving it unset so downstream pricing falls back to retail_price "
-              f"with a warning. Re-scrape to price off true cost.")
-    else:
-        cost_fallback_count = 0
-        for r in rows:
-            try:
-                cost_val = float(r.get("cost_price", "") or 0)
-            except (ValueError, TypeError):
-                cost_val = 0.0
-            if cost_val <= 0:
-                r["cost_price"] = r.get("retail_price", "")
-                cost_fallback_count += 1
-        if cost_fallback_count:
-            print(f"  WARNING: {cost_fallback_count} rows had missing/zero cost_price — fell back to retail_price.")
+    # ── 7. Cost price — quarantine rows we cannot price ─────────────────────
+    # Backfilling from retail_price kept the row but priced it off the wrong
+    # basis (retail + markup, ~1.7x the correct figure). Rows with no usable
+    # cost are now excluded from the final dataset and written to the
+    # repo-level "no price detected" folder instead. A cost column that is
+    # missing entirely is a pre-migration scrape, not bad data, so those rows
+    # are kept and the loud downstream fallback still applies.
+    rows, _, no_price_summary = no_price.split_records(rows, "emergetires", product_type)
+    no_price.report(no_price_summary, "emergetires", product_type)
+    has_cost_col = not no_price_summary["column_absent"]
+    removed["no_price"] = no_price_summary["quarantined"]
 
     # ── 8. Format prices ──────────────────────────────────────────────────────
     for r in rows:
@@ -506,6 +484,7 @@ def main():
     print(f"  Accessories (product_type_code filter) : {removed['accessories']}")
     print(f"  Inactive products                      : {removed['inactive']}")
     print(f"  Zero-price products                    : {removed['zero_price']}")
+    print(f"  No cost price detected                 : {removed['no_price']}")
     print(f"  Low quantity (qty < {LOW_QTY_THRESHOLD})              : {removed['low_qty']}")
     print(f"  Duplicate SKUs                         : {removed['duplicate_sku']}")
     print(f"\nRaw rows      : {raw_count}")

@@ -28,6 +28,7 @@ from config import markup_for
 _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.normpath(os.path.join(_HERE, "..", "shared")))
 from sku_normalize import normalize_sku
+import no_price
 
 SUPPLIER_CONFIGS = {
     "formula": {
@@ -173,6 +174,17 @@ def main():
     output_file = f"Data/merged_{product_type}_{ts}.csv"
     merged.to_csv(output_file, index=False)
     print(f"\nOutput: {output_file}")
+
+    # Roll every supplier's quarantined rows into one reviewable dataset,
+    # tagged by supplier. These products are deliberately NOT in the merged
+    # output above — we have no cost for them, so they cannot be priced.
+    np_path, np_count = no_price.merge_all()
+    if np_path:
+        print(f"\nNo price detected: {np_count} row(s) excluded across all suppliers")
+        print(f"  -> {os.path.relpath(np_path, os.path.join(_HERE, '..', '..'))}")
+    else:
+        print("\nNo price detected: none — every product across every supplier has a cost price.")
+
     print("Done.")
 
 

@@ -11,6 +11,13 @@ import os
 import time
 import argparse
 import pandas as pd
+
+# APPEND, never insert(0): every pipeline has its own config.py and so does
+# shared/. Putting shared/ first on the path shadows the local one and silently
+# swaps in the wrong markup.
+sys.path.append(os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "shared")))
+import no_price
 from tire_designation_inference import infer_designation
 
 LOW_QTY_THRESHOLD = 4
@@ -66,26 +73,15 @@ def main():
               f"Check the raw scrape before re-running.")
         sys.exit(1)
 
-    # ── Cost price — backfill missing/zero cost_price from retail_price ───────
-    # cost_price may be entirely absent from raw scrapes that predate this
-    # column (schema migration in progress — never hard-fail on it, warn and
-    # fall back to retail per the safety requirement covering in-flight runs).
-    # Deliberately do NOT synthesize cost_price when the raw scrape has no such
-    # column: writing cost_price = retail_price would make every downstream
-    # consumer (augment, merge_suppliers, production ingest) see a cost column
-    # that is present but actually holds retail, silently pricing off the wrong
-    # basis with no warning anywhere. Leaving it absent is what makes those
-    # consumers fall back loudly.
-    if "cost_price" not in df.columns:
-        print(f"  WARNING: cost_price absent from raw scrape ({len(df)} rows) — "
-              f"leaving it unset so downstream pricing falls back to retail_price "
-              f"with a warning. Re-scrape to price off true cost.")
-    else:
-        cost_num = pd.to_numeric(df["cost_price"], errors="coerce").fillna(0)
-        fallback_mask = cost_num <= 0
-        if fallback_mask.any():
-            print(f"  WARNING: {fallback_mask.sum()} rows had missing/zero cost_price — fell back to retail_price.")
-        df.loc[fallback_mask, "cost_price"] = df.loc[fallback_mask, "retail_price"]
+    # ── Cost price — quarantine rows we cannot price ──────────────────────────
+    # Backfilling from retail_price kept the row but priced it off the wrong
+    # basis (retail + markup, ~1.7x the correct figure). Rows with no usable
+    # cost are now excluded from the final dataset and written to the
+    # repo-level "no price detected" folder instead. A cost column that is
+    # missing entirely is a pre-migration scrape, not bad data, so those rows
+    # are kept and the loud downstream fallback still applies.
+    df, _, no_price_summary = no_price.split_frame(df, "formula", product_type)
+    no_price.report(no_price_summary, "formula", product_type)
 
     os.makedirs("Data/cleaned", exist_ok=True)
     low_qty_file = f"Data/cleaned/low_quantity_{product_type}.csv"

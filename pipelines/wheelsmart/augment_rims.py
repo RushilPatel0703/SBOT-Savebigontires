@@ -17,6 +17,13 @@ from datetime import datetime
 
 import pandas as pd
 
+# APPEND, never insert(0): every pipeline has its own config.py and so does
+# shared/. Putting shared/ first on the path shadows the local one and silently
+# swaps in the wrong markup.
+sys.path.append(os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "shared")))
+import no_price
+
 from config import markup_for
 
 
@@ -590,6 +597,14 @@ def main():
 
     df = df[~low_qty_mask].copy()
     log.info(f"Rows after low-qty filter: {len(df)}")
+
+    # Quarantine rows with no usable cost price. Wheelsmart prices off
+    # user_group_price (the wholesale login span); rows missing it used to fall
+    # back to retail_price, pricing them at retail + markup instead of
+    # cost + markup. Done before `out` is built so the frames stay aligned.
+    df, _, no_price_summary = no_price.split_frame(
+        df, "wheelsmart", "rims", cost_col="user_group_price")
+    log.info(no_price.report(no_price_summary, "wheelsmart", "rims", "user_group_price").strip())
     if len(df) == 0:
         log.error(f"No rows remain after the qty >= {LOW_QTY_THRESHOLD} filter "
                    f"({total_loaded} loaded, all dropped) — refusing to write an empty Shopify SEO CSV. "
@@ -716,6 +731,8 @@ def main():
         log.warning("Raw CSV has no user_group_price column — using retail_price for all rows.")
         cost = pd.Series(float("nan"), index=df.index)
 
+    # Rows with no usable cost were quarantined above, so this can only still
+    # fire when the column is absent from the raw CSV entirely.
     missing_cost_mask = cost.isna() | (cost <= 0)
     missing_cost_count = int(missing_cost_mask.sum())
     if missing_cost_count:

@@ -24,6 +24,13 @@ import argparse
 import datetime
 import pandas as pd
 
+# APPEND, never insert(0): every pipeline has its own config.py and so does
+# shared/. Putting shared/ first on the path shadows the local one and silently
+# swaps in the wrong markup.
+sys.path.append(os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "shared")))
+import no_price
+
 from config import find_latest, get_logger
 
 LOW_QTY_THRESHOLD = 3
@@ -301,9 +308,15 @@ def _clean_tires():
     # ── Parse prices ───────────────────────────────────────────────────────────
     df["cost_price"] = df["cost_price"].apply(parse_price)
     df["msrp"]       = df["msrp"].apply(parse_price)
-    unparseable = df["cost_price"].isna() | df["msrp"].isna()
+
+    # Rows with no usable cost price are quarantined rather than discarded, so
+    # the gap is reviewable instead of vanishing into a log line.
+    df, _, no_price_summary = no_price.split_frame(df, "dttire", "tires")
+    log.info(no_price.report(no_price_summary, "dttire", "tires").strip())
+
+    unparseable = df["msrp"].isna()
     if unparseable.any():
-        log.warning(f"Dropping {unparseable.sum()} row(s) with unparseable prices")
+        log.warning(f"Dropping {unparseable.sum()} row(s) with unparseable msrp")
         df = df[~unparseable].copy()
 
     # ── Normalise qty ──────────────────────────────────────────────────────────
@@ -419,11 +432,10 @@ def _clean_wheels():
     df["cost_price"] = df["cost_price"].apply(parse_price)
     df["msrp"]       = df["msrp"].apply(parse_price)
 
-    # Drop rows with missing or zero cost_price
-    bad_price = df["cost_price"].isna() | (df["cost_price"] == 0)
-    if bad_price.any():
-        log.warning(f"Dropping {bad_price.sum()} row(s) with missing/zero cost_price")
-        df = df[~bad_price].copy()
+    # Rows with no usable cost price are quarantined rather than discarded, so
+    # the gap is reviewable instead of vanishing into a log line.
+    df, _, no_price_summary = no_price.split_frame(df, "dttire", "wheels")
+    log.info(no_price.report(no_price_summary, "dttire", "wheels").strip())
 
     # ── Normalise qty ──────────────────────────────────────────────────────────
     df["qty_total"] = pd.to_numeric(df["qty_total"], errors="coerce").fillna(0)
