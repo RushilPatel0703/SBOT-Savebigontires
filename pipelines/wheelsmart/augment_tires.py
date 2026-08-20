@@ -34,7 +34,7 @@ from config import markup_for
 STALE_INPUT_WARN_HOURS = 24
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
-from size_parser import parse_tire_size
+from size_parser import parse_tire_size, default_passenger_load_range
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -669,7 +669,8 @@ def main():
     df["_designation"]  = df["description"].apply(extract_designation)
     df["_speed_rating"] = df["description"].apply(extract_speed_rating)
     df["_load_range"]   = df.apply(
-        lambda r: extract_load_range(r["_size"], r["description"]), axis=1
+        lambda r: extract_load_range(r["_size"], r["description"])
+                  or default_passenger_load_range(r["_size"]), axis=1
     )
 
     # ── Step 4: build output DataFrame ───────────────────────────────────────

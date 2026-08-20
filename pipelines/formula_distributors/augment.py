@@ -14,7 +14,7 @@ from datetime import datetime
 from config import markup_for
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
-from size_parser import parse_tire_size, parse_load_speed
+from size_parser import parse_tire_size, parse_load_speed, default_passenger_load_range
 
 MARKUP = markup_for("formula")
 
@@ -313,7 +313,9 @@ def main():
                    f"Check clean.py's output for this run before re-running augment.")
         sys.exit(1)
 
-    df["load_range"]    = df.apply(lambda r: extract_load_range(r["size"], r.get("description", "")), axis=1)
+    df["load_range"]    = df.apply(
+        lambda r: extract_load_range(r["size"], r.get("description", ""))
+                  or default_passenger_load_range(r["size"]), axis=1)
     df["size"]          = df["size"].apply(strip_load_range)
     df["size"]          = df["size"].apply(normalize_size)
     df["size"]          = df["size"].str.replace('x', 'X', regex=False)

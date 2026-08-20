@@ -19,7 +19,8 @@ from datetime import datetime
 from config import markup_for
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
-from size_parser import parse_tire_size, parse_load_speed, coerce_load_index
+from size_parser import (parse_tire_size, parse_load_speed, coerce_load_index,
+                         default_passenger_load_range)
 
 MARKUP = markup_for("emerge")
 
@@ -363,7 +364,8 @@ def main():
         indicator = str(r.get("spec_loadindicator", "")).strip().upper()
         if indicator in ("XL", "SL"):
             return indicator
-        return extract_load_range(r["size"], r.get("description", ""))
+        return (extract_load_range(r["size"], r.get("description", ""))
+                or default_passenger_load_range(r["size"]))
 
     df["load_range"] = df.apply(_resolve_load_range, axis=1)
 

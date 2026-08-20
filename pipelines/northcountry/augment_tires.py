@@ -16,7 +16,8 @@ from datetime import datetime
 from config import markup_for
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
-from size_parser import parse_tire_size, parse_load_speed, coerce_load_index
+from size_parser import (parse_tire_size, parse_load_speed, coerce_load_index,
+                         default_passenger_load_range)
 from dedupe import dedupe_titles
 
 MARKUP = markup_for("northcountry")
@@ -302,10 +303,13 @@ def main():
     _brand_recovered = int((_brand_was_blank & (df["brand"].str.strip() != "")).sum())
     print(f"Brand backfilled from manufacturer_code: {_brand_recovered} / {int(_brand_was_blank.sum())} previously-blank rows")
 
-    # load_range: prefer spec_loadrange, fall back to regex
+    # load_range: prefer spec_loadrange, fall back to regex, then to SL for a
+    # passenger size. NC's feed marks only the XL side, so an empty cell on a
+    # passenger tire is the standard rating rather than a missing one.
     df["load_range"] = df.apply(
         lambda r: str(r.get("spec_loadrange", "")).strip()
-                  or extract_load_range(r["size"], r.get("description", "")),
+                  or extract_load_range(r["size"], r.get("description", ""))
+                  or default_passenger_load_range(r["size"]),
         axis=1,
     )
 

@@ -315,6 +315,68 @@ def test_coerce_load_index_takes_the_first_source_that_answers():
     assert coerce_load_index("0.0000", "no index here", "107Y XL") == "107"
 
 
+# ── The load-range default ────────────────────────────────────────────────────
+
+PASSENGER_SIZES = [
+    "245/60R18",    # plain metric
+    "P225/65R17",   # P-metric
+    "205/55ZR16",   # Z speed symbol ahead of the construction letter
+    "285/45RF21",   # run-flat
+    "185-65-15",    # Formula's dashed notation, before normalize_size runs
+    "  245/60R18 ",
+]
+
+# Rated by letter load range (C/D/E/…). A missing letter on one of these is
+# genuinely unknown, and guessing it would misstate load capacity.
+NON_PASSENGER_SIZES = [
+    "LT265/70R17",  # light truck
+    "LT225-75-16",  # light truck, dashed
+    "ST175/80R13",  # special trailer
+    "195/75R16C",   # commercial van — C maps to load range C *or* D
+    "33X12.50R20",  # flotation
+    "28X10R14",     # ATV
+    "11R24.5",      # no-ratio truck
+    "",
+]
+
+
+def test_passenger_sizes_default_to_standard_load():
+    """A passenger tire carries either SL or XL. Suppliers mark XL because it
+    is the exception and leave SL blank because it is the default — so a blank
+    on a passenger size IS the standard rating, not a missing one."""
+    from size_parser import default_passenger_load_range
+
+    for size in PASSENGER_SIZES:
+        assert default_passenger_load_range(size) == "SL", size
+
+
+def test_non_passenger_sizes_are_left_blank():
+    from size_parser import default_passenger_load_range
+
+    for size in NON_PASSENGER_SIZES:
+        assert default_passenger_load_range(size) == "", size
+
+
+def test_load_range_default_never_overrides_a_real_value():
+    """It is a default, applied last. Every caller must reach it only after the
+    spec column and the description parse have both come up empty."""
+    import re
+
+    for path, call in [
+        ("northcountry/augment_tires.py", 'default_passenger_load_range(r["size"])'),
+        ("emergetires/augment_tires.py",  'default_passenger_load_range(r["size"])'),
+        ("formula_distributors/augment.py", 'default_passenger_load_range(r["size"])'),
+        ("wheelsmart/augment_tires.py",   'default_passenger_load_range(r["_size"])'),
+    ]:
+        src = (_PIPELINES_DIR / path).read_text(encoding="utf-8")
+        assert call in src, f"{path} does not apply the default at all"
+        # It must sit on the right-hand side of an `or`, never on its own.
+        for line in src.splitlines():
+            if call in line:
+                assert "or " in line, f"{path}: default is not guarded by `or`: {line.strip()}"
+                break
+
+
 def test_run_live_never_queues_a_report_only_candidate(monkeypatch):
     """The same rule, enforced in the engine rather than the report."""
     import enrichment as E

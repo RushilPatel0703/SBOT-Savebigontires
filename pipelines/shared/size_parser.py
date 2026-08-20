@@ -206,6 +206,51 @@ def coerce_load_index(spec_value, *fallback_texts):
     return ""
 
 
+# A plain passenger/euro-metric size: 245/60R18, P225/65R17, 285/45RF21
+# (RF = run-flat) and 205/55ZR16 (Z speed symbol ahead of the construction
+# letter — a performance passenger tire, not a truck one).
+#
+# Deliberately excludes:
+#   LT265/70R17   light-truck        — rated by letter load range (C/D/E/…)
+#   ST175/80R13   special trailer    — likewise
+#   33X12.50R20   flotation          — likewise
+#   195/75R16C    commercial van     — the trailing C is a construction type
+#                                      that maps to load range C *or* D
+#                                      depending on ply, so it is not safe to
+#                                      infer; load capacity is a safety spec.
+# A missing letter on any of those is genuinely unknown, and stays blank.
+_PASSENGER_METRIC = re.compile(
+    r'^\s*P?\d{3}/\d{2,3}[A-Z]{0,2}R[Ff]?\d{2}(?:\.\d+)?\s*$', re.IGNORECASE)
+
+# Formula's feed writes the same size as 185-65-15. normalize_size() converts
+# it, but not until after load range has already been resolved — so match the
+# dashed form here rather than depend on statement order inside one supplier's
+# augment script. The LT/ST exclusions hold either way (the ^P?\d{3} anchor
+# rejects a leading LT).
+_PASSENGER_DASHED = re.compile(r'^\s*P?\d{3}-\d{2,3}-\d{2}(?:\.\d+)?\s*$', re.IGNORECASE)
+
+
+def default_passenger_load_range(size):
+    """'SL' for a passenger tire with no load range marking, else ''.
+
+    Passenger tires carry exactly two load ratings: Standard Load and Extra
+    Load. Suppliers mark XL explicitly because it is the exception, and leave
+    the cell empty for SL because it is the default — so an empty cell on a
+    passenger size is not missing information, it *is* the standard rating.
+
+    dttire's feed states it outright (3,317 rows arrive already marked "SL"),
+    which is how the convention was confirmed rather than assumed. North
+    Country, Emerge and Formula supply only the XL side, leaving 3,247
+    standard-load passenger tires blank on the storefront while an identical
+    tire from dttire correctly reads "SL".
+
+    Callers must apply this LAST, after every real source of a load range has
+    come up empty — it is a default, not a parse.
+    """
+    s = str(size or "")
+    return "SL" if (_PASSENGER_METRIC.match(s) or _PASSENGER_DASHED.match(s)) else ""
+
+
 def parse_wheel_size(size_str):
     """Parse size string → (diameter: int, width: float|None). Returns (None, None) on failure.
 
