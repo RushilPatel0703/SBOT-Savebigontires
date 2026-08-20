@@ -52,6 +52,7 @@ Usage:
     python enrichment.py --live --budget 200             # LIVE — requires explicit human approval
 """
 import argparse
+import collections
 import glob
 import json
 import os
@@ -106,10 +107,12 @@ SOURCES = [
     dict(supplier="northcountry", type="tires", field="image",
          glob="pipelines/northcountry/Data/cleaned/cleaned_tires_*.csv",
          brand_col="brand", model_col="model", size_col="size", extra_col=None,
+         mfr_col="manufacturer_code", desc_col="description",
          value_col="image_url", writable=True),
     dict(supplier="northcountry", type="wheels", field="image",
          glob="pipelines/northcountry/Data/cleaned/cleaned_wheels_*.csv",
          brand_col="brand", model_col="model", size_col="size", extra_col=None,
+         mfr_col="manufacturer_code", desc_col="description",
          value_col="image_url", writable=True),
     dict(supplier="formula_distributors", type="tires", field="image",
          glob="pipelines/formula_distributors/Data/cleaned/cleaned_tires_*.csv",
@@ -129,6 +132,7 @@ SOURCES = [
     dict(supplier="emergetires", type="tires", field="image",
          glob="pipelines/emergetires/Data/cleaned/cleaned_tires_*.csv",
          brand_col="brand", model_col="model", size_col="size", extra_col=None,
+         mfr_col="manufacturer_code", desc_col="description",
          value_col="image_url", writable=True),
     dict(supplier="wheelsmart", type="tires", field="image",
          glob="pipelines/wheelsmart/Data/raw/wheelmart_tires_*.csv",
@@ -137,6 +141,9 @@ SOURCES = [
     dict(supplier="wheelsmart", type="rims", field="image",
          glob="pipelines/wheelsmart/Data/raw/wheelmart_rims_*.csv",
          brand_col=None, model_col="name", size_col="diameter", extra_col="description",
+         # model_col "name" holds a SKU, not a name, so the description is what
+         # actually identifies the wheel ("FORGIATO STYLE GLOSS BLACK").
+         desc_col="description",
          value_col="image", writable=True, qty_filter="wheelsmart_rims"),
 
     # ---- designation, wheelsmart: extract_designation() in
@@ -215,15 +222,119 @@ def migrate_formula_cache():
     return migrated, already
 
 
-def build_query(field, brand, model, size, extra=""):
-    base = " ".join(filter(None, [str(brand or "").strip(), str(model or "").strip(), str(size or "").strip()]))
-    if not str(brand or "").strip() and not str(model or "").strip() and extra:
-        base = f"{base} {str(extra).strip()}".strip()
+def _scrub(text):
+    """Drop replacement/control characters and collapse whitespace.
+
+    Supplier descriptions arrive with mojibake from the source encoding - e.g.
+    "SPORT HP AS\ufffd". Passing U+FFFD to the search engine is noise at best;
+    at worst it splits the model name.
+    """
+    cleaned = "".join(
+        ch for ch in str(text or "")
+        if ch == " " or (ch.isprintable() and ch != "\ufffd")
+    )
+    return " ".join(cleaned.split())
+
+
+def build_query(field, brand, model, size, extra="", product_type="tires"):
+    noun = "wheel" if str(product_type).lower() in ("wheels", "rims") else "tire"
+    base = " ".join(filter(None, [_scrub(brand), _scrub(model), _scrub(size)]))
+    if not _scrub(brand) and not _scrub(model) and extra:
+        base = f"{base} {_scrub(extra)}".strip()
     if field == "designation":
         return f"{base} tire".strip()
     if field == "image":
-        return f"{base} tire product photo".strip()
+        return f"{base} {noun} product photo".strip()
     raise ValueError(f"no query template for field {field!r}")
+
+
+# ---------------------------------------------------------------------------
+# Query field resolution.
+#
+# The cleaned/raw CSVs are the right thing to READ from - they are also where a
+# fix is written back so augment picks it up - but their `brand`/`model` columns
+# are not yet the human-readable values augment derives. On North Country in
+# particular brand is often blank while manufacturer_code holds the real make,
+# and `model` holds a compressed code rather than a name:
+#
+#     brand=""  model="RRRT"  manufacturer_code="PARAGON"
+#     description="RIDGERUNNER RT (Studdable #15) - 12PR 3PMS"
+#
+# Searching "RRRT 33X12.50R18" buys a photo of an unrelated tire - two of the
+# six images bought on 18 Aug are exactly that. Searching "Paragon RIDGERUNNER
+# RT 33X12.50R18" buys the right one. augment_tires.py already does this
+# backfill from manufacturer_code; these helpers apply the same resolution at
+# query-build time so the search matches what the storefront will show.
+# ---------------------------------------------------------------------------
+
+# A bare code like "RRRT", "TART", "K3204R", "RM7". No rule is perfect, but a
+# short all-caps alphanumeric token is never a model NAME.
+_CODE_LIKE = re.compile(r"^[A-Z0-9]{2,6}$")
+
+# A part number rather than a name: contains a colon/hash, or a short letter
+# cluster glued to three or more digits ("EVO-MRGW897", "FGC-241012042").
+_SKU_LIKE = re.compile(r"[:#]|[A-Za-z]{1,6}-?\d{3,}")
+
+# Spec tokens that lead wheel/tire descriptions: 24X10, ET42, 5X120, CB72.6.
+_SPEC_TOKEN = re.compile(
+    r"^(?:\d+(?:\.\d+)?X[\d.]+|ET-?\d+|CB[\d.]+|\d+PR|3PMS|M\+S)$", re.I)
+
+# Words that describe any wheel or tire and so identify nothing on their own.
+_GENERIC_WORDS = {
+    "wheel", "wheels", "tire", "tires", "rim", "rims", "style", "flow", "form",
+    "black", "gloss", "matte", "satin", "chrome", "silver", "bronze", "machine",
+    "machined", "face", "seat", "cone", "with", "and", "the", "season", "snow",
+    "winter", "summer", "radial", "load", "range", "inch", "new", "set",
+}
+
+
+def _meaningful_tokens(text):
+    """Alphabetic words >= 4 chars that could name a brand or model."""
+    return [t for t in re.findall(r"[A-Za-z]{4,}", str(text or ""))
+            if t.lower() not in _GENERIC_WORDS]
+
+
+def _clean_model_text(text):
+    """'RIDGERUNNER RT (Studdable #15) - 12PR 3PMS' -> 'RIDGERUNNER RT'."""
+    t = re.sub(r"\(.*?\)", " ", str(text or ""))
+    t = t.split(" - ")[0]
+    t = t.replace("...", " ")
+    keep = [tok for tok in t.split() if not _SPEC_TOKEN.match(tok)]
+    return " ".join(keep).strip()
+
+
+def _resolve_brand(row, brand_col, mfr_col):
+    """Brand column, falling back to manufacturer_code - the same fallback
+    augment_tires.py applies before writing the storefront title."""
+    brand = str(row.get(brand_col, "") or "").strip() if brand_col else ""
+    if brand:
+        return brand
+    if mfr_col:
+        mfr = str(row.get(mfr_col, "") or "").strip()
+        if mfr:
+            return mfr.title()
+    return ""
+
+
+def _resolve_model(row, model_col, desc_col):
+    """The model column when it holds a real name, the description when it
+    holds a code. A code buys the wrong photo, so descriptive text wins."""
+    model = str(row.get(model_col, "") or "").strip() if model_col else ""
+    desc = _clean_model_text(row.get(desc_col, "")) if desc_col else ""
+    if (model and _meaningful_tokens(model)
+            and not _CODE_LIKE.match(model) and not _SKU_LIKE.search(model)):
+        return model
+    return desc or model
+
+
+def _is_queryable(brand, model, extra):
+    """False when nothing in the row actually names the product.
+
+    Some rows carry only a SKU and a size. A search built from that returns an
+    arbitrary product, so it is money spent on a wrong picture. Skipping costs
+    nothing: the product ships without an image, which is the honest outcome.
+    """
+    return bool(_meaningful_tokens(f"{brand} {model}") or _meaningful_tokens(extra))
 
 
 # ---------------------------------------------------------------------------
@@ -290,6 +401,7 @@ def discover_candidates(field, supplier_filter=None):
     Read-only — opens the latest cleaned/raw CSV per source, never writes.
     """
     candidates = []
+    unqueryable = []
     for src in SOURCES:
         if src["field"] != field:
             continue
@@ -322,13 +434,18 @@ def discover_candidates(field, supplier_filter=None):
         brand_col = src["brand_col"]
         model_col = src["model_col"]
         extra_col = src["extra_col"]
+        mfr_col   = src.get("mfr_col")
+        desc_col  = src.get("desc_col")
         for idx in df.index[mask]:
             row = df.loc[idx]
-            brand = row.get(brand_col, "") if brand_col else ""
-            model = row.get(model_col, "") if model_col else ""
+            brand = _resolve_brand(row, brand_col, mfr_col)
+            model = _resolve_model(row, model_col, desc_col)
             size  = row.get(src["size_col"], "") if src["size_col"] else ""
             extra = row.get(extra_col, "") if extra_col else ""
-            query = build_query(field, brand, model, size, extra)
+            if not _is_queryable(brand, model, extra):
+                unqueryable.append((src["supplier"], src["type"]))
+                continue
+            query = build_query(field, brand, model, size, extra, src["type"])
             candidates.append(dict(
                 supplier=src["supplier"], type=src["type"], field=field,
                 row_index=idx, source_file=f, value_col=src["value_col"],
@@ -336,6 +453,12 @@ def discover_candidates(field, supplier_filter=None):
                 brand=brand, model=model, size=size, query=query,
                 cache_key=cache_key(field, brand, model, size),
             ))
+    if unqueryable:
+        counts = collections.Counter(unqueryable)
+        total = sum(counts.values())
+        detail = ", ".join(f"{sup}/{typ}={n}" for (sup, typ), n in sorted(counts.items()))
+        print(f"  Skipped {total} row(s) with nothing to search on (SKU/size only) "
+              f"— no search is bought for them: {detail}")
     return candidates
 
 
