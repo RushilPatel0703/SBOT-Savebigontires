@@ -625,6 +625,53 @@ def step3_section():
     m2.metric("Designations needing a search", des_need)
     m3.metric("Free fixes ready", free_now, help="Already paid for on an earlier run — applying them costs nothing.")
 
+    # ── Completeness of the nine spec fields the storefront shows ──────────
+    comp = scan.get("completeness", {})
+    if comp.get("tire_rows_scanned"):
+        totals   = comp.get("totals", {})
+        scanned  = comp["tire_rows_scanned"]
+        gaps = {f: n for f, n in totals.items() if n}
+        # Name the biggest gaps rather than counting how many fields have any.
+        # Seven of nine having a handful of blank rows is true but tells you
+        # nothing; "Load range 3,302" is the number worth acting on.
+        top = sorted(gaps.items(), key=lambda kv: -kv[1])[:3]
+        headline = ("Product spec fields — " + ", ".join(f"{f} {n:,}" for f, n in top)
+                    + (" and smaller gaps" if len(gaps) > len(top) else "")
+                    if gaps else f"Product spec fields — all {len(totals)} complete ✓")
+        with st.expander(headline):
+            st.caption(
+                f"Read back out of the finished Shopify CSVs ({scanned:,} tire rows) — the spec "
+                f"block a customer sees on the product page. Wheels and rims carry a different "
+                f"block (Wheel Diameter, Bolt Pattern, Offset…), so tire specs don't apply to "
+                f"them and they aren't counted here."
+            )
+            st.dataframe(
+                [{"Field": f,
+                  "Blank": totals.get(f, 0),
+                  "% of rows": f"{totals.get(f, 0) / scanned * 100:.1f}%" if scanned else "—",
+                  "Status": "✅ complete" if not totals.get(f, 0) else "⚠️ gaps"}
+                 for f in totals],
+                hide_index=True, use_container_width=True,
+            )
+            st.caption(
+                "Blank counts a value that is absent **or** a `0.0000` placeholder — on a "
+                "product page the placeholder reads as a real measurement."
+            )
+            per_file = [r for r in comp.get("rows", []) if r.get("kind") == "tires"]
+            if per_file:
+                st.markdown("**By file**")
+                st.dataframe(
+                    [dict(File=r["file"], Rows=r["total"],
+                          **{f: r["missing"].get(f, 0) for f in totals})
+                     for r in per_file],
+                    hide_index=True, use_container_width=True,
+                )
+            st.info(
+                "These nine fields are filled in by parsing the supplier feed — no paid search "
+                "is involved, so a gap here is either genuinely absent from the supplier's data "
+                "or a parsing gap worth reporting. The enrichment run above does **not** touch them."
+            )
+
     with st.expander("Breakdown by supplier"):
         for label, f in (("Image", img), ("Designation", des)):
             rows = f.get("rows", [])

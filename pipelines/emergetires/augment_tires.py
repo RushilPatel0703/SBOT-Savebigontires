@@ -19,7 +19,7 @@ from datetime import datetime
 from config import markup_for
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
-from size_parser import parse_tire_size, parse_load_speed
+from size_parser import parse_tire_size, parse_load_speed, coerce_load_index
 
 MARKUP = markup_for("emerge")
 
@@ -148,17 +148,6 @@ def get_designation(row) -> str:
 
 
 _VALID_RIM_DIAMETER = re.compile(r'^\d{1,2}(?:\.\d+)?$')
-
-
-def _coerce_load_index(spec_val: str, description: str) -> str:
-    """Return spec load index, skipping zero/empty values and falling back to description parse."""
-    val = str(spec_val or "").strip()
-    try:
-        if float(val) == 0:
-            val = ""
-    except ValueError:
-        pass
-    return val or parse_load_speed(str(description))[0]
 
 
 def _get_size_components(row) -> tuple:
@@ -389,7 +378,7 @@ def main():
 
     # load_index: spec_loadindex preferred; skip zero values (Costar sends "0.0000" when absent)
     df["_load_index"] = df.apply(
-        lambda r: _coerce_load_index(r.get("spec_loadindex", ""), r.get("description", "")),
+        lambda r: coerce_load_index(r.get("spec_loadindex", ""), r.get("description", "")),
         axis=1,
     )
 

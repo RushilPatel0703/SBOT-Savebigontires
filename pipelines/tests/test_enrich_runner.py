@@ -235,6 +235,86 @@ def test_scan_excludes_report_only_rows_from_the_approvable_total(quiet_io, monk
         assert f["missing"] == 14, "report-only rows should still be visible as a gap"
 
 
+# ── Spec-field completeness ───────────────────────────────────────────────────
+
+def test_zero_placeholder_counts_as_blank():
+    """Costar writes an unknown numeric spec as "0.0000". On a product page
+    that reads as a real measurement, so it is a gap, not a value."""
+    for placeholder in ("", "  ", "0", "0.0", "0.0000", "00", "Unknown", "nan", "N/A"):
+        assert R._blank_spec(placeholder), f"{placeholder!r} should count as blank"
+    for real in ("70", "95", "107.5", "XL", "D", "All-Season"):
+        assert not R._blank_spec(real), f"{real!r} should count as present"
+
+
+def test_completeness_reads_the_finished_shopify_csv(quiet_io):
+    """The spec block is built in augment*.py, downstream of every stage
+    gap_report.py measures — so it has to be read back out of the output."""
+    comp = R.field_completeness()
+    if not comp["tire_rows_scanned"]:
+        pytest.skip("no Shopify CSVs on disk")
+
+    assert set(comp["totals"]) == set(R.SPEC_FIELDS)
+    assert all(v >= 0 for v in comp["totals"].values())
+    # Wheel files must not be scored against tire fields they never carry.
+    for row in comp["rows"]:
+        if row["kind"] == "wheels":
+            assert row["missing"] == {}, "a wheel file was scored on tire specs"
+
+
+def test_wheel_files_are_classified_by_content_not_filename(quiet_io):
+    """'wheelsmart_tires' contains the word 'wheel' but is a tire file. A
+    filename check silently drops 328 real tire rows from the count."""
+    comp = R.field_completeness()
+    if not comp["tire_rows_scanned"]:
+        pytest.skip("no Shopify CSVs on disk")
+
+    names = {r["file"]: r["kind"] for r in comp["rows"]}
+    for name, kind in names.items():
+        if "wheelsmart_tires" in name:
+            assert kind == "tires", f"{name} misclassified as {kind}"
+
+
+# ── The load-index fix ────────────────────────────────────────────────────────
+
+def test_coerce_load_index_skips_the_zero_placeholder():
+    """The bug this replaced: `str("0.0000").strip() or parse(...)` keeps the
+    placeholder, because a non-empty string is truthy."""
+    sys.path.insert(0, str(_PIPELINES_DIR / "shared"))
+    from size_parser import coerce_load_index
+
+    assert "0.0000".strip(), "precondition: the placeholder is truthy"
+    assert coerce_load_index("0.0000", "Trail Blade X/T SxS - 70N 8PR") == "70"
+    assert coerce_load_index("0", "98W XL") == "98"
+    assert coerce_load_index("", "107Y XL") == "107"
+
+
+def test_coerce_load_index_prefers_a_real_spec_value():
+    from size_parser import coerce_load_index
+    assert coerce_load_index("103", "should be ignored 88T") == "103"
+
+
+def test_coerce_load_index_normalises_the_display_form():
+    """A storefront should say 95, not 95.0000."""
+    from size_parser import coerce_load_index, tidy_load_index
+    assert coerce_load_index("95.0000", "") == "95"
+    assert tidy_load_index("107.5") == "107.5"
+    assert tidy_load_index("abc") == "abc"
+
+
+def test_coerce_load_index_invents_nothing():
+    """No index in the spec and none in the text means blank — an honest gap
+    beats a number nobody can source."""
+    from size_parser import coerce_load_index
+    assert coerce_load_index("0.0000", "K3204R KLEVER XT - 8PR") == ""
+    assert coerce_load_index("", "") == ""
+    assert coerce_load_index("", "Roadian ATX - 6PR") == ""
+
+
+def test_coerce_load_index_takes_the_first_source_that_answers():
+    from size_parser import coerce_load_index
+    assert coerce_load_index("0.0000", "no index here", "107Y XL") == "107"
+
+
 def test_run_live_never_queues_a_report_only_candidate(monkeypatch):
     """The same rule, enforced in the engine rather than the report."""
     import enrichment as E

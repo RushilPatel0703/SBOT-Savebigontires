@@ -6,7 +6,9 @@ Union of every per-supplier parser (see SIZE_PARSER_SPEC.md for the audit):
 - wheel parser is the NC/emergetires multi-format version (superset of formula's)
 
 Supplier-specific quirks stay in their pipelines: wheelsmart decode_size,
-emergetires spec-column preference/_coerce_load_index.
+emergetires spec-column preference. coerce_load_index() started as one of
+those (emergetires' _coerce_load_index) and moved here once it turned out
+every Costar-backed supplier needed the same zero-placeholder guard.
 """
 import re
 
@@ -158,6 +160,50 @@ def parse_load_speed(description):
     if m:
         return m.group(1), m.group(2)
     return "", ""
+
+
+_ZERO_PLACEHOLDER = re.compile(r'^0+(?:\.0+)?$')
+
+
+def tidy_load_index(value):
+    """'95.0000' -> '95'. Anything non-numeric is returned unchanged."""
+    s = str(value or "").strip()
+    try:
+        f = float(s)
+    except (TypeError, ValueError):
+        return s
+    return str(int(f)) if f == int(f) else str(f)
+
+
+def coerce_load_index(spec_value, *fallback_texts):
+    """Return a usable load index: the spec column if it holds one, else the
+    first fallback text that parses.
+
+    Two things make the obvious `str(spec).strip() or parse_load_speed(d)[0]`
+    wrong on real supplier data, and both were shipping to the storefront:
+
+    * Costar records an UNKNOWN numeric spec as "0.0000" rather than leaving
+      the cell blank. That string is truthy, so the `or` fallback never runs
+      and the placeholder ships — 2,433 North Country rows read
+      "Load index: 0.0000" while the real index sat in their own description
+      ("Trail Blade X/T SxS - 70N 8PR").
+    * Genuine values arrive as "95.0000" too, and a product page should say 95.
+
+    Suppliers keep the load index in different places, so pass whichever texts
+    that supplier has (description, service description, ...); the first that
+    yields an index wins. Returns "" when none do — an honest blank rather
+    than a number nobody can source.
+    """
+    val = str(spec_value or "").strip()
+    if _ZERO_PLACEHOLDER.match(val):
+        val = ""
+    if val:
+        return tidy_load_index(val)
+    for text in fallback_texts:
+        parsed = parse_load_speed(str(text))[0]
+        if parsed:
+            return tidy_load_index(parsed)
+    return ""
 
 
 def parse_wheel_size(size_str):

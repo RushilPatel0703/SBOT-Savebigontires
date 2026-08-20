@@ -15,7 +15,7 @@ from datetime import datetime
 from config import find_latest, get_logger, markup_for
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
-from size_parser import parse_tire_size
+from size_parser import parse_tire_size, coerce_load_index
 from dedupe import dedupe_titles
 
 MARKUP = markup_for("dttire")
@@ -85,7 +85,10 @@ def build_body_html(row):
     model        = str(row.get("model",        "")).strip()
     size         = str(row.get("size",         "")).strip()
     designation  = str(row.get("designation",  "")).strip()
-    load_index   = str(row.get("load_index",   "")).strip()
+    # service_desc carries the full service description ("107Y XL"), so it
+    # answers a blank load_index column — the same source parse_tire_size
+    # already falls back to below.
+    load_index   = coerce_load_index(row.get("load_index", ""), row.get("service_desc", ""))
     speed_rating = str(row.get("speed_rating", "")).strip()
     load_range   = str(row.get("load_range",   "")).strip()
 

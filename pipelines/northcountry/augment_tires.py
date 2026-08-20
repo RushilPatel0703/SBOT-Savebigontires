@@ -16,7 +16,7 @@ from datetime import datetime
 from config import markup_for
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
-from size_parser import parse_tire_size, parse_load_speed
+from size_parser import parse_tire_size, parse_load_speed, coerce_load_index
 from dedupe import dedupe_titles
 
 MARKUP = markup_for("northcountry")
@@ -318,10 +318,11 @@ def main():
         lambda r: pd.Series(_get_size_components(r)), axis=1
     )
 
-    # load_index: prefer spec_loadindex, fall back to description regex
+    # load_index: prefer spec_loadindex, fall back to description regex.
+    # Costar writes an unknown index as "0.0000", which a plain `or` treats as
+    # a real value — see coerce_load_index() for what that shipped.
     df["_load_index"] = df.apply(
-        lambda r: str(r.get("spec_loadindex", "")).strip()
-                  or parse_load_speed(str(r.get("description", "")))[0],
+        lambda r: coerce_load_index(r.get("spec_loadindex", ""), r.get("description", "")),
         axis=1,
     )
 

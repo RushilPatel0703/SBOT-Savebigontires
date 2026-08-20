@@ -40,8 +40,10 @@ Usage:
     python enrich_runner.py --run --image-budget 412 --designation-budget 0
 """
 import argparse
+import glob
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime
@@ -77,6 +79,94 @@ AUGMENT_STEPS = {
     ("dttire",               "tires"):  "augment_tires",
     ("dttire",               "wheels"): "augment_wheels",
 }
+
+
+# The nine spec fields a customer actually sees, as labelled in each product's
+# description block. They are counted by reading them back OUT of the finished
+# Shopify CSV rather than out of the cleaned files, because that block is built
+# in augment*.py — downstream of every stage monitoring/gap_report.py measures.
+# A field can look fully resolved at the cleaned stage and still ship blank.
+SPEC_FIELDS = [
+    "Brand", "Style", "Section width", "Aspect ratio", "Rim diameter",
+    "Load index", "Speed rating", "Load range", "Designation",
+]
+
+_SPEC_RE  = {f: re.compile(r"<br>" + re.escape(f) + r":\s*(.*?)<br>") for f in SPEC_FIELDS}
+_ZERO_ISH = re.compile(r"^0+(?:\.0+)?$")
+
+
+def _blank_spec(value):
+    """A spec that ships as nothing useful.
+
+    "0.0000" counts as blank: Costar writes it for an unknown numeric spec,
+    and on a product page it reads as a real measurement rather than as the
+    missing value it is.
+    """
+    s = str(value).strip()
+    return (not s
+            or s.lower() in ("unknown", "nan", "none", "n/a")
+            or bool(_ZERO_ISH.match(s)))
+
+
+def _latest_shopify_files():
+    """Newest Shopify_SEO CSV per supplier per product type — the exact files
+    'Prepare Upload Files' would bundle."""
+    stamped = re.compile(r"_\d{8}_\d{6}\.csv$")
+    found = {}
+    for supplier in sorted({sup for sup, _ in AUGMENT_STEPS}):
+        pattern = os.path.join(PIPELINES_DIR, supplier, "Data", "shopify", "Shopify_SEO_*.csv")
+        groups = {}
+        for f in glob.glob(pattern):
+            groups.setdefault(stamped.sub("", os.path.basename(f)), []).append(f)
+        for name, files in groups.items():
+            found[(supplier, name)] = max(files, key=os.path.getmtime)
+    return found
+
+
+def field_completeness():
+    """Count blank spec fields in the finished Shopify CSVs, per file.
+
+    Wheel and rim files carry a different block entirely (Wheel Diameter, Bolt
+    Pattern, Offset, Centre Bore, Finish), so tire specs are genuinely not
+    applicable there. Those files are reported as such instead of being scored
+    against fields they were never meant to have — counting them as "missing"
+    would invent ~1,200 gaps that do not exist.
+    """
+    import pandas as pd
+
+    rows = []
+    for (supplier, name), path in sorted(_latest_shopify_files().items()):
+        try:
+            df = pd.read_csv(path, dtype=str, low_memory=False, encoding="utf-8-sig").fillna("")
+        except Exception as exc:
+            print(f"  WARNING: could not read {os.path.basename(path)}: {exc}")
+            continue
+        if "Body (HTML)" not in df.columns or df.empty:
+            continue
+        body = df["Body (HTML)"].astype(str)
+
+        # One probe decides the block type — a tire block always labels a
+        # section width, a wheel block never does.
+        if not body.head(50).str.contains("Section width:", regex=False).any():
+            rows.append(dict(supplier=supplier, file=os.path.basename(path), kind="wheels",
+                             total=len(df), missing={}))
+            continue
+
+        missing = {}
+        for field in SPEC_FIELDS:
+            values = body.str.extract(_SPEC_RE[field], expand=False).fillna("")
+            missing[field] = int(values.apply(_blank_spec).sum())
+        rows.append(dict(supplier=supplier, file=os.path.basename(path), kind="tires",
+                         total=len(df), missing=missing))
+
+    tire_rows = [r for r in rows if r["kind"] == "tires"]
+    totals = {f: sum(r["missing"][f] for r in tire_rows) for f in SPEC_FIELDS}
+    return dict(
+        rows=rows,
+        totals=totals,
+        tire_rows_scanned=sum(r["total"] for r in tire_rows),
+        generated=datetime.now().isoformat(timespec="seconds"),
+    )
 
 
 def _write_json(path, payload):
@@ -143,6 +233,7 @@ def scan():
     payload = dict(
         generated=datetime.now().isoformat(timespec="seconds"),
         kill_switch=os.path.exists(E.KILL_SWITCH),
+        completeness=field_completeness(),
         fields=fields,
         total_needs_paid=sum(f["needs_paid"] for f in fields.values()),
         total_cache_hit=sum(f["cache_hit"] for f in fields.values()),
@@ -161,6 +252,14 @@ def scan():
               + (f"  (+{f['report_only']} report-only, never bought)" if f["report_only"] else ""))
     print(f"\nTotal needing approval: {payload['total_needs_paid']} search(es)")
     print(f"Free fixes ready to apply: {payload['total_cache_hit']} row(s)")
+
+    comp = payload["completeness"]
+    if comp["tire_rows_scanned"]:
+        print(f"\nSpec-block completeness across {comp['tire_rows_scanned']} tire row(s) "
+              f"in the finished Shopify CSVs:")
+        for field in SPEC_FIELDS:
+            n = comp["totals"][field]
+            print(f"  {field:16s} {n:>6d} blank" + ("" if n else "   ok"))
     if payload["kill_switch"]:
         print(f"KILL SWITCH ACTIVE at {E.KILL_SWITCH} — live runs are blocked.")
     print(f"Scan written to: {SCAN_FILE}")

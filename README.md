@@ -117,6 +117,21 @@ Shopify CSVs in Step 4 carry the new images.
 To block paid searches entirely, create an empty file at
 `monitoring/SERP_KILL_SWITCH` — the run refuses to start while it exists.
 
+**Product spec fields.** The same panel reports completeness for the nine
+fields shown in each product's description block — Brand, Style, Section
+width, Aspect ratio, Rim diameter, Load index, Speed rating, Load range,
+Designation. These are filled in by parsing the supplier feed, never by a paid
+search, so the enrichment run above does not touch them; the panel is there so
+a parsing gap is visible instead of silently shipping.
+
+The counts are read back out of the finished `Shopify_SEO_*.csv` files, which
+is deliberate: that block is built in `augment*.py`, downstream of every stage
+`monitoring/gap_report.py` measures, so a field can look complete at the
+cleaned stage and still ship blank. Wheels and rims carry a different block
+(Wheel Diameter, Bolt Pattern, Offset, Centre Bore, Finish) and are not scored
+against tire specs. A blank count includes `0.0000` placeholders — on a product
+page those read as a real measurement rather than as the missing value they are.
+
 ### Step 4 — Upload New Products to Shopify (when needed)
 Merges every supplier's `Shopify_SEO_*.csv` into upload-ready files, split
 under Shopify's 15 MB import limit, in a dated folder under `upload_ready/`.
