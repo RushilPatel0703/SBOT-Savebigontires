@@ -1,0 +1,330 @@
+#!/usr/bin/env python3
+"""Dashboard-facing driver for the shared enrichment layer.
+
+pipelines/shared/enrichment.py is the engine: candidate discovery, the
+centralized cache, filter_image_candidates(), run_live(). This module is the
+thin operator-facing wrapper the Streamlit dashboard shells out to. It exists
+for two reasons the engine deliberately does not cover.
+
+1. The dashboard needs a MACHINE-READABLE count to put in front of someone
+   before they approve spend. enrichment.py's report() prints to stdout and
+   writes a markdown approval doc — both written for a human reading a
+   terminal. --scan writes .enrich_scan.json instead, and makes no network
+   call and no write to any CSV.
+
+2. A live search only fills the CACHE. Getting that result onto the storefront
+   takes two more moves: apply it into the cleaned/raw CSV, then re-run the
+   supplier's augment step so Data/shopify/Shopify_SEO_*.csv — the file
+   "Prepare Upload Files" actually bundles — is rebuilt from the fixed input.
+   Run by hand from a terminal, a person does those two steps themselves. From
+   a button, the whole chain has to happen or the click spends money and
+   changes nothing the client can see.
+
+Modes
+-----
+  --scan          Read-only. Counts what each field needs. No network, no writes.
+  --apply-only    Applies already-paid cache hits, then rebuilds whatever
+                  changed. No network.
+  --run           The only mode that can spend money. Needs an explicit
+                  per-field budget and hard-stops at it. Refuses to start if
+                  monitoring/SERP_KILL_SWITCH exists.
+
+Budgets are per field rather than one pooled number on purpose: sharing a pool
+lets the image queue (thousands of rows) swallow every search before the
+designation queue is reached, which is not what someone approving "200 image +
+5 designation" agreed to.
+
+Usage:
+    python enrich_runner.py --scan
+    python enrich_runner.py --apply-only
+    python enrich_runner.py --run --image-budget 412 --designation-budget 0
+"""
+import argparse
+import json
+import os
+import subprocess
+import sys
+from datetime import datetime
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+
+import enrichment as E  # noqa: E402  — needs the sys.path line above
+
+PIPELINES_DIR = os.path.dirname(HERE)
+SCAN_FILE     = os.path.join(PIPELINES_DIR, ".enrich_scan.json")
+RESULT_FILE   = os.path.join(PIPELINES_DIR, ".enrich_result.json")
+
+_UTF8_ENV = {**os.environ, "PYTHONUTF8": "1", "PYTHONUNBUFFERED": "1"}
+
+# The step that rebuilds Data/shopify/Shopify_SEO_*.csv from a given supplier's
+# cleaned/raw CSV — i.e. the step that has to run again once enrichment edits
+# that input. Mirrors the STEPS list in each supplier's run_pipeline.py; keyed
+# by (supplier, product type) so a fix to one product type never triggers an
+# augment for the other, which may have no scraped data at all this run.
+#
+# A rename on the run_pipeline.py side makes `--only <step>` exit 1 with
+# "Unknown step: ...", so a stale entry here fails loudly in the log rather
+# than quietly skipping the rebuild.
+AUGMENT_STEPS = {
+    ("formula_distributors", "tires"):  "augment",
+    ("formula_distributors", "wheels"): "augment_wheels",
+    ("northcountry",         "tires"):  "augment_tires",
+    ("northcountry",         "wheels"): "augment_wheels",
+    ("wheelsmart",           "tires"):  "augment_tires",
+    ("wheelsmart",           "rims"):   "augment_rims",
+    ("emergetires",          "tires"):  "augment_tires",
+    ("dttire",               "tires"):  "augment_tires",
+    ("dttire",               "wheels"): "augment_wheels",
+}
+
+
+def _write_json(path, payload):
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(payload, fh, indent=2)
+    os.replace(tmp, path)
+
+
+def _source_files():
+    """Latest input CSV per (supplier, type) — the same file enrichment reads
+    and writes, and the same one augment*.py will pick up afterwards."""
+    found = {}
+    for src in E.SOURCES:
+        f = E.latest(src["glob"])
+        if f:
+            found[(src["supplier"], src["type"])] = f
+    return found
+
+
+def _rel(path):
+    return os.path.relpath(path, E.ROOT).replace("\\", "/")
+
+
+# ---------------------------------------------------------------------------
+# --scan — read-only
+# ---------------------------------------------------------------------------
+
+def scan():
+    """Count what enrichment could still fix, and write it as JSON.
+
+    Zero network calls and zero writes to any CSV: every number comes from
+    reading the cleaned/raw files already on disk and comparing them against
+    the cache of results already paid for.
+    """
+    migrated, already = E.migrate_formula_cache()
+    if migrated:
+        print(f"Migrated {migrated} entr(ies) from formula's original cache "
+              f"into the centralized one ({already} already present).")
+
+    fields = {}
+    for field in E.SUPPORTED_FIELDS:
+        rows = []
+        for (supplier, ptype), r in sorted(E.per_source_breakdown(field).items()):
+            rows.append(dict(
+                supplier=supplier, type=ptype,
+                missing=r["missing"],
+                cache_fixed=r["cache_hit"],
+                needs_search=r["needs_paid"],
+                writable=r["writable"],
+            ))
+        # Rows from a report-only source have no column to write an answer
+        # into, so a search bought for them is money for a result that can
+        # never ship. They stay visible as a known gap but are excluded from
+        # anything anyone is asked to approve — run_live() skips them too.
+        fields[field] = dict(
+            rows=rows,
+            missing=sum(r["missing"] for r in rows),
+            cache_hit=sum(r["cache_fixed"] for r in rows),
+            needs_paid=sum(r["needs_search"] for r in rows if r["writable"]),
+            report_only=sum(r["needs_search"] for r in rows if not r["writable"]),
+        )
+
+    payload = dict(
+        generated=datetime.now().isoformat(timespec="seconds"),
+        kill_switch=os.path.exists(E.KILL_SWITCH),
+        fields=fields,
+        total_needs_paid=sum(f["needs_paid"] for f in fields.values()),
+        total_cache_hit=sum(f["cache_hit"] for f in fields.values()),
+        sources=[
+            dict(supplier=s, type=t, file=_rel(f),
+                 mtime=datetime.fromtimestamp(os.path.getmtime(f)).isoformat(timespec="seconds"))
+            for (s, t), f in sorted(_source_files().items())
+        ],
+    )
+    _write_json(SCAN_FILE, payload)
+
+    print("\n=== ENRICHMENT SCAN — no API calls, no files changed ===")
+    for field, f in fields.items():
+        print(f"[{field}] missing={f['missing']}  free-from-cache={f['cache_hit']}  "
+              f"needs-a-paid-search={f['needs_paid']}"
+              + (f"  (+{f['report_only']} report-only, never bought)" if f["report_only"] else ""))
+    print(f"\nTotal needing approval: {payload['total_needs_paid']} search(es)")
+    print(f"Free fixes ready to apply: {payload['total_cache_hit']} row(s)")
+    if payload["kill_switch"]:
+        print(f"KILL SWITCH ACTIVE at {E.KILL_SWITCH} — live runs are blocked.")
+    print(f"Scan written to: {SCAN_FILE}")
+    return payload
+
+
+# ---------------------------------------------------------------------------
+# Shared tail: land cached results in the CSVs, rebuild what changed
+# ---------------------------------------------------------------------------
+
+def _apply_and_rebuild(fields):
+    """Write cache hits into the cleaned/raw CSVs, then re-run augment for
+    exactly the (supplier, type) pairs whose file actually changed.
+
+    Rebuilding only what changed is not just a speed win: re-running augment
+    for a supplier whose wheels were never scraped this cycle fails on a
+    missing input, turning a successful enrichment into a failed run.
+    """
+    print("ENRICH PHASE: apply — writing cached results into the cleaned/raw CSVs")
+    stats = E.apply_cached(list(fields), None, write=True)
+    for field, s in stats.items():
+        print(f"  {field}: {s['cache_hits']} row(s) fixed from cache, "
+              f"{s['still_needs_paid']} still unsearched, "
+              f"{len(s['files_written'])} file(s) rewritten")
+
+    written = {os.path.abspath(p) for s in stats.values() for p in s["files_written"]}
+    targets = set()
+    for (supplier, ptype), f in _source_files().items():
+        if os.path.abspath(f) in written:
+            targets.add((supplier, ptype))
+
+    if not targets:
+        print("ENRICH PHASE: augment — skipped, no CSV changed. The Shopify CSVs "
+              "already match their inputs.")
+        return stats, []
+
+    failures = []
+    for supplier, ptype in sorted(targets):
+        step = AUGMENT_STEPS.get((supplier, ptype))
+        if step is None:
+            print(f"  WARNING: no augment step mapped for {supplier}/{ptype} — its "
+                  f"Shopify CSV was NOT rebuilt and will not carry the fix.")
+            failures.append(f"{supplier}/{ptype}: no augment step mapped")
+            continue
+        print(f"ENRICH PHASE: augment ({supplier} / {step})")
+        rc = subprocess.run(
+            [sys.executable, "run_pipeline.py", "--only", step],
+            cwd=os.path.join(PIPELINES_DIR, supplier), env=_UTF8_ENV,
+        ).returncode
+        if rc != 0:
+            print(f"  ERROR: {supplier} --only {step} exited {rc} — its Shopify CSV "
+                  f"does not carry the fix.")
+            failures.append(f"{supplier}/{step}: exit {rc}")
+    return stats, failures
+
+
+def _finish(mode, stats, failures, **extra):
+    result = dict(
+        mode=mode,
+        finished=datetime.now().isoformat(timespec="seconds"),
+        fields={f: {k: v for k, v in s.items() if k != "files_written"}
+                for f, s in stats.items()},
+        files_written=sorted({_rel(p) for s in stats.values() for p in s["files_written"]}),
+        failures=failures,
+        **extra,
+    )
+    _write_json(RESULT_FILE, result)
+
+    # Re-scan so the dashboard's counts reflect what just happened instead of
+    # still showing the pre-run numbers.
+    print("ENRICH PHASE: rescan")
+    scan()
+
+    if failures:
+        print(f"\nENRICH FINISHED WITH {len(failures)} PROBLEM(S): " + "; ".join(failures))
+        return 1
+    print("\nENRICH COMPLETE — run 'Prepare Upload Files' to bundle the refreshed CSVs.")
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# --apply-only — free, no network
+# ---------------------------------------------------------------------------
+
+def apply_only():
+    print("ENRICH START — applying results already paid for. No searches, no network calls.")
+    stats, failures = _apply_and_rebuild(list(E.SUPPORTED_FIELDS))
+    return _finish("apply-only", stats, failures, approved=0)
+
+
+# ---------------------------------------------------------------------------
+# --run — the only path that spends the client's money
+# ---------------------------------------------------------------------------
+
+def run(image_budget, designation_budget, verify_images=True, verify_depth=6):
+    if os.path.exists(E.KILL_SWITCH):
+        print(f"ABORT: kill switch present at {E.KILL_SWITCH}. Delete it to re-enable live runs.")
+        return 1
+
+    budgets = [("image", max(0, image_budget)), ("designation", max(0, designation_budget))]
+    approved = sum(b for _, b in budgets)
+    if approved <= 0:
+        print("ABORT: no budget approved — nothing to search for.")
+        return 1
+
+    print(f"ENRICH START — {approved} search(es) approved (image={budgets[0][1]}, "
+          f"designation={budgets[1][1]}) against the client's PAID SerpAPI key.")
+
+    searched = []
+    for field, budget in budgets:
+        if budget <= 0:
+            print(f"ENRICH PHASE: search ({field}) — skipped, 0 approved")
+            continue
+        print(f"ENRICH PHASE: search ({field}) — hard stop at {budget}")
+        searched.append(field)
+        try:
+            E.run_live([field], None, budget,
+                       verify_images=verify_images, verify_depth=verify_depth)
+        except SystemExit as exc:
+            # run_live() exits on a missing serpapi package or key. Every result
+            # is written to the cache the moment it comes back, so whatever was
+            # already bought is safe on disk — carry on to the apply phase and
+            # land it rather than stranding paid-for results in the cache.
+            print(f"  ERROR: live {field} search stopped early (exit {exc.code}). "
+                  f"Anything already bought is cached and will still be applied.")
+
+    # Apply only the fields that were actually searched. A run approved for
+    # images should not silently rewrite designation columns nobody asked
+    # about — that is what --apply-only is for.
+    stats, failures = _apply_and_rebuild(searched)
+    return _finish("run", stats, failures, approved=approved,
+                   image_budget=budgets[0][1], designation_budget=budgets[1][1])
+
+
+def main():
+    ap = argparse.ArgumentParser(
+        description="Dashboard driver for the shared enrichment layer.")
+    mode = ap.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--scan", action="store_true",
+                      help="Read-only count of what needs enriching. No network, no writes.")
+    mode.add_argument("--apply-only", action="store_true",
+                      help="Apply already-paid cache hits and rebuild. No network.")
+    mode.add_argument("--run", action="store_true",
+                      help="LIVE. Spends searches, then applies and rebuilds.")
+    ap.add_argument("--image-budget", type=int, default=0,
+                    help="Hard cap on image searches (--run only).")
+    ap.add_argument("--designation-budget", type=int, default=0,
+                    help="Hard cap on designation searches (--run only).")
+    ap.add_argument("--no-verify-images", dest="verify_images", action="store_false",
+                    help="Skip the pixel check on image results. Verification costs no "
+                         "SerpAPI credit, so the only reason to skip it is speed.")
+    ap.add_argument("--verify-depth", type=int, default=6,
+                    help="How far down the ranked list to look for an image that "
+                         "passes the pixel check (default 6).")
+    args = ap.parse_args()
+
+    if args.scan:
+        scan()
+        return 0
+    if args.apply_only:
+        return apply_only()
+    return run(args.image_budget, args.designation_budget,
+               args.verify_images, args.verify_depth)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

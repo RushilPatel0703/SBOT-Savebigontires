@@ -380,6 +380,9 @@ def sidebar_status():
     st.sidebar.divider()
     for key, cfg in PIPELINES.items():
         _line(cfg["label"], status.get(key, {}), is_running(key, status))
+    if status.get("enrich", {}).get("status") or is_running("enrich", status):
+        st.sidebar.divider()
+        _line("Enrichment", status.get("enrich", {}), is_running("enrich", status))
 
 sidebar_status()
 
@@ -523,8 +526,210 @@ def step2_section():
 step2_section()
 st.divider()
 
+# ─── Step 3: Data Enrichment ───────────────────────────────────────────────────
+st.header("Step 3 — Data Enrichment (optional)")
+st.caption(
+    "Fills in product images and tire designations that no supplier feed provides. "
+    "Fixes reused from searches already paid for are free; anything new costs a "
+    "search on the client's SerpAPI key and needs your approval below."
+)
+
+ENRICH_RUNNER    = "shared/enrich_runner.py"
+ENRICH_SCAN_FILE = BASE / ".enrich_scan.json"
+
+def load_enrich_scan() -> dict:
+    try:
+        return json.loads(ENRICH_SCAN_FILE.read_text(encoding="utf-8")) if ENRICH_SCAN_FILE.exists() else {}
+    except Exception:
+        return {}
+
+def _pipelines_signature(status: dict) -> str | None:
+    """A fingerprint of "all five suppliers finished successfully", or None.
+
+    The finish timestamps are part of it so that re-running any supplier
+    produces a new signature and re-triggers the scan — the counts are read off
+    those suppliers' CSVs, so a fresh pipeline run invalidates them.
+    """
+    stamps = []
+    for key in PIPELINES:
+        s = status.get(key, {})
+        if s.get("status") != "success":
+            return None
+        stamps.append(s.get("finished") or "")
+    return "|".join(stamps)
+
+@st.fragment(run_every=3)
+def step3_section():
+    status    = load_status()
+    scanning  = is_running("enrich_scan", status)
+    enriching = is_running("enrich", status)
+    busy      = scanning or enriching
+
+    # Auto-scan, once, as soon as every supplier is green. The scan is
+    # read-only and makes no API call, so firing it unprompted costs nothing.
+    # st.runtime.exists() keeps it to real browser sessions: the unit suite
+    # imports this module with a stubbed streamlit that executes fragment
+    # bodies directly, and an import should never spawn a subprocess.
+    sig = _pipelines_signature(status)
+    if sig and not busy and st.runtime.exists() \
+            and st.session_state.get("_enrich_scanned_for") != sig:
+        st.session_state["_enrich_scanned_for"] = sig
+        launch("enrich_scan", [sys.executable, ENRICH_RUNNER, "--scan"], BASE)
+        scanning = busy = True
+
+    done_count = sum(1 for k in PIPELINES if status.get(k, {}).get("status") == "success")
+    scan       = load_enrich_scan()
+
+    c1, c2 = st.columns([2, 5])
+    with c1:
+        if st.button("🔄  Recheck counts", disabled=busy, use_container_width=True, type="primary"):
+            st.session_state["_enrich_scanned_for"] = sig
+            launch("enrich_scan", [sys.executable, ENRICH_RUNNER, "--scan"], BASE)
+    with c2:
+        if scanning:
+            st.info("⏳ Counting what needs enrichment — free, no searches are made.")
+        elif done_count < len(PIPELINES):
+            st.caption(
+                f"{done_count} / {len(PIPELINES)} supplier pipelines complete. Counts appear "
+                f"automatically once all of them finish — or click Recheck for a partial count now."
+            )
+        elif scan:
+            st.caption(f"Counted {scan.get('generated', '')[:16].replace('T', ' ')} "
+                       f"from the newest CSV of each supplier.")
+
+    scan_s = status.get("enrich_scan", {})
+    if scan_s.get("status") == "failed":
+        st.error("The enrichment scan failed — nothing was spent. See the log for why.")
+        show_log(scan_s, label="View log — enrichment scan")
+
+    if not scan:
+        if not scanning:
+            st.caption("No counts yet — run Step 2, or click Recheck above.")
+        return
+
+    if scan.get("kill_switch"):
+        st.error(
+            "🛑 SERP kill switch is active (`monitoring/SERP_KILL_SWITCH`). Paid searches are "
+            "blocked until that file is deleted. Free cache fixes below still work."
+        )
+
+    fields   = scan.get("fields", {})
+    img      = fields.get("image", {})
+    des      = fields.get("designation", {})
+    img_need = img.get("needs_paid", 0)
+    des_need = des.get("needs_paid", 0)
+    free_now = scan.get("total_cache_hit", 0)
+
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Images needing a search", img_need)
+    m2.metric("Designations needing a search", des_need)
+    m3.metric("Free fixes ready", free_now, help="Already paid for on an earlier run — applying them costs nothing.")
+
+    with st.expander("Breakdown by supplier"):
+        for label, f in (("Image", img), ("Designation", des)):
+            rows = f.get("rows", [])
+            if not rows:
+                continue
+            st.markdown(f"**{label}**")
+            st.dataframe(
+                [{"Supplier": r["supplier"], "Type": r["type"], "Missing": r["missing"],
+                  "Free from cache": r["cache_fixed"], "Needs a search": r["needs_search"],
+                  "Can be written": "yes" if r["writable"] else "report-only"}
+                 for r in rows],
+                hide_index=True, use_container_width=True,
+            )
+            if f.get("report_only"):
+                st.caption(
+                    f"{f['report_only']} row(s) sit in a file with no column to store the answer, "
+                    f"so no search is ever bought for them. They are listed for honesty, not action."
+                )
+        st.caption(
+            '"Missing" counts only rows that would actually ship to Shopify — low-quantity rows '
+            "are already excluded, matching each supplier's own augment filter."
+        )
+
+    # ── Free path: apply what has already been paid for ────────────────────
+    if free_now:
+        st.info(
+            f"{free_now} row(s) can be filled in from results already paid for on an earlier "
+            f"run. Applying them makes no network call and costs nothing."
+        )
+        if st.button(f"♻️  Apply {free_now} free fix(es)", disabled=busy, type="primary"):
+            launch("enrich", [sys.executable, ENRICH_RUNNER, "--apply-only"], BASE)
+
+    # ── Paid path: explicit, budgeted, confirmed ───────────────────────────
+    if not (img_need or des_need):
+        st.success("Nothing needs a paid search — enrichment is up to date for this catalog.")
+    else:
+        st.warning(
+            "⚠️  Everything below spends real searches on the client's **paid** SerpAPI key. "
+            "Review the numbers, set a cap, and approve only what you mean to buy."
+        )
+        col_i, col_d = st.columns(2)
+        with col_i:
+            want_img = st.checkbox(
+                f"Images — {img_need} needed", value=bool(img_need),
+                disabled=not img_need or busy, key="enrich_want_image",
+            )
+            st.caption("The one field with no free alternative — no supplier feed and no "
+                       "amount of parsing produces a product photo.")
+            img_budget = st.number_input(
+                "Cap on image searches", min_value=0, max_value=max(img_need, 0),
+                value=img_need, step=1, disabled=not want_img or busy,
+                key="enrich_budget_image",
+            )
+        with col_d:
+            want_des = st.checkbox(
+                f"Designations — {des_need} needed", value=False,
+                disabled=not des_need or busy, key="enrich_want_designation",
+            )
+            st.caption("Historically 4 useful results out of 253 paid searches (1.6%) — these "
+                       "few rows are usually cheaper to fix by hand. Off by default.")
+            des_budget = st.number_input(
+                "Cap on designation searches", min_value=0, max_value=max(des_need, 0),
+                value=des_need, step=1, disabled=not want_des or busy,
+                key="enrich_budget_designation",
+            )
+
+        approve_img = int(img_budget) if want_img else 0
+        approve_des = int(des_budget) if want_des else 0
+        total       = approve_img + approve_des
+
+        st.markdown(f"**Total to approve: {total} search(es)** "
+                    f"({approve_img} image + {approve_des} designation)")
+
+        # Keyed on the scan timestamp so a fresh count always clears the box —
+        # a money button must never arrive pre-confirmed from a previous run.
+        typed = st.text_input(
+            f"Type ENRICH to approve {total} search(es)",
+            key=f"enrich_confirm_{scan.get('generated', '')}",
+            disabled=busy or total <= 0, placeholder="ENRICH",
+        )
+        confirmed = (typed or "").strip().upper() == "ENRICH" \
+            and total > 0 and not scan.get("kill_switch")
+
+        if st.button("🔍  Run Enrichment", disabled=busy or not confirmed, type="primary"):
+            launch("enrich", [sys.executable, ENRICH_RUNNER, "--run",
+                              "--image-budget", str(approve_img),
+                              "--designation-budget", str(approve_des)], BASE)
+        if not confirmed and total > 0 and not busy:
+            st.caption("The button unlocks once ENRICH is typed above.")
+
+    # ── Run status ─────────────────────────────────────────────────────────
+    enrich_s = status.get("enrich", {})
+    if enrich_s.get("status"):
+        st.write("")
+        status_badge(enrich_s, enriching)
+        if enrich_s.get("status") == "success" and not enriching:
+            st.caption("Enrichment applied and the affected Shopify CSVs were rebuilt — "
+                       "continue to Step 4 below.")
+        show_log(enrich_s, label="View log — enrichment", expanded=enriching)
+
+step3_section()
+st.divider()
+
 # ─── CSV Upload helper ─────────────────────────────────────────────────────────
-st.header("Step 3 — Upload New Products to Shopify (when needed)")
+st.header("Step 4 — Upload New Products to Shopify (when needed)")
 st.caption(
     "Only required when suppliers have new SKUs not yet in Shopify. "
     "For regular price/inventory syncs, no upload is needed."
@@ -571,6 +776,12 @@ with col_info:
     source_count = len(collect_source_csvs())
     if source_count:
         st.caption(f"{source_count} supplier CSV(s) found and ready to merge.")
+        # Bundling before enriching produces a valid upload that is simply
+        # missing images it could have had — worth a nudge, not a block.
+        _pending = load_enrich_scan().get("total_needs_paid", 0)
+        if _pending:
+            st.caption(f"⚠️  {_pending} row(s) could still be enriched in Step 3 above. "
+                       f"Bundling now ships them without an image.")
     else:
         st.caption("No supplier CSVs found yet — run Step 2 first.")
 
@@ -631,13 +842,14 @@ def reset_section():
             "click the button below to clear its stale status."
         )
         _reset_status = load_status()
-        _all_keys     = ["cookies"] + list(PIPELINES)
+        _all_keys     = ["cookies"] + list(PIPELINES) + ["enrich_scan", "enrich"]
+        _extra_labels = {"enrich_scan": "Enrichment scan", "enrich": "Enrichment"}
         stuck = [k for k in _all_keys if _reset_status.get(k, {}).get("status") == "running"
                  and not pid_alive(_reset_status[k].get("pid"))]
         if not stuck:
             st.success("All pipelines are in a clean state — nothing to reset.")
         for key in stuck:
-            label = PIPELINES[key]["label"] if key in PIPELINES else key.title()
+            label = PIPELINES[key]["label"] if key in PIPELINES else _extra_labels.get(key, key.title())
             if st.button(f"Clear '{label}' stuck state", key=f"reset_{key}", type="primary"):
                 _update_status(key, {"status": "failed", "pid": None})
                 st.rerun()

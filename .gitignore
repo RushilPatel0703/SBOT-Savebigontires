@@ -18,11 +18,18 @@ monitoring/
 pipelines/*/Data/**/*.csv
 pipelines/*/Data/**/*.log
 pipelines/*/logs/
+# run_all.py opens a log handler at import time, so even a test collection
+# creates this one — a directory up from the per-supplier logs/ above.
+pipelines/logs/
 pipelines/dashboard_logs/
 upload_ready/
 
-# Runtime state written by the dashboard on every run (pid/status/timestamps).
+# Runtime state written by the dashboard on every run (pid/status/timestamps),
+# plus the enrichment scan/result snapshots — all recomputed from the CSVs and
+# the cache on demand, so there is nothing here worth version-controlling.
 pipelines/.dashboard_status.json
+pipelines/.enrich_scan.json
+pipelines/.enrich_result.json
 
 # NOTE — intentionally still tracked:
 #   pipelines/*/Data/**/*.json

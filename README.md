@@ -67,7 +67,7 @@ If you need to update them, see the **Cookie Refresh** section below.
 
 A browser tab opens automatically at `http://localhost:8501`.
 
-The dashboard walks you through 3 steps:
+The dashboard walks you through 4 steps:
 
 ### Step 1 — Refresh Cookies
 Logs into all supplier portals and updates session credentials.
@@ -94,25 +94,50 @@ and only re-run the clean + augment steps.
 Pipelines run in the background — you can close the browser tab and they
 keep running as long as the terminal window stays open.
 
-### Step 3 — Sync to Shopify
-Pushes updated prices and inventory quantities to your Shopify store.
-Run after all supplier pipelines finish.
+### Step 3 — Data Enrichment (optional)
+Fills in product images and tire designations that no supplier feed provides.
 
-Use **"Dry run"** to preview inventory changes without writing to Shopify.
+Once all five pipelines finish, the dashboard automatically counts how many
+searches would be needed and shows the number **before** anything is spent.
+Nothing is bought until you review that count and approve it.
+
+- **Free fixes** reuse results already paid for on an earlier run. Applying
+  them makes no network call and costs nothing.
+- **Paid searches** run against the client's SerpAPI key. Set a cap per field,
+  type `ENRICH` to confirm, then click **Run Enrichment**. The run hard-stops
+  at your cap.
+- **Images** are the field worth buying — nothing free produces a photo.
+  **Designations** are off by default: historically only 4 of 253 paid searches
+  (1.6%) returned anything useful, so those few rows are cheaper to fix by hand.
+
+After searching, the run writes the results into the cleaned CSVs and
+automatically re-runs `augment` for whichever suppliers changed, so the
+Shopify CSVs in Step 4 carry the new images.
+
+To block paid searches entirely, create an empty file at
+`monitoring/SERP_KILL_SWITCH` — the run refuses to start while it exists.
+
+### Step 4 — Upload New Products to Shopify (when needed)
+Merges every supplier's `Shopify_SEO_*.csv` into upload-ready files, split
+under Shopify's 15 MB import limit, in a dated folder under `upload_ready/`.
+
+Only needed when suppliers have new SKUs that aren't in Shopify yet.
 
 ---
 
 ## Adding New Products to Shopify
 
-When a supplier has new products (SKUs that don't exist in Shopify yet), the sync
-alone won't create them. You need to:
+When a supplier has new products (SKUs that don't exist in Shopify yet), a
+price/inventory sync alone won't create them. You need to:
 
-1. After Step 2, go to **Shopify Admin → Products → Import**
-2. Upload the `Shopify_SEO_*.csv` files from each supplier's `Data/shopify/` folder
-3. Then run Step 3 (Sync)
+1. After Step 2 (and Step 3, if you want images filled in), click
+   **Prepare Upload Files** in Step 4
+2. Go to **Shopify Admin → Products → Import** and upload the generated
+   files from `upload_ready/`, in order
+3. Then run the price/inventory sync (`pipelines/merged/run_sync.py`)
 
 For regular bi-weekly syncs where no new products are being added,
-skip the import and go straight to Step 3.
+skip the import and go straight to the sync.
 
 ---
 
@@ -147,7 +172,8 @@ savebigontires_client/
 │   ├── dashboard.py           ← Streamlit UI
 │   ├── refresh_cookies.py     ← auto cookie refresh (all suppliers)
 │   ├── run_all.py             ← CLI: run everything at once
-│   ├── shared/                ← Shopify API helpers, SKU map builder
+│   ├── shared/                ← Shopify API helpers, SKU map builder,
+│   │                            enrichment layer (Step 3) + its cache
 │   ├── formula_distributors/  ← Formula pipeline
 │   ├── northcountry/          ← North Country pipeline
 │   ├── wheelsmart/            ← WheelMart Canada pipeline

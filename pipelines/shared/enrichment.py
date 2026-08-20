@@ -690,6 +690,8 @@ def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6
       3. Explicit --live flag (checked by caller before this is even called)
       4. Cache checked before every single candidate — a cache hit never
          counts against budget or fires a network call.
+      5. Report-only sources (writable=False) are never queued — their answer
+         would have no column to live in, so the search could not pay off.
 
     Image verification (verify_images=True): after ranking, each candidate is
     downloaded and inspected by image_view.pick_verified_image() until one
@@ -738,6 +740,7 @@ def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6
     spent = 0
     seen = set()
     verify_logs = {}
+    skipped_unwritable = 0
 
     for field in fields:
         cands = discover_candidates(field, supplier_filter)
@@ -745,6 +748,13 @@ def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6
             if spent >= budget:
                 print(f"Budget of {budget} reached — stopping mid-batch.")
                 return
+            if not c["writable"]:
+                # This source has no column the answer could be written into
+                # (SOURCES: writable=False), so buying the search pays for a
+                # result that can never reach Shopify. It stays counted in the
+                # report as a real gap — it just never gets queued for spend.
+                skipped_unwritable += 1
+                continue
             if c["cache_key"] in cache or c["cache_key"] in seen:
                 continue  # already paid for, or covered earlier in this same batch
             seen.add(c["cache_key"])
@@ -788,6 +798,10 @@ def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6
             save_cache(cache)
             spent += 1
             print(f"  [{spent}/{budget}] {field}: {c['query']!r} -> {value!r}")
+
+    if skipped_unwritable:
+        print(f"Skipped {skipped_unwritable} candidate(s) from report-only sources — "
+              f"no column exists to store the answer, so no search was bought for them.")
 
     if verify_logs:
         checked = sum(len(v) for v in verify_logs.values())

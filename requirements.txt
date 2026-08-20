@@ -7,3 +7,9 @@ google-search-results
 streamlit>=1.28
 psutil
 python-dotenv
+
+# Pixel-level checking of candidate product images (pipelines/shared/image_view.py).
+# Needed by Step 3's enrichment run — without them a live image search falls back
+# to trusting SerpAPI's metadata, which cannot tell a real photo from a placeholder.
+Pillow
+numpy

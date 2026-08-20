@@ -63,6 +63,7 @@ if "streamlit" not in sys.modules:
 
     _st.cache_data = lambda *a, **kw: (lambda f: f)
     _st.fragment   = _fragment_deco
+    _st.session_state = {}   # real dict — dashboard.py writes to it, _Noop can't
     _st.__getattr__ = lambda n: _noop   # type: ignore[assignment]
     for _a in ("set_page_config","title","header","caption","divider","button",
                "checkbox","columns","container","expander","progress","info",

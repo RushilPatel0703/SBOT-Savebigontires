@@ -67,6 +67,10 @@ def _make_st_stub():
     st.cache_data = lambda *a, **kw: (lambda f: f)
     st.fragment   = _fragment_decorator
 
+    # A real dict, not a _Noop: dashboard.py both reads and WRITES session state
+    # (e.g. the enrichment auto-scan guard), and _Noop has no __setitem__.
+    st.session_state = {}
+
     # Everything else: delegate to the noop absorber via __getattr__
     st.__getattr__ = lambda name: noop  # type: ignore[assignment]
 
