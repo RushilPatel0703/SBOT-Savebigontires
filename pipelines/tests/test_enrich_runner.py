@@ -805,3 +805,60 @@ def test_parse_load_speed_rejects_a_non_speed_letter():
     assert parse_load_speed("94I tire") == ("", "")
     assert parse_load_speed("94O tire") == ("", "")
     assert parse_load_speed("94X tire") == ("", "")
+
+
+# ── slugify: "+" must not collapse two different products onto one Handle ──────
+#
+# Found the same way as the load-speed bug: checking a real upload bundle
+# before it shipped. "BFGoodrich TRAIL-TERRAIN T/A" and the genuinely
+# different "T/A+" trim produced the identical Handle, because slugify's
+# `[^\w\s-]` strip deletes "+" with nothing to mark it ever having been
+# there. Shopify groups CSV rows into one product by Handle, so importing
+# these as-is would have merged two different listings — 11 such pairs (30
+# Handle collisions total, the rest a separate, unrelated near-duplicate-row
+# issue) existed in one real snapshot of this catalog.
+
+SLUGIFY_FILES = [
+    "dttire/augment_tires.py", "dttire/augment_wheels.py",
+    "emergetires/augment_tires.py", "emergetires/augment_wheels.py",
+    "formula_distributors/augment.py", "formula_distributors/augment_wheels.py",
+    "northcountry/augment_tires.py", "northcountry/augment_wheels.py",
+    "wheelsmart/augment_rims.py", "wheelsmart/augment_tires.py",
+]
+
+
+def _load_slugify(rel_path):
+    """slugify() is duplicated per (supplier, product type) rather than
+    shared — import each copy directly by path so a fix applied to one file
+    but not another is caught, instead of testing one copy and assuming the
+    rest match. Extracts just the function body rather than importing the
+    whole module, which would execute that supplier's module-level side
+    effects (logging setup, sys.path manipulation); `re` is injected
+    manually since it doesn't travel with a body-only extraction the way a
+    real module import would carry its file's other top-level imports."""
+    import re as _re
+    path = _PIPELINES_DIR / rel_path
+    src = path.read_text(encoding="utf-8")
+    func_src = src[src.index("def slugify"):]
+    func_src = func_src[:func_src.index("\n\n\n")]
+    ns = {"re": _re}
+    exec(compile(func_src, str(path), "exec"), ns)
+    return ns["slugify"]
+
+
+@pytest.mark.parametrize("rel_path", SLUGIFY_FILES)
+def test_slugify_distinguishes_a_plus_suffixed_trim(rel_path):
+    slugify = _load_slugify(rel_path)
+    base = slugify("BFGoodrich TRAIL-TERRAIN T/A - All terrain 245/70R17 114T XL")
+    plus = slugify("BFGoodrich TRAIL-TERRAIN T/A+ - All terrain 245/70R17 114T XL")
+    assert base != plus, f"{rel_path}: T/A and T/A+ still collide on one Handle"
+    assert "plus" in plus
+
+
+@pytest.mark.parametrize("rel_path", SLUGIFY_FILES)
+def test_slugify_still_produces_a_normal_handle(rel_path):
+    slugify = _load_slugify(rel_path)
+    # "plus" gets space-padded before the collapse step so it reads as its own
+    # word ("t-plus-h") rather than fusing into the next letter ("t-plush").
+    assert slugify("Michelin Defender T+H 245/60R18") == "michelin-defender-t-plus-h-24560r18"
+    assert slugify("  Extra   Spaces--and--dashes  ") == "extra-spaces-and-dashes"

@@ -433,6 +433,13 @@ def extract_speed_rating(description: str) -> str:
 
 def slugify(text: str) -> str:
     text = str(text).lower().strip()
+    # "+" carries real distinguishing meaning ("T/A" vs "T/A+" are different
+    # products) but is not \w, so the strip below used to delete it silently --
+    # both titles produced the identical Handle, and Shopify groups rows by
+    # Handle, so importing them as-is would collide two different listings.
+    text = text.replace("+", " plus ")  # spaces so the collapse step below
+                                        # inserts proper hyphen boundaries
+                                        # ("t-plus-h", not "t-plush")
     text = re.sub(r"[^\w\s-]", "", text)
     text = re.sub(r"[\s_]+", "-", text)
     text = re.sub(r"-+", "-", text)
