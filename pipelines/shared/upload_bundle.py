@@ -96,6 +96,46 @@ def _split_chunks(merged, limit_bytes):
     return header, chunks
 
 
+def _dedupe_handles(df):
+    """Guarantee Handle uniqueness across every supplier's rows.
+
+    Two catalog rows can describe genuinely different, separately-purchasable
+    products (distinct SKU, often distinct price) that still slugify to an
+    identical Handle - e.g. a "(Y)" vs "Y" speed-rating notation, a "P-ZERO"
+    vs "P ZERO" spacing variance in the model name, or a Nexen SKU variant
+    whose difference from its sibling isn't in the displayed text at all.
+    Shopify groups same-Handle rows into one product, so on an empty store
+    the second row of such a pair is silently dropped ("already exists")
+    instead of imported - the product it represents never reaches the store.
+    Disambiguating with a Variant SKU suffix keeps both as separate listings.
+    """
+    if "Handle" not in df.columns:
+        return df, 0
+    dupe_mask = df["Handle"].duplicated(keep=False)
+    if not dupe_mask.any():
+        return df, 0
+
+    used = set(df["Handle"])
+    seen = set()
+    fixed = 0
+    for idx in df.index[dupe_mask]:
+        handle = df.at[idx, "Handle"]
+        if handle not in seen:
+            seen.add(handle)
+            continue  # first occurrence keeps the original handle
+        sku = str(df.at[idx, "Variant SKU"]) if "Variant SKU" in df.columns else ""
+        suffix = re.sub(r"[^a-z0-9]", "", sku.lower())[-6:] or "dup"
+        new_handle = f"{handle}-{suffix}"
+        n = 1
+        while new_handle in used:
+            n += 1
+            new_handle = f"{handle}-{suffix}-{n}"
+        df.at[idx, "Handle"] = new_handle
+        used.add(new_handle)
+        fixed += 1
+    return df, fixed
+
+
 def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None):
     """Merge every supplier's latest CSV and split into Shopify-sized parts.
 
@@ -131,6 +171,11 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None):
     # leave NaN after concat, which csv.writer renders as the literal "nan" and
     # Shopify then rejects as an invalid price.
     merged = merged.fillna("")
+    merged, handle_fixes = _dedupe_handles(merged)
+    if handle_fixes:
+        print(f"  Disambiguated {handle_fixes} Handle collision(s) "
+              f"(same brand/size/spec text, different SKU) so Shopify "
+              f"doesn't drop them as duplicates")
 
     now = datetime.now()
     folder = f"{now.day} {now:%B %Y} {now:%H-%M-%S}"
@@ -150,7 +195,8 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None):
     # timestamp is the only clue to its contents, and that timestamp lies
     # whenever a source CSV is regenerated moments later.
     lines = [f"Bundle built {now:%Y-%m-%d %H:%M:%S}",
-             f"Total rows: {len(merged):,}", "", "Sources:"]
+             f"Total rows: {len(merged):,}",
+             f"Handle collisions disambiguated: {handle_fixes}", "", "Sources:"]
     lines += [f"  {m:%Y-%m-%d %H:%M}  {r:7,d}  {p.relative_to(REPO_ROOT)}"
               for p, r, m in manifest]
     lines += ["", "Parts:"]
