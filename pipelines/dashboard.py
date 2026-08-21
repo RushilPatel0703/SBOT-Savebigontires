@@ -624,14 +624,22 @@ def step3_section():
     spec_need = specs.get("needs_paid", 0)
     free_now  = scan.get("total_cache_hit", 0)
 
+    spec_dead_end = specs.get("dead_end", 0)
+
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Images needing a search", img_need)
     m2.metric("Designations needing a search", des_need)
     m3.metric("Specs needing a search", spec_need,
               help="Load index, speed rating, load range, section width, aspect ratio, "
                    "rim diameter — bundled because one search commonly answers several "
-                   "of these at once for the same row.")
+                   "of these at once for the same row."
+                   + (f" {spec_dead_end} more were already searched and came back with no "
+                      f"match — those are excluded here and won't be bought again."
+                      if spec_dead_end else ""))
     m4.metric("Free fixes ready", free_now, help="Already paid for on an earlier run — applying them costs nothing.")
+    if spec_dead_end:
+        st.caption(f"ℹ️  {spec_dead_end} spec gap(s) were already searched and no match was "
+                   f"found — running again will not re-buy those specific rows.")
 
     # ── Completeness of the nine spec fields the storefront shows ──────────
     comp = scan.get("completeness", {})
@@ -688,9 +696,11 @@ def step3_section():
             if not rows:
                 continue
             st.markdown(f"**{label}**")
+            has_dead_end = any(r.get("dead_end") for r in rows)
             st.dataframe(
                 [{"Supplier": r["supplier"], "Type": r["type"], "Missing": r["missing"],
                   "Free from cache": r["cache_fixed"], "Needs a search": r["needs_search"],
+                  **({"Already tried, no match": r.get("dead_end", 0)} if has_dead_end else {}),
                   "Can be written": "yes" if r["writable"] else "report-only"}
                  for r in rows],
                 hide_index=True, use_container_width=True,

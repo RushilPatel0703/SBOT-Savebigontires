@@ -754,10 +754,18 @@ def apply_spec_cache(supplier_filter=None, write=False):
     subfield is written into ITS OWN column (spec_cols, built by
     discover_spec_candidates from SPEC_SOURCES) rather than one value_col.
 
-    A candidate only counts as satisfied once every subfield it actually
-    needs is present in the cache entry — a row missing load_index AND
-    speed_rating with only load_index cached still needs a search for the
-    other half, so it is NOT counted as a completed cache_hit.
+    Three outcomes per candidate, not two — a plain "found vs not" split
+    would make "still_needs_paid" (what the dashboard tells someone to buy)
+    include rows that were already searched and came back empty, which
+    would have that same row bought again on every future run for no new
+    information:
+      cache_hits        every needed sub-field is present -> fully resolved
+      cache_hits_empty  every needed sub-field has been TRIED at least once
+                        (found or not) -> a dead end, nothing left to buy.
+                        cache_hits_partial (a subset of this) means at least
+                        one sub-field WAS found even though others were not.
+      still_needs_paid  at least one needed sub-field has never been tried
+                        -> this, and only this, is what a live run searches.
     """
     cache = load_cache()
     cands = discover_spec_candidates(supplier_filter)
@@ -765,22 +773,30 @@ def apply_spec_cache(supplier_filter=None, write=False):
     for c in cands:
         by_file.setdefault(c["source_file"], []).append(c)
 
-    stats = dict(total_missing=len(cands), cache_hits=0, cache_hits_partial=0,
-                 still_needs_paid=0, files_written=[])
+    stats = dict(total_missing=len(cands), cache_hits=0, cache_hits_empty=0,
+                 cache_hits_partial=0, still_needs_paid=0, files_written=[])
 
     for source_file, rows in by_file.items():
         df = None
         dirty = False
         for c in rows:
-            entry = (cache.get(c["cache_key"]) or {}).get("specs", {})
-            found = {sub: entry.get(sub, "") for sub in c["needed"] if entry.get(sub)}
-            if not found:
-                stats["still_needs_paid"] += 1
-                continue
-            if len(found) < len(c["needed"]):
-                stats["cache_hits_partial"] += 1
-            else:
+            entry = cache.get(c["cache_key"]) or {}
+            specs = entry.get("specs", {})
+            tried = set(entry.get("tried", []))
+            found = {sub: specs[sub] for sub in c["needed"] if specs.get(sub)}
+            never_tried = {sub for sub in c["needed"] if sub not in tried}
+
+            if len(found) == len(c["needed"]):
                 stats["cache_hits"] += 1
+            elif never_tried:
+                stats["still_needs_paid"] += 1
+            else:
+                stats["cache_hits_empty"] += 1
+                if found:
+                    stats["cache_hits_partial"] += 1
+
+            if not found:
+                continue
             if write:
                 if df is None:
                     df = pd.read_csv(source_file, dtype=str, low_memory=False,
@@ -1064,12 +1080,23 @@ def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6
             # one of several needed sub-fields is searched again so the
             # remainder gets filled, with whatever was already found merged
             # in rather than overwritten.
+            #
+            # "tried" records every sub-field a search has ever been run for,
+            # independent of whether it was found — the same distinction
+            # image/designation make via cache_hits_empty (an entry that
+            # exists but is empty means "already tried, don't re-buy the
+            # same question"). Without it, a sub-field that came back empty
+            # would look identical to one never searched at all, and the
+            # next run would pay to ask the exact same query the exact same
+            # question again.
             for c in discover_spec_candidates(supplier_filter):
                 if spent >= budget:
                     print(f"Budget of {budget} reached — stopping mid-batch.")
                     return
-                existing = (cache.get(c["cache_key"]) or {}).get("specs", {})
-                still_needed = {sub for sub in c["needed"] if not existing.get(sub)}
+                cache_entry  = cache.get(c["cache_key"]) or {}
+                existing     = cache_entry.get("specs", {})
+                tried        = set(cache_entry.get("tried", []))
+                still_needed = {sub for sub in c["needed"] if sub not in existing and sub not in tried}
                 if not still_needed or c["cache_key"] in seen:
                     continue
                 seen.add(c["cache_key"])
@@ -1087,7 +1114,8 @@ def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6
 
                 merged = dict(existing)
                 merged.update(found)
-                cache[c["cache_key"]] = {"specs": merged, "query": c["query"]}
+                cache[c["cache_key"]] = {"specs": merged, "query": c["query"],
+                                         "tried": sorted(tried | still_needed)}
                 save_cache(cache)
                 spent += 1
                 print(f"  [{spent}/{budget}] specs: {c['query']!r} "
@@ -1196,22 +1224,27 @@ def per_source_breakdown(field, supplier_filter=None):
 
 
 def per_spec_source_breakdown(supplier_filter=None):
-    """specs counterpart to per_source_breakdown() — a row counts as a
-    cache_hit only once every sub-field it needs is covered; needs_paid
-    covers both "never searched" and "searched but some sub-field still
-    missing", since either way another search is what closes the gap.
+    """specs counterpart to per_source_breakdown(). needs_paid counts ONLY
+    rows with at least one sub-field never yet searched — a row that was
+    searched and came back empty is a dead end (dead_end), not something
+    another --run would spend on again. See apply_spec_cache's docstring for
+    why that distinction has to exist at all.
     """
     cache = load_cache()
     rows = {}
     for c in discover_spec_candidates(supplier_filter):
         key = (c["supplier"], c["type"])
-        r = rows.setdefault(key, dict(missing=0, cache_hit=0, needs_paid=0, writable=True))
+        r = rows.setdefault(key, dict(missing=0, cache_hit=0, needs_paid=0,
+                                      dead_end=0, writable=True))
         r["missing"] += 1
-        entry = (cache.get(c["cache_key"]) or {}).get("specs", {})
-        if c["needed"] <= entry.keys() and all(entry.get(s) for s in c["needed"]):
+        entry = cache.get(c["cache_key"]) or {}
+        specs, tried = entry.get("specs", {}), set(entry.get("tried", []))
+        if c["needed"] <= specs.keys() and all(specs.get(s) for s in c["needed"]):
             r["cache_hit"] += 1
-        else:
+        elif c["needed"] - tried:
             r["needs_paid"] += 1
+        else:
+            r["dead_end"] += 1
     return rows
 
 

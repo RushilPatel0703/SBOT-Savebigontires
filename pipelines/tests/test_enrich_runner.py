@@ -567,8 +567,11 @@ def test_parse_spec_result_finds_nothing_rather_than_guessing():
 
 
 def test_apply_spec_cache_requires_every_needed_subfield_for_a_full_hit(monkeypatch):
-    """A row needing load_index AND speed_rating with only load_index cached
-    must NOT count as done — the other half still needs a search."""
+    """A row needing load_index AND speed_rating with only load_index found —
+    and speed_rating never actually searched for (no 'tried' record covering
+    it) — must still be offered for another search. Only a subfield that was
+    genuinely searched and came up empty is a dead end, not one that simply
+    hasn't been asked about yet."""
     import enrichment as E
 
     cand = dict(supplier="acme", type="tires", row_index=0, source_file="fake.csv",
@@ -580,8 +583,92 @@ def test_apply_spec_cache_requires_every_needed_subfield_for_a_full_hit(monkeypa
 
     stats = E.apply_spec_cache(write=False)
     assert stats["cache_hits"] == 0
-    assert stats["cache_hits_partial"] == 1
-    assert stats["still_needs_paid"] == 0
+    assert stats["still_needs_paid"] == 1, \
+        "speed_rating has never been tried — this must still be offered for search"
+    assert stats["cache_hits_empty"] == 0
+
+
+def test_apply_spec_cache_treats_an_exhausted_partial_hit_as_a_dead_end(monkeypatch):
+    """load_index WAS found; speed_rating was searched for (both are in
+    'tried') but never turned up. Every needed sub-field has now been asked
+    about at least once, so this is a dead end — offering it for another
+    search would buy the identical question a second time."""
+    import enrichment as E
+
+    cand = dict(supplier="acme", type="tires", row_index=0, source_file="fake.csv",
+               needed={"load_index", "speed_rating"}, cache_key="specs:a|b|c",
+               spec_cols=dict(load_index="spec_loadindex", speed_rating="spec_speedrating"))
+    monkeypatch.setattr(E, "discover_spec_candidates", lambda sup=None: [cand])
+    monkeypatch.setattr(E, "load_cache", lambda: {
+        "specs:a|b|c": {"specs": {"load_index": "94"},
+                        "tried": ["load_index", "speed_rating"]},
+    })
+
+    stats = E.apply_spec_cache(write=False)
+    assert stats["cache_hits"] == 0
+    assert stats["still_needs_paid"] == 0, "an exhausted row must not be offered for spend again"
+    assert stats["cache_hits_empty"] == 1
+    assert stats["cache_hits_partial"] == 1, "load_index WAS found, so this should be flagged as partial"
+
+
+def test_apply_spec_cache_never_writes_a_dead_end_row(monkeypatch, tmp_path):
+    """A dead end has nothing to write — confirm write=True doesn't touch the
+    CSV or report a file as rewritten for a row where nothing was found."""
+    import enrichment as E
+    import pandas as pd
+
+    csv_path = tmp_path / "fake.csv"
+    pd.DataFrame([dict(spec_loadindex="", spec_speedrating="")]).to_csv(csv_path, index=False)
+
+    cand = dict(supplier="acme", type="tires", row_index=0, source_file=str(csv_path),
+               needed={"load_index", "speed_rating"}, cache_key="specs:a|b|c",
+               spec_cols=dict(load_index="spec_loadindex", speed_rating="spec_speedrating"))
+    monkeypatch.setattr(E, "discover_spec_candidates", lambda sup=None: [cand])
+    monkeypatch.setattr(E, "load_cache", lambda: {
+        "specs:a|b|c": {"specs": {}, "tried": ["load_index", "speed_rating"]},
+    })
+
+    stats = E.apply_spec_cache(write=True)
+    assert stats["files_written"] == []
+    after = pd.read_csv(csv_path, dtype=str).fillna("")
+    assert after.loc[0, "spec_loadindex"] == ""
+    assert after.loc[0, "spec_speedrating"] == ""
+
+
+def test_a_dead_end_search_is_never_repeated(monkeypatch):
+    """The bug this whole section exists to prevent: an empty search result
+    must be remembered, or the exact same question gets bought again on
+    every future run for a row that will never resolve."""
+    import enrichment as E
+
+    cand = dict(supplier="acme", type="tires", row_index=0, source_file="fake.csv",
+               needed={"load_index"}, cache_key="specs:a|b|c", query="q", size="245/60R18",
+               spec_cols=dict(load_index="spec_loadindex"))
+    monkeypatch.setattr(E, "discover_spec_candidates", lambda sup=None: [cand])
+    saved = {}
+    monkeypatch.setattr(E, "load_cache", lambda: dict(saved))
+    monkeypatch.setattr(E, "save_cache", lambda cache: saved.update(cache))
+
+    calls = []
+    class _EmptyResult:
+        def get_dict(self):
+            return {"shopping_results": [], "organic_results": []}
+    serpapi = type(sys)("serpapi")
+    serpapi.GoogleSearch = lambda params: (calls.append(params["q"]), _EmptyResult())[1]
+    monkeypatch.setitem(sys.modules, "serpapi", serpapi)
+    cfg = type(sys)("config")
+    cfg.SERPAPI_KEY_CLIENT = "test-key"
+    monkeypatch.setitem(sys.modules, "config", cfg)
+    infer = type(sys)("tire_designation_inference")
+    infer._keyword_lookup = lambda text: ""
+    monkeypatch.setitem(sys.modules, "tire_designation_inference", infer)
+
+    E.run_live(["specs"], None, budget=5, verify_images=False)
+    assert len(calls) == 1, "first run should search once"
+    assert saved["specs:a|b|c"]["tried"] == ["load_index"]
+
+    E.run_live(["specs"], None, budget=5, verify_images=False)
+    assert len(calls) == 1, "second run must not repeat a search already known to be empty"
 
 
 def test_run_live_specs_never_searches_a_field_with_no_column(monkeypatch):

@@ -220,18 +220,26 @@ def scan():
                 missing=r["missing"],
                 cache_fixed=r["cache_hit"],
                 needs_search=r["needs_paid"],
+                dead_end=r.get("dead_end", 0),
                 writable=r["writable"],
             ))
         # Rows from a report-only source have no column to write an answer
         # into, so a search bought for them is money for a result that can
         # never ship. They stay visible as a known gap but are excluded from
         # anything anyone is asked to approve — run_live() skips them too.
+        #
+        # dead_end (specs only): every sub-field a row needs has already been
+        # searched for and come back empty. Distinct from needs_search — a
+        # dead-end row is NOT offered for spend again, because doing so would
+        # buy the identical question a second time for an answer that isn't
+        # out there. See enrichment.apply_spec_cache's docstring.
         fields[field] = dict(
             rows=rows,
             missing=sum(r["missing"] for r in rows),
             cache_hit=sum(r["cache_fixed"] for r in rows),
             needs_paid=sum(r["needs_search"] for r in rows if r["writable"]),
             report_only=sum(r["needs_search"] for r in rows if not r["writable"]),
+            dead_end=sum(r["dead_end"] for r in rows),
         )
 
     payload = dict(
@@ -253,7 +261,9 @@ def scan():
     for field, f in fields.items():
         print(f"[{field}] missing={f['missing']}  free-from-cache={f['cache_hit']}  "
               f"needs-a-paid-search={f['needs_paid']}"
-              + (f"  (+{f['report_only']} report-only, never bought)" if f["report_only"] else ""))
+              + (f"  (+{f['report_only']} report-only, never bought)" if f["report_only"] else "")
+              + (f"  (+{f['dead_end']} already tried, no match found — won't be re-bought)"
+                 if f["dead_end"] else ""))
     print(f"\nTotal needing approval: {payload['total_needs_paid']} search(es)")
     print(f"Free fixes ready to apply: {payload['total_cache_hit']} row(s)")
 
