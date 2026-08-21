@@ -14,7 +14,8 @@ from datetime import datetime
 from config import markup_for
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
-from size_parser import parse_tire_size, parse_load_speed, default_passenger_load_range
+from size_parser import (parse_tire_size, parse_load_speed, default_passenger_load_range,
+                         coerce_load_index)
 
 MARKUP = markup_for("formula")
 
@@ -42,6 +43,7 @@ PR_TO_LOAD_RANGE = {
     '4': 'B', '6': 'C', '8': 'D', '10': 'E', '12': 'F', '14': 'G', '16': 'H',
 }
 _PR_PATTERN = re.compile(r'\b(4|6|8|10|12|14|16)\s*-?\s*(?:PR|PLY)\b', re.IGNORECASE)
+_VALID_LOAD_RANGE = re.compile(r'^(XL|SL|[B-N])$', re.IGNORECASE)
 
 
 def extract_load_range(size, description=""):
@@ -195,13 +197,25 @@ def build_body_html(row):
     designation = str(row.get("designation", "")).strip()
     description = str(row.get("description", "")).strip()
 
+    # Prefer Costar's own spec columns over the size-string/description regex —
+    # same precedence every other supplier's augment already uses. This file
+    # used to derive width/ratio/rim/load index/speed rating from text alone
+    # and silently discard real values sitting in these columns.
+    #
+    # section_width is deliberately NOT read from a spec column: the raw
+    # `section_width` field holds ~6-9, which is a rim-width-shaped number,
+    # not a tire section width (real values run 155-335mm) — e.g. size
+    # "155/70R14" carries section_width="6.1" in this feed. It's mislabeled,
+    # not a nominal width, so parsing it from the size string is the only
+    # trustworthy source.
     parsed        = parse_tire_size(size, description)
     section_width = parsed['width']
-    aspect_ratio  = parsed['ratio']
-    rim           = parsed['rim_display']
+    aspect_ratio  = str(row.get("aspect_ratio", "")).strip() or parsed['ratio']
+    rim           = str(row.get("rim_size",     "")).strip() or parsed['rim_display']
 
-    load_index, speed_rating = parse_load_speed(description)
-    load_range = str(row.get("load_range", "")).strip()
+    load_index   = coerce_load_index(row.get("load_index", ""), description)
+    speed_rating = str(row.get("speed_rating", "")).strip() or parse_load_speed(description)[1]
+    load_range   = str(row.get("load_range", "")).strip()
 
     return (
         f"<br>Brand: {brand}<br>"
@@ -313,13 +327,20 @@ def main():
                    f"Check clean.py's output for this run before re-running augment.")
         sys.exit(1)
 
-    df["load_range"]    = df.apply(
-        lambda r: extract_load_range(r["size"], r.get("description", ""))
+    # Prefer Costar's own load_range column over the size/description regex —
+    # it used to be computed from text alone and silently overwrote real
+    # letter values ('B'/'D'/'E'/...) already sitting in this column.
+    _raw_load_range = df["load_range"].astype(str).str.strip().str.upper()
+    df["load_range"] = df.apply(
+        lambda r: (_raw_load_range[r.name] if _VALID_LOAD_RANGE.match(_raw_load_range[r.name]) else "")
+                  or extract_load_range(r["size"], r.get("description", ""))
                   or default_passenger_load_range(r["size"]), axis=1)
     df["size"]          = df["size"].apply(strip_load_range)
     df["size"]          = df["size"].apply(normalize_size)
     df["size"]          = df["size"].str.replace('x', 'X', regex=False)
-    df["_speed_rating"] = df["description"].apply(lambda d: parse_load_speed(str(d))[1])
+    df["_speed_rating"] = df["speed_rating"].astype(str).str.strip().where(
+        df["speed_rating"].astype(str).str.strip() != "",
+        df["description"].apply(lambda d: parse_load_speed(str(d))[1]))
     log.info("Size column normalized; load_range and speed_rating extracted")
 
     # Use available_quantity if present, otherwise sum branch qty_* columns

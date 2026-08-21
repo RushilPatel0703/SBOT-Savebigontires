@@ -53,7 +53,7 @@ chmod +x launch_dashboard.command
 Open `pipelines/shared/config.py` and confirm:
 - `SHOP` — your Shopify store URL
 - `TOKEN` — your Shopify Admin API token
-- `SERPAPI_KEY` — your SerpAPI key (used for tire designation enrichment)
+- `SERPAPI_KEY` — your SerpAPI key (used for Step 3's image/designation/spec enrichment)
 
 All supplier login credentials are already embedded in the scraper scripts.
 If you need to update them, see the **Cookie Refresh** section below.
@@ -95,7 +95,8 @@ Pipelines run in the background — you can close the browser tab and they
 keep running as long as the terminal window stays open.
 
 ### Step 3 — Data Enrichment (optional)
-Fills in product images and tire designations that no supplier feed provides.
+Fills in product images, tire designations, and tire specs that no supplier
+feed provides and free parsing couldn't recover.
 
 Once all five pipelines finish, the dashboard automatically counts how many
 searches would be needed and shows the number **before** anything is spent.
@@ -103,16 +104,23 @@ Nothing is bought until you review that count and approve it.
 
 - **Free fixes** reuse results already paid for on an earlier run. Applying
   them makes no network call and costs nothing.
-- **Paid searches** run against the client's SerpAPI key. Set a cap per field,
-  type `ENRICH` to confirm, then click **Run Enrichment**. The run hard-stops
-  at your cap.
-- **Images** are the field worth buying — nothing free produces a photo.
-  **Designations** are off by default: historically only 4 of 253 paid searches
-  (1.6%) returned anything useful, so those few rows are cheaper to fix by hand.
+- **Paid searches** run against the client's SerpAPI key, in three independent
+  budgets so approving one never lets it eat another's:
+  - **Images** — the field worth buying by default; nothing free produces a photo.
+  - **Designations** — off by default. Historically only 4 of 253 paid searches
+    (1.6%) returned anything useful, so those few rows are cheaper to fix by hand.
+  - **Specs** — load index, speed rating, load range, section width, aspect
+    ratio, rim diameter. Bundled into one budget because a row missing its
+    load index is almost always missing its speed rating too (both come from
+    the same source token, e.g. "104H"), so one search commonly fills several
+    of these for the price of one.
 
-After searching, the run writes the results into the cleaned CSVs and
+  Set a cap per field, type `ENRICH` to confirm, then click **Run Enrichment**.
+  Each budget hard-stops at its own cap.
+
+After searching, the run writes the results into the cleaned/raw CSVs and
 automatically re-runs `augment` for whichever suppliers changed, so the
-Shopify CSVs in Step 4 carry the new images.
+Shopify CSVs in Step 4 carry the fix.
 
 To block paid searches entirely, create an empty file at
 `monitoring/SERP_KILL_SWITCH` — the run refuses to start while it exists.
@@ -120,9 +128,11 @@ To block paid searches entirely, create an empty file at
 **Product spec fields.** The same panel reports completeness for the nine
 fields shown in each product's description block — Brand, Style, Section
 width, Aspect ratio, Rim diameter, Load index, Speed rating, Load range,
-Designation. These are filled in by parsing the supplier feed, never by a paid
-search, so the enrichment run above does not touch them; the panel is there so
-a parsing gap is visible instead of silently shipping.
+Designation. Brand, Style, Section width, Aspect ratio, Rim diameter and
+Designation are filled in for free by parsing the supplier feed; a gap in
+those is a parsing shortfall worth reporting, not something more spend fixes.
+Load index, Speed rating and Load range are exactly what the **Specs** budget
+above searches for once free parsing comes up empty.
 
 The counts are read back out of the finished `Shopify_SEO_*.csv` files, which
 is deliberate: that block is built in `augment*.py`, downstream of every stage

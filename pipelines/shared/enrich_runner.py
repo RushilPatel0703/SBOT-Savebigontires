@@ -32,12 +32,16 @@ Modes
 Budgets are per field rather than one pooled number on purpose: sharing a pool
 lets the image queue (thousands of rows) swallow every search before the
 designation queue is reached, which is not what someone approving "200 image +
-5 designation" agreed to.
+5 designation" agreed to. "specs" is its own third budget — load index, speed
+rating, load range, section width, aspect ratio, rim diameter — bundled into
+one field because a row missing its load index is almost always missing its
+speed rating too (same source token), so one search commonly fills several of
+these for the price of one; see enrichment.py's SPEC_SOURCES for why.
 
 Usage:
     python enrich_runner.py --scan
     python enrich_runner.py --apply-only
-    python enrich_runner.py --run --image-budget 412 --designation-budget 0
+    python enrich_runner.py --run --image-budget 412 --designation-budget 0 --specs-budget 665
 """
 import argparse
 import glob
@@ -279,9 +283,13 @@ def _apply_and_rebuild(fields):
     missing input, turning a successful enrichment into a failed run.
     """
     print("ENRICH PHASE: apply — writing cached results into the cleaned/raw CSVs")
-    stats = E.apply_cached(list(fields), None, write=True)
+    simple_fields = [f for f in fields if f != "specs"]
+    stats = E.apply_cached(simple_fields, None, write=True) if simple_fields else {}
+    if "specs" in fields:
+        stats["specs"] = E.apply_spec_cache(None, write=True)
     for field, s in stats.items():
-        print(f"  {field}: {s['cache_hits']} row(s) fixed from cache, "
+        hits = s["cache_hits"] + s.get("cache_hits_partial", 0)
+        print(f"  {field}: {hits} row(s) fixed from cache, "
               f"{s['still_needs_paid']} still unsearched, "
               f"{len(s['files_written'])} file(s) rewritten")
 
@@ -354,19 +362,21 @@ def apply_only():
 # --run — the only path that spends the client's money
 # ---------------------------------------------------------------------------
 
-def run(image_budget, designation_budget, verify_images=True, verify_depth=6):
+def run(image_budget, designation_budget, specs_budget=0, verify_images=True, verify_depth=6):
     if os.path.exists(E.KILL_SWITCH):
         print(f"ABORT: kill switch present at {E.KILL_SWITCH}. Delete it to re-enable live runs.")
         return 1
 
-    budgets = [("image", max(0, image_budget)), ("designation", max(0, designation_budget))]
+    budgets = [("image", max(0, image_budget)), ("designation", max(0, designation_budget)),
+               ("specs", max(0, specs_budget))]
     approved = sum(b for _, b in budgets)
     if approved <= 0:
         print("ABORT: no budget approved — nothing to search for.")
         return 1
 
     print(f"ENRICH START — {approved} search(es) approved (image={budgets[0][1]}, "
-          f"designation={budgets[1][1]}) against the client's PAID SerpAPI key.")
+          f"designation={budgets[1][1]}, specs={budgets[2][1]}) against the client's "
+          f"PAID SerpAPI key.")
 
     searched = []
     for field, budget in budgets:
@@ -387,11 +397,12 @@ def run(image_budget, designation_budget, verify_images=True, verify_depth=6):
                   f"Anything already bought is cached and will still be applied.")
 
     # Apply only the fields that were actually searched. A run approved for
-    # images should not silently rewrite designation columns nobody asked
-    # about — that is what --apply-only is for.
+    # images should not silently rewrite designation/specs columns nobody
+    # asked about — that is what --apply-only is for.
     stats, failures = _apply_and_rebuild(searched)
     return _finish("run", stats, failures, approved=approved,
-                   image_budget=budgets[0][1], designation_budget=budgets[1][1])
+                   image_budget=budgets[0][1], designation_budget=budgets[1][1],
+                   specs_budget=budgets[2][1])
 
 
 def main():
@@ -408,6 +419,11 @@ def main():
                     help="Hard cap on image searches (--run only).")
     ap.add_argument("--designation-budget", type=int, default=0,
                     help="Hard cap on designation searches (--run only).")
+    ap.add_argument("--specs-budget", type=int, default=0,
+                    help="Hard cap on specs searches — load index, speed rating, "
+                         "load range, section width, aspect ratio, rim diameter "
+                         "(--run only). One search can fill several of these at "
+                         "once for the same row.")
     ap.add_argument("--no-verify-images", dest="verify_images", action="store_false",
                     help="Skip the pixel check on image results. Verification costs no "
                          "SerpAPI credit, so the only reason to skip it is speed.")
@@ -421,7 +437,7 @@ def main():
         return 0
     if args.apply_only:
         return apply_only()
-    return run(args.image_budget, args.designation_budget,
+    return run(args.image_budget, args.designation_budget, args.specs_budget,
                args.verify_images, args.verify_depth)
 
 

@@ -60,12 +60,20 @@ def quiet_io(monkeypatch, tmp_path):
 
 
 def _stub_apply(monkeypatch, files_written=(), fields=("image",)):
-    """Make apply_cached report a given set of rewritten files without touching disk."""
+    """Make apply_cached/apply_spec_cache report a given set of rewritten files
+    without touching disk. Both are stubbed together — a test that approves a
+    specs budget without this would otherwise hit real disk I/O through
+    apply_spec_cache, which _apply_and_rebuild calls separately from apply_cached.
+    """
     def _fake(fields_arg, supplier, write):
         return {f: dict(total_missing=0, cache_hits=len(files_written), cache_hits_empty=0,
                         still_needs_paid=0, files_written=list(files_written))
                 for f in fields_arg}
     monkeypatch.setattr(R.E, "apply_cached", _fake)
+    monkeypatch.setattr(R.E, "apply_spec_cache",
+                        lambda supplier, write: dict(
+                            total_missing=0, cache_hits=len(files_written), cache_hits_partial=0,
+                            still_needs_paid=0, files_written=list(files_written)))
 
 
 # ── Spend gates ───────────────────────────────────────────────────────────────
@@ -407,3 +415,256 @@ def test_run_live_never_queues_a_report_only_candidate(monkeypatch):
     monkeypatch.setitem(sys.modules, "tire_designation_inference", infer)
 
     E.run_live(["image"], None, budget=5, verify_images=False)
+
+
+# ── specs: candidate discovery must never overcount ────────────────────────────
+#
+# specs is the field this codebase already got wrong once: an earlier version
+# of this module counted a blank spec_loadrange as a gap even on rows augment.py
+# fills for free with 'SL'. discover_spec_candidates() has to replicate each
+# supplier's free layer exactly, using the SAME shared functions augment*.py
+# calls, or every test below would need real CSVs to catch the same class of
+# bug again. These build synthetic rows instead, so the assertion is about the
+# free-layer PRECEDENCE, not about today's catalog contents.
+
+def _spec_src(**overrides):
+    base = dict(
+        supplier="acme", type="tires",
+        glob="pipelines/acme/Data/cleaned/cleaned_tires_*.csv",
+        brand_col="brand", model_col="model", size_col="size", extra_col=None,
+        desc_col="description",
+        load_index_col="spec_loadindex", speed_rating_col="spec_speedrating",
+        load_range_col="spec_loadrange",
+        width_col="spec_sectionwidth", ratio_col="spec_aspectratio", rim_col="spec_rimsize",
+    )
+    base.update(overrides)
+    return base
+
+
+def test_missing_spec_subfields_ignores_the_zero_placeholder():
+    """A '0.0000' load index is Costar's unknown-value placeholder, not a real
+    one — the same trap fixed for augment*.py must not be reintroduced here."""
+    import enrichment as E
+
+    row = dict(size="245/60R18", description="", spec_loadindex="0.0000",
+              spec_speedrating="V", spec_loadrange="E",
+              spec_sectionwidth="245", spec_aspectratio="60", spec_rimsize="18")
+    missing = E._missing_spec_subfields(row, _spec_src())
+    assert missing == {"load_index"}, missing
+
+
+def test_missing_spec_subfields_applies_the_passenger_sl_default():
+    """A blank spec_loadrange on a plain passenger size is NOT a gap — augment.py
+    fills it with 'SL' for free. Counting it as missing would buy a search for
+    information the free layer already has."""
+    import enrichment as E
+
+    row = dict(size="245/60R18", description="94V", spec_loadindex="94",
+              spec_speedrating="V", spec_loadrange="",
+              spec_sectionwidth="245", spec_aspectratio="60", spec_rimsize="18")
+    missing = E._missing_spec_subfields(row, _spec_src())
+    assert "load_range" not in missing, missing
+
+
+def test_missing_spec_subfields_does_not_default_lt_load_range():
+    """The same blank load_range on an LT size is a genuine gap — LT tires are
+    letter-rated with no default, unlike passenger SL/XL."""
+    import enrichment as E
+
+    row = dict(size="LT265/70R17", description="", spec_loadindex="121",
+              spec_speedrating="Q", spec_loadrange="",
+              spec_sectionwidth="", spec_aspectratio="", spec_rimsize="")
+    missing = E._missing_spec_subfields(row, _spec_src())
+    assert "load_range" in missing, missing
+
+
+def test_missing_spec_subfields_falls_back_to_description_parse():
+    """No spec column value at all — the free-layer regex parse still has to
+    run before anything is called a gap, same as augment*.py does."""
+    import enrichment as E
+
+    row = dict(size="205/55R16", description="Continental TrueContact 91H",
+              spec_loadindex="", spec_speedrating="", spec_loadrange="",
+              spec_sectionwidth="", spec_aspectratio="", spec_rimsize="")
+    missing = E._missing_spec_subfields(row, _spec_src())
+    assert missing == set(), missing   # width/ratio/rim from size; load_index/speed from description; SL default
+
+
+def test_missing_spec_subfields_honours_a_source_with_no_spec_columns():
+    """formula/dttire have no separate width/ratio/rim spec columns at all —
+    width_col=None must not be treated as 'column exists but happens to be
+    None', it must fall straight to the size-string parse."""
+    import enrichment as E
+
+    src = _spec_src(width_col=None, ratio_col=None, rim_col=None)
+    row = dict(size="245/60R18", description="", spec_loadindex="94",
+              spec_speedrating="V", spec_loadrange="")
+    missing = E._missing_spec_subfields(row, src)
+    assert missing == set(), missing
+
+
+def test_discover_spec_candidates_drops_unwritable_subfields():
+    """wheelsmart has no column for speed_rating/load_range at all — a search
+    bought for either would have nowhere to write the answer. The candidate
+    must still be produced for its writable sub-fields (load_index here), just
+    stripped of the ones that can never be saved."""
+    import enrichment as E
+
+    src = _spec_src(supplier="wheelsmart", speed_rating_col=None, load_range_col=None)
+    monkeypatch_sources = [src]
+    import pandas as pd
+    df = pd.DataFrame([dict(size="245/60R18", description="", spec_loadindex="",
+                            spec_speedrating="", spec_loadrange="",
+                            brand="Acme", model="Road King")])
+
+    orig_sources = E.SPEC_SOURCES
+    orig_latest = E.latest
+    try:
+        E.SPEC_SOURCES = monkeypatch_sources
+        E.latest = lambda pattern: "fake.csv"
+        real_read_csv = pd.read_csv
+        pd.read_csv = lambda *a, **kw: df.copy()
+        try:
+            cands = E.discover_spec_candidates()
+        finally:
+            pd.read_csv = real_read_csv
+    finally:
+        E.SPEC_SOURCES = orig_sources
+        E.latest = orig_latest
+
+    assert len(cands) == 1, cands
+    assert cands[0]["needed"] == {"load_index"}, cands[0]["needed"]
+
+
+def test_parse_spec_result_only_returns_what_was_needed():
+    import enrichment as E
+    found = E._parse_spec_result("104H XL Load Range: E", "", {"load_index"})
+    assert found == {"load_index": "104"}, found
+
+
+def test_parse_spec_result_reads_a_labeled_load_range():
+    """extract_load_range() alone has no pattern for a labeled field the way a
+    retailer listing states it ('Load Range: E') — only a trailing letter on a
+    size string or a bare PR/XL mention in free text."""
+    import enrichment as E
+    found = E._parse_spec_result("Michelin Defender 245/60R18 Load Range: E All Season",
+                                 "", {"load_range"})
+    assert found == {"load_range": "E"}, found
+
+
+def test_parse_spec_result_extracts_size_components_from_result_text():
+    import enrichment as E
+    found = E._parse_spec_result("Continental TerrainContact 265/70R17 tire",
+                                 "", {"section_width", "aspect_ratio", "rim_diameter"})
+    assert found == {"section_width": "265", "aspect_ratio": "70", "rim_diameter": "17"}, found
+
+
+def test_parse_spec_result_finds_nothing_rather_than_guessing():
+    import enrichment as E
+    found = E._parse_spec_result("unrelated page text with no spec info anywhere",
+                                 "", {"load_index", "speed_rating", "load_range"})
+    assert found == {}, found
+
+
+def test_apply_spec_cache_requires_every_needed_subfield_for_a_full_hit(monkeypatch):
+    """A row needing load_index AND speed_rating with only load_index cached
+    must NOT count as done — the other half still needs a search."""
+    import enrichment as E
+
+    cand = dict(supplier="acme", type="tires", row_index=0, source_file="fake.csv",
+               needed={"load_index", "speed_rating"}, cache_key="specs:a|b|c",
+               spec_cols=dict(load_index="spec_loadindex", speed_rating="spec_speedrating"))
+    monkeypatch.setattr(E, "discover_spec_candidates", lambda sup=None: [cand])
+    monkeypatch.setattr(E, "load_cache",
+                        lambda: {"specs:a|b|c": {"specs": {"load_index": "94"}}})
+
+    stats = E.apply_spec_cache(write=False)
+    assert stats["cache_hits"] == 0
+    assert stats["cache_hits_partial"] == 1
+    assert stats["still_needs_paid"] == 0
+
+
+def test_run_live_specs_never_searches_a_field_with_no_column(monkeypatch):
+    """Mirrors test_run_live_never_queues_a_report_only_candidate, but for the
+    specs field's per-subfield writability rather than per-source."""
+    import enrichment as E
+
+    cand = dict(supplier="wheelsmart", type="tires", row_index=0, source_file="fake.csv",
+               needed={"load_index"}, cache_key="specs:a|b|c", query="q", size="245/60R18",
+               spec_cols=dict(load_index="load_index", speed_rating=None, load_range=None))
+    monkeypatch.setattr(E, "discover_spec_candidates", lambda sup=None: [cand])
+    monkeypatch.setattr(E, "load_cache", lambda: {})
+    monkeypatch.setattr(E, "save_cache", lambda cache: None)
+
+    calls = []
+    def _fake_search(params):
+        calls.append(params["q"])
+        class _R:
+            def get_dict(self):
+                return {"shopping_results": [{"title": "94V", "snippet": ""}]}
+        return _R()
+    serpapi = type(sys)("serpapi")
+    serpapi.GoogleSearch = _fake_search
+    monkeypatch.setitem(sys.modules, "serpapi", serpapi)
+    cfg = type(sys)("config")
+    cfg.SERPAPI_KEY_CLIENT = "test-key"
+    monkeypatch.setitem(sys.modules, "config", cfg)
+    infer = type(sys)("tire_designation_inference")
+    infer._keyword_lookup = lambda text: ""
+    monkeypatch.setitem(sys.modules, "tire_designation_inference", infer)
+
+    E.run_live(["specs"], None, budget=5, verify_images=False)
+    assert len(calls) == 1, "exactly one search expected for the one writable candidate"
+
+
+def test_run_live_specs_merges_into_existing_cache_rather_than_overwriting(monkeypatch):
+    """A candidate whose load_index was already found on an earlier run and
+    now only needs speed_rating must keep the cached load_index after this
+    run, not lose it."""
+    import enrichment as E
+
+    cand = dict(supplier="acme", type="tires", row_index=0, source_file="fake.csv",
+               needed={"speed_rating"}, cache_key="specs:a|b|c", query="q", size="245/60R18",
+               spec_cols=dict(load_index="spec_loadindex", speed_rating="spec_speedrating"))
+    monkeypatch.setattr(E, "discover_spec_candidates", lambda sup=None: [cand])
+    monkeypatch.setattr(E, "load_cache",
+                        lambda: {"specs:a|b|c": {"specs": {"load_index": "94"}, "query": "q"}})
+    saved = {}
+    monkeypatch.setattr(E, "save_cache", lambda cache: saved.update(cache))
+
+    class _R:
+        def get_dict(self):
+            return {"shopping_results": [{"title": "94V", "snippet": ""}]}
+    serpapi = type(sys)("serpapi")
+    serpapi.GoogleSearch = lambda params: _R()
+    monkeypatch.setitem(sys.modules, "serpapi", serpapi)
+    cfg = type(sys)("config")
+    cfg.SERPAPI_KEY_CLIENT = "test-key"
+    monkeypatch.setitem(sys.modules, "config", cfg)
+    infer = type(sys)("tire_designation_inference")
+    infer._keyword_lookup = lambda text: ""
+    monkeypatch.setitem(sys.modules, "tire_designation_inference", infer)
+
+    E.run_live(["specs"], None, budget=5, verify_images=False)
+    entry = saved["specs:a|b|c"]["specs"]
+    assert entry.get("load_index") == "94", "earlier cached result was lost"
+    assert entry.get("speed_rating") == "V", "the newly-searched-for field was not added"
+
+
+def test_specs_budget_is_isolated_from_image_and_designation(no_network, no_augment,
+                                                              quiet_io, monkeypatch):
+    _stub_apply(monkeypatch)
+    R.run(image_budget=0, designation_budget=0, specs_budget=25)
+
+    fields_called = [c["fields"] for c in no_network]
+    assert fields_called == [["specs"]], fields_called
+
+
+def test_specs_result_file_records_its_own_budget(no_network, no_augment, quiet_io, monkeypatch):
+    _stub_apply(monkeypatch)
+    R.run(image_budget=3, designation_budget=0, specs_budget=25)
+
+    result = json.loads((quiet_io / ".enrich_result.json").read_text(encoding="utf-8"))
+    assert result["image_budget"] == 3
+    assert result["specs_budget"] == 25
+    assert result["designation_budget"] == 0

@@ -162,6 +162,42 @@ def parse_load_speed(description):
     return "", ""
 
 
+_LR_PR_TO_LETTER = {
+    '4': 'B', '6': 'C', '8': 'D', '10': 'E', '12': 'F', '14': 'G', '16': 'H',
+}
+_LR_PR_PATTERN = re.compile(r'\b(4|6|8|10|12|14|16)\s*-?\s*(?:PR|PLY)\b', re.IGNORECASE)
+
+
+def extract_load_range(size, description=""):
+    """Extract load range letter from a size string or description.
+
+    Checks in order:
+      1. Explicit letter at end of size  (e.g. 'LT225/75R16 E' -> 'E')
+      2. PR notation in size field       (e.g. '6PR' or '6 PR' -> 'C')
+      3. PR notation in description      (e.g. '10 PR All Season' -> 'E')
+      4. XL / Extra Load keyword in description
+
+    Identical logic to what northcountry/emergetires/formula_distributors
+    each carry as a local copy in their own augment*.py — this is the one
+    enrichment.py (supplier-agnostic) calls from, so it exists here too
+    rather than picking one supplier's copy to import from. The per-supplier
+    copies are left as-is; deduplicating them is a separate change.
+    """
+    size = str(size)
+    m = re.search(r'\s+([B-N])\s*$', size.strip())
+    if m:
+        return m.group(1)
+    m = _LR_PR_PATTERN.search(size)
+    if m:
+        return _LR_PR_TO_LETTER.get(m.group(1), '')
+    m = _LR_PR_PATTERN.search(str(description))
+    if m:
+        return _LR_PR_TO_LETTER.get(m.group(1), '')
+    if re.search(r'\bXL\b|\bExtra.?Load\b', str(description), re.IGNORECASE):
+        return 'XL'
+    return ''
+
+
 _ZERO_PLACEHOLDER = re.compile(r'^0+(?:\.0+)?$')
 
 

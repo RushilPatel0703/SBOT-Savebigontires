@@ -529,9 +529,11 @@ st.divider()
 # ─── Step 3: Data Enrichment ───────────────────────────────────────────────────
 st.header("Step 3 — Data Enrichment (optional)")
 st.caption(
-    "Fills in product images and tire designations that no supplier feed provides. "
-    "Fixes reused from searches already paid for are free; anything new costs a "
-    "search on the client's SerpAPI key and needs your approval below."
+    "Fills in product images, designations, and tire specs (load index, speed rating, "
+    "load range, section width, aspect ratio, rim diameter) that no supplier feed "
+    "provides and free parsing couldn't recover. Fixes reused from searches already "
+    "paid for are free; anything new costs a search on the client's SerpAPI key and "
+    "needs your approval below."
 )
 
 ENRICH_RUNNER    = "shared/enrich_runner.py"
@@ -613,17 +615,23 @@ def step3_section():
             "blocked until that file is deleted. Free cache fixes below still work."
         )
 
-    fields   = scan.get("fields", {})
-    img      = fields.get("image", {})
-    des      = fields.get("designation", {})
-    img_need = img.get("needs_paid", 0)
-    des_need = des.get("needs_paid", 0)
-    free_now = scan.get("total_cache_hit", 0)
+    fields    = scan.get("fields", {})
+    img       = fields.get("image", {})
+    des       = fields.get("designation", {})
+    specs     = fields.get("specs", {})
+    img_need  = img.get("needs_paid", 0)
+    des_need  = des.get("needs_paid", 0)
+    spec_need = specs.get("needs_paid", 0)
+    free_now  = scan.get("total_cache_hit", 0)
 
-    m1, m2, m3 = st.columns(3)
+    m1, m2, m3, m4 = st.columns(4)
     m1.metric("Images needing a search", img_need)
     m2.metric("Designations needing a search", des_need)
-    m3.metric("Free fixes ready", free_now, help="Already paid for on an earlier run — applying them costs nothing.")
+    m3.metric("Specs needing a search", spec_need,
+              help="Load index, speed rating, load range, section width, aspect ratio, "
+                   "rim diameter — bundled because one search commonly answers several "
+                   "of these at once for the same row.")
+    m4.metric("Free fixes ready", free_now, help="Already paid for on an earlier run — applying them costs nothing.")
 
     # ── Completeness of the nine spec fields the storefront shows ──────────
     comp = scan.get("completeness", {})
@@ -667,13 +675,15 @@ def step3_section():
                     hide_index=True, use_container_width=True,
                 )
             st.info(
-                "These nine fields are filled in by parsing the supplier feed — no paid search "
-                "is involved, so a gap here is either genuinely absent from the supplier's data "
-                "or a parsing gap worth reporting. The enrichment run above does **not** touch them."
+                "Brand, Style, Section width, Aspect ratio, Rim diameter, Designation and Image "
+                "are filled in for free by parsing the supplier feed or applying a cached search — "
+                "a gap in those is a real parsing shortfall worth reporting, not something more "
+                "spend fixes. Load index, Speed rating and Load range are what the **Specs** "
+                "budget below searches for once free parsing comes up empty."
             )
 
     with st.expander("Breakdown by supplier"):
-        for label, f in (("Image", img), ("Designation", des)):
+        for label, f in (("Image", img), ("Designation", des), ("Specs", specs)):
             rows = f.get("rows", [])
             if not rows:
                 continue
@@ -692,7 +702,8 @@ def step3_section():
                 )
         st.caption(
             '"Missing" counts only rows that would actually ship to Shopify — low-quantity rows '
-            "are already excluded, matching each supplier's own augment filter."
+            "are already excluded, matching each supplier's own augment filter. For Specs, one row "
+            "can need more than one of the six sub-fields — each row still counts once."
         )
 
     # ── Free path: apply what has already been paid for ────────────────────
@@ -705,14 +716,14 @@ def step3_section():
             launch("enrich", [sys.executable, ENRICH_RUNNER, "--apply-only"], BASE)
 
     # ── Paid path: explicit, budgeted, confirmed ───────────────────────────
-    if not (img_need or des_need):
+    if not (img_need or des_need or spec_need):
         st.success("Nothing needs a paid search — enrichment is up to date for this catalog.")
     else:
         st.warning(
             "⚠️  Everything below spends real searches on the client's **paid** SerpAPI key. "
             "Review the numbers, set a cap, and approve only what you mean to buy."
         )
-        col_i, col_d = st.columns(2)
+        col_i, col_d, col_s = st.columns(3)
         with col_i:
             want_img = st.checkbox(
                 f"Images — {img_need} needed", value=bool(img_need),
@@ -737,13 +748,27 @@ def step3_section():
                 value=des_need, step=1, disabled=not want_des or busy,
                 key="enrich_budget_designation",
             )
+        with col_s:
+            want_specs = st.checkbox(
+                f"Specs — {spec_need} needed", value=bool(spec_need),
+                disabled=not spec_need or busy, key="enrich_want_specs",
+            )
+            st.caption("Load index, speed rating, load range, section width, aspect ratio, "
+                       "rim diameter — one search commonly fills several of these for the "
+                       "same row, so this is rarely as expensive as the row count suggests.")
+            specs_budget = st.number_input(
+                "Cap on specs searches", min_value=0, max_value=max(spec_need, 0),
+                value=spec_need, step=1, disabled=not want_specs or busy,
+                key="enrich_budget_specs",
+            )
 
-        approve_img = int(img_budget) if want_img else 0
-        approve_des = int(des_budget) if want_des else 0
-        total       = approve_img + approve_des
+        approve_img   = int(img_budget) if want_img else 0
+        approve_des   = int(des_budget) if want_des else 0
+        approve_specs = int(specs_budget) if want_specs else 0
+        total         = approve_img + approve_des + approve_specs
 
         st.markdown(f"**Total to approve: {total} search(es)** "
-                    f"({approve_img} image + {approve_des} designation)")
+                    f"({approve_img} image + {approve_des} designation + {approve_specs} specs)")
 
         # Keyed on the scan timestamp so a fresh count always clears the box —
         # a money button must never arrive pre-confirmed from a previous run.
@@ -758,7 +783,8 @@ def step3_section():
         if st.button("🔍  Run Enrichment", disabled=busy or not confirmed, type="primary"):
             launch("enrich", [sys.executable, ENRICH_RUNNER, "--run",
                               "--image-budget", str(approve_img),
-                              "--designation-budget", str(approve_des)], BASE)
+                              "--designation-budget", str(approve_des),
+                              "--specs-budget", str(approve_specs)], BASE)
         if not confirmed and total > 0 and not busy:
             st.caption("The button unlocks once ENRICH is typed above.")
 

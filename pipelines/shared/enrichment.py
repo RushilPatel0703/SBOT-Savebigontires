@@ -32,10 +32,22 @@ Precedence (SERP is always last resort):
      --live AND --budget N, kill-switch checked, never invoked by any code in this
      repo. Dry-run is the only mode exercised while building this layer.
 
-Only two fields ever reach (d)/(e): designation and image. Every other field the
-client asked about (brand, section width, aspect ratio, rim diameter, load index,
-speed rating, load range) is already fully resolved by (a)-(c) — see
-ENRICHMENT_APPROVAL.md for the row counts proving it.
+Three fields ever reach (d)/(e): designation, image, and specs (a bundle of
+load index / speed rating / load range / section width / aspect ratio / rim
+diameter — see SPEC_SOURCES below). Brand and Style/model are the only two of
+the client's ten fields fully resolved by (a)-(c) at any real volume — see
+ENRICHMENT_APPROVAL.md for the row counts.
+
+"specs" is one field, not six, on purpose: a row missing its load index is
+almost always missing its speed rating too (both come from the same
+"104H"-shaped token in the source text — see SIZE_SPEC_NOTES.md-equivalent
+reasoning in _missing_spec_subfields below), so one search buys whichever of
+the six sub-fields that row actually needs instead of paying once per
+sub-field. discover_spec_candidates()/apply_spec_cache() below are the
+specs-only counterparts to discover_candidates()/apply_cached() — kept
+separate rather than forced into the single-value_col shape those use,
+because a specs candidate can need several different columns filled from one
+search result, where designation/image only ever fill one.
 
 Safety model (mirrors monitoring/serp_layer.py):
   1. No flags -> report only. Nothing is written, nothing is queried.
@@ -69,11 +81,17 @@ KILL_SWITCH  = os.path.join(ROOT, "monitoring", "SERP_KILL_SWITCH")
 MANIFEST     = os.path.join(ROOT, "monitoring", "enrichment_dry_run_manifest.json")
 APPROVAL_MD  = os.path.join(ROOT, "monitoring", "ENRICHMENT_APPROVAL.md")
 
+sys.path.insert(0, SHARED_DIR)
+from size_parser import (parse_tire_size, parse_load_speed, coerce_load_index,
+                         extract_load_range, default_passenger_load_range)
+
 FORMULA_OLD_CACHE = os.path.join(
     ROOT, "pipelines", "formula_distributors", "Data", "shopify", "serp_cache.json"
 )
 
-SUPPORTED_FIELDS = ("designation", "image")
+SUPPORTED_FIELDS = ("designation", "image", "specs")
+SPEC_SUBFIELDS   = ("load_index", "speed_rating", "load_range",
+                    "section_width", "aspect_ratio", "rim_diameter")
 
 # ---------------------------------------------------------------------------
 # Per-supplier source config. Only supplier/type combos where the field is a
@@ -157,6 +175,65 @@ SOURCES = [
          glob="pipelines/wheelsmart/Data/raw/wheelmart_tires_*.csv",
          brand_col=None, model_col=None, size_col="size_raw", extra_col="description",
          value_col=None, writable=False, qty_filter="wheelsmart_tires"),
+]
+
+
+# ---------------------------------------------------------------------------
+# specs sources: load_index / speed_rating / load_range / section_width /
+# aspect_ratio / rim_diameter. Tires only — wheels/rims carry a different spec
+# block entirely (Wheel Diameter, Bolt Pattern, Offset, ...), not these six.
+#
+# *_col below names the column each supplier's own augment*.py already reads
+# FIRST for that sub-field (None where there isn't one and the sub-field is
+# always derived from size/description text — dttire and wheelsmart have no
+# separate spec columns for width/ratio/rim at all). Writing a SERP result
+# into that same column means augment*.py's existing `spec or fallback` logic
+# picks it up on the very next run with NO changes to any augment*.py needed
+# beyond the ones already made — the fix arrives exactly like a value the
+# supplier had provided all along.
+#
+# formula's width_col is deliberately None even though a `section_width`
+# column exists: it holds ~6-9, a rim-width-shaped number, not a section
+# width (real values run 155-335mm) — e.g. size "155/70R14" carries
+# section_width="6.1" in that feed. It's mislabeled, not measured, so it is
+# never trusted as a source of truth, and a SERP result is never written
+# there either — see build_body_html's comment in formula/augment.py.
+SPEC_SOURCES = [
+    dict(supplier="northcountry", type="tires",
+         glob="pipelines/northcountry/Data/cleaned/cleaned_tires_*.csv",
+         brand_col="brand", model_col="model", size_col="size", extra_col=None,
+         mfr_col="manufacturer_code", desc_col="description",
+         load_index_col="spec_loadindex", speed_rating_col="spec_speedrating",
+         load_range_col="spec_loadrange",
+         width_col="spec_sectionwidth", ratio_col="spec_aspectratio", rim_col="spec_rimsize"),
+    dict(supplier="emergetires", type="tires",
+         glob="pipelines/emergetires/Data/cleaned/cleaned_tires_*.csv",
+         brand_col="brand", model_col="model", size_col="size", extra_col=None,
+         mfr_col="manufacturer_code", desc_col="description",
+         load_index_col="spec_loadindex", speed_rating_col="spec_speedrating",
+         load_range_col="spec_loadrange",
+         width_col="spec_sectionwidth", ratio_col="spec_aspectratio", rim_col="spec_rimsize"),
+    dict(supplier="formula_distributors", type="tires",
+         glob="pipelines/formula_distributors/Data/cleaned/cleaned_tires_*.csv",
+         brand_col="brand_name", model_col="model", size_col="size", extra_col=None,
+         desc_col="description",
+         load_index_col="load_index", speed_rating_col="speed_rating",
+         load_range_col="load_range",
+         width_col=None, ratio_col="aspect_ratio", rim_col="rim_size"),
+    dict(supplier="dttire", type="tires",
+         glob="pipelines/dttire/Data/cleaned/cleaned_tires_*.csv",
+         brand_col="brand", model_col="model", size_col="size", extra_col=None,
+         desc_col="service_desc",
+         load_index_col="load_index", speed_rating_col="speed_rating",
+         load_range_col="load_range",
+         width_col=None, ratio_col=None, rim_col=None),
+    dict(supplier="wheelsmart", type="tires",
+         glob="pipelines/wheelsmart/Data/raw/wheelmart_tires_*.csv",
+         brand_col=None, model_col=None, size_col="size_raw", extra_col="description",
+         desc_col="description",
+         load_index_col="load_index", speed_rating_col=None, load_range_col=None,
+         width_col="width", ratio_col="aspect_ratio", rim_col="rim_diameter",
+         qty_filter="wheelsmart_tires"),
 ]
 
 
@@ -245,6 +322,8 @@ def build_query(field, brand, model, size, extra="", product_type="tires"):
         return f"{base} tire".strip()
     if field == "image":
         return f"{base} {noun} product photo".strip()
+    if field == "specs":
+        return f"{base} tire size load index speed rating".strip()
     raise ValueError(f"no query template for field {field!r}")
 
 
@@ -463,6 +542,151 @@ def discover_candidates(field, supplier_filter=None):
 
 
 # ---------------------------------------------------------------------------
+# specs candidate discovery — read-only
+#
+# A row is a candidate for a given sub-field only if EVERY free-layer source
+# that supplier's own augment*.py would consult has already come up empty.
+# Reimplementing that check here (rather than, say, treating any blank spec
+# column as a gap) is what keeps this from wildly overcounting: e.g. a blank
+# `spec_loadrange` on a plain passenger tire is NOT a gap — augment.py fills
+# it with 'SL' for free (default_passenger_load_range) — so it must not be
+# queued for a paid search. Getting this wrong once already cost real
+# accuracy in this module's own numbers (see git history); these functions
+# call the exact same shared size_parser functions augment*.py calls, so a
+# row already resolved for free can never be miscounted as needing spend.
+# ---------------------------------------------------------------------------
+
+def _wheelsmart_spec_funcs():
+    """wheelsmart's free layer for load_index/speed_rating/load_range is more
+    capable than the generic shared parser (handles inverted "S109" ratings,
+    mud/flotation size stripping) — imported live so candidacy checks and any
+    future free-layer change to wheelsmart never drift out of sync with it."""
+    sys.path.insert(0, os.path.join(ROOT, "pipelines", "wheelsmart"))
+    from augment_tires import (extract_load_range as wm_load_range,
+                               extract_speed_rating as wm_speed_rating,
+                               _extract_load_index_from_desc as wm_load_index)
+    return wm_load_index, wm_speed_rating, wm_load_range
+
+
+def _missing_spec_subfields(row, src):
+    """Return the subset of SPEC_SUBFIELDS still blank after replicating this
+    supplier's own free-layer precedence: its preferred spec column first
+    (skipping Costar's "0.0000" unknown-value placeholder for load index),
+    then the same size/description parse augment*.py falls back to.
+    """
+    desc = str(row.get(src["desc_col"], "") or "") if src.get("desc_col") else ""
+    size = str(row.get(src["size_col"], "") or "") if src.get("size_col") else ""
+    missing = set()
+
+    if src["supplier"] == "wheelsmart":
+        wm_load_index, wm_speed_rating, wm_load_range = _wheelsmart_spec_funcs()
+        li = str(row.get(src["load_index_col"], "")).strip() or wm_load_index(desc)
+        sr = wm_speed_rating(desc)
+        lr = wm_load_range(size, desc) or default_passenger_load_range(size)
+    else:
+        li_col = src.get("load_index_col")
+        li = coerce_load_index(row.get(li_col, "") if li_col else "", desc)
+        sr_col = src.get("speed_rating_col")
+        sr = (str(row.get(sr_col, "")).strip() if sr_col else "") or parse_load_speed(desc)[1]
+        lr_col = src.get("load_range_col")
+        lr = ((str(row.get(lr_col, "")).strip() if lr_col else "")
+              or extract_load_range(size, desc) or default_passenger_load_range(size))
+
+    if not li:
+        missing.add("load_index")
+    if not sr:
+        missing.add("speed_rating")
+    if not lr:
+        missing.add("load_range")
+
+    parsed = parse_tire_size(size, desc)
+    for sub, parsed_key, col_key in (
+        ("section_width", "width",       "width_col"),
+        ("aspect_ratio",  "ratio",       "ratio_col"),
+        ("rim_diameter",  "rim_display", "rim_col"),
+    ):
+        col = src.get(col_key)
+        val = (str(row.get(col, "")).strip() if col else "") or parsed[parsed_key]
+        if not val:
+            missing.add(sub)
+
+    return missing
+
+
+def discover_spec_candidates(supplier_filter=None):
+    """Yield dicts describing every row still missing at least one spec
+    sub-field after every free-layer source has been checked. Each candidate
+    carries `needed` — the specific subset still blank on that row, so a
+    live search only asks the SERP-parsing step to look for what that row
+    actually lacks rather than treating every candidate as missing all six.
+    """
+    candidates = []
+    unqueryable = []
+    report_only_subfields = 0
+    for src in SPEC_SOURCES:
+        if supplier_filter and src["supplier"] != supplier_filter:
+            continue
+        f = latest(src["glob"])
+        if not f:
+            continue
+        df = pd.read_csv(f, dtype=str, low_memory=False, encoding="utf-8-sig").fillna("")
+
+        qty_filter = src.get("qty_filter")
+        if qty_filter:
+            df = df[_qty_keep_mask(df, qty_filter)]
+
+        spec_cols = dict(
+            load_index=src.get("load_index_col"), speed_rating=src.get("speed_rating_col"),
+            load_range=src.get("load_range_col"), section_width=src.get("width_col"),
+            aspect_ratio=src.get("ratio_col"), rim_diameter=src.get("rim_col"),
+        )
+
+        brand_col, model_col, extra_col = src["brand_col"], src["model_col"], src["extra_col"]
+        mfr_col, desc_col = src.get("mfr_col"), src.get("desc_col")
+        for idx in df.index:
+            row = df.loc[idx]
+            needed_all = _missing_spec_subfields(row, src)
+            if not needed_all:
+                continue
+            # A sub-field with no destination column (wheelsmart's
+            # speed_rating/load_range) can never be written back even if a
+            # search finds it — same "no column to live in" principle
+            # already applied to the wheelsmart designation source. Drop it
+            # from what gets searched; the completeness panel (which reads
+            # the finished Shopify CSV independently) still shows the gap.
+            needed = {sub for sub in needed_all if spec_cols.get(sub)}
+            report_only_subfields += len(needed_all) - len(needed)
+            if not needed:
+                continue
+            brand = _resolve_brand(row, brand_col, mfr_col)
+            model = _resolve_model(row, model_col, desc_col)
+            size  = row.get(src["size_col"], "") if src["size_col"] else ""
+            extra = row.get(extra_col, "") if extra_col else ""
+            if not _is_queryable(brand, model, extra):
+                unqueryable.append((src["supplier"], src["type"]))
+                continue
+            query = build_query("specs", brand, model, size, extra, src["type"])
+            candidates.append(dict(
+                supplier=src["supplier"], type=src["type"], field="specs",
+                row_index=idx, source_file=f, writable=True,
+                brand=brand, model=model, size=size, query=query, needed=needed,
+                cache_key=cache_key("specs", brand, model, size),
+                spec_cols=spec_cols,
+            ))
+    if unqueryable:
+        counts = collections.Counter(unqueryable)
+        total = sum(counts.values())
+        detail = ", ".join(f"{sup}/{typ}={n}" for (sup, typ), n in sorted(counts.items()))
+        print(f"  Skipped {total} row(s) with nothing to search on (SKU/size only) "
+              f"— no search is bought for them: {detail}")
+    if report_only_subfields:
+        print(f"  {report_only_subfields} sub-field gap(s) have no column to write an "
+              f"answer into for that supplier — never searched, shown in the completeness "
+              f"panel only.")
+    return candidates
+
+
+# ---------------------------------------------------------------------------
 # (d) — apply already-cached (already-paid-for) results. No network call.
 # ---------------------------------------------------------------------------
 
@@ -521,6 +745,56 @@ def apply_cached(fields, supplier_filter=None, write=False):
         report[field] = field_stats
 
     return report
+
+
+def apply_spec_cache(supplier_filter=None, write=False):
+    """specs counterpart to apply_cached() — same (d)-step contract (cache
+    hits only, zero network calls regardless of `write`), different write
+    shape: a specs cache entry is {subfield: value}, and each present
+    subfield is written into ITS OWN column (spec_cols, built by
+    discover_spec_candidates from SPEC_SOURCES) rather than one value_col.
+
+    A candidate only counts as satisfied once every subfield it actually
+    needs is present in the cache entry — a row missing load_index AND
+    speed_rating with only load_index cached still needs a search for the
+    other half, so it is NOT counted as a completed cache_hit.
+    """
+    cache = load_cache()
+    cands = discover_spec_candidates(supplier_filter)
+    by_file = {}
+    for c in cands:
+        by_file.setdefault(c["source_file"], []).append(c)
+
+    stats = dict(total_missing=len(cands), cache_hits=0, cache_hits_partial=0,
+                 still_needs_paid=0, files_written=[])
+
+    for source_file, rows in by_file.items():
+        df = None
+        dirty = False
+        for c in rows:
+            entry = (cache.get(c["cache_key"]) or {}).get("specs", {})
+            found = {sub: entry.get(sub, "") for sub in c["needed"] if entry.get(sub)}
+            if not found:
+                stats["still_needs_paid"] += 1
+                continue
+            if len(found) < len(c["needed"]):
+                stats["cache_hits_partial"] += 1
+            else:
+                stats["cache_hits"] += 1
+            if write:
+                if df is None:
+                    df = pd.read_csv(source_file, dtype=str, low_memory=False,
+                                     encoding="utf-8-sig").fillna("")
+                for sub, value in found.items():
+                    col = c["spec_cols"].get(sub)
+                    if col:   # None for a sub-field this supplier has no column for
+                        df.at[c["row_index"], col] = value
+                        dirty = True
+        if dirty:
+            df.to_csv(source_file, index=False, encoding="utf-8")
+            stats["files_written"].append(source_file)
+
+    return stats
 
 
 # ---------------------------------------------------------------------------
@@ -677,6 +951,46 @@ def filter_image_candidates(results, brand="", model="", product_type="tires"):
     return [c for _, _, c in scored]
 
 
+def _parse_spec_result(text, size_hint, needed):
+    """Extract whichever of `needed` can be read out of aggregated SERP
+    result text — the same size_parser functions augment*.py already trusts
+    for this, just pointed at search-result text instead of the row's own
+    description. Only returns keys that were actually found; a candidate
+    still missing some of `needed` after this stays missing (see
+    apply_spec_cache's cache_hits_partial) rather than being marked done.
+
+    size_hint is the original (un-normalized) size string, used only to help
+    parse_tire_size anchor width/ratio/rim if a size-shaped token also shows
+    up in the result text (a plain google search result for a matching
+    product overwhelmingly repeats the same size in a listing title).
+    """
+    found = {}
+    if "load_index" in needed or "speed_rating" in needed:
+        li, sr = parse_load_speed(text)
+        if li and "load_index" in needed:
+            found["load_index"] = li
+        if sr and "speed_rating" in needed:
+            found["speed_rating"] = sr
+    if "load_range" in needed:
+        # extract_load_range() reads a trailing letter off a SIZE string or a
+        # PR/XL mention in free text — it has no pattern for a labeled field,
+        # which is exactly how a retailer listing states this ("Load Range:
+        # E", "Load Range E"). Check that shape first; it is unambiguous
+        # where it matches, whereas a bare loose letter anywhere in a page of
+        # search-result text is not safe to treat as the load range.
+        m = re.search(r"Load\s*Range[:\s]+([B-N]|XL|SL)\b", text, re.IGNORECASE)
+        lr = m.group(1).upper() if m else extract_load_range(size_hint, text)
+        if lr:
+            found["load_range"] = lr
+    if {"section_width", "aspect_ratio", "rim_diameter"} & needed:
+        parsed = parse_tire_size(text, "")
+        for sub, key in (("section_width", "width"), ("aspect_ratio", "ratio"),
+                        ("rim_diameter", "rim_display")):
+            if sub in needed and parsed[key]:
+                found[sub] = parsed[key]
+    return found
+
+
 # ---------------------------------------------------------------------------
 # (e) — live search. Gated. NEVER invoked in this task.
 # ---------------------------------------------------------------------------
@@ -743,6 +1057,43 @@ def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6
     skipped_unwritable = 0
 
     for field in fields:
+        if field == "specs":
+            # Separate loop: candidates come from discover_spec_candidates()
+            # (not discover_candidates()), and a cache "hit" here means EVERY
+            # sub-field that row needs is covered — a candidate still missing
+            # one of several needed sub-fields is searched again so the
+            # remainder gets filled, with whatever was already found merged
+            # in rather than overwritten.
+            for c in discover_spec_candidates(supplier_filter):
+                if spent >= budget:
+                    print(f"Budget of {budget} reached — stopping mid-batch.")
+                    return
+                existing = (cache.get(c["cache_key"]) or {}).get("specs", {})
+                still_needed = {sub for sub in c["needed"] if not existing.get(sub)}
+                if not still_needed or c["cache_key"] in seen:
+                    continue
+                seen.add(c["cache_key"])
+
+                results = GoogleSearch({
+                    "engine": "google", "q": c["query"], "num": 6,
+                    "api_key": SERPAPI_KEY_CLIENT,
+                }).get_dict()
+                texts = []
+                for r in results.get("shopping_results", [])[:6]:
+                    texts += [r.get("title", ""), r.get("snippet", "")]
+                for r in results.get("organic_results", [])[:6]:
+                    texts += [r.get("title", ""), r.get("snippet", "")]
+                found = _parse_spec_result(" ".join(filter(None, texts)), c["size"], still_needed)
+
+                merged = dict(existing)
+                merged.update(found)
+                cache[c["cache_key"]] = {"specs": merged, "query": c["query"]}
+                save_cache(cache)
+                spent += 1
+                print(f"  [{spent}/{budget}] specs: {c['query']!r} "
+                      f"needed={sorted(still_needed)} -> {found or '(nothing found)'}")
+            continue
+
         cands = discover_candidates(field, supplier_filter)
         for c in cands:
             if spent >= budget:
@@ -825,6 +1176,9 @@ def per_source_breakdown(field, supplier_filter=None):
     """Per (supplier, type) breakdown for `field`: missing / cache_hit_nonempty
     (free — already paid) / needs_paid (no cache entry at all).
     """
+    if field == "specs":
+        return per_spec_source_breakdown(supplier_filter)
+
     cache = load_cache()
     rows = {}
     for c in discover_candidates(field, supplier_filter):
@@ -838,6 +1192,26 @@ def per_source_breakdown(field, supplier_filter=None):
             r["needs_paid"] += 1
         # entry exists but empty ("already tried, came back empty") counts
         # toward neither — it's a resolved non-hit, not a fresh spend candidate.
+    return rows
+
+
+def per_spec_source_breakdown(supplier_filter=None):
+    """specs counterpart to per_source_breakdown() — a row counts as a
+    cache_hit only once every sub-field it needs is covered; needs_paid
+    covers both "never searched" and "searched but some sub-field still
+    missing", since either way another search is what closes the gap.
+    """
+    cache = load_cache()
+    rows = {}
+    for c in discover_spec_candidates(supplier_filter):
+        key = (c["supplier"], c["type"])
+        r = rows.setdefault(key, dict(missing=0, cache_hit=0, needs_paid=0, writable=True))
+        r["missing"] += 1
+        entry = (cache.get(c["cache_key"]) or {}).get("specs", {})
+        if c["needed"] <= entry.keys() and all(entry.get(s) for s in c["needed"]):
+            r["cache_hit"] += 1
+        else:
+            r["needs_paid"] += 1
     return rows
 
 
@@ -1045,7 +1419,11 @@ def report(fields, supplier_filter=None, budget_hint=5000, apply_cache=False, wr
         print(f"Migrated {migrated} entries from formula's old serp_cache.json into the "
               f"centralized cache ({already} were already present).")
 
-    stats = apply_cached(fields, supplier_filter, write=(apply_cache and write))
+    simple_fields = [f for f in fields if f != "specs"]
+    stats = apply_cached(simple_fields, supplier_filter, write=(apply_cache and write))
+    if "specs" in fields:
+        stats["specs"] = apply_spec_cache(supplier_filter, write=(apply_cache and write))
+
     total_needs_paid = 0
     manifest = []
 
@@ -1057,9 +1435,15 @@ def report(fields, supplier_filter=None, budget_hint=5000, apply_cache=False, wr
         print()
         total_needs_paid += s["still_needs_paid"]
         cache_now = load_cache()
-        for c in discover_candidates(field, supplier_filter):
-            if c["cache_key"] not in cache_now:
-                manifest.append(c)
+        if field == "specs":
+            for c in discover_spec_candidates(supplier_filter):
+                entry = (cache_now.get(c["cache_key"]) or {}).get("specs", {})
+                if not (c["needed"] <= entry.keys() and all(entry.get(s) for s in c["needed"])):
+                    manifest.append(c)
+        else:
+            for c in discover_candidates(field, supplier_filter):
+                if c["cache_key"] not in cache_now:
+                    manifest.append(c)
 
     print(f"TOTAL new searches needing approval: {total_needs_paid}")
     verdict = "WITHIN budget" if total_needs_paid <= budget_hint else "EXCEEDS budget — prioritize"
@@ -1071,8 +1455,12 @@ def report(fields, supplier_filter=None, budget_hint=5000, apply_cache=False, wr
 
     # Only build the full markdown approval report when this was a
     # whole-catalog run (no supplier/field filter) — a partial run doesn't
-    # have enough data to fill every table.
-    if supplier_filter is None and set(fields) == set(SUPPORTED_FIELDS):
+    # have enough data to fill every table. The doc itself only covers
+    # designation/image so far (specs numbers print above and land in
+    # .enrich_scan.json via enrich_runner.py --scan, which is what the
+    # dashboard actually reads — extending this markdown generator is a
+    # separate change).
+    if supplier_filter is None and {"designation", "image"} <= set(fields):
         designation_rows = per_source_breakdown("designation")
         image_rows = per_source_breakdown("image")
         free_audit = audit_free_fields()
