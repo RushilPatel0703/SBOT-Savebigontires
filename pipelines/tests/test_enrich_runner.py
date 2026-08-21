@@ -755,3 +755,53 @@ def test_specs_result_file_records_its_own_budget(no_network, no_augment, quiet_
     assert result["image_budget"] == 3
     assert result["specs_budget"] == 25
     assert result["designation_budget"] == 0
+
+
+# ── parse_load_speed on noisy SERP text ─────────────────────────────────────────
+#
+# Found by checking a real live run's output before it shipped: a bare size
+# string like "225/60ZR18" has the exact same digit/digit+letter shape as a
+# genuine dual load-index token ("143/141J"), and the construction letter (Z,
+# H, V — from ZR/HR/VR) looks like a plausible speed symbol on its own. On a
+# curated supplier description field this basically never comes up; on raw
+# SERP result text, which routinely repeats the product's own size, it wrote
+# "Load index: 225" (equal to the tire's section width) and "Load index: 112,
+# Speed rating: MP" (from "...112 MPH...") to the live storefront. 178 of 632
+# specs answers from that run were affected — see the "Remember empty specs
+# searches" commit's follow-up repair.
+
+def test_parse_load_speed_rejects_a_bare_size_string():
+    from size_parser import parse_load_speed
+    assert parse_load_speed("Lexani LXUHP-207 225/60ZR18 tire size") == ("", "")
+    assert parse_load_speed("205/50R17 tire") == ("", "")
+    assert parse_load_speed("195/55HR16 continental") == ("", "")
+    assert parse_load_speed("LT285/70VR17 tire") == ("", "")
+
+
+def test_parse_load_speed_rejects_a_coincidental_two_letter_match():
+    """[A-Z]{1,2} used to accept 2 letters, so "...112 MPH..." was read as
+    load_index=112, speed_rating="MP" — a real, if rare, phrase in shopping
+    result snippets, and "MP" is not a real tire speed symbol."""
+    from size_parser import parse_load_speed
+    assert parse_load_speed("Nexen Roadian ATX 30x9.50R15 max speed 112 MPH") == ("", "")
+
+
+def test_parse_load_speed_still_finds_genuine_ratings():
+    from size_parser import parse_load_speed
+    assert parse_load_speed("LT265/70R17 143/141J 10PR") == ("143", "J")
+    assert parse_load_speed("LT265/70R17 143/141J XL") == ("143", "J")
+    assert parse_load_speed("245/60R18 104H XL") == ("104", "H")
+    assert parse_load_speed("225/45R17 94V") == ("94", "V")
+    assert parse_load_speed("225/45R17 94(Y)") == ("94", "Y")
+    assert parse_load_speed("185/65R15 88H SL BSW AKLIMATE All Weather") == ("88", "H")
+    assert parse_load_speed("265/70R17 121/118S") == ("121", "S")
+    assert parse_load_speed("30x9.50R15 112Q") == ("112", "Q")
+
+
+def test_parse_load_speed_rejects_a_non_speed_letter():
+    """A, I, O, X are never real tire speed symbols."""
+    from size_parser import parse_load_speed
+    assert parse_load_speed("94A tire") == ("", "")
+    assert parse_load_speed("94I tire") == ("", "")
+    assert parse_load_speed("94O tire") == ("", "")
+    assert parse_load_speed("94X tire") == ("", "")

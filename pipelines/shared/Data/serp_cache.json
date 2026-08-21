@@ -1010,5 +1010,6062 @@
   "designation:greentrac|rough master xt|35x12.50r20": {
     "designation": "Winter",
     "query": "Greentrac ROUGH MASTER XT 35x12.50R20 tire"
+  },
+  "image:art|element|18 5-114.3 (8)": {
+    "image": "",
+    "query": "Art ELEMENT 18 5-114.3 (8) wheel product photo"
+  },
+  "image:dtd|white spoke trailer|13 5-114.3 (4.5)": {
+    "image": "",
+    "query": "DTD White Spoke Trailer 13 5-114.3 (4.5) wheel product photo"
+  },
+  "image:ruffino|tactical|20 5-127/5-139.7 (10)": {
+    "image": "",
+    "query": "Ruffino Tactical 20 5-127/5-139.7 (10) wheel product photo"
+  },
+  "image:rtx|grey dual wheel cb:124.9 os:131|16x6 8-165.1": {
+    "image": "",
+    "query": "RTX GREY DUAL WHEEL CB:124.9 OS:131 16X6 8-165.1 wheel product photo"
+  },
+  "image:touren|tr79b|20 5-127 (9)": {
+    "image": "",
+    "query": "Touren TR79B 20 5-127 (9) wheel product photo"
+  },
+  "image:rssw|steel wheel|18 5-120 (7)": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/collections/38d22c2ee5a15894262fc942cfae935fbd05e2fc_R241_SATIN_BLACK__DEEP_559e0aa5-7ac4-442f-8654-270f88371419.jpg?v=1692301408",
+    "query": "RSSW Steel Wheel 18 5-120 (7) wheel product photo",
+    "verified": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/collections/38d22c2ee5a15894262fc942cfae935fbd05e2fc_R241_SATIN_BLACK__DEEP_559e0aa5-7ac4-442f-8654-270f88371419.jpg?v=1692301408",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1000,
+        "height": 1000,
+        "core_bg_frac": 0.2713,
+        "face_on": false
+      }
+    ]
+  },
+  "image:torque|f027 rep|18x8.5": {
+    "image": "",
+    "query": "Torque F027 REP 18x8.5 wheel product photo"
+  },
+  "image:torque|ff2104|17x9": {
+    "image": "",
+    "query": "Torque FF2104 17x9 wheel product photo"
+  },
+  "image:torque|ff5672|20x9": {
+    "image": "",
+    "query": "Torque FF5672 20x9 wheel product photo"
+  },
+  "image:torque|ff5672|20x9.0": {
+    "image": "",
+    "query": "Torque FF5672 20x9.0 wheel product photo"
+  },
+  "image:warrior|cruseross x/t lt255/70r16|lt255/70r16": {
+    "image": "https://zonallantas.com/wp-content/uploads/2025/12/HABILEAD-RS23.webp",
+    "query": "WARRIOR CRUSEROSS X/T LT255/70R16 LT255/70R16 tire product photo",
+    "verified": [
+      {
+        "url": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=647643018013597",
+        "domain": "Facebook",
+        "status": "unusable: decode failed: UnidentifiedImageError: cannot identify image file <_io.BytesIO object at 0x00000206670C8180>"
+      },
+      {
+        "url": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=647642991346933",
+        "domain": "Facebook",
+        "status": "unusable: decode failed: UnidentifiedImageError: cannot identify image file <_io.BytesIO object at 0x00000206670C8180>"
+      },
+      {
+        "url": "https://zonallantas.com/wp-content/uploads/2025/12/HABILEAD-RS23.webp",
+        "domain": "Zona Llantas",
+        "status": "accepted",
+        "width": 800,
+        "height": 800,
+        "core_bg_frac": 0.1182,
+        "face_on": false
+      }
+    ]
+  },
+  "image:|6p blk d. window|": {
+    "image": "",
+    "query": "6P BLK D. WINDOW wheel product photo"
+  },
+  "designation:ceat|farmax rc|230/95r40/tl": {
+    "designation": "",
+    "query": "CEAT FARMAX RC 230/95R40/TL tire"
+  },
+  "specs:kenda|k3204r klever xt|28x10r14 d": {
+    "specs": {
+      "load_index": "70",
+      "speed_rating": "M"
+    },
+    "query": "Kenda K3204R KLEVER XT 28x10R14 D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|30x9.50r15 c": {
+    "specs": {},
+    "query": "Nexen Roadian ATX 30x9.50R15 C tire size load index speed rating",
+    "tried": []
+  },
+  "specs:maxtrek|mud trac|30x9.50r15 c": {
+    "specs": {},
+    "query": "Maxtrek MUD TRAC 30x9.50R15 C tire size load index speed rating",
+    "tried": []
+  },
+  "specs:paragon|ridgerunner at2|31x10.50r15 c": {
+    "specs": {
+      "load_index": "109",
+      "speed_rating": "R"
+    },
+    "query": "Paragon RIDGERUNNER AT2 31X10.50R15 C tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|mud trac|31x10.50r15 c": {
+    "specs": {
+      "load_index": "109",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek Mud Trac 31X10.50R15 C tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer rugged trek|31x10.50r15 c": {
+    "specs": {},
+    "query": "Cooper DISCOVERER RUGGED TREK 31X10.50R15 C tire size load index speed rating",
+    "tried": []
+  },
+  "specs:maxtrek|mud trac|33x12.50r15 c": {
+    "specs": {
+      "load_index": "108",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek MUD TRAC 33X12.50R15 C tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|hill tracker a/t|33x12.50r20 e": {
+    "specs": {},
+    "query": "Maxtrek Hill Tracker A/T 33X12.50R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:yokohama|geolandar a/t4 g018|33x12.50r15lt c": {
+    "specs": {
+      "load_index": "108"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 33X12.50R15LT C tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:predator|dirt rebel rts blk|33x12.50r17lt e": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "R"
+    },
+    "query": "Predator DIRT REBEL RTS BLK 33X12.50R17LT E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|ditto rx|33x12.50r18 e": {
+    "specs": {
+      "load_index": "114",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek Ditto RX 33X12.50R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|mud trac|33x12.50r18 e": {
+    "specs": {
+      "load_index": "118",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek MUD TRAC 33X12.50R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|33x12.50r18 e": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER AT2 33X12.50R18 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:paragon|ridgerunner rt|33x12.50r18 f": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER RT 33X12.50R18 F tire size load index speed rating",
+    "tried": []
+  },
+  "specs:predator|dirt rebel rts blk|33x12.50r18lt e": {
+    "specs": {
+      "load_index": "118",
+      "speed_rating": "Q"
+    },
+    "query": "Predator DIRT REBEL RTS BLK 33X12.50R18LT E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian mtx rm7|33x12.50r18 f": {
+    "specs": {
+      "load_index": "122",
+      "speed_rating": "Q"
+    },
+    "query": "Nexen Roadian MTX RM7 33X12.50R18 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|mud trac|33x12.50r20 e": {
+    "specs": {},
+    "query": "Maxtrek MUD TRAC 33X12.50R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:amp|terrain pro a/t|33x12.50r20 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "S"
+    },
+    "query": "Amp Terrain Pro A/T 33X12.50R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|33x12.50r20 e": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER AT2 33X12.50R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:predator|dirt rebel rts blk|33x12.50r20lt f": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "R"
+    },
+    "query": "Predator DIRT REBEL RTS BLK 33X12.50R20LT F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|new mutant rt trail blk|33x12.50r20lt f": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "R"
+    },
+    "query": "Predator NEW MUTANT RT TRAIL BLK 33X12.50R20LT F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner rt|33x12.50r20 e": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER RT 33X12.50R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:amp|terrain attack rt|33x12.50r20 e": {
+    "specs": {
+      "load_index": "114",
+      "speed_rating": "Q"
+    },
+    "query": "Amp Terrain Attack RT 33X12.50R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian mtx rm7|33x12.50r20 f": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "Q"
+    },
+    "query": "Nexen Roadian MTX RM7 33X12.50R20 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer rugged trek|33x12.50r20 f": {
+    "specs": {
+      "load_index": "119",
+      "speed_rating": "Q"
+    },
+    "query": "Cooper DISCOVERER RUGGED TREK 33X12.50R20 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|dirt rebel ats blk|33x12.50r22lt f": {
+    "specs": {
+      "load_index": "109",
+      "speed_rating": "Q"
+    },
+    "query": "Predator DIRT REBEL ATS BLK 33X12.50R22LT F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|dirt rebel rts blk|33x12.50r22lt f": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "R"
+    },
+    "query": "Predator DIRT REBEL RTS BLK 33X12.50R22LT F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|new mutant rt trail blk|33x12.50r22lt f": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "R"
+    },
+    "query": "Predator NEW MUTANT RT TRAIL BLK 33X12.50R22LT F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner rt|33x12.50r22 f": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER RT 33X12.50R22 F tire size load index speed rating",
+    "tried": []
+  },
+  "specs:amp|terrain attack m/t|33x1250r22 e": {
+    "specs": {},
+    "query": "Amp Terrain Attack M/T 33X1250R22 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:amp|terrain attack rt|33x12.50r22 e": {
+    "specs": {},
+    "query": "Amp Terrain Attack RT 33X12.50R22 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|roadian mtx rm7|33x12.50r22 f": {
+    "specs": {
+      "load_index": "114",
+      "speed_rating": "Q"
+    },
+    "query": "Nexen Roadian MTX RM7 33X12.50R22 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|mud trac|35x12.50r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek MUD TRAC 35X12.50R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|35x12.50r17 e": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER AT2 35X12.50R17 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|roadian atx|35x12.50r17 f": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "S"
+    },
+    "query": "Nexen Roadian ATX 35X12.50R17 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t xd g017|35x12.50r17 e": {
+    "specs": {
+      "load_index": "122",
+      "speed_rating": "Q"
+    },
+    "query": "Yokohama GEOLANDAR A/T XD G017 35X12.50R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|35x12.50r18 e": {
+    "specs": {
+      "load_index": "123"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 35X12.50R18 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:maxtrek|mud trac|35x12.50r20 e": {
+    "specs": {},
+    "query": "Maxtrek MUD TRAC 35X12.50R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:maxtrek|hill tracker a/t|35x12.50r20 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "R"
+    },
+    "query": "Maxtrek Hill Tracker A/T 35X12.50R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|35x12.50r20 e": {
+    "specs": {
+      "load_index": "96"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 35X12.50R20 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|35x12.50r20 f": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "R"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK 35X12.50R20 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|mud trac|35x12.50r22 e": {
+    "specs": {
+      "load_index": "117",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek MUD TRAC 35X12.50R22 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|new mutant x-at|35x11.50r20lt e": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "R"
+    },
+    "query": "Predator NEW MUTANT X-AT 35X11.50R20LT E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|new mutant rt trail blk|35x11.50r20lt e": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "Q"
+    },
+    "query": "Predator NEW MUTANT RT TRAIL BLK 35X11.50R20LT E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|ditto rx|35x12.50r17 e": {
+    "specs": {},
+    "query": "Maxtrek DITTO RX 35X12.50R17 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:paragon|ridgerunner rt|35x12.50r17": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER RT 35X12.50R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|dirt rebel ats blk|35x12.50r17lt e": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "R"
+    },
+    "query": "Predator DIRT REBEL ATS BLK 35X12.50R17LT E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|dirt rebel rts blk|35x12.50r17lt e": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "R"
+    },
+    "query": "Predator DIRT REBEL RTS BLK 35X12.50R17LT E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|new mutant rt trail|35x12.50r17lt": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "R"
+    },
+    "query": "Predator NEW MUTANT RT TRAIL 35X12.50R17LT tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian mtx rm7|35x12.50r17 f": {
+    "specs": {},
+    "query": "Nexen Roadian MTX RM7 35X12.50R17 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:amp|terrain attack rt|35x12.50r17 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "Q"
+    },
+    "query": "Amp Terrain Attack RT 35X12.50R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rf12|35x12.50r17 e": {
+    "specs": {},
+    "query": "Hankook RF12 35X12.50R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rt05|35x12.50r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Hankook RT05 35X12.50R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|mud trac|35x12.50r18 e": {
+    "specs": {
+      "load_index": "117",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek Mud Trac 35X12.50R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|hill tracker a/t|35x12.50r18 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek Hill Tracker A/T 35X12.50R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|35x12.50r18 e": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER AT2 35X12.50R18 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:paragon|ridgerunner rt|35x12.50r18 f": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER RT 35X12.50R18 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|dirt rebel rts blk|35x12.50r18lt e": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "R"
+    },
+    "query": "Predator DIRT REBEL RTS BLK 35X12.50R18LT E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:amp|terrain attack m/t|35x12.50r18 e": {
+    "specs": {},
+    "query": "Amp Terrain Attack M/T 35X12.50R18 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:hankook|rt05|35x12.50r18 f": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Hankook RT05 35X12.50R18 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian mtx rm7|35x12.50r18 f": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "Q"
+    },
+    "query": "Nexen Roadian MTX RM7 35X12.50R18 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rf12|35x12.50r18 e": {
+    "specs": {},
+    "query": "Hankook RF12 35X12.50R18 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:cooper|discoverer rugged trek|35x12.50r18 f": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "Q"
+    },
+    "query": "Cooper DISCOVERER RUGGED TREK 35X12.50R18 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:amp|terrain attack a/t|35x12.50r20 e": {
+    "specs": {},
+    "query": "Amp Terrain Attack A/T 35X12.50R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:amp|terrain pro a/t|35x12.50r20 e": {
+    "specs": {},
+    "query": "Amp Terrain Pro A/T 35X12.50R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|35x12.50r20 e": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER AT2 35X12.50R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:paragon|ridgerunner rt|35x12.50r20 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER RT 35X12.50R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|35x12.50r20 f": {
+    "specs": {},
+    "query": "Nexen Roadian ATX 35X12.50R20 F tire size load index speed rating",
+    "tried": []
+  },
+  "specs:amp|terrain attack rt|35x12.50r20 e": {
+    "specs": {},
+    "query": "Amp Terrain Attack RT 35X12.50R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|roadian mtx rm7|35x12.50r20 f": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "Q"
+    },
+    "query": "Nexen Roadian MTX RM7 35X12.50R20 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|dirt rebel rts blk|35x12.50r22lt f": {
+    "specs": {},
+    "query": "Predator DIRT REBEL RTS BLK 35X12.50R22LT F tire size load index speed rating",
+    "tried": []
+  },
+  "specs:amp|terrain attack a/t|35x12.50r22 e": {
+    "specs": {},
+    "query": "Amp Terrain Attack A/T 35X12.50R22 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:predator|new mutant rt trail blk|35x12.50r22lt f": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "R"
+    },
+    "query": "Predator NEW MUTANT RT TRAIL BLK 35X12.50R22LT F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner rt|35x12.50r22 f": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER RT 35X12.50R22 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:amp|terrain attack rt|35x12.50r22 e": {
+    "specs": {},
+    "query": "Amp Terrain Attack RT 35X12.50R22 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|roadian mtx rm7|35x12.50r22 f": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "Q"
+    },
+    "query": "Nexen Roadian MTX RM7 35X12.50R22 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner rt|35x13.50r20 f": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER RT 35X13.50R20 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|new mutant x-rt|35x13.50r26lt e": {
+    "specs": {},
+    "query": "Predator NEW MUTANT X-RT 35X13.50R26LT E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:hankook|rc10|37x12.50r17 d": {
+    "specs": {},
+    "query": "Hankook RC10 37X12.50R17 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:cooper|discoverer rugged trek|37x12.50r17 d": {
+    "specs": {},
+    "query": "Cooper DISCOVERER RUGGED TREK 37X12.50R17 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:paragon|ridgerunner rt|37x12.50r18 e": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER RT 37X12.50R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:amp|terrain attack a/t|37x12.50r20 e": {
+    "specs": {},
+    "query": "Amp Terrain Attack A/T 37X12.50R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:paragon|ridgerunner rt|37x12.50r20 e": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER RT 37X12.50R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:cooper|discoverer stt pro|37x12.50r20 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "Q"
+    },
+    "query": "Cooper DISCOVERER STT PRO 37X12.50R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner rt|37x12.50r22 f": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER RT 37X12.50R22 F tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|roadian mtx rm7|37x13.50r22 f": {
+    "specs": {},
+    "query": "Nexen Roadian MTX RM7 37X13.50R22 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:toyo|open country m/t|38x13.50r18 d": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "P"
+    },
+    "query": "Toyo Open Country M/T 38X13.50R18 D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:toyo|open country m/t|38x13.50r20 d": {
+    "specs": {},
+    "query": "Toyo Open Country M/T 38X13.50R20 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:cooper|discoverer stt pro|38x13.50r20 d": {
+    "specs": {},
+    "query": "Cooper DISCOVERER STT PRO 38X13.50R20 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|roadian ct8 hl|185/60r15c c": {
+    "specs": {
+      "load_index": "94",
+      "speed_rating": "T"
+    },
+    "query": "Nexen Roadian CT8 HL 185/60R15C C tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:kumho|winter portran cw11|195/70r15 d": {
+    "specs": {
+      "load_index": "104"
+    },
+    "query": "Kumho Winter PorTran CW11 195/70R15 D tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:nexen|roadian ct8 hl|195/75r16c d": {
+    "specs": {
+      "load_index": "107",
+      "speed_rating": "R"
+    },
+    "query": "Nexen Roadian CT8 HL 195/75R16C D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|nb4svan|195/75r16c e": {
+    "specs": {},
+    "query": "Nexen NB4SVan 195/75R16C E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:continental|vancontact a/s|195/75r16c": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Continental VanContact A/S 195/75R16C tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:kumho|winter portran cw11|205/75r16 d": {
+    "specs": {
+      "load_index": "110"
+    },
+    "query": "Kumho Winter PorTran CW11 205/75R16 D tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:continental|vancontact a/s ultra|205/75r16c e": {
+    "specs": {},
+    "query": "Continental VanContact A/S Ultra 205/75R16C E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:supercargo|sc216|215/75r17.5 h": {
+    "specs": {},
+    "query": "SuperCargo SC216 215/75R17.5 H tire size load index speed rating",
+    "tried": []
+  },
+  "specs:boto|bt926|215/75r17.5 h": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "M"
+    },
+    "query": "Boto BT926 215/75R17.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:boto|bt957 on/off traction|215/75r17.5 h": {
+    "specs": {
+      "load_index": "132",
+      "speed_rating": "M"
+    },
+    "query": "Boto BT957 On/Off Traction 215/75R17.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:rovelo|rsr4sp|215/75r17.5 h": {
+    "specs": {
+      "load_index": "135",
+      "speed_rating": "L"
+    },
+    "query": "ROVELO RSR4SP 215/75R17.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:windpower|wtl31|215/75r17.5 j": {
+    "specs": {},
+    "query": "Windpower WTL31 215/75R17.5 J tire size load index speed rating",
+    "tried": []
+  },
+  "specs:roadmaster|rm272|215/75r17.5 h": {
+    "specs": {
+      "load_index": "135",
+      "speed_rating": "L"
+    },
+    "query": "Roadmaster RM272 215/75R17.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:continental|htr2 regional trailer|215/75r17.5 h": {
+    "specs": {
+      "load_index": "135",
+      "speed_rating": "K"
+    },
+    "query": "Continental HTR2 Regional Trailer 215/75R17.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:bridgestone|blizzak6|225/40r19": {
+    "specs": {
+      "load_index": "93",
+      "speed_rating": "W"
+    },
+    "query": "Bridgestone Blizzak6 225/40R19 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt225/65r17 d": {
+    "specs": {
+      "load_index": "99"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT225/65R17 D tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:rovelo|rdr5sp|225/70r19.5": {
+    "specs": {},
+    "query": "ROVELO RDR5SP 225/70R19.5 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:windpower|wdw82|225/70r19.5 g": {
+    "specs": {
+      "load_index": "135",
+      "speed_rating": "M"
+    },
+    "query": "Windpower WDW82 225/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:roadmaster|rm170+|225/70r19.5 g": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "N"
+    },
+    "query": "Roadmaster RM170+ 225/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|dh07|225/70r19.5 g": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "L"
+    },
+    "query": "Hankook DH07 225/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|ah35|225/70r19.5 g": {
+    "specs": {},
+    "query": "Hankook AH35 225/70R19.5 G tire size load index speed rating",
+    "tried": []
+  },
+  "specs:continental|conti hsr 5 steer/all-position|225/70r19.5 g": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "N"
+    },
+    "query": "Continental Conti HSR 5 Steer/All-Position 225/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:continental|cthd3 off road drive|225/70r19.5 g": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "L"
+    },
+    "query": "Continental CTHD3 Off Road Drive 225/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:continental|csd3 scandinavia hd3|225/70r19.5 g": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "N"
+    },
+    "query": "Continental CSD3 Scandinavia HD3 225/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:continental|conti hdr 5 drive|225/70r19.5 g": {
+    "specs": {
+      "load_index": "130",
+      "speed_rating": "N"
+    },
+    "query": "Continental Conti HDR 5 Drive 225/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:mirage|mr-w300 winter|225/70r15c d": {
+    "specs": {
+      "load_index": "112",
+      "speed_rating": "R"
+    },
+    "query": "Mirage MR-W300 Winter 225/70R15C D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:supercargo|sc510 open shoulder drive|225/70r19.5 g": {
+    "specs": {},
+    "query": "SuperCargo SC510 Open Shoulder Drive 225/70R19.5 G tire size load index speed rating",
+    "tried": []
+  },
+  "specs:boto|bt957 on/off traction|225/70r19.5 g": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "L"
+    },
+    "query": "Boto BT957 On/Off Traction 225/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:rovelo|rsr4sp|225/70r19.5 g": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "L"
+    },
+    "query": "ROVELO RSR4SP 225/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:roadmaster|rm257|225/70r19.5 g": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "N"
+    },
+    "query": "Roadmaster RM257 225/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:windpower|wtl32|225/70r19.5 g": {
+    "specs": {
+      "load_index": "143",
+      "speed_rating": "J"
+    },
+    "query": "Windpower WTL32 225/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|dh35|225/70r19.5 g": {
+    "specs": {},
+    "query": "Hankook DH35 225/70R19.5 G tire size load index speed rating",
+    "tried": []
+  },
+  "specs:toyo|m655 o/s drive|225/70r19.5 g": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "N"
+    },
+    "query": "Toyo M655 O/S Drive 225/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:general|general ra 2 all position/steer|225/70r19.5 g": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "N"
+    },
+    "query": "General GENERAL RA 2 All Position/Steer 225/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:general|general rd 2 drive|225/70r19.5 g": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "N"
+    },
+    "query": "General GENERAL RD 2 Drive 225/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:continental|conti hsr 5 steer/all-position|225/70r19.5 h": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "N"
+    },
+    "query": "Continental Conti HSR 5 Steer/All-Position 225/70R19.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|nb4svan|225/75r16c e": {
+    "specs": {},
+    "query": "Nexen NB4SVan 225/75R16C E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|roadian ct8 hl|225/75r16c e": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "R"
+    },
+    "query": "Nexen Roadian CT8 HL 225/75R16C E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:bridgestone|duravis m705 bl|225/75r16c e": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "R"
+    },
+    "query": "Bridgestone DURAVIS M705 BL 225/75R16C E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:mirage|mr-w662|235/45r18": {
+    "specs": {},
+    "query": "Mirage MR-W662 235/45R18 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:mirage|mr-w662|235/55r18": {
+    "specs": {
+      "load_index": "104",
+      "speed_rating": "H"
+    },
+    "query": "Mirage MR-W662 235/55R18 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:mirage|mr-w662|235/60r18": {
+    "specs": {},
+    "query": "Mirage MR-W662 235/60R18 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:mirage|mr-w300 winter|235/65r16c d": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "R"
+    },
+    "query": "Mirage MR-W300 Winter 235/65R16C D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian ct8 hl|235/65r16c e": {
+    "specs": {},
+    "query": "Nexen Roadian CT8 HL 235/65R16C E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|roadian htx 2 bw|235/65r16c e": {
+    "specs": {},
+    "query": "Nexen Roadian HTX 2 BW 235/65R16C E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|nb4svan|235/65r16c e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "R"
+    },
+    "query": "Nexen NB4SVan 235/65R16C E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|winguard wt1|235/65r16c e": {
+    "specs": {},
+    "query": "Nexen WINGUARD WT1 235/65R16C E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:bridgestone|duravis m705 bl|235/65r16c e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "R"
+    },
+    "query": "Bridgestone DURAVIS M705 BL 235/65R16C E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:supercargo|sc216|235/75r17.5 j": {
+    "specs": {
+      "load_index": "99",
+      "speed_rating": "H"
+    },
+    "query": "SuperCargo SC216 235/75R17.5 J tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:boto|bt957 on/off traction|235/75r17.5 j": {
+    "specs": {
+      "load_index": "132",
+      "speed_rating": "M"
+    },
+    "query": "Boto BT957 On/Off Traction 235/75R17.5 J tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:rovelo|rsr4|235/75r17.5": {
+    "specs": {
+      "load_index": "143",
+      "speed_rating": "L"
+    },
+    "query": "ROVELO RSR4 235/75R17.5 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:windpower|wtl31|235/75r17.5 j": {
+    "specs": {
+      "load_index": "143",
+      "speed_rating": "J"
+    },
+    "query": "Windpower WTL31 235/75R17.5 J tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|th31|235/75r17.5 j": {
+    "specs": {},
+    "query": "Hankook TH31 235/75R17.5 J tire size load index speed rating",
+    "tried": []
+  },
+  "specs:continental|htr2 regional trailer|235/75r17.5": {
+    "specs": {},
+    "query": "Continental HTR2 Regional Trailer 235/75R17.5 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:maxtrek|mud trac|lt235/75r15 c": {
+    "specs": {
+      "load_index": "104",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek MUD TRAC LT235/75R15 C tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt235/75r15 d": {
+    "specs": {
+      "load_index": "110"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT235/75R15 D tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:maxtrek|su-800|lt235/75r15 c": {
+    "specs": {
+      "load_index": "104",
+      "speed_rating": "S"
+    },
+    "query": "Maxtrek SU-800 LT235/75R15 C tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|trek m7|lt235/75r15 c": {
+    "specs": {
+      "load_index": "104",
+      "speed_rating": "S"
+    },
+    "query": "Maxtrek TREK M7 LT235/75R15 C tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:mirage|mr-w662|245/45r19": {
+    "specs": {
+      "load_index": "102",
+      "speed_rating": "H"
+    },
+    "query": "Mirage MR-W662 245/45R19 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:bridgestone|blizzak6|245/50r20": {
+    "specs": {
+      "load_index": "105",
+      "speed_rating": "W"
+    },
+    "query": "Bridgestone Blizzak6 245/50R20 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt245/65r17 d": {
+    "specs": {
+      "load_index": "65"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT245/65R17 D tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:continental|htl2 eco plus trailer|245/70r17.5": {
+    "specs": {
+      "load_index": "143",
+      "speed_rating": "L"
+    },
+    "query": "Continental HTL2 Eco Plus Trailer 245/70R17.5 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:windpower|wdw82|245/70r19.5 h": {
+    "specs": {
+      "load_index": "135",
+      "speed_rating": "M"
+    },
+    "query": "Windpower WDW82 245/70R19.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:toyo|m655 o/s drive|245/70r19.5 h": {
+    "specs": {
+      "load_index": "136",
+      "speed_rating": "N"
+    },
+    "query": "Toyo M655 O/S Drive 245/70R19.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:supercargo|sc217|245/70r17.5 j": {
+    "specs": {},
+    "query": "SuperCargo SC217 245/70R17.5 J tire size load index speed rating",
+    "tried": []
+  },
+  "specs:windpower|wsr24|245/70r17.5 j": {
+    "specs": {
+      "load_index": "143",
+      "speed_rating": "J"
+    },
+    "query": "Windpower WSR24 245/70R17.5 J tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:rovelo|rsr7|245/70r17.5": {
+    "specs": {
+      "load_index": "143",
+      "speed_rating": "K"
+    },
+    "query": "ROVELO RSR7 245/70R17.5 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:trailer master|tmt06|245/70r19.5 h": {
+    "specs": {
+      "load_index": "135",
+      "speed_rating": "M"
+    },
+    "query": "Trailer Master TMT06 245/70R19.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:supercargo|sc510|245/70r19.5 j": {
+    "specs": {
+      "load_index": "135",
+      "speed_rating": "J"
+    },
+    "query": "SuperCargo SC510 245/70R19.5 J tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:boto|bt957 on/off traction|245/70r19.5 g": {
+    "specs": {
+      "load_index": "133",
+      "speed_rating": "M"
+    },
+    "query": "Boto BT957 On/Off Traction 245/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:rovelo|rdr5sp|245/70r19.5": {
+    "specs": {
+      "load_index": "135",
+      "speed_rating": "L"
+    },
+    "query": "ROVELO RDR5SP 245/70R19.5 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:roadmaster|rm170+|245/70r19.5 h": {
+    "specs": {
+      "load_index": "136",
+      "speed_rating": "M"
+    },
+    "query": "Roadmaster RM170+ 245/70R19.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:roadmaster|rm257|245/70r19.5 h": {
+    "specs": {
+      "load_index": "136",
+      "speed_rating": "M"
+    },
+    "query": "Roadmaster RM257 245/70R19.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|dh07|245/70r19.5 h": {
+    "specs": {
+      "load_index": "135",
+      "speed_rating": "M"
+    },
+    "query": "Hankook DH07 245/70R19.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|ah35|245/70r19.5 h": {
+    "specs": {
+      "load_index": "137",
+      "speed_rating": "L"
+    },
+    "query": "Hankook AH35 245/70R19.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|dh35|245/70r19.5 h": {
+    "specs": {},
+    "query": "Hankook DH35 245/70R19.5 H tire size load index speed rating",
+    "tried": []
+  },
+  "specs:rovelo|rdr5|245/70r19.5 h": {
+    "specs": {
+      "load_index": "135",
+      "speed_rating": "L"
+    },
+    "query": "ROVELO RDR5 245/70R19.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:toyo|m608z|245/70r19.5 h": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "L"
+    },
+    "query": "Toyo M608Z 245/70R19.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:continental|chd3|245/70r19.5 g": {
+    "specs": {
+      "load_index": "70",
+      "speed_rating": "R"
+    },
+    "query": "Continental CHD3 245/70R19.5 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:continental|chs3|245/70r19.5 h": {
+    "specs": {
+      "load_index": "70",
+      "speed_rating": "R"
+    },
+    "query": "Continental CHS3 245/70R19.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:continental|cthd3 off road drive|245/70r19.5 h": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "L"
+    },
+    "query": "Continental CTHD3 Off Road Drive 245/70R19.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:continental|csd3 scandinavia|245/70r19.5 h": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "N"
+    },
+    "query": "Continental CSD3 Scandinavia 245/70R19.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt245/70r17 e": {
+    "specs": {},
+    "query": "Nexen Roadian ATX LT245/70R17 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:laufenn|xfit ht|lt245/70r17": {
+    "specs": {},
+    "query": "Laufenn XFIT HT LT245/70R17 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt245/70r17 e": {
+    "specs": {
+      "load_index": "110",
+      "speed_rating": "T"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT245/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rw11|lt245/70r17 e": {
+    "specs": {
+      "load_index": "119",
+      "speed_rating": "Q"
+    },
+    "query": "Hankook RW11 LT245/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt245/70r17 e": {
+    "specs": {
+      "load_index": "119"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT245/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt245/70r17 e": {
+    "specs": {
+      "load_index": "119",
+      "speed_rating": "R"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT245/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:bridgestone|blizzak6|255/35r19": {
+    "specs": {
+      "load_index": "96",
+      "speed_rating": "V"
+    },
+    "query": "Bridgestone Blizzak6 255/35R19 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt255/65r17 e": {
+    "specs": {
+      "load_index": "119",
+      "speed_rating": "S"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT255/65R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cargopower|cgc108+ on/off all position|255/70r22.5 h": {
+    "specs": {},
+    "query": "Cargopower CGC108+ On/Off All Position 255/70R22.5 H tire size load index speed rating",
+    "tried": []
+  },
+  "specs:supercargo|sc211|255/70r22.5 h": {
+    "specs": {},
+    "query": "SuperCargo SC211 255/70R22.5 H tire size load index speed rating",
+    "tried": []
+  },
+  "specs:rovelo|rsr7|255/70r22.5": {
+    "specs": {
+      "load_index": "140",
+      "speed_rating": "M"
+    },
+    "query": "ROVELO RSR7 255/70R22.5 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:rovelo|ram2|255/70r22.5": {
+    "specs": {
+      "load_index": "148",
+      "speed_rating": "K"
+    },
+    "query": "ROVELO RAM2 255/70R22.5 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:roadmaster|rm272|255/70r22.5 h": {
+    "specs": {
+      "load_index": "140"
+    },
+    "query": "Roadmaster RM272 255/70R22.5 H tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:rovelo|rtr2|255/70r22.5": {
+    "specs": {
+      "load_index": "140",
+      "speed_rating": "M"
+    },
+    "query": "ROVELO RTR2 255/70R22.5 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:triangle|trd92|255/70r22.5 h": {
+    "specs": {},
+    "query": "Triangle TRD92 255/70R22.5 H tire size load index speed rating",
+    "tried": []
+  },
+  "specs:windpower|wsr36|255/70r22.5 h": {
+    "specs": {},
+    "query": "Windpower WSR36 255/70R22.5 H tire size load index speed rating",
+    "tried": []
+  },
+  "specs:roadmaster|rm257 regional drive|255/70r22.5 h": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "N"
+    },
+    "query": "Roadmaster RM257 REGIONAL DRIVE 255/70R22.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:general|general ht+ trailer|255/70r22.5 h": {
+    "specs": {
+      "load_index": "140",
+      "speed_rating": "L"
+    },
+    "query": "General GENERAL HT+ Trailer 255/70R22.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt255/70r18 d": {
+    "specs": {
+      "load_index": "117"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT255/70R18 D tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt265/60r18 e": {
+    "specs": {
+      "load_index": "119",
+      "speed_rating": "S"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT265/60R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt265/60r18 e": {
+    "specs": {
+      "load_index": "119"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT265/60R18 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt265/60r20 e": {
+    "specs": {
+      "load_index": "121"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT265/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt265/60r20 e": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "S"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT265/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rh14|lt265/60r20 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "S"
+    },
+    "query": "Hankook RH14 LT265/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt265/60r20 e": {
+    "specs": {},
+    "query": "Nexen Roadian ATX LT265/60R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:cooper|discoverer stronghold at blk|lt265/60r20 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "S"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT265/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:pirelli|scorpion xtm at|lt265/60r20 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "S"
+    },
+    "query": "Pirelli SCORPION XTM AT LT265/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt265/65r17 e": {
+    "specs": {},
+    "query": "Nexen Roadian ATX LT265/65R17 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt265/65r17 e": {
+    "specs": {
+      "load_index": "120"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT265/65R17 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:nexen|roadian atx|lt265/65r18 e": {
+    "specs": {},
+    "query": "Nexen Roadian ATX LT265/65R18 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt265/65r18 e": {
+    "specs": {
+      "load_index": "122"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT265/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt265/65r18 e": {
+    "specs": {
+      "load_index": "122",
+      "speed_rating": "T"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT265/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner rt|lt265/65r18 e": {
+    "specs": {
+      "load_index": "116",
+      "speed_rating": "T"
+    },
+    "query": "Paragon RIDGERUNNER RT LT265/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt265/70r16 e": {
+    "specs": {
+      "load_index": "121"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT265/70R16 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:maxtrek|hill tracker a/t|lt265/70r17 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek Hill Tracker A/T LT265/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt265/70r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "S"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT265/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt265/70r17 e": {
+    "specs": {},
+    "query": "Nexen Roadian ATX LT265/70R17 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt265/70r17 e": {
+    "specs": {
+      "load_index": "120"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT265/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:maxtrek|ditto rx|lt265/70r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek Ditto RX LT265/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:kumho|road venture at52|lt265/70r17 e": {
+    "specs": {
+      "load_index": "121"
+    },
+    "query": "Kumho Road Venture AT52 LT265/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:maxtrek|trek m7|lt265/70r17 e": {
+    "specs": {},
+    "query": "Maxtrek TREK M7 LT265/70R17 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:paragon|tracrunner ht|lt265/70r17 e": {
+    "specs": {},
+    "query": "Paragon TRACRUNNER HT LT265/70R17 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|roadian htx 2 rwl|lt265/70r17 e": {
+    "specs": {},
+    "query": "Nexen Roadian HTX 2 RWL LT265/70R17 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:maxtrek|mud trac|lt265/70r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek MUD TRAC LT265/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rw11|lt265/70r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Hankook RW11 LT265/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner rt|lt265/70r17 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER RT LT265/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at rwl|lt265/70r17 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "R"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT RWL LT265/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:firestone|transforce ht3|lt265/70r17 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "R"
+    },
+    "query": "Firestone TRANSFORCE HT3 LT265/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:goodyear|duratracrt|lt265/70r17 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "S"
+    },
+    "query": "Goodyear DuratracRT LT265/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt265/70r18 e": {
+    "specs": {
+      "load_index": "70"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT265/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:laufenn|xfit at|lt265/70r18 e": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "S"
+    },
+    "query": "Laufenn XFIT AT LT265/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt265/70r18 e": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "S"
+    },
+    "query": "Nexen Roadian ATX LT265/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt265/70r18 e": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT265/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:falken|wildpeak a/t4w|lt265/70r18 e": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "S"
+    },
+    "query": "Falken WILDPEAK A/T4W LT265/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rw11|lt265/70r18 e": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "R"
+    },
+    "query": "Hankook RW11 LT265/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at rwl|lt265/70r18 e": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "S"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT RWL LT265/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:pirelli|scorpion xtm at|lt265/70r18 e": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "S"
+    },
+    "query": "Pirelli SCORPION XTM AT LT265/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:bridgestone|blizzak6|275/40r18": {
+    "specs": {
+      "load_index": "103",
+      "speed_rating": "V"
+    },
+    "query": "Bridgestone Blizzak6 275/40R18 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:mirage|mr-w662|275/40r22": {
+    "specs": {
+      "load_index": "107",
+      "speed_rating": "T"
+    },
+    "query": "Mirage MR-W662 275/40R22 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:pirelli|scorpion xtm at|lt275/50r22 e": {
+    "specs": {
+      "load_index": "119",
+      "speed_rating": "T"
+    },
+    "query": "Pirelli SCORPION XTM AT LT275/50R22 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:amp|terrain pro a/t|lt275/55r20 d": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "S"
+    },
+    "query": "Amp Terrain Pro A/T LT275/55R20 D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:amp|terrain attack a/t|lt275/55r20 d": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "S"
+    },
+    "query": "Amp Terrain Attack A/T LT275/55R20 D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|hill tracker a/t|lt275/55r20 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek HILL TRACKER A/T LT275/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt275/55r20 e": {
+    "specs": {
+      "load_index": "120"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT275/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt275/55r20 e": {
+    "specs": {},
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT275/55R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:maxtrek|ditto rx|lt275/55r20 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek Ditto RX LT275/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:laufenn|xfit at|lt275/55r20 d": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "S"
+    },
+    "query": "Laufenn XFIT AT LT275/55R20 D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner rt|lt275/55r20 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER RT LT275/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt275/55r20 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "R"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT275/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|dirt rebel rts|lt275/55r20 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "S"
+    },
+    "query": "Predator DIRT REBEL RTS LT275/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt275/55r20 e": {
+    "specs": {},
+    "query": "Nexen Roadian ATX LT275/55R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:blackbear|predator mt|lt275/55r20 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "Q"
+    },
+    "query": "Blackbear Predator MT LT275/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t xd g017|lt275/55r20 e": {
+    "specs": {
+      "load_index": "120"
+    },
+    "query": "Yokohama GEOLANDAR A/T XD G017 LT275/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:laufenn|xfit at|lt275/60r20 d": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "T"
+    },
+    "query": "Laufenn XFIT AT LT275/60R20 D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|hill tracker a/t|lt275/60r20 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "S"
+    },
+    "query": "Maxtrek Hill Tracker A/T LT275/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt275/60r20 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "S"
+    },
+    "query": "Nexen Roadian ATX LT275/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt275/60r20 e": {
+    "specs": {
+      "load_index": "123"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT275/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt275/60r20 e": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "T"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT275/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner rt|lt275/60r20 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER RT LT275/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt275/60r20 e": {
+    "specs": {},
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT275/60R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:pirelli|scorpion xtm at|lt275/60r20 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "T"
+    },
+    "query": "Pirelli SCORPION XTM AT LT275/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:general|grabber hts60|275/65r18": {
+    "specs": {},
+    "query": "General Grabber HTS60 275/65R18 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:amp|terrain pro a/t|lt275/65r20 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "S"
+    },
+    "query": "Amp Terrain Pro A/T LT275/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:laufenn|xfit at|lt275/65r18 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "S"
+    },
+    "query": "Laufenn XFIT AT LT275/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|hill tracker a/t|lt275/65r18 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "R"
+    },
+    "query": "Maxtrek Hill Tracker A/T LT275/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt275/65r18 e": {
+    "specs": {
+      "load_index": "123"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT275/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at rwl|lt275/65r18 e": {
+    "specs": {
+      "load_index": "129",
+      "speed_rating": "Q"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT RWL LT275/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt275/65r18 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT275/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt275/65r18 e": {
+    "specs": {},
+    "query": "Nexen Roadian ATX LT275/65R18 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:paragon|ridgerunner rt|lt275/65r18 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER RT LT275/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:pirelli|scorpion xtm at|lt275/65r18 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "S"
+    },
+    "query": "Pirelli SCORPION XTM AT LT275/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:goodyear|duratracrt|lt275/65r18 e": {
+    "specs": {},
+    "query": "Goodyear DuratracRT LT275/65R18 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:laufenn|xfit at|lt275/65r20 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "S"
+    },
+    "query": "Laufenn XFIT AT LT275/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt275/65r20 e": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER AT2 LT275/65R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt275/65r20 e": {
+    "specs": {
+      "load_index": "126"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT275/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt275/65r20 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "S"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT275/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:pirelli|scorpion xtm at|lt275/65r20 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "T"
+    },
+    "query": "Pirelli SCORPION XTM AT LT275/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|trek m900 ice|lt275/65r20 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "R"
+    },
+    "query": "Maxtrek TREK M900 ice LT275/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|hill tracker a/t|lt275/65r20 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "S"
+    },
+    "query": "Maxtrek Hill Tracker A/T LT275/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|dirt rebel rts blk|lt275/65r20 e": {
+    "specs": {},
+    "query": "Predator DIRT REBEL RTS BLK LT275/65R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|roadian atx|lt275/65r20 e": {
+    "specs": {},
+    "query": "Nexen Roadian ATX LT275/65R20 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:paragon|ridgerunner rt|lt275/65r20 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER RT LT275/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian mtx rm7|lt275/65r20 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "Q"
+    },
+    "query": "Nexen Roadian MTX RM7 LT275/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:firestone|transforce ht3|lt275/65r20 e": {
+    "specs": {
+      "load_index": "112"
+    },
+    "query": "Firestone TRANSFORCE HT3 LT275/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:rovelo|rsr7|275/70r22.5": {
+    "specs": {
+      "load_index": "140",
+      "speed_rating": "M"
+    },
+    "query": "ROVELO RSR7 275/70R22.5 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:supercargo|sc216|275/70r22.5 h": {
+    "specs": {},
+    "query": "SuperCargo SC216 275/70R22.5 H tire size load index speed rating",
+    "tried": []
+  },
+  "specs:supercargo|sc505|275/70r22.5 j": {
+    "specs": {},
+    "query": "SuperCargo SC505 275/70R22.5 J tire size load index speed rating",
+    "tried": []
+  },
+  "specs:rovelo|ram2|275/70r22.5": {
+    "specs": {
+      "load_index": "148",
+      "speed_rating": "K"
+    },
+    "query": "ROVELO RAM2 275/70R22.5 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cargopower|cgc108+ on/off all position|275/70r22.5 j": {
+    "specs": {},
+    "query": "Cargopower CGC108+ On/Off All Position 275/70R22.5 J tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:windpower|wgc52|275/70r22.5 j": {
+    "specs": {
+      "load_index": "148",
+      "speed_rating": "K"
+    },
+    "query": "Windpower WGC52 275/70R22.5 J tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:windpower|wsr36|275/70r22.5 j": {
+    "specs": {
+      "load_index": "148",
+      "speed_rating": "M"
+    },
+    "query": "Windpower WSR36 275/70R22.5 J tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|am15|275/70r22.5 h": {
+    "specs": {},
+    "query": "Hankook AM15 275/70R22.5 H tire size load index speed rating",
+    "tried": []
+  },
+  "specs:mirage|mr-w662|285/45r22": {
+    "specs": {
+      "load_index": "114",
+      "speed_rating": "T"
+    },
+    "query": "Mirage MR-W662 285/45R22 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:amp|terrain pro a/t|lt285/45r22 d": {
+    "specs": {},
+    "query": "Amp Terrain Pro A/T LT285/45R22 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:mirage|mr-w662|285/50r20": {
+    "specs": {},
+    "query": "Mirage MR-W662 285/50R20 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:amp|terrain attack a/t|lt285/55r20 e": {
+    "specs": {
+      "load_index": "122",
+      "speed_rating": "S"
+    },
+    "query": "Amp Terrain Attack A/T LT285/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:amp|terrain pro a/t|lt285/55r20 e": {
+    "specs": {
+      "load_index": "122",
+      "speed_rating": "S"
+    },
+    "query": "Amp Terrain Pro A/T LT285/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:amp|terrain attack rt|lt285/55r20 e": {
+    "specs": {
+      "load_index": "122",
+      "speed_rating": "Q"
+    },
+    "query": "Amp Terrain Attack RT LT285/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:amp|terrain attack rt|lt285/70r17 c": {
+    "specs": {
+      "load_index": "116",
+      "speed_rating": "Q"
+    },
+    "query": "Amp Terrain Attack RT LT285/70R17 C tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:supercargo|sc216|285/75r24.5 h": {
+    "specs": {},
+    "query": "SuperCargo SC216 285/75R24.5 H tire size load index speed rating",
+    "tried": []
+  },
+  "specs:supercargo|sc516|285/75r24.5 h": {
+    "specs": {
+      "load_index": "144",
+      "speed_rating": "L"
+    },
+    "query": "SuperCargo SC516 285/75R24.5 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:supercargo|sc216|295/75r22.5 h": {
+    "specs": {},
+    "query": "SuperCargo SC216 295/75R22.5 H tire size load index speed rating",
+    "tried": []
+  },
+  "specs:supercargo|sc516|295/75r22.5 h": {
+    "specs": {},
+    "query": "SuperCargo SC516 295/75R22.5 H tire size load index speed rating",
+    "tried": []
+  },
+  "specs:amp|terrain pro a/t|lt305/55r20 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "S"
+    },
+    "query": "Amp Terrain Pro A/T LT305/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:amp|terrain attack rt|lt305/55r20 f": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "Q"
+    },
+    "query": "Amp Terrain Attack RT LT305/55R20 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:supercargo|sc519|315/80r22.5 l": {
+    "specs": {},
+    "query": "SuperCargo SC519 315/80R22.5 L tire size load index speed rating",
+    "tried": []
+  },
+  "specs:windpower|wdc52|315/80r22.5 j": {
+    "specs": {},
+    "query": "Windpower WDC52 315/80R22.5 J tire size load index speed rating",
+    "tried": []
+  },
+  "specs:hankook|al22|315/80r22.5 l": {
+    "specs": {},
+    "query": "Hankook AL22 315/80R22.5 L tire size load index speed rating",
+    "tried": []
+  },
+  "specs:hankook|dm09|315/80r22.5 l": {
+    "specs": {},
+    "query": "Hankook DM09 315/80R22.5 L tire size load index speed rating",
+    "tried": []
+  },
+  "specs:general|general wt all position/steer|315/80r22.5 l": {
+    "specs": {},
+    "query": "General General WT All Position/Steer 315/80R22.5 L tire size load index speed rating",
+    "tried": []
+  },
+  "specs:continental|conti hau 3 wt all position/steer|315/80r22.5 l": {
+    "specs": {},
+    "query": "Continental Conti HAU 3 WT All Position/Steer 315/80R22.5 L tire size load index speed rating",
+    "tried": []
+  },
+  "specs:supercargo|sc526|385/65r22.5 m": {
+    "specs": {},
+    "query": "SuperCargo SC526 385/65R22.5 M tire size load index speed rating",
+    "tried": []
+  },
+  "specs:advance|gl689a on/off steer|385/65r22.5 l": {
+    "specs": {},
+    "query": "Advance GL689A On/Off Steer 385/65R22.5 L tire size load index speed rating",
+    "tried": []
+  },
+  "specs:boto|bt518|385/65r22.5 l": {
+    "specs": {},
+    "query": "Boto BT518 385/65R22.5 L tire size load index speed rating",
+    "tried": []
+  },
+  "specs:cargopower|cgc128+|385/65r22.5 l": {
+    "specs": {},
+    "query": "Cargopower CGC128+ 385/65R22.5 L tire size load index speed rating",
+    "tried": []
+  },
+  "specs:yokohama|505c|385/65r22.5 j": {
+    "specs": {},
+    "query": "Yokohama 505C 385/65R22.5 J tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|am15|385/65r22.5 j": {
+    "specs": {},
+    "query": "Hankook AM15 385/65R22.5 J tire size load index speed rating",
+    "tried": []
+  },
+  "specs:general|grabber oa 2 all position/steer|385/65r22.5 l": {
+    "specs": {},
+    "query": "General GRABBER OA 2 All Position/Steer 385/65R22.5 L tire size load index speed rating",
+    "tried": []
+  },
+  "specs:continental|conti hac 3 all position/steer|385/65r22.5 l": {
+    "specs": {
+      "load_index": "65",
+      "speed_rating": "R"
+    },
+    "query": "Continental Conti HAC 3 All Position/Steer 385/65R22.5 L tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt215/75r15 d": {
+    "specs": {
+      "load_index": "106"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT215/75R15 D tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:hankook|rt03|lt215/75r15": {
+    "specs": {},
+    "query": "Hankook RT03 LT215/75R15 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:laufenn|xfit at|lt215/85r16 e": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "R"
+    },
+    "query": "Laufenn XFIT AT LT215/85R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian htx 2 bw|lt215/85r16 e": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "R"
+    },
+    "query": "Nexen Roadian HTX 2 BW LT215/85R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt215/85r16 e": {
+    "specs": {
+      "load_index": "115"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT215/85R16 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:hankook|rw11|lt215/85r16 e": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "Q"
+    },
+    "query": "Hankook RW11 LT215/85R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:firestone|transforce ht3|lt215/85r16 e": {
+    "specs": {
+      "load_index": "99"
+    },
+    "query": "Firestone TRANSFORCE HT3 LT215/85R16 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:maxtrek|su-800|lt225/75r16 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "S"
+    },
+    "query": "Maxtrek SU-800 LT225/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt225/75r16 e": {
+    "specs": {},
+    "query": "Nexen Roadian ATX LT225/75R16 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:hankook|rh14|lt225/75r16 e": {
+    "specs": {},
+    "query": "Hankook RH14 LT225/75R16 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:hankook|rf12|lt225/75r16": {
+    "specs": {},
+    "query": "Hankook RF12 LT225/75R16 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt225/75r16 e": {
+    "specs": {
+      "load_index": "115"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT225/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt225/75r16 e": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "R"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT225/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|trek m900 ice|lt225/75r16 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "S"
+    },
+    "query": "Maxtrek TREK M900 ice LT225/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt225/75r16 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "S"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT225/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian htx 2 bw|lt225/75r16 e": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "R"
+    },
+    "query": "Nexen Roadian HTX 2 BW LT225/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rw11|lt225/75r16 e": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "Q"
+    },
+    "query": "Hankook RW11 LT225/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian ct8 hl|lt225/75r16 e": {
+    "specs": {},
+    "query": "Nexen Roadian CT8 HL LT225/75R16 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:firestone|transforce ht3|lt225/75r16 e": {
+    "specs": {},
+    "query": "Firestone TRANSFORCE HT3 LT225/75R16 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:bridgestone|duravis m705 bl|lt225/75r16 e": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "R"
+    },
+    "query": "Bridgestone DURAVIS M705 BL LT225/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt235/80r17 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "R"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT235/80R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt235/80r17 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "R"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT235/80R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rw11|lt235/80r17 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "Q"
+    },
+    "query": "Hankook RW11 LT235/80R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt235/80r17 e": {
+    "specs": {},
+    "query": "Nexen Roadian ATX LT235/80R17 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|roadian at pro ra8|lt235/80r17 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "R"
+    },
+    "query": "Nexen Roadian AT Pro RA8 LT235/80R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt235/80r17 e": {
+    "specs": {
+      "load_index": "120"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT235/80R17 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:firestone|transforce ht3|lt235/80r17 e": {
+    "specs": {
+      "load_index": "120"
+    },
+    "query": "Firestone TRANSFORCE HT3 LT235/80R17 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:nexen|roadian atx|lt235/85r16 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "S"
+    },
+    "query": "Nexen Roadian ATX LT235/85R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt235/85r16 e": {
+    "specs": {
+      "load_index": "120"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT235/85R16 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:yokohama|y742s|lt235/85r16 e": {
+    "specs": {
+      "load_index": "94",
+      "speed_rating": "V"
+    },
+    "query": "Yokohama Y742S LT235/85R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt235/85r16": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER AT2 LT235/85R16 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:hankook|rw11|lt235/85r16 e": {
+    "specs": {},
+    "query": "Hankook RW11 LT235/85R16 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:cooper|discoverer stronghold at blk|lt235/85r16 e": {
+    "specs": {},
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT235/85R16 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:paragon|ridgerunner at2|lt245/75r16 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "S"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT245/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|hill tracker a/t|lt245/75r16 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek HILL TRACKER A/T LT245/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt245/75r16 e": {
+    "specs": {},
+    "query": "Nexen Roadian ATX LT245/75R16 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:hankook|rh14|lt245/75r16 e": {
+    "specs": {},
+    "query": "Hankook RH14 LT245/75R16 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt245/75r16 e": {
+    "specs": {
+      "load_index": "120"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT245/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:general|grabber a/tx|lt245/75r16 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "S"
+    },
+    "query": "General Grabber A/TX LT245/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt245/75r16 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "S"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT245/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt245/75r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "S"
+    },
+    "query": "Nexen Roadian ATX LT245/75R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rw11|lt245/75r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Hankook RW11 LT245/75R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt245/75r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "S"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT245/75R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|trek m900 ice|lt245/75r16 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "S"
+    },
+    "query": "Maxtrek TREK M900 ice LT245/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|ditto rx-10 pr|lt245/75r16 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek DITTO RX-10 PR LT245/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rw11|lt245/75r16 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "Q"
+    },
+    "query": "Hankook RW11 LT245/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:firestone|transforce ht3|lt245/75r16 e": {
+    "specs": {
+      "load_index": "120"
+    },
+    "query": "Firestone TRANSFORCE HT3 LT245/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:goodyear|duratracrt|lt245/75r16 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "S"
+    },
+    "query": "Goodyear DuratracRT LT245/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:bridgestone|duravis m705 bl|lt245/75r16 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "R"
+    },
+    "query": "Bridgestone DURAVIS M705 BL LT245/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:mirage|mr-wt172|lt245/75r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "S"
+    },
+    "query": "Mirage MR-WT172 LT245/75R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt245/75r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT245/75R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt245/75r17 e": {
+    "specs": {
+      "load_index": "121"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT245/75R17 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:bridgestone|duravis m705|lt245/75r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "R"
+    },
+    "query": "Bridgestone DURAVIS M705 LT245/75R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rt05|lt255/75r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Hankook RT05 LT255/75R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt265/75r16 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "S"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT265/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|hill tracker a/t|lt265/75r16 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek Hill Tracker A/T LT265/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt265/75r16 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "S"
+    },
+    "query": "Nexen Roadian ATX LT265/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt265/75r16 e": {
+    "specs": {
+      "load_index": "123"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT265/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:maxtrek|ditto rx-10 pr|lt265/75r16 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "S"
+    },
+    "query": "Maxtrek DITTO RX-10 PR LT265/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rw11|lt265/75r16 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "Q"
+    },
+    "query": "Hankook RW11 LT265/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at rwl|lt265/75r16 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "S"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT RWL LT265/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt275/70r17 e": {
+    "specs": {},
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT275/70R17 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:laufenn|xfit at|lt275/70r18 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "S"
+    },
+    "query": "Laufenn XFIT AT LT275/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|hill tracker a/t|lt275/70r18 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "R"
+    },
+    "query": "Maxtrek Hill Tracker A/T LT275/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|mud trac|lt275/70r18 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek Mud Trac LT275/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner rt|lt275/70r18 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER RT LT275/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt275/70r18 e": {
+    "specs": {
+      "load_index": "125"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT275/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at rwl|lt275/70r18 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "S"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT RWL LT275/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:pirelli|scorpion xtm at|lt275/70r18 e": {
+    "specs": {},
+    "query": "Pirelli SCORPION XTM AT LT275/70R18 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:hankook|rf12|lt275/70r17 e": {
+    "specs": {},
+    "query": "Hankook RF12 LT275/70R17 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|roadian htx 2 bw|lt275/70r18 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "S"
+    },
+    "query": "Nexen Roadian HTX 2 BW LT275/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt275/70r18 e": {
+    "specs": {},
+    "query": "Paragon RIDGERUNNER AT2 LT275/70R18 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|roadian atx|lt275/70r18 e": {
+    "specs": {},
+    "query": "Nexen Roadian ATX LT275/70R18 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:nexen|roadian mtx rm7|lt275/70r18 e": {
+    "specs": {},
+    "query": "Nexen Roadian MTX RM7 LT275/70R18 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:firestone|transforce ht2|lt275/70r18 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "S"
+    },
+    "query": "Firestone TRANSFORCE HT2 LT275/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|dirt rebel ats blk|lt285/55r20 e": {
+    "specs": {
+      "load_index": "122",
+      "speed_rating": "S"
+    },
+    "query": "Predator DIRT REBEL ATS BLK LT285/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|dirt rebel rts blk|lt285/55r20 e": {
+    "specs": {
+      "load_index": "122",
+      "speed_rating": "S"
+    },
+    "query": "Predator DIRT REBEL RTS BLK LT285/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt285/55r20 e": {
+    "specs": {
+      "load_index": "122",
+      "speed_rating": "S"
+    },
+    "query": "Nexen Roadian ATX LT285/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt285/55r20 e": {
+    "specs": {
+      "load_index": "122"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT285/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:maxtrek|mud trac|lt285/55r22 e": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek MUD TRAC LT285/55R22 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt285/55r22 e": {
+    "specs": {
+      "load_index": "124"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT285/55R22 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt285/60r20 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "R"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT285/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt285/60r20 e": {
+    "specs": {
+      "load_index": "125"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT285/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:nexen|roadian atx|lt285/60r20 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "S"
+    },
+    "query": "Nexen Roadian ATX LT285/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt285/60r20 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "S"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT285/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:pirelli|scorpion xtm at|lt285/60r20 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "R"
+    },
+    "query": "Pirelli SCORPION XTM AT LT285/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt285/65r20 e": {
+    "specs": {
+      "load_index": "127"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT285/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:nexen|roadian atx|lt285/65r18 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "S"
+    },
+    "query": "Nexen Roadian ATX LT285/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt285/65r18 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "T"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT285/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:goodyear|duratracrt|lt285/65r18 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "R"
+    },
+    "query": "Goodyear DuratracRT LT285/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:toyo|opat iii|lt285/65r20 e": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "S"
+    },
+    "query": "Toyo OPAT III LT285/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer rugged trek|lt285/65r20 e": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "R"
+    },
+    "query": "Cooper DISCOVERER RUGGED TREK LT285/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:laufenn|xfit at|lt285/70r17 e": {
+    "specs": {
+      "load_index": "110",
+      "speed_rating": "T"
+    },
+    "query": "Laufenn XFIT AT LT285/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian atx|lt285/70r17 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "S"
+    },
+    "query": "Nexen Roadian ATX LT285/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt285/70r17 e": {
+    "specs": {
+      "load_index": "121"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT285/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:toyo|m55|lt285/70r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Toyo M55 LT285/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt285/70r17 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "S"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT285/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|mud trac|lt285/70r17 d": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek Mud Trac LT285/70R17 D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:maxtrek|hill tracker a/t|lt285/70r17 d": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek Hill Tracker A/T LT285/70R17 D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:predator|new mutant rt trail rwl|lt285/70r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Predator NEW MUTANT RT TRAIL RWL LT285/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner rt|lt285/70r17 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER RT LT285/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt285/70r17 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "S"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT285/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer stt pro|lt285/70r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Cooper DISCOVERER STT PRO LT285/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:pirelli|scorpion xtm at|lt285/70r17 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "S"
+    },
+    "query": "Pirelli SCORPION XTM AT LT285/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt285/75r16 e": {
+    "specs": {
+      "load_index": "126"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT285/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:nexen|roadian atx|lt285/75r17 e": {
+    "specs": {},
+    "query": "Nexen Roadian ATX LT285/75R17 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:cooper|discoverer stronghold at blk|lt285/75r17 e": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "S"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT285/75R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt285/75r18 e": {
+    "specs": {
+      "load_index": "129"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT285/75R18 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt285/75r18 e": {
+    "specs": {
+      "load_index": "129",
+      "speed_rating": "S"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT285/75R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian mtx rm7|lt285/75r16 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "Q"
+    },
+    "query": "Nexen Roadian MTX RM7 LT285/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer snow claw|lt285/75r16 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "R"
+    },
+    "query": "Cooper DISCOVERER SNOW CLAW LT285/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at rwl|lt285/75r16 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "R"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT RWL LT285/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rf12|lt285/75r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "S"
+    },
+    "query": "Hankook RF12 LT285/75R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt285/75r17 e": {
+    "specs": {
+      "load_index": "121"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT285/75R17 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:nexen|roadian atx|lt285/75r18 e": {
+    "specs": {
+      "load_index": "129",
+      "speed_rating": "S"
+    },
+    "query": "Nexen Roadian ATX LT285/75R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rc10|lt285/75r18 e": {
+    "specs": {},
+    "query": "Hankook RC10 LT285/75R18 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:cooper|discoverer rugged trek|lt295/60r20 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "Q"
+    },
+    "query": "Cooper DISCOVERER RUGGED TREK LT295/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:goodyear|duratracrt|lt295/60r20 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "S"
+    },
+    "query": "Goodyear DuratracRT LT295/60R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian mtx rm7|lt295/65r20 e": {
+    "specs": {
+      "load_index": "129",
+      "speed_rating": "Q"
+    },
+    "query": "Nexen Roadian MTX RM7 LT295/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt295/65r20 e": {
+    "specs": {
+      "load_index": "129"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT295/65R20 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at rwl|lt295/70r17 e": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "R"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT RWL LT295/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rt05|lt295/70r17 e": {
+    "specs": {},
+    "query": "Hankook RT05 LT295/70R17 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt295/70r17 e": {
+    "specs": {
+      "load_index": "121"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT295/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:nexen|roadian atx|lt295/70r18 e": {
+    "specs": {
+      "load_index": "129",
+      "speed_rating": "S"
+    },
+    "query": "Nexen Roadian ATX LT295/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:nexen|roadian mtx rm7|lt295/70r18 e": {
+    "specs": {
+      "load_index": "129",
+      "speed_rating": "Q"
+    },
+    "query": "Nexen Roadian MTX RM7 LT295/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rt05|lt295/70r18 e": {
+    "specs": {
+      "load_index": "129",
+      "speed_rating": "Q"
+    },
+    "query": "Hankook RT05 LT295/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt295/70r18 e": {
+    "specs": {
+      "load_index": "129"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT295/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt295/70r18 e": {
+    "specs": {
+      "load_index": "129",
+      "speed_rating": "S"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT295/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:pirelli|scorpion xtm at|lt295/70r18 e": {
+    "specs": {
+      "load_index": "129",
+      "speed_rating": "R"
+    },
+    "query": "Pirelli SCORPION XTM AT LT295/70R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt305/55r20 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT305/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner rt|lt305/55r20 f": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "Q"
+    },
+    "query": "Paragon RIDGERUNNER RT LT305/55R20 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt305/55r20 e": {
+    "specs": {
+      "load_index": "120"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT305/55R20 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt305/65r18 e": {
+    "specs": {
+      "load_index": "124"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT305/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt315/70r17 e": {
+    "specs": {
+      "load_index": "121"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT315/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:cooper|discoverer stronghold at blk|lt315/70r17 e": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "S"
+    },
+    "query": "Cooper DISCOVERER STRONGHOLD AT BLK LT315/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:paragon|ridgerunner at2|lt315/70r17 e": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "S"
+    },
+    "query": "Paragon RIDGERUNNER AT2 LT315/70R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:hankook|rt05|lt315/75r16 e": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "Q"
+    },
+    "query": "Hankook RT05 LT315/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:cooper|discoverer stt pro|lt315/75r16 e": {
+    "specs": {
+      "load_index": "127",
+      "speed_rating": "K"
+    },
+    "query": "Cooper DISCOVERER STT PRO LT315/75R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:yokohama|geolandar a/t4 g018|lt325/65r18 e": {
+    "specs": {
+      "load_index": "115"
+    },
+    "query": "Yokohama GEOLANDAR A/T4 G018 LT325/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:carlisle|sure trail|st175/80r13 c": {
+    "specs": {
+      "load_index": "91",
+      "speed_rating": "M"
+    },
+    "query": "Carlisle Sure Trail ST175/80R13 C tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:carlisle|radial trail hd|st175/80r13 d": {
+    "specs": {},
+    "query": "Carlisle Radial Trail HD ST175/80R13 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:trailer master|st pro|st175/80r13 d": {
+    "specs": {
+      "load_index": "97",
+      "speed_rating": "L"
+    },
+    "query": "Trailer Master ST PRO ST175/80R13 D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:rubbermaster|trailer|st175/80r13 d": {
+    "specs": {},
+    "query": "Rubbermaster TRAILER ST175/80R13 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:carlisle|sure trail|st185/80r13 c": {
+    "specs": {
+      "load_index": "94",
+      "speed_rating": "N"
+    },
+    "query": "Carlisle Sure Trail ST185/80R13 C tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:rubbermaster|trailer|st185/80r13 d": {
+    "specs": {},
+    "query": "Rubbermaster TRAILER ST185/80R13 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:carlisle|radial trail hd|st185/80r13 d": {
+    "specs": {
+      "load_index": "99",
+      "speed_rating": "M"
+    },
+    "query": "Carlisle Radial Trail HD ST185/80R13 D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:carlisle|sport trail lh|st185/80d13 c": {
+    "specs": {
+      "load_index": "94"
+    },
+    "query": "Carlisle Sport Trail LH ST185/80D13 C tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:carlisle|sport trail lh|st185/80d13 d": {
+    "specs": {
+      "load_index": "99"
+    },
+    "query": "Carlisle Sport Trail LH ST185/80D13 D tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:rubbermaster|trailer|st205/75r14 d": {
+    "specs": {},
+    "query": "Rubbermaster TRAILER ST205/75R14 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:trailer master|st pro|st205/75r15 e": {
+    "specs": {
+      "load_index": "111",
+      "speed_rating": "N"
+    },
+    "query": "Trailer Master ST PRO ST205/75R15 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:carlisle|sure trail|st205/75r15 d": {
+    "specs": {},
+    "query": "Carlisle Sure Trail ST205/75R15 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:rubbermaster|trailer|st205/75r15 d": {
+    "specs": {},
+    "query": "Rubbermaster TRAILER ST205/75R15 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:carlisle|radial trail hd|st205/75r15 d": {
+    "specs": {},
+    "query": "Carlisle Radial Trail HD ST205/75R15 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:trailer master|st pro|st205/75r14 d": {
+    "specs": {
+      "load_index": "100",
+      "speed_rating": "N"
+    },
+    "query": "Trailer Master ST PRO ST205/75R14 D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:carlisle|sure trail|st205/75r14 d": {
+    "specs": {},
+    "query": "Carlisle Sure Trail ST205/75R14 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:carlisle|radial trail hd|st205/75r14 d": {
+    "specs": {},
+    "query": "Carlisle Radial Trail HD ST205/75R14 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:carlisle|sure trail|st215/75r14 c": {
+    "specs": {},
+    "query": "Carlisle Sure Trail ST215/75R14 C tire size load index speed rating",
+    "tried": []
+  },
+  "specs:rubbermaster|trailer|st215/75r14 d": {
+    "specs": {},
+    "query": "Rubbermaster TRAILER ST215/75R14 D tire size load index speed rating",
+    "tried": []
+  },
+  "specs:carlisle|radial trail hd|st215/75r14 c": {
+    "specs": {},
+    "query": "Carlisle Radial Trail HD ST215/75R14 C tire size load index speed rating",
+    "tried": []
+  },
+  "specs:trailer master|st pro|st215/75r14 d": {
+    "specs": {
+      "load_index": "102",
+      "speed_rating": "N"
+    },
+    "query": "Trailer Master ST PRO ST215/75R14 D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:rubbermaster|trailer-as|st215/75r17.5 h": {
+    "specs": {},
+    "query": "Rubbermaster TRAILER-AS ST215/75R17.5 H tire size load index speed rating",
+    "tried": []
+  },
+  "specs:trailer master|st pro|st225/75r15 e": {
+    "specs": {
+      "load_index": "117",
+      "speed_rating": "N"
+    },
+    "query": "Trailer Master ST PRO ST225/75R15 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:carlisle|sure trail|st225/75r15 e": {
+    "specs": {},
+    "query": "Carlisle Sure Trail ST225/75R15 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:rubbermaster|trailer|st225/75r15 e": {
+    "specs": {},
+    "query": "Rubbermaster TRAILER ST225/75R15 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:carlisle|radial trail hd|st225/75r15 e": {
+    "specs": {},
+    "query": "Carlisle Radial Trail HD ST225/75R15 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:trailer master|str|st225/75r15 g": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "L"
+    },
+    "query": "Trailer Master STR ST225/75R15 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:rubbermaster|trailer-as|st225/75r15 f": {
+    "specs": {},
+    "query": "Rubbermaster TRAILER-AS ST225/75R15 F tire size load index speed rating",
+    "tried": []
+  },
+  "specs:carlisle|csl16|st225/75r15 f": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "M"
+    },
+    "query": "Carlisle CSL16 ST225/75R15 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:carlisle|radial trail|st235/75r15 e": {
+    "specs": {},
+    "query": "Carlisle Radial Trail ST235/75R15 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:trailer master|st pro|st235/80r16 f": {
+    "specs": {
+      "load_index": "130",
+      "speed_rating": "L"
+    },
+    "query": "Trailer Master ST PRO ST235/80R16 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:carlisle|sure trail|st235/80r16 f": {
+    "specs": {},
+    "query": "Carlisle Sure Trail ST235/80R16 F tire size load index speed rating",
+    "tried": []
+  },
+  "specs:carlisle|radial trail hd|st235/80r16 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "L"
+    },
+    "query": "Carlisle Radial Trail HD ST235/80R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:rubbermaster|trailer|st235/80r16 f": {
+    "specs": {
+      "load_index": "76",
+      "speed_rating": "S"
+    },
+    "query": "Rubbermaster TRAILER ST235/80R16 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:trailer master|str|st235/80r16 h": {
+    "specs": {
+      "load_index": "130",
+      "speed_rating": "L"
+    },
+    "query": "Trailer Master STR ST235/80R16 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:carlisle|csl16|st235/80r16 g": {
+    "specs": {
+      "load_index": "129"
+    },
+    "query": "Carlisle CSL16 ST235/80R16 G tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:rubbermaster|trailer-as|st235/80r16 g": {
+    "specs": {},
+    "query": "Rubbermaster TRAILER-AS ST235/80R16 G tire size load index speed rating",
+    "tried": []
+  },
+  "specs:trailer master|st pro|st235/80r16 e": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "L"
+    },
+    "query": "Trailer Master ST PRO ST235/80R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:rubbermaster|trailer|st235/80r16 e": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "M"
+    },
+    "query": "Rubbermaster TRAILER ST235/80R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:advance|gl285t all steel trailer|st235/80r16 g": {
+    "specs": {
+      "load_index": "129",
+      "speed_rating": "M"
+    },
+    "query": "Advance GL285T All Steel Trailer ST235/80R16 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:supercargo|sc129|st235/80r16 g": {
+    "specs": {
+      "load_index": "129",
+      "speed_rating": "L"
+    },
+    "query": "SuperCargo SC129 ST235/80R16 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:carlisle|radial trail hd|st235/80r16 f": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "M"
+    },
+    "query": "Carlisle Radial Trail HD ST235/80R16 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:rubbermaster|trailer|st235/85r16 g": {
+    "specs": {
+      "load_index": "86",
+      "speed_rating": "S"
+    },
+    "query": "Rubbermaster TRAILER ST235/85R16 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:trailer master|str|st235/85r16 h": {
+    "specs": {
+      "load_index": "133",
+      "speed_rating": "L"
+    },
+    "query": "Trailer Master STR ST235/85R16 H tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:rubbermaster|trailer-as|st235/85r16 g": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "N"
+    },
+    "query": "Rubbermaster TRAILER-AS ST235/85R16 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:trailer master|st pro|st235/85r16 e": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "N"
+    },
+    "query": "Trailer Master ST PRO ST235/85R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:trailer master|st pro|st235/85r16 f": {
+    "specs": {
+      "load_index": "128",
+      "speed_rating": "N"
+    },
+    "query": "Trailer Master ST PRO ST235/85R16 F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:carlisle|sure trail|st235/85r16 f": {
+    "specs": {},
+    "query": "Carlisle Sure Trail ST235/85R16 F tire size load index speed rating",
+    "tried": []
+  },
+  "specs:rubbermaster|trailer|st235/85r16 e": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "M"
+    },
+    "query": "Rubbermaster TRAILER ST235/85R16 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:supercargo|sc126|st235/85r16 g": {
+    "specs": {
+      "load_index": "132",
+      "speed_rating": "M"
+    },
+    "query": "SuperCargo SC126 ST235/85R16 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:carlisle|radial trail hd|st235/85r16 e": {
+    "specs": {},
+    "query": "Carlisle Radial Trail HD ST235/85R16 E tire size load index speed rating",
+    "tried": []
+  },
+  "specs:carlisle|csl16|st235/85r16 g": {
+    "specs": {},
+    "query": "Carlisle CSL16 ST235/85R16 G tire size load index speed rating",
+    "tried": []
+  },
+  "specs:carlisle|radial trail hd|st235/85r16 f": {
+    "specs": {},
+    "query": "Carlisle Radial Trail HD ST235/85R16 F tire size load index speed rating",
+    "tried": []
+  },
+  "specs:rovelo|rtrst|st235/85r16 g": {
+    "specs": {
+      "load_index": "132",
+      "speed_rating": "L"
+    },
+    "query": "ROVELO RTRST ST235/85R16 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:carlisle|radial trail hd|st255/85r16": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Carlisle Radial Trail HD ST255/85R16 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:venom|ragnarok gts|33x13.50r24": {
+    "specs": {
+      "load_range": "F"
+    },
+    "query": "VENOM RAGNAROK GTS 33X13.50R24 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:grenlander|icehawke i|175/65r14": {
+    "specs": {
+      "load_index": "82",
+      "speed_rating": "T"
+    },
+    "query": "Grenlander ICEHAWKE I 175/65R14 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|colo h01|175/70r14": {
+    "specs": {
+      "load_index": "91",
+      "speed_rating": "H"
+    },
+    "query": "Grenlander COLO H01 175/70R14 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|wr300 175/70/14|175/70r14": {
+    "specs": {},
+    "query": "WARRIOR WR300 175/70/14 175/70R14 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|colo h02|185/60r15": {
+    "specs": {},
+    "query": "Grenlander COLO H02 185/60R15 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|greenwing a/s|185/65r15": {
+    "specs": {},
+    "query": "Grenlander GREENWING A/S 185/65R15 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:warrior|comfortune a05|185/65r15": {
+    "specs": {},
+    "query": "WARRIOR Comfortune A05 185/65R15 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:warrior|wasp-plus|185/65r15": {
+    "specs": {},
+    "query": "WARRIOR WASP-PLUS 185/65R15 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|enri u08|195/45r16": {
+    "specs": {},
+    "query": "Grenlander ENRI U08 195/45R16 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|colo h02|195/65r15": {
+    "specs": {},
+    "query": "Grenlander COLO H02 195/65R15 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:double|dasp-plus|195/65r15": {
+    "specs": {
+      "load_index": "91",
+      "speed_rating": "H"
+    },
+    "query": "DOUBLE DASP-PLUS 195/65R15 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|comfortune a05|195/65r15": {
+    "specs": {
+      "load_index": "91",
+      "speed_rating": "V"
+    },
+    "query": "WARRIOR Comfortune A05 195/65R15 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:double|dasp-plus|195/65r16c": {
+    "specs": {
+      "load_index": "60"
+    },
+    "query": "DOUBLE DASP-PLUS 195/65R16C tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:grenlander|colo h02|195/60r15": {
+    "specs": {},
+    "query": "Grenlander COLO H02 195/60R15 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:warrior|wr300 195/60/16|195/60r16": {
+    "specs": {},
+    "query": "WARRIOR WR300 195/60/16 195/60R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|icehawke i|205/50r17": {
+    "specs": {
+      "load_index": "99",
+      "speed_rating": "H"
+    },
+    "query": "Grenlander ICEHAWKE I 205/50R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|r700 ev 205/50r17|205/50r17": {
+    "specs": {},
+    "query": "WARRIOR R700 EV 205/50R17 205/50R17 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:warrior|wr300 205/5516|205/55r16": {
+    "specs": {},
+    "query": "WARRIOR WR300 205/5516 205/55R16 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:warrior|wasp-plus|205/55r16": {
+    "specs": {},
+    "query": "WARRIOR WASP-PLUS 205/55R16 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|icehawke i|205/65r15": {
+    "specs": {},
+    "query": "Grenlander ICEHAWKE I 205/65R15 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:double|tour d06|205/65r15": {
+    "specs": {},
+    "query": "DOUBLE TOUR D06 205/65R15 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|kingpro one|205/60r15": {
+    "specs": {},
+    "query": "Grenlander KingPro One 205/60R15 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:warrior|comfortune a05|205/60r16": {
+    "specs": {
+      "load_index": "92",
+      "speed_rating": "V"
+    },
+    "query": "WARRIOR Comfortune A05 205/60R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|wasp-plus|205/60r16": {
+    "specs": {
+      "load_index": "82",
+      "speed_rating": "S"
+    },
+    "query": "WARRIOR WASP-PLUS 205/60R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|kingpro one|215/55r16": {
+    "specs": {
+      "load_index": "87",
+      "speed_rating": "V"
+    },
+    "query": "Grenlander KingPro One 215/55R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|comfortune a05|215/55r16": {
+    "specs": {},
+    "query": "WARRIOR Comfortune A05 215/55R16 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:warrior|wasp-plus|215/55r16": {
+    "specs": {},
+    "query": "WARRIOR WASP-PLUS 215/55R16 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|enri u08|215/40r17": {
+    "specs": {
+      "load_index": "99",
+      "speed_rating": "H"
+    },
+    "query": "Grenlander ENRI U08 215/40R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:double|dasp-plus|215/65r16": {
+    "specs": {
+      "load_index": "98",
+      "speed_rating": "H"
+    },
+    "query": "DOUBLE DASP-PLUS 215/65R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|wasp-plus|215/65r16": {
+    "specs": {},
+    "query": "WARRIOR WASP-PLUS 215/65R16 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|colo h02|215/70r15": {
+    "specs": {},
+    "query": "Grenlander COLO H02 215/70R15 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:lexani|quattro tempo tour aw|215/60r16": {
+    "specs": {
+      "load_index": "99",
+      "speed_rating": "V"
+    },
+    "query": "Lexani QUATTRO TEMPO TOUR AW 215/60R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|comfortune a05|215/60r16": {
+    "specs": {},
+    "query": "WARRIOR Comfortune A05 215/60R16 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|icehawke i|225/40r19": {
+    "specs": {
+      "load_index": "89",
+      "speed_rating": "Y"
+    },
+    "query": "Grenlander ICEHAWKE I 225/40R19 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|wasp-plus|225/45r17": {
+    "specs": {},
+    "query": "WARRIOR WASP-PLUS 225/45R17 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|l-zeal56|225/45r18": {
+    "specs": {
+      "load_index": "95",
+      "speed_rating": "W"
+    },
+    "query": "Grenlander L-ZEAL56 225/45R18 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:ilink|l-grip66|225/55r16": {
+    "specs": {
+      "load_index": "95",
+      "speed_rating": "V"
+    },
+    "query": "Ilink L-GRIP66 225/55R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|wasp-plus|225/55r17": {
+    "specs": {
+      "load_index": "99",
+      "speed_rating": "H"
+    },
+    "query": "WARRIOR WASP-PLUS 225/55R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:double|dasp-plus|225/55r17": {
+    "specs": {
+      "load_index": "99",
+      "speed_rating": "H"
+    },
+    "query": "DOUBLE DASP-PLUS 225/55R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|enri u08|225/50r17": {
+    "specs": {
+      "load_index": "99",
+      "speed_rating": "H"
+    },
+    "query": "Grenlander ENRI U08 225/50R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|wasp-plus|225/50r17": {
+    "specs": {
+      "load_index": "99",
+      "speed_rating": "H"
+    },
+    "query": "WARRIOR WASP-PLUS 225/50R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|r32 225/5017|225/50r17": {
+    "specs": {
+      "load_index": "94",
+      "speed_rating": "V"
+    },
+    "query": "Warrior R32 225/5017 225/50R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|wr300 225/50r17|225/50r17": {
+    "specs": {
+      "load_index": "98",
+      "speed_rating": "H"
+    },
+    "query": "WARRIOR WR300 225/50R17 225/50R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:freedom hauler|dutymax|225/75r15": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "M"
+    },
+    "query": "FREEDOM HAULER DUTYMAX 225/75R15 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|wr500 235/40r19|235/40r19": {
+    "specs": {},
+    "query": "WARRIOR WR500 235/40R19 235/40R19 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|icehawke i|235/45r17": {
+    "specs": {
+      "load_index": "94",
+      "speed_rating": "W"
+    },
+    "query": "Grenlander ICEHAWKE I 235/45R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|icehawke i|235/45r18": {
+    "specs": {},
+    "query": "Grenlander ICEHAWKE I 235/45R18 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:warrior|r700 ev 235/45r18|235/45r18": {
+    "specs": {
+      "load_index": "94",
+      "speed_rating": "H"
+    },
+    "query": "WARRIOR R700 EV 235/45R18 235/45R18 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|icehawke i|235/50r18": {
+    "specs": {},
+    "query": "Grenlander ICEHAWKE I 235/50R18 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|icehawke i|235/55r17": {
+    "specs": {
+      "load_index": "99",
+      "speed_rating": "H"
+    },
+    "query": "Grenlander ICEHAWKE I 235/55R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|x-sporter ev|235/55r20": {
+    "specs": {
+      "load_index": "105",
+      "speed_rating": "V"
+    },
+    "query": "Grenlander X-SPORTER EV 235/55R20 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|lxht-206 235/65r16c 10 ply|235/65r16": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "R"
+    },
+    "query": "Lexani LXHT-206 235/65R16C 10 PLY 235/65R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|maga a/t one|235/75r15": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "Q"
+    },
+    "query": "Grenlander MAGA A/T ONE 235/75R15 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|maga a/t two|235/75r15": {
+    "specs": {
+      "load_index": "104",
+      "speed_rating": "S"
+    },
+    "query": "Grenlander MAGA A/T TWO 235/75R15 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|a/t plus l/t|235/75r15": {
+    "specs": {},
+    "query": "WARRIOR A/T PLUS L/T 235/75R15 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:freedom hauler|dutymax|235/80r16": {
+    "specs": {
+      "load_index": "130",
+      "speed_rating": "L"
+    },
+    "query": "FREEDOM HAULER DUTYMAX 235/80R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:double|ds-66 235/60r16|235/60r16": {
+    "specs": {
+      "load_index": "100",
+      "speed_rating": "H"
+    },
+    "query": "DOUBLE DS-66 235/60R16 235/60R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:double|dasp-plus|235/60r18": {
+    "specs": {},
+    "query": "DOUBLE DASP-PLUS 235/60R18 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|icehawke i|245/40r17": {
+    "specs": {
+      "load_index": "95",
+      "speed_rating": "W"
+    },
+    "query": "Grenlander ICEHAWKE I 245/40R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|icehawke ii|245/40r20": {
+    "specs": {},
+    "query": "Grenlander ICEHAWKE II 245/40R20 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|icehawke i|245/45r17": {
+    "specs": {
+      "load_index": "99",
+      "speed_rating": "H"
+    },
+    "query": "Grenlander ICEHAWKE I 245/45R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|l-zeal56|245/45r17": {
+    "specs": {
+      "load_index": "99",
+      "speed_rating": "H"
+    },
+    "query": "Grenlander L-ZEAL56 245/45R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|cosilency|245/55r19": {
+    "specs": {},
+    "query": "WARRIOR Cosilency 245/55R19 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|x-sporter ev|245/50r19": {
+    "specs": {
+      "load_index": "105",
+      "speed_rating": "V"
+    },
+    "query": "Grenlander X-SPORTER EV 245/50R19 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:double|dynopulse suv|245/50r20": {
+    "specs": {},
+    "query": "DOUBLE DynoPulse SUV 245/50R20 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|maga a/t two|245/75r17": {
+    "specs": {},
+    "query": "Grenlander MAGA A/T TWO 245/75R17 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|icehawke i|255/35r20": {
+    "specs": {},
+    "query": "Grenlander ICEHAWKE I 255/35R20 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|x-sporter ev|255/40r21": {
+    "specs": {},
+    "query": "Grenlander X-SPORTER EV 255/40R21 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|icehawke i|255/45r18": {
+    "specs": {},
+    "query": "Grenlander ICEHAWKE I 255/45R18 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|l-zeal56|255/45r19": {
+    "specs": {
+      "load_index": "100",
+      "speed_rating": "W"
+    },
+    "query": "Grenlander L-ZEAL56 255/45R19 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|icehawke ii|265/35r20": {
+    "specs": {},
+    "query": "Grenlander ICEHAWKE II 265/35R20 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:double|ds-66 265/65r17|265/65r17": {
+    "specs": {},
+    "query": "DOUBLE DS-66 265/65R17 265/65R17 tire size load index speed rating",
+    "tried": [
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|icehawke ii|275/30r20": {
+    "specs": {
+      "load_index": "97",
+      "speed_rating": "H"
+    },
+    "query": "Grenlander ICEHAWKE II 275/30R20 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:double|abysilency|275/45r21": {
+    "specs": {
+      "load_index": "110",
+      "speed_rating": "W"
+    },
+    "query": "DOUBLE Abysilency 275/45R21 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:venom|terra hunter r/t+|275/55r20": {
+    "specs": {
+      "load_index": "117",
+      "speed_rating": "T"
+    },
+    "query": "VENOM TERRA HUNTER R/T+ 275/55R20 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:tri-ace|pioneer a/t iii|285/65r18": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "S"
+    },
+    "query": "Tri-Ace PIONEER A/T III 285/65R18 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|icehawke ii|285/45r19": {
+    "specs": {},
+    "query": "Grenlander ICEHAWKE II 285/45R19 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:grenlander|icehawke ii|295/35r21": {
+    "specs": {
+      "load_index": "107",
+      "speed_rating": "Y"
+    },
+    "query": "Grenlander ICEHAWKE II 295/35R21 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:grenlander|l-zeal56|295/40r22": {
+    "specs": {},
+    "query": "Grenlander L-ZEAL56 295/40R22 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:lexani|terr beast at|lt215/85r16": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Lexani TERR BEAST AT LT215/85R16 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:lexani|terr beast at|lt225/75r16": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Lexani TERR BEAST AT LT225/75R16 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:lexani|lxht-206 lt225/75r16 10 ply|lt225/75r16": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "S"
+    },
+    "query": "Lexani LXHT-206 LT225/75R16 10 PLY LT225/75R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terr beast at|lt235/70r16": {
+    "specs": {
+      "load_range": "C"
+    },
+    "query": "Lexani TERR BEAST AT LT235/70R16 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:lexani|terr beast at|lt235/75r15": {
+    "specs": {
+      "load_range": "D"
+    },
+    "query": "Lexani TERR BEAST AT LT235/75R15 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:lexani|terr beast at|lt235/85r16": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Lexani TERR BEAST AT LT235/85R16 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:lexani|terr beast at|lt245/70r17": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Lexani TERR BEAST AT LT245/70R17 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:lexani|terr beast at|lt245/75r16": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Lexani TERR BEAST AT LT245/75R16 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:lexani|terr beast at|lt245/75r17": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Lexani TERR BEAST AT LT245/75R17 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:grenlander|steadtrek a/t|lt255/60r20": {
+    "specs": {
+      "load_index": "112",
+      "speed_rating": "S"
+    },
+    "query": "Grenlander STEADTREK A/T LT255/60R20 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:warrior|cruseross x/t lt255/70r16|lt255/70r16": {
+    "specs": {},
+    "query": "WARRIOR CRUSEROSS X/T LT255/70R16 LT255/70R16 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:lexani|terr beast at|lt265/70r18": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Lexani TERR BEAST AT LT265/70R18 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:warrior|cruseross x/t lt265/65r18|lt265/65r18": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "WARRIOR CRUSEROSS X/T LT265/65R18 LT265/65R18 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:grenlander|icedefensor stud iii|lt275/60r20": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "S",
+      "load_range": "E"
+    },
+    "query": "Grenlander ICEDEFENSOR STUD III LT275/60R20 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terr beast at|lt275/70r18": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Lexani TERR BEAST AT LT275/70R18 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:venom|terra hunter r/t+|lt275/65r18": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "Q"
+    },
+    "query": "VENOM TERRA HUNTER R/T+ LT275/65R18 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terr beast at|lt275/65r20": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Lexani TERR BEAST AT LT275/65R20 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:lexani|terr beast at|lt285/60r20": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Lexani TERR BEAST AT LT285/60R20 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:grenlander|maga a/t two|lt285/70r17": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "S"
+    },
+    "query": "Grenlander MAGA A/T TWO LT285/70R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terr beast at|lt285/70r17": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Lexani TERR BEAST AT LT285/70R17 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:venom|terra hunter r/t+|lt305/55r20": {
+    "specs": {
+      "load_range": "F"
+    },
+    "query": "VENOM TERRA HUNTER R/T+ LT305/55R20 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:antares|su-830 94s 6ply c|165r13": {
+    "specs": {
+      "aspect_ratio": "80"
+    },
+    "query": "Antares SU-830 94S 6PLY C 165R13 tire size load index speed rating",
+    "tried": [
+      "aspect_ratio"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|lt215/85r16": {
+    "specs": {
+      "load_index": "115",
+      "speed_rating": "S",
+      "load_range": "E"
+    },
+    "query": "Lexani TERRAIN BEAST A/T LT215/85R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|lt235/75r15": {
+    "specs": {
+      "load_index": "110",
+      "speed_rating": "S",
+      "load_range": "D"
+    },
+    "query": "Lexani TERRAIN BEAST A/T LT235/75R15 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|lt235/80r17": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "S",
+      "load_range": "E"
+    },
+    "query": "Lexani TERRAIN BEAST A/T LT235/80R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|lt235/85r16": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "S",
+      "load_range": "N"
+    },
+    "query": "Lexani TERRAIN BEAST A/T LT235/85R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|lt245/75r16": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "S",
+      "load_range": "E"
+    },
+    "query": "Lexani TERRAIN BEAST A/T LT245/75R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|lt245/75r17": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "S",
+      "load_range": "E"
+    },
+    "query": "Lexani TERRAIN BEAST A/T LT245/75R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|265/65r17": {
+    "specs": {},
+    "query": "Lexani TERRAIN BEAST A/T 265/65R17 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:lexani|terrain beast a/t|lt265/70r16": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "S",
+      "load_range": "E"
+    },
+    "query": "Lexani TERRAIN BEAST A/T LT265/70R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|lt265/70r17": {
+    "specs": {},
+    "query": "Lexani TERRAIN BEAST A/T LT265/70R17 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|lt265/70r18": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "S",
+      "load_range": "E"
+    },
+    "query": "Lexani TERRAIN BEAST A/T LT265/70R18 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|lt265/75r16": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "S",
+      "load_range": "E"
+    },
+    "query": "Lexani TERRAIN BEAST A/T LT265/75R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|275/55r20": {
+    "specs": {
+      "load_index": "113",
+      "speed_rating": "T"
+    },
+    "query": "Lexani TERRAIN BEAST A/T 275/55R20 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|275/60r20": {
+    "specs": {},
+    "query": "Lexani TERRAIN BEAST A/T 275/60R20 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:lexani|terrain beast a/t|lt275/65r18": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "S",
+      "load_range": "E"
+    },
+    "query": "Lexani TERRAIN BEAST A/T LT275/65R18 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|lt275/65r20": {
+    "specs": {},
+    "query": "Lexani TERRAIN BEAST A/T LT275/65R20 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|285/50r20": {
+    "specs": {},
+    "query": "Lexani TERRAIN BEAST A/T 285/50R20 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:lexani|terrain beast a/t|lt285/60r20": {
+    "specs": {
+      "load_index": "125",
+      "speed_rating": "S",
+      "load_range": "E"
+    },
+    "query": "Lexani TERRAIN BEAST A/T LT285/60R20 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|lt285/70r17": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Lexani TERRAIN BEAST A/T LT285/70R17 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|lt285/75r16": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "S",
+      "load_range": "E"
+    },
+    "query": "Lexani TERRAIN BEAST A/T LT285/75R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|terrain beast a/t|31x10.50r15": {
+    "specs": {
+      "load_index": "109",
+      "speed_rating": "S",
+      "load_range": "N"
+    },
+    "query": "Lexani TERRAIN BEAST A/T 31x10.50R15 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:rolling big power|repulsor r/t|33x13.50r22": {
+    "specs": {},
+    "query": "Rolling Big Power REPULSOR R/T 33X13.50R22 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:rolling big power|repulsor r/t|35x12.50r24": {
+    "specs": {
+      "load_index": "118",
+      "speed_rating": "Q"
+    },
+    "query": "Rolling Big Power REPULSOR R/T 35x12.50R24 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:mickey thompson|baja legend mtz|lt305/55r20": {
+    "specs": {
+      "load_range": "F"
+    },
+    "query": "Mickey Thompson BAJA LEGEND MTZ LT305/55R20 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:mickey thompson|baja legend mtz|lt305/65r17": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Mickey Thompson BAJA LEGEND MTZ LT305/65R17 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:mickey thompson|baja boss mt|lt33x12.50r18": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Mickey Thompson BAJA BOSS MT LT33x12.50R18 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:mickey thompson|baja boss mt|lt33x12.50r22": {
+    "specs": {
+      "load_index": "114",
+      "speed_rating": "T",
+      "load_range": "F"
+    },
+    "query": "Mickey Thompson BAJA BOSS MT LT33x12.50R22 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "load_range",
+      "speed_rating"
+    ]
+  },
+  "specs:gladiator|x comp a/t|37x13.50r17lt": {
+    "specs": {},
+    "query": "Gladiator X COMP A/T 37X13.50R17LT tire size load index speed rating",
+    "tried": []
+  },
+  "specs:cargomax|yt301 6py|st175/80r13": {
+    "specs": {
+      "load_range": "D"
+    },
+    "query": "CargoMax YT301 6PY ST175/80R13 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:federal|himalaya suv|225/60r17": {
+    "specs": {
+      "load_index": "103",
+      "speed_rating": "T"
+    },
+    "query": "Federal HIMALAYA SUV 225/60R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:greentrac|rough master rt|lt265/50r20": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "Q"
+    },
+    "query": "Greentrac ROUGH MASTER RT LT265/50R20 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:greentrac|rough master rt|lt33x12.50x17": {
+    "specs": {
+      "aspect_ratio": "65",
+      "rim_diameter": "17"
+    },
+    "query": "Greentrac ROUGH MASTER RT LT33X12.50X17 tire size load index speed rating",
+    "tried": [
+      "aspect_ratio",
+      "rim_diameter"
+    ]
+  },
+  "specs:lexani|lxtr-203|205/50r16": {
+    "specs": {
+      "load_index": "87",
+      "speed_rating": "W"
+    },
+    "query": "Lexani LXTR-203 205/50R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:powertrac|wild ranger m/t|33x12.50r17": {
+    "specs": {},
+    "query": "Powertrac WILD RANGER M/T 33x12.50R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:gladiator|qr25-ts 8ply|st205/75r14": {
+    "specs": {
+      "load_index": "105",
+      "speed_rating": "N"
+    },
+    "query": "Gladiator QR25-TS 8ply ST205/75R14 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:gladiator|qr25-ts 8ply|st205/75r15": {
+    "specs": {
+      "load_index": "107",
+      "speed_rating": "N"
+    },
+    "query": "Gladiator QR25-TS 8ply ST205/75R15 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:gladiator|qr25-ts 6ply|st215/75r14": {
+    "specs": {
+      "load_index": "102",
+      "speed_rating": "N"
+    },
+    "query": "Gladiator QR25-TS 6ply ST215/75R14 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:gladiator|qr25-ts 10ply|st225/75r15": {
+    "specs": {
+      "load_index": "94",
+      "speed_rating": "V"
+    },
+    "query": "Gladiator QR25-TS 10ply ST225/75R15 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:gladiator|qr25-ts 12ply|st235/80r16": {
+    "specs": {
+      "load_index": "126",
+      "speed_rating": "N"
+    },
+    "query": "Gladiator QR25-TS 12ply ST235/80R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ]
+  },
+  "specs:lexani|lxuhp-207 xl|225/60r18": {
+    "specs": {},
+    "query": "Lexani LXUHP-207 XL 225/60R18 tire size load index speed rating",
+    "tried": []
+  },
+  "specs:lexani|lxht-206 121q|lt265/70r17": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Lexani LXHT-206 121Q LT265/70R17 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:nitto|terra grappler g2|lt305/55r20": {
+    "specs": {
+      "load_range": "F"
+    },
+    "query": "Nitto TERRA GRAPPLER G2 LT305/55R20 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ]
+  },
+  "specs:ceat|farmax rc|230/95r40/tl": {
+    "specs": {
+      "load_index": "65"
+    },
+    "query": "CEAT FARMAX RC 230/95R40/TL tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:|lt33x12.50r20 114q|33125020114-10": {
+    "specs": {
+      "aspect_ratio": "12.50",
+      "rim_diameter": "20"
+    },
+    "query": "LT33X12.50R20 114Q 33125020114-10 tire size load index speed rating",
+    "tried": [
+      "aspect_ratio",
+      "rim_diameter"
+    ]
+  },
+  "specs:|lt31x10.50r15 s109 -6pr delinte dx10 a/t|31105015109-610": {
+    "specs": {},
+    "query": "LT31X10.50R15 S109 -6PR DELINTE DX10 A/T 31105015109-610 tire size load index speed rating",
+    "tried": [
+      "aspect_ratio",
+      "rim_diameter"
+    ]
+  },
+  "specs:|lt33x12.50r17 114s|33125017114-8": {
+    "specs": {},
+    "query": "LT33X12.50R17 114S 33125017114-8 tire size load index speed rating",
+    "tried": [
+      "aspect_ratio",
+      "rim_diameter"
+    ]
+  },
+  "specs:|lt235//85r16 108/104s|2358516108104-6": {
+    "specs": {
+      "load_index": "120",
+      "aspect_ratio": "85",
+      "rim_diameter": "16"
+    },
+    "query": "LT235//85R16 108/104S 2358516108104-6 tire size load index speed rating",
+    "tried": [
+      "aspect_ratio",
+      "load_index",
+      "rim_diameter"
+    ]
+  },
+  "specs:|lt35x12.50r17 121q|35125017121-10": {
+    "specs": {},
+    "query": "LT35X12.50R17 121Q 35125017121-10 tire size load index speed rating",
+    "tried": [
+      "aspect_ratio",
+      "rim_diameter"
+    ]
+  },
+  "specs:|265/65r17 lanvigator catchpower all season|2656517": {
+    "specs": {
+      "load_index": "112"
+    },
+    "query": "265/65R17 LANVIGATOR CATCHPOWER ALL SEASON 2656517 tire size load index speed rating",
+    "tried": [
+      "load_index"
+    ]
+  },
+  "specs:|lt33x12.50r17 120q-10pr lanvigator warrior r/t|33125017120-10": {
+    "specs": {},
+    "query": "LT33X12.50R17 120Q-10PR LANVIGATOR WARRIOR R/T 33125017120-10 tire size load index speed rating",
+    "tried": [
+      "aspect_ratio",
+      "rim_diameter"
+    ]
+  },
+  "specs:|lt33x12.50r20 114q -10pr lanvigator land warrior-r/t|33125020114-10-": {
+    "specs": {},
+    "query": "LT33X12.50R20 114Q -10PR LANVIGATOR LAND WARRIOR-R/T 33125020114-10- tire size load index speed rating",
+    "tried": [
+      "aspect_ratio",
+      "rim_diameter"
+    ]
+  },
+  "specs:|lt 118q|33125018118-10": {
+    "specs": {
+      "load_index": "70"
+    },
+    "query": "LT 118Q 33125018118-10 tire size load index speed rating",
+    "tried": [
+      "aspect_ratio",
+      "load_index",
+      "rim_diameter"
+    ]
+  },
+  "specs:|lt35x12.50r17 121q -10pr lanvigator catchfors m/t all season|35125017121-10": {
+    "specs": {},
+    "query": "LT35X12.50R17 121Q -10PR LANVIGATOR CATCHFORS M/T ALL SEASON 35125017121-10 tire size load index speed rating",
+    "tried": [
+      "aspect_ratio",
+      "rim_diameter"
+    ]
+  },
+  "specs:|35x12.50r22lt 117q-10pr lanvigator catchfors m/t ii all season|35125022117-10": {
+    "specs": {},
+    "query": "35X12.50R22LT 117Q-10PR LANVIGATOR CATCHFORS M/T II ALL SEASON 35125022117-10 tire size load index speed rating",
+    "tried": [
+      "aspect_ratio",
+      "rim_diameter"
+    ]
   }
 }

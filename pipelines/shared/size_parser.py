@@ -148,15 +148,34 @@ def normalize_costar_size(size):
     return s
 
 
+# Real speed symbols only: B C D E F G J K L M N P Q R S T U H V W Y Z. Deliberately
+# excludes A/I/O/X (never used as a speed symbol) and is exactly one character —
+# on a curated description field a generic [A-Z]{1,2} rarely misfires, but this
+# function is also used to parse raw SERP search-result text (enrichment.py's
+# specs field), where stray nearby text is common. [A-Z]{1,2} against that text
+# once matched "MP" out of "...112 MPH...", writing speed_rating="MP" to a
+# storefront. Restricting to the real symbol set makes that class of match
+# impossible rather than merely less likely.
+_SPEED_SYMBOL = "BCDEFGHJKLMNPQRSTUVWYZ"
+
+
 def parse_load_speed(description):
     """Return (load_index, speed_rating) from a description string."""
     s = str(description).upper()
-    # Dual load index format: 143/141J — letter must not precede a digit (avoids 205/50R17)
-    m = re.search(r'(?<!\d)(\d{2,3})/\d{2,3}([A-Z])(?!\d)', s)
+    # Dual load index format: 143/141J. The trailing (?![A-Z0-9]) is why this
+    # doesn't fire on a bare size string: "225/60ZR18" has the same digit/digit
+    # +letter shape (225, 60, Z), and Z looks like a plausible speed symbol on
+    # its own — the guard used to be (?!\d), which blocks "205/50R17" (the "R"
+    # it captures is followed by a rim-diameter digit) but not "225/60ZR18"
+    # (the "Z" it captures is followed by another LETTER, "R", not a digit).
+    # Rejecting a letter immediately after the match closes that gap: nothing
+    # in a genuine dual-rating token ("143/141J", "143/141J XL") is ever
+    # followed directly by another letter.
+    m = re.search(rf'(?<!\d)(\d{{2,3}})/\d{{2,3}}([{_SPEED_SYMBOL}])(?![A-Z0-9])', s)
     if m:
         return m.group(1), m.group(2)
     # Standard formats: 94V, 93 V, 94(Y), 94(Y) XL — load index 60-129
-    m = re.search(r'(?<!\d)([6-9]\d|1[0-2]\d)\s*\(?([A-Z]{1,2})\)?(?!\d)', s)
+    m = re.search(rf'(?<!\d)([6-9]\d|1[0-2]\d)\s*\(?([{_SPEED_SYMBOL}])\)?(?![A-Z0-9])', s)
     if m:
         return m.group(1), m.group(2)
     return "", ""
