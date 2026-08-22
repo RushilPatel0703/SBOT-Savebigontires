@@ -303,6 +303,13 @@ def main():
 
     if args.dry_run:
         print("\nDRY RUN — nothing was written.")
+    else:
+        print("\nNOTE: this patched the cleaned/raw CSVs only. The Shopify CSV each\n"
+              "      supplier ships is built by its augment step and is NOT rebuilt\n"
+              "      here, so the fix does not reach a bundle until you run:\n"
+              "          python pipelines/shared/enrich_runner.py --apply-only\n"
+              "      or that supplier's `run_pipeline.py --only augment_*` by hand.\n"
+              "      upload_bundle.py refuses to build a bundle until you do.")
 
 
 if __name__ == "__main__":

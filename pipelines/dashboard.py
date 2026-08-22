@@ -883,9 +883,23 @@ with col_btn:
             st.success(f"Ready — {len(files)} file(s) generated.")
         st.rerun()
 with col_info:
-    source_count = len(collect_source_csvs())
+    _sources = collect_source_csvs()
+    source_count = len(_sources)
     if source_count:
         st.caption(f"{source_count} supplier CSV(s) found and ready to merge.")
+        # Say this BEFORE the click, not as an error after it. A supplier CSV
+        # older than the cleaned file behind it means a fix never reached the
+        # output, and the finished bundle cannot show that — it is newer than
+        # everything in it either way.
+        _stale = _upload_bundle.stale_sources(_sources)
+        if _stale:
+            _nl = chr(10)
+            _lines = [f"- `{o.name}` <- `{i.name}`" for o, i in _stale]
+            st.error(
+                f"{len(_stale)} supplier CSV(s) are older than the data they were "
+                f"built from, so bundling is blocked until their augment step is "
+                f"re-run:" + _nl + _nl + _nl.join(_lines)
+            )
         # Bundling before enriching produces a valid upload that is simply
         # missing images it could have had — worth a nudge, not a block.
         _pending = load_enrich_scan().get("total_needs_paid", 0)

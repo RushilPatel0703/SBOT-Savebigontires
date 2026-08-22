@@ -71,6 +71,71 @@ def collect_source_csvs(supplier_dirs=None):
     return found
 
 
+# The product-type token at the end of a Shopify_SEO name, which is what ties
+# an output back to the cleaned/raw CSV it was built from:
+#   Shopify_SEO_dttire_wheels_20260821_210547 -> wheels
+#   Shopify_SEO_tires_20260821_210309         -> tires   (formula)
+_TYPE_TOKEN = re.compile(r"_(tires|wheels|rims)$", re.IGNORECASE)
+
+
+def _repo_rel(path):
+    """Path relative to the repo when it is inside it, absolute when it is not.
+
+    A source outside REPO_ROOT is unusual but legal (a supplier directory can
+    be pointed anywhere), and `relative_to` raises on it. That raise landed
+    AFTER the CSV parts were already written, leaving a bundle with no
+    manifest — the one thing this module exists to guarantee.
+    """
+    try:
+        return Path(path).relative_to(REPO_ROOT)
+    except ValueError:
+        return Path(path)
+
+
+def stale_sources(sources):
+    """[(shopify_csv, input_csv)] for every output OLDER than the file it was
+    built from.
+
+    A backfill or an enrichment apply rewrites a supplier's cleaned/raw CSV;
+    the Shopify CSV is only regenerated if something re-runs that supplier's
+    augment step. Nothing forces it to. On 21 August the DT Tire wheels
+    backfill fixed 505 of 514 images in `cleaned_wheels_*.csv` and the bundle
+    still shipped the 130px thumbnails, because `Shopify_SEO_dttire_wheels_*`
+    had been written the day before and no step in between rebuilt it.
+
+    The folder timestamp cannot catch this: the bundle really is newer than
+    everything in it. Only comparing each output against its own input can.
+
+    Best-effort — the enrichment SOURCES table is the authority on which input
+    feeds which supplier/type, and if it cannot be imported this returns
+    nothing rather than blocking a build.
+    """
+    try:
+        sys.path.insert(0, str(_HERE))
+        import enrichment as E
+    except Exception:                                   # noqa: BLE001
+        return []
+
+    inputs = {}
+    for src in E.SOURCES:
+        f = E.latest(src["glob"])
+        if f:
+            inputs[(src["supplier"], src["type"])] = f
+
+    stale = []
+    for out in sources:
+        supplier = Path(out).parent.parent.parent.name
+        m = _TYPE_TOKEN.search(_TS_SUFFIX.sub("", Path(out).stem))
+        if not m:
+            continue
+        src_file = inputs.get((supplier, m.group(1).lower()))
+        if not src_file:
+            continue
+        if os.path.getmtime(src_file) > os.path.getmtime(out):
+            stale.append((Path(out), Path(src_file)))
+    return stale
+
+
 def _split_chunks(merged, limit_bytes):
     """Split rows into chunks by exact encoded byte size."""
     row_io = io.StringIO()
@@ -136,15 +201,33 @@ def _dedupe_handles(df):
     return df, fixed
 
 
-def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None):
+def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None,
+                         allow_stale=False):
     """Merge every supplier's latest CSV and split into Shopify-sized parts.
 
     Returns (out_files, error). On dry_run, returns ([], "") after printing the
     inputs it would use - useful for confirming freshness before writing.
+
+    Refuses to build on a stale source (see stale_sources): a Shopify CSV older
+    than the cleaned/raw file it was built from means a fix landed in the input
+    and never reached the output, and bundling it ships the old data under a
+    fresh timestamp. `allow_stale=True` overrides, and names what it is
+    ignoring.
     """
     sources = collect_source_csvs(supplier_dirs)
     if not sources:
         return [], "No Shopify CSV files found — run the augment steps first."
+
+    stale = stale_sources(sources)
+    if stale:
+        detail = "; ".join(f"{o.name} is older than {i.name}" for o, i in stale)
+        if not allow_stale:
+            return [], (
+                f"{len(stale)} supplier CSV(s) are out of date with their inputs — "
+                f"re-run those augment steps first, or pass --allow-stale to bundle "
+                f"anyway: {detail}")
+        print(f"WARNING: bundling {len(stale)} stale source(s) because "
+              f"--allow-stale was given: {detail}")
 
     frames, manifest = [], []
     for path in sources:
@@ -197,7 +280,7 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None):
     lines = [f"Bundle built {now:%Y-%m-%d %H:%M:%S}",
              f"Total rows: {len(merged):,}",
              f"Handle collisions disambiguated: {handle_fixes}", "", "Sources:"]
-    lines += [f"  {m:%Y-%m-%d %H:%M}  {r:7,d}  {p.relative_to(REPO_ROOT)}"
+    lines += [f"  {m:%Y-%m-%d %H:%M}  {r:7,d}  {_repo_rel(p)}"
               for p, r, m in manifest]
     lines += ["", "Parts:"]
     lines += [f"  {p.name}" for p in out_files]
@@ -213,9 +296,15 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dry-run", action="store_true",
                     help="List the source CSVs that would be bundled; write nothing.")
+    ap.add_argument("--allow-stale", action="store_true",
+                    help="Bundle even when a supplier's Shopify CSV is older than the "
+                         "cleaned/raw file it was built from. The default refusal is "
+                         "there because that gap is invisible in the finished bundle — "
+                         "it is newer than everything in it and still carries the old "
+                         "data.")
     args = ap.parse_args()
 
-    _, error = prepare_upload_files(dry_run=args.dry_run)
+    _, error = prepare_upload_files(dry_run=args.dry_run, allow_stale=args.allow_stale)
     if error:
         print(f"ERROR: {error}")
         sys.exit(1)

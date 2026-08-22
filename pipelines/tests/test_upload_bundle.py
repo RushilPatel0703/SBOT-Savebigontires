@@ -130,3 +130,94 @@ def test_row_count_and_non_handle_data_are_unchanged():
     assert len(out) == 2
     assert list(out["Variant Price"]) == ["9.99", "19.99"]
     assert list(out["Variant SKU"]) == ["111", "222"]
+
+
+# ── freshness: a bundle is newer than everything in it and can still be stale ──
+
+class TestStaleSourceGuard:
+    """A backfill rewrites a supplier's cleaned CSV; the Shopify CSV is only
+    regenerated if something re-runs that supplier's augment step, and nothing
+    forces it to.
+
+    On 2026-08-21 the DT Tire wheels backfill fixed 505 of 514 images in
+    `cleaned_wheels_*.csv` and the bundle still shipped 130px thumbnails,
+    because `Shopify_SEO_dttire_wheels_*` had been written the day before.
+    The folder timestamp cannot catch that — the bundle genuinely IS newer
+    than every file in it. Only comparing each output against its own input
+    can.
+    """
+
+    def _tree(self, tmp_path, out_age, src_age):
+        """A one-supplier tree: a Shopify CSV and the cleaned CSV behind it."""
+        import os
+        sup = tmp_path / "dttire"
+        (sup / "Data" / "shopify").mkdir(parents=True)
+        (sup / "Data" / "cleaned").mkdir(parents=True)
+        out = sup / "Data" / "shopify" / "Shopify_SEO_dttire_wheels_20260101_000000.csv"
+        src = sup / "Data" / "cleaned" / "cleaned_wheels_20260101_000000.csv"
+        out.write_text("Handle,Image Src\na,x.jpg\n", encoding="utf-8")
+        src.write_text("sku,image_url\n1,x.jpg\n", encoding="utf-8")
+        os.utime(out, (out_age, out_age))
+        os.utime(src, (src_age, src_age))
+        return out, src
+
+    def _patch_sources(self, monkeypatch, src):
+        import enrichment as E
+        monkeypatch.setattr(E, "SOURCES", [dict(
+            supplier="dttire", type="wheels", field="image", glob=str(src),
+            brand_col="brand", model_col="description", size_col="size",
+            extra_col=None, desc_col="description", value_col="image_url",
+            writable=True)])
+
+    def test_an_output_older_than_its_input_is_flagged(self, tmp_path, monkeypatch):
+        out, src = self._tree(tmp_path, out_age=1_000_000, src_age=2_000_000)
+        self._patch_sources(monkeypatch, src)
+        stale = UB.stale_sources([out])
+        assert [(o.name, i.name) for o, i in stale] == [(out.name, src.name)]
+
+    def test_an_output_newer_than_its_input_is_not_flagged(self, tmp_path, monkeypatch):
+        out, src = self._tree(tmp_path, out_age=2_000_000, src_age=1_000_000)
+        self._patch_sources(monkeypatch, src)
+        assert UB.stale_sources([out]) == []
+
+    def test_building_refuses_on_a_stale_source(self, tmp_path, monkeypatch):
+        out, src = self._tree(tmp_path, out_age=1_000_000, src_age=2_000_000)
+        self._patch_sources(monkeypatch, src)
+        files, error = UB.prepare_upload_files(
+            [tmp_path / "dttire"], out_root=tmp_path / "out")
+        assert files == []
+        assert "out of date" in error and out.name in error
+        assert not (tmp_path / "out").exists(), "nothing may be written on refusal"
+
+    def test_allow_stale_builds_anyway(self, tmp_path, monkeypatch, capsys):
+        out, src = self._tree(tmp_path, out_age=1_000_000, src_age=2_000_000)
+        self._patch_sources(monkeypatch, src)
+        files, error = UB.prepare_upload_files(
+            [tmp_path / "dttire"], out_root=tmp_path / "out", allow_stale=True)
+        assert error == "" and files
+        assert "--allow-stale" in capsys.readouterr().out
+
+    def test_an_unmappable_output_never_blocks_a_build(self, tmp_path, monkeypatch):
+        """An output whose name carries no tires/wheels/rims token has no input
+        to compare against. Unknown is not the same as stale."""
+        out, src = self._tree(tmp_path, out_age=1_000_000, src_age=2_000_000)
+        odd = out.parent / "Shopify_SEO_dttire_something_20260101_000000.csv"
+        out.rename(odd)
+        self._patch_sources(monkeypatch, src)
+        assert UB.stale_sources([odd]) == []
+
+    def test_a_broken_enrichment_import_does_not_block_a_build(self, tmp_path, monkeypatch):
+        """The freshness check is best-effort. It must never be the reason a
+        bundle cannot be produced."""
+        out, _src = self._tree(tmp_path, out_age=1_000_000, src_age=2_000_000)
+        import builtins
+        real = builtins.__import__
+
+        def boom(name, *a, **kw):
+            if name == "enrichment":
+                raise ImportError("simulated")
+            return real(name, *a, **kw)
+
+        monkeypatch.setattr(builtins, "__import__", boom)
+        monkeypatch.delitem(sys.modules, "enrichment", raising=False)
+        assert UB.stale_sources([out]) == []
