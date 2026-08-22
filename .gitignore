@@ -17,6 +17,9 @@ monitoring/
 # Data/ are deliberately NOT, see below.
 pipelines/*/Data/**/*.csv
 pipelines/*/Data/**/*.log
+# Backups a backfill leaves beside the file it patched — same content class as
+# the .csv above, and a .bak does not match the .csv rule.
+pipelines/*/Data/**/*.bak
 pipelines/*/logs/
 # run_all.py opens a log handler at import time, so even a test collection
 # creates this one — a directory up from the per-supplier logs/ above.
@@ -37,6 +40,10 @@ pipelines/.enrich_result.json
 # already PAID for. Losing it means re-buying those searches. It stays in
 # version control on purpose. Same for the zero_terms_*.json scrape caches
 # and the shared sku/handle maps.
+#
+# image_quality_cache.json belongs to the same class for a different reason:
+# nothing was paid for it, but it is 3,615 image downloads, and a scan that
+# has to rebuild it reports near-zero image gaps until it finishes.
 
 # Quarantined no-cost-price rows are regenerated every run (data, not source)
 no price detected/*.csv

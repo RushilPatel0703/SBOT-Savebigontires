@@ -20,6 +20,15 @@ one place where a single, small, generic writer works for all five suppliers.
 
 Precedence (SERP is always last resort):
   a. value already scraped and valid                 -> untouched (never a candidate)
+     For images, "valid" means more than "not blank". A present-but-unusable
+     photo — a 130x130 thumbnail, a supplier's "no photo available" graphic,
+     a dead CDN link — is a gap the storefront shows, so it IS a candidate.
+     That judgement comes from the image quality audit further down
+     (measure_image_urls / image_verdict): plain HTTP GETs, no API spend,
+     verdicts cached by URL. This is the DEFAULT for every consumer; only a
+     caller that explicitly passes quality_cache=None gets the older
+     blank-only behaviour. A candidate is never blanked on this basis —
+     a small photo beats an empty listing until a better one is actually found.
   b. free fallback (brand <- manufacturer_code, etc.) -> NOT this module's job — already
      implemented, for real, inside each supplier's own augment script (which all import
      the single shared pipelines/shared/size_parser.py rather than reimplementing
@@ -70,6 +79,7 @@ import json
 import os
 import re
 import sys
+import threading
 from urllib.parse import urlparse
 
 import pandas as pd
@@ -120,8 +130,26 @@ SOURCES = [
          value_col="designation", writable=True),
 
     # ---- image: every supplier that scrapes a photo URL and sometimes comes
-    # up blank. dttire is intentionally absent — 0/9,601 rows missing an image
-    # (see ENRICHMENT_APPROVAL.md), so there is nothing to enrich.
+    # up blank OR unusable.
+    #
+    # dttire used to be excluded here on the grounds that 0/9,601 rows were
+    # missing an image. That was true and still misleading: every one of those
+    # images was a 130x130 listing thumbnail (see dttire/large_images.py).
+    # "Has a URL" was never the same question as "has a usable photo", which is
+    # exactly what the quality audit below now measures — so dttire belongs in
+    # this list. Its scraper and backfill_images.py resolve the 600px copies;
+    # whatever the PDP could not resolve stays visible here as a real gap
+    # instead of being counted as complete.
+    dict(supplier="dttire", type="tires", field="image",
+         glob="pipelines/dttire/Data/cleaned/cleaned_tires_*.csv",
+         brand_col="brand", model_col="model", size_col="size", extra_col=None,
+         desc_col="tread_design",
+         value_col="image_url", writable=True),
+    dict(supplier="dttire", type="wheels", field="image",
+         glob="pipelines/dttire/Data/cleaned/cleaned_wheels_*.csv",
+         brand_col="brand", model_col="description", size_col="size", extra_col=None,
+         desc_col="description",
+         value_col="image_url", writable=True),
     dict(supplier="northcountry", type="tires", field="image",
          glob="pipelines/northcountry/Data/cleaned/cleaned_tires_*.csv",
          brand_col="brand", model_col="model", size_col="size", extra_col=None,
@@ -259,13 +287,78 @@ def save_cache(cache):
         json.dump(cache, f, indent=2)
 
 
-def cache_key(field, brand, model, size):
+# ---------------------------------------------------------------------------
+# Image searches are keyed by brand+model, NOT brand+model+size.
+#
+# A tire's product photo is a picture of a tread pattern, and suppliers store
+# it per model, not per size. Measured on the CSVs as scraped:
+#
+#     supplier/type    rows   distinct images   distinct brand|model
+#     formula/wheels    685        213                 213      1.00 per model
+#     formula/tires     520         54                  53      1.02
+#     emerge/tires      624         80                  72      1.11
+#     nc/tires         6452        893                 515      1.73
+#
+# So the storefront already shows one photo across every size of a model —
+# buying a separate photo per size pays several times over for the same
+# picture. Keyed by size, North Country's low-res tires alone are 4,586
+# searches covering 535 distinct models; keyed by model they are 535.
+#
+# WHEELS ARE NOT TIRES HERE, and the difference is measured, not assumed.
+# "brand + model" names a tread pattern on a tire. On a wheel it frequently
+# names a category or a colour, because that is what the supplier put in the
+# model column. Collapsing wheels onto a model key merges genuinely different
+# products onto one bought photo — the worst cases in the 2026-08-18 data:
+#
+#     image:rssw|steel wheel|      92 candidate rows, 63 distinct sizes
+#     image:|black daytona|        11 rows (formula: brand column blank)
+#     image:|gloss black|          30 distinct wheels (wheelsmart/rims)
+#
+# "RSSW Steel Wheel wheel product photo" is not a query that identifies a
+# product, so one arbitrary steel-wheel photo would land on all 92 listings.
+# The saving that justified dropping size is almost entirely a tire saving
+# anyway: of the 790 searches the model key produced, 714 were tires and 76
+# were wheels. Keeping size on wheels/rims costs +124 searches (790 -> 914,
+# still far inside the 5,000 approval budget) and buys back that accuracy.
+IMAGE_KEY_INCLUDES_SIZE = False
+
+# Product types whose photo is genuinely per-model rather than per-size.
+# Everything not listed here keeps its size in the key.
+_MODEL_LEVEL_IMAGE_TYPES = ("tires",)
+
+
+def _image_key_drops_size(field, brand, model, product_type="tires"):
+    """Whether this row's image key may omit size.
+
+    Two conditions, both measured above:
+
+      * the product's photo is per-model, not per-size — true for tires,
+        false for wheels and rims (see _MODEL_LEVEL_IMAGE_TYPES); and
+      * brand or model actually names the product. A row that qualified for
+        a search on its `extra`/description alone (see _is_queryable) has an
+        empty brand AND model, so dropping size would collapse every such row
+        in the catalogue onto the single key "image:||" — one photo for
+        thousands of unrelated products. Size keeps those rows distinct.
+    """
+    return (field == "image" and not IMAGE_KEY_INCLUDES_SIZE
+            and str(product_type or "").lower() in _MODEL_LEVEL_IMAGE_TYPES
+            and bool(str(brand or "").strip() or str(model or "").strip()))
+
+
+def cache_key(field, brand, model, size, product_type="tires"):
     """Centralized, cross-supplier key — the same brand+model+size is never
     paid for twice even if two different suppliers carry the identical tire.
+
+    For TIRE images the size is dropped (see IMAGE_KEY_INCLUDES_SIZE), so one
+    photo covers every size of a model and is bought once. Wheels and rims
+    keep their size — their model column names a category or a colour as often
+    as a product, so collapsing them merges different wheels onto one photo.
     """
     b = str(brand or "").strip().lower()
     m = str(model or "").strip().lower()
     s = str(size or "").strip().lower()
+    if _image_key_drops_size(field, b, m, product_type):
+        s = ""
     return f"{field}:{b}|{m}|{s}"
 
 
@@ -321,6 +414,10 @@ def build_query(field, brand, model, size, extra="", product_type="tires"):
     if field == "designation":
         return f"{base} tire".strip()
     if field == "image":
+        # The query has to match the key: a model-level key means a model-level
+        # search, or two different queries would share one cached answer.
+        if _image_key_drops_size(field, brand, model, product_type):
+            base = " ".join(filter(None, [_scrub(brand), _scrub(model)]))
         return f"{base} {noun} product photo".strip()
     if field == "specs":
         return f"{base} tire size load index speed rating".strip()
@@ -428,6 +525,340 @@ def _is_missing_designation(val):
     return str(val).strip().lower() == "unknown"
 
 
+# ---------------------------------------------------------------------------
+# Image QUALITY audit — a scraped image can be present and still be unusable
+#
+# WHY THIS EXISTS
+# ---------------
+# Until now "does this row need an image?" was answered by _is_missing_image()
+# alone: blank means missing, anything else means done. That treats a 130x130
+# thumbnail exactly like a 2000x2000 studio photo, and the storefront does not.
+# Measured on the 2026-08-18 scrape, before the DT Tire fix:
+#
+#     dttire       979 unique tire images -> 130x130, every one
+#     northcountry 200x290 / 200x200 / 356x470 alongside genuine 1500-3840px
+#     formula      326x500, 427x427, 444x439 alongside 1280-2187px
+#     wheelsmart   300x300, 365x408 alongside 800-2560px
+#
+# Every one of those rows counted as "has an image" and so was invisible to
+# both the gap report and the enrichment spend estimate.
+#
+# WHAT THIS DOES NOT DO
+# ---------------------
+# A failing verdict marks the row as a CANDIDATE. It never blanks the column:
+# a 400px photo beats an empty listing, so the existing URL stays until a
+# better one is actually found. apply_cached() only overwrites when the cache
+# holds a real replacement.
+#
+# COST
+# ----
+# Zero SerpAPI credit — these are plain HTTP GETs against public CDNs, the same
+# fetches image_view.py already does. Results are cached on disk by URL, and
+# URLs are deduped before fetching (8,986 dttire rows share 979 images), so a
+# warm cache makes every later report free. Only `verdict` and dimensions are
+# stored; image bytes are never written to disk.
+# ---------------------------------------------------------------------------
+
+IMAGE_QUALITY_CACHE = os.path.join(SHARED_DIR, "Data", "image_quality_cache.json")
+
+# Minimum acceptable short side for an image the client already has.
+#
+# Deliberately LOWER than image_view.MIN_SIDE_PX (800), and the difference is
+# the point: 800 is the bar for CHOOSING among ~50 free SERP candidates, where
+# being picky costs nothing. This is the bar for CONDEMNING a photo we already
+# own, where being picky costs a paid search. 600 splits the measured
+# distribution where it actually separates — it condemns the 130/200/300/400px
+# thumbnails without flagging the 600-800px range that looks acceptable in a
+# product grid, and DT Tire's repaired images land exactly at 600.
+IMAGE_MIN_SIDE_PX = 600
+
+# Suppliers serve a real, non-uniform "no photo available" graphic that no
+# pixel check can distinguish from a genuine picture — it has to be matched by
+# name. DT Tire's is missing_product_EN_300x300.png (243 rows in the 08-18 raw
+# wheels scrape).
+_PLACEHOLDER_URL_RE = re.compile(
+    r"(missing_product|no[-_]?image|placeholder|no[-_]?photo|coming[-_]?soon)",
+    re.IGNORECASE)
+
+
+# Sentinel for "nobody said, so use the verdicts on disk".
+#
+# This is not decoration. Every consumer of discover_candidates() has to make
+# the same choice — count unusable images as gaps, or only blank ones — and
+# they have to make the SAME choice, or the number the client approves is not
+# the number that gets bought and written. They did not: the scan passed the
+# cache, while run_live() and apply_cached() defaulted to None. The approval
+# screen offered 790 image searches covering 5,663 rows; the live run behind
+# it could see 29 searches covering 57 rows, and the apply step could not have
+# written an answer into any of the other 5,606 even if one had been bought.
+#
+# So the disk cache is now the DEFAULT rather than something each caller has
+# to remember to pass. Passing quality_cache=None still asks for the old
+# blank-only behaviour explicitly, which is the only way to get it.
+USE_DISK_QUALITY_CACHE = object()
+
+_quality_cache_memo = {"mtime": None, "data": None}
+
+
+def load_quality_cache():
+    """Verdict map from disk, memoized on the file's mtime.
+
+    Scanning calls this once per field per source; the file is ~1 MB of JSON
+    and re-parsing it each time is pure waste. The mtime check means a writer
+    in the same process (measure_image_urls) still sees its own updates.
+    """
+    if not os.path.exists(IMAGE_QUALITY_CACHE):
+        return {}
+    mtime = os.path.getmtime(IMAGE_QUALITY_CACHE)
+    if _quality_cache_memo["mtime"] != mtime:
+        with open(IMAGE_QUALITY_CACHE, encoding="utf-8") as f:
+            _quality_cache_memo["data"] = json.load(f)
+        _quality_cache_memo["mtime"] = mtime
+    return _quality_cache_memo["data"]
+
+
+def resolve_quality_cache(field, quality_cache):
+    """Turn a caller's `quality_cache` argument into the map to actually use.
+
+    USE_DISK_QUALITY_CACHE (the default) means "read the verdicts on disk";
+    an explicit None means "blank-only, ignore quality"; anything else is used
+    as given. Non-image fields never need one.
+    """
+    if field != "image":
+        return None
+    if quality_cache is USE_DISK_QUALITY_CACHE:
+        return load_quality_cache() or None
+    return quality_cache
+
+
+def save_quality_cache(cache):
+    os.makedirs(os.path.dirname(IMAGE_QUALITY_CACHE), exist_ok=True)
+    # Unique temp name: a fixed one lets two concurrent writers interleave
+    # their partial JSON into a single file and then rename the wreckage over
+    # a good cache. Every caller today is sequential, but the scrapers write
+    # this from inside their ProductInfo loops, which is one MAX_WORKERS bump
+    # away from not being.
+    tmp = f"{IMAGE_QUALITY_CACHE}.{os.getpid()}.{threading.get_ident()}.tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(cache, f, indent=2)
+    os.replace(tmp, IMAGE_QUALITY_CACHE)
+    _quality_cache_memo["mtime"] = os.path.getmtime(IMAGE_QUALITY_CACHE)
+    _quality_cache_memo["data"] = cache
+
+
+def judge_image_url(url):
+    """Name-only verdict, no network. Returns (verdict, reason) or None when
+    the URL has to be fetched to be judged."""
+    u = str(url or "").strip()
+    if not u:
+        return "missing", "no image url"
+    if _PLACEHOLDER_URL_RE.search(u):
+        return "placeholder", "supplier's 'no photo available' graphic"
+    return None
+
+
+def measure_image_urls(urls, workers=8, refresh=False, progress=200, verbose=True):
+    """Fetch + measure every URL without a cached verdict. Returns the full
+    cache dict. Plain HTTP; no SerpAPI credit is involved at any point.
+
+    A URL that cannot be fetched is recorded as 'unusable' rather than left
+    unknown, so a dead CDN link is treated as the gap it is instead of being
+    silently re-fetched on every future run.
+    """
+    try:
+        from image_view import fetch_image, analyze_image, ImageCheckError
+    except ImportError as exc:
+        raise RuntimeError(
+            f"image quality audit needs Pillow + numpy ({exc})") from exc
+
+    cache = load_quality_cache()
+    todo = []
+    for u in dict.fromkeys(urls):
+        u = str(u or "").strip()
+        if not u or judge_image_url(u):
+            continue                      # blank/placeholder decided by name
+        if refresh or u not in cache:
+            todo.append(u)
+
+    if not todo:
+        if verbose:
+            print(f"  [image-quality] cache warm — 0 of {len(set(urls))} "
+                  f"URL(s) needed fetching")
+        return cache
+
+    if verbose:
+        print(f"  [image-quality] measuring {len(todo)} uncached image(s) "
+              f"(HTTP only, no API spend)")
+
+    done = [0]
+
+    def work(u):
+        try:
+            finding = analyze_image(fetch_image(u), "tires")
+            entry = {"w": finding["width"], "h": finding["height"]}
+            if finding["uniform"]:
+                entry.update(verdict="placeholder", reason="blank/near-uniform image")
+            elif min(finding["width"], finding["height"]) < IMAGE_MIN_SIDE_PX:
+                entry.update(verdict="low_res",
+                             reason=f"{finding['width']}x{finding['height']} "
+                                    f"< {IMAGE_MIN_SIDE_PX}px")
+            else:
+                entry.update(verdict="ok", reason="")
+        except ImageCheckError as exc:
+            entry = {"w": None, "h": None, "verdict": "unusable", "reason": str(exc)[:120]}
+        except Exception as exc:                                    # noqa: BLE001
+            entry = {"w": None, "h": None, "verdict": "unusable",
+                     "reason": f"{type(exc).__name__}: {exc}"[:120]}
+        done[0] += 1
+        if verbose and progress and done[0] % progress == 0:
+            print(f"    ...{done[0]}/{len(todo)}")
+        return u, entry
+
+    import concurrent.futures
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as ex:
+        for u, entry in ex.map(work, todo):
+            cache[u] = entry
+
+    save_quality_cache(cache)
+    if verbose:
+        counts = collections.Counter(cache[u]["verdict"] for u in todo)
+        print(f"  [image-quality] done: {dict(counts)}")
+    return cache
+
+
+def image_verdict(url, quality_cache):
+    """Combined name-then-pixel verdict for one URL.
+
+    Returns one of: 'missing', 'placeholder', 'low_res', 'unusable', 'ok',
+    or 'unknown' when quality has never been measured for it. 'unknown' is
+    deliberately NOT treated as a gap — an unmeasured image is not evidence
+    of a bad image, and guessing would inflate the spend estimate.
+    """
+    named = judge_image_url(url)
+    if named:
+        return named[0]
+    entry = (quality_cache or {}).get(str(url).strip())
+    if not entry:
+        return "unknown"
+    return entry.get("verdict", "unknown")
+
+
+# Verdicts that make a row worth spending a search on.
+BAD_IMAGE_VERDICTS = ("missing", "placeholder", "low_res", "unusable")
+
+
+# ---------------------------------------------------------------------------
+# (b2) — free layer: a photo this catalogue ALREADY OWNS
+#
+# The same tire model is carried by more than one supplier, and within a
+# single supplier one size of a model often scrapes a clean 1500px photo while
+# the next size gets a 385px one. Both are the same picture of the same tread
+# pattern — which is the premise the model-level cache key already rests on.
+# So before anything is bought, every gap should be checked against the photos
+# the catalogue is already holding.
+#
+# Measured on the 2026-08-18 data, against the 5,387 tire rows the audit
+# flags as having no usable image:
+#
+#     556 rows can be filled from a photo another row already carries
+#      28 searches disappear entirely (every row behind them is covered)
+#     donor short side: min 600, median 1500, max 4096
+#
+#     needy supplier <- donor      rows
+#     northcountry   <- northcountry 553
+#     formula        <- emergetires   60
+#     northcountry   <- formula       16
+#     dttire         <- dttire        15
+#
+# This costs nothing: no SerpAPI credit, no HTTP request, no re-scrape. It is
+# reading two files that are already on disk.
+#
+# TIRES ONLY, deliberately. The donor is matched on brand+model, which names a
+# tread pattern on a tire and a category or a colour on a wheel — the same
+# reason _MODEL_LEVEL_IMAGE_TYPES exists. Sharing a photo across everything
+# called "RSSW / Steel Wheel" would put one wheel's picture on 92 listings.
+# ---------------------------------------------------------------------------
+
+def build_peer_image_index(quality_cache=USE_DISK_QUALITY_CACHE, supplier_filter=None):
+    """{image cache key: (short_side, url, supplier)} — the best photo already
+    measured as usable that any row in the catalogue carries for that product.
+
+    Read-only and network-free. Only 'ok' verdicts are eligible as donors, so
+    a gap can never be filled from another gap.
+    """
+    quality_cache = resolve_quality_cache("image", quality_cache)
+    if not quality_cache:
+        return {}
+
+    best = {}
+    for src in SOURCES:
+        if src["field"] != "image" or not src.get("value_col"):
+            continue
+        if src["type"] not in _MODEL_LEVEL_IMAGE_TYPES:
+            continue
+        f = latest(src["glob"])
+        if not f:
+            continue
+        df = pd.read_csv(f, dtype=str, low_memory=False, encoding="utf-8-sig").fillna("")
+        if src["value_col"] not in df.columns:
+            continue
+        if supplier_filter and src["supplier"] != supplier_filter:
+            continue
+
+        # Only rows whose image is already measured 'ok' can donate, and only
+        # the columns the key is built from are needed. Deduping on those
+        # columns first turns northcountry/tires from 6,452 row lookups into
+        # ~900 — the same photo repeats across every size of a model.
+        usable = df[src["value_col"]].map(
+            lambda u: bool((quality_cache.get(str(u or "").strip()) or {}).get("w"))
+            and (quality_cache.get(str(u or "").strip()) or {}).get("verdict") == "ok")
+        donors = df[usable]
+        if donors.empty:
+            continue
+        key_cols = [c for c in (src["brand_col"], src["model_col"],
+                                src.get("mfr_col"), src.get("desc_col"),
+                                src["value_col"])
+                    if c and c in donors.columns]
+        for _, row in donors[key_cols].drop_duplicates().iterrows():
+            url = str(row.get(src["value_col"], "") or "").strip()
+            entry = quality_cache.get(url)
+            if not entry:
+                continue
+            # Resolved through the same helpers discover_candidates uses, off
+            # the same columns, so a donor key and a candidate key for the
+            # same product are byte-identical.
+            brand = _resolve_brand(row, src["brand_col"], src.get("mfr_col"))
+            model = _resolve_model(row, src["model_col"], src.get("desc_col"))
+            if not (brand.strip() and model.strip()):
+                continue      # a donor has to actually name its product
+            key = cache_key("image", brand, model, "", src["type"])
+            side = min(entry["w"], entry["h"])
+            if key not in best or side > best[key][0]:
+                best[key] = (side, url, src["supplier"])
+    return best
+
+
+def _peer_upgrade(candidate, peer_index, quality_cache):
+    """The donor URL for one candidate row, or '' when there is none or it
+    would not be an improvement.
+
+    Never sideways and never smaller — the same rule backfill_costar_images.py
+    applies. A candidate whose own image is somehow bigger than the best donor
+    keeps what it has.
+    """
+    hit = peer_index.get(candidate["cache_key"])
+    if not hit:
+        return ""
+    side, url, _supplier = hit
+    if url == candidate.get("current_value", ""):
+        return ""
+    cur = (quality_cache or {}).get(str(candidate.get("current_value", "")).strip()) or {}
+    if cur.get("w") and cur.get("h") and min(cur["w"], cur["h"]) >= side:
+        return ""
+    return url
+
+
+
 def _coerce_qty(val):
     """'20+' -> 20, negative/non-numeric -> 0. Matches wheelsmart's own
     coerce_quantity()/parse_qty() (they're equivalent modulo the negative
@@ -474,11 +905,22 @@ def _qty_keep_mask(df, qty_filter):
     return pd.Series(True, index=df.index)
 
 
-def discover_candidates(field, supplier_filter=None):
+def discover_candidates(field, supplier_filter=None,
+                       quality_cache=USE_DISK_QUALITY_CACHE):
     """Yield dicts describing every row that is a genuine (d)/(e) candidate:
     the field is blank/Unknown AFTER clean.py's free inference already ran.
     Read-only — opens the latest cleaned/raw CSV per source, never writes.
+
+    For field='image', `quality_cache` (from measure_image_urls()) widens
+    "missing" to "missing OR unusable": a 130x130 thumbnail, a placeholder
+    graphic and a dead CDN link are all gaps the storefront shows, even
+    though the column is not blank. It DEFAULTS to the verdicts on disk —
+    see USE_DISK_QUALITY_CACHE for why that default matters. Pass None to ask
+    for the old blank-only behaviour explicitly. Each candidate carries
+    `verdict` so the report can say WHY a row is a candidate rather than
+    lumping every cause together.
     """
+    quality_cache = resolve_quality_cache(field, quality_cache)
     candidates = []
     unqueryable = []
     for src in SOURCES:
@@ -496,9 +938,17 @@ def discover_candidates(field, supplier_filter=None):
             keep = _qty_keep_mask(df, qty_filter)
             df = df[keep]
 
+        verdicts = None
         if src["value_col"] and src["value_col"] in df.columns:
             col = df[src["value_col"]]
-            mask = col.apply(_is_missing_image if field == "image" else _is_missing_designation)
+            if field == "image":
+                if quality_cache is None:
+                    mask = col.apply(_is_missing_image)
+                else:
+                    verdicts = col.apply(lambda v: image_verdict(v, quality_cache))
+                    mask = verdicts.isin(BAD_IMAGE_VERDICTS)
+            else:
+                mask = col.apply(_is_missing_designation)
         elif field == "designation" and not src["writable"]:
             # wheelsmart designation: no literal column — derive via the same
             # regex logic augment_tires.py uses, read-only, to size the gap
@@ -530,7 +980,13 @@ def discover_candidates(field, supplier_filter=None):
                 row_index=idx, source_file=f, value_col=src["value_col"],
                 writable=src["writable"],
                 brand=brand, model=model, size=size, query=query,
-                cache_key=cache_key(field, brand, model, size),
+                cache_key=cache_key(field, brand, model, size, src["type"]),
+                verdict=(verdicts.loc[idx] if verdicts is not None else None),
+                # What the row holds today. For images this is not always
+                # blank — a candidate can be a 130px thumbnail — and the free
+                # peer-image layer needs it to refuse a sideways swap.
+                current_value=(str(row.get(src["value_col"], "") or "").strip()
+                               if src["value_col"] else ""),
             ))
     if unqueryable:
         counts = collections.Counter(unqueryable)
@@ -690,7 +1146,8 @@ def discover_spec_candidates(supplier_filter=None):
 # (d) — apply already-cached (already-paid-for) results. No network call.
 # ---------------------------------------------------------------------------
 
-def apply_cached(fields, supplier_filter=None, write=False):
+def apply_cached(fields, supplier_filter=None, write=False,
+                 quality_cache=USE_DISK_QUALITY_CACHE):
     """Steps (a)-(d) for real:
       (a) valid-already rows are never candidates (excluded by discover_candidates)
       (b)/(c) free fallback + parse-derivation are NOT re-implemented here — they
@@ -711,27 +1168,42 @@ def apply_cached(fields, supplier_filter=None, write=False):
     report = {}
 
     for field in fields:
-        cands = discover_candidates(field, supplier_filter)
+        cands = discover_candidates(field, supplier_filter, quality_cache)
         by_file = {}
         for c in cands:
             by_file.setdefault(c["source_file"], []).append(c)
 
+        # Free layer (b2): a usable photo the catalogue already owns beats
+        # both a paid search and the gap. Built once per field, from the same
+        # files already on disk — see build_peer_image_index().
+        qcache = resolve_quality_cache(field, quality_cache)
+        peers = build_peer_image_index(qcache) if field == "image" else {}
+
         field_stats = dict(total_missing=len(cands), cache_hits=0, cache_hits_empty=0,
-                            still_needs_paid=0, files_written=[])
+                            peer_fixed=0, still_needs_paid=0, files_written=[])
 
         for source_file, rows in by_file.items():
             df = None
             dirty = False
             for c in rows:
                 entry = cache.get(c["cache_key"])
-                if entry is None:
+                value = "" if entry is None else entry.get(field, "")
+                source = "cache"
+                if not value:
+                    # Nothing bought (or bought and empty) — try the photo
+                    # another row already carries before giving up on the row.
+                    value = _peer_upgrade(c, peers, qcache) if peers else ""
+                    source = "peer"
+                if value and source == "peer":
+                    field_stats["peer_fixed"] += 1
+                elif value:
+                    field_stats["cache_hits"] += 1
+                elif entry is None:
                     field_stats["still_needs_paid"] += 1
                     continue
-                value = entry.get(field, "")
-                if not value:
+                else:
                     field_stats["cache_hits_empty"] += 1
                     continue
-                field_stats["cache_hits"] += 1
                 if write and c["writable"]:
                     if df is None:
                         df = pd.read_csv(source_file, dtype=str, low_memory=False,
@@ -1011,7 +1483,8 @@ def _parse_spec_result(text, size_hint, needed):
 # (e) — live search. Gated. NEVER invoked in this task.
 # ---------------------------------------------------------------------------
 
-def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6):
+def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6,
+             quality_cache=USE_DISK_QUALITY_CACHE):
     """The only path in this module that can spend the client's money.
 
     Four independent gates, all must pass:
@@ -1071,6 +1544,7 @@ def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6
     seen = set()
     verify_logs = {}
     skipped_unwritable = 0
+    skipped_peer = 0
 
     for field in fields:
         if field == "specs":
@@ -1122,11 +1596,19 @@ def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6
                       f"needed={sorted(still_needed)} -> {found or '(nothing found)'}")
             continue
 
-        cands = discover_candidates(field, supplier_filter)
+        cands = discover_candidates(field, supplier_filter, quality_cache)
+        # Free layer (b2) runs before the chequebook opens: a key whose rows
+        # can all be filled from a photo the catalogue already owns must not
+        # be bought. apply_cached() will land those for nothing.
+        qcache = resolve_quality_cache(field, quality_cache)
+        peers = build_peer_image_index(qcache) if field == "image" else {}
         for c in cands:
             if spent >= budget:
                 print(f"Budget of {budget} reached — stopping mid-batch.")
                 return
+            if peers and _peer_upgrade(c, peers, qcache):
+                skipped_peer += 1
+                continue
             if not c["writable"]:
                 # This source has no column the answer could be written into
                 # (SOURCES: writable=False), so buying the search pays for a
@@ -1181,6 +1663,9 @@ def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6
     if skipped_unwritable:
         print(f"Skipped {skipped_unwritable} candidate(s) from report-only sources — "
               f"no column exists to store the answer, so no search was bought for them.")
+    if skipped_peer:
+        print(f"Skipped {skipped_peer} candidate(s) already covered by a usable photo "
+              f"elsewhere in the catalogue — --apply lands those for free.")
 
     if verify_logs:
         checked = sum(len(v) for v in verify_logs.values())
@@ -1200,24 +1685,55 @@ def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6
 # Reporting — read-only, drives monitoring/ENRICHMENT_APPROVAL.md
 # ---------------------------------------------------------------------------
 
-def per_source_breakdown(field, supplier_filter=None):
+def per_source_breakdown(field, supplier_filter=None,
+                        quality_cache=USE_DISK_QUALITY_CACHE):
     """Per (supplier, type) breakdown for `field`: missing / cache_hit_nonempty
     (free — already paid) / needs_paid (no cache entry at all).
+
+    For field='image', `quality_cache` also counts rows whose image is present
+    but unusable (low_res / placeholder / dead link). Those are real gaps the
+    storefront shows, so they belong in needs_paid — the number the client is
+    asked to approve — and are broken out by cause in `by_verdict` so "blank"
+    and "130px thumbnail" never look like the same problem. Defaults to the
+    verdicts on disk, so this figure and the one run_live() spends against
+    cannot drift apart (see USE_DISK_QUALITY_CACHE).
+
+    `peer_fix` is the free layer (b2): rows a photo already in the catalogue
+    covers. They are gaps, but they are not purchases, so they are excluded
+    from needs_paid and from paid_keys.
     """
     if field == "specs":
         return per_spec_source_breakdown(supplier_filter)
 
     cache = load_cache()
+    qcache = resolve_quality_cache(field, quality_cache)
+    peers = build_peer_image_index(qcache) if field == "image" else {}
     rows = {}
-    for c in discover_candidates(field, supplier_filter):
+    for c in discover_candidates(field, supplier_filter, quality_cache):
         key = (c["supplier"], c["type"])
-        r = rows.setdefault(key, dict(missing=0, cache_hit=0, needs_paid=0, writable=c["writable"]))
+        r = rows.setdefault(key, dict(missing=0, cache_hit=0, peer_fix=0, needs_paid=0,
+                                      writable=c["writable"],
+                                      paid_keys=set(),
+                                      by_verdict=collections.Counter()))
         r["missing"] += 1
+        if c.get("verdict"):
+            r["by_verdict"][c["verdict"]] += 1
         entry = cache.get(c["cache_key"])
         if entry and entry.get(field):
             r["cache_hit"] += 1
+        elif peers and _peer_upgrade(c, peers, qcache):
+            # Free from a photo the catalogue already owns — counted as fixed,
+            # never as something to buy. run_live() skips these too, so the
+            # two numbers cannot disagree.
+            r["peer_fix"] += 1
         elif entry is None:
             r["needs_paid"] += 1
+            # run_live() buys one search per DISTINCT cache key, not per row —
+            # many rows share a key (every size of a tire model shares one
+            # image key). needs_paid counts affected rows, which is what the
+            # storefront shows; paid_keys is what is actually billed. Reporting
+            # only the first would overstate the bill by ~8x on images.
+            r["paid_keys"].add(c["cache_key"])
         # entry exists but empty ("already tried, came back empty") counts
         # toward neither — it's a resolved non-hit, not a fresh spend candidate.
     return rows
@@ -1235,7 +1751,8 @@ def per_spec_source_breakdown(supplier_filter=None):
     for c in discover_spec_candidates(supplier_filter):
         key = (c["supplier"], c["type"])
         r = rows.setdefault(key, dict(missing=0, cache_hit=0, needs_paid=0,
-                                      dead_end=0, writable=True))
+                                      dead_end=0, writable=True,
+                                      paid_keys=set()))
         r["missing"] += 1
         entry = cache.get(c["cache_key"]) or {}
         specs, tried = entry.get("specs", {}), set(entry.get("tried", []))
@@ -1243,6 +1760,12 @@ def per_spec_source_breakdown(supplier_filter=None):
             r["cache_hit"] += 1
         elif c["needed"] - tried:
             r["needs_paid"] += 1
+            # Same rows-vs-searches distinction as per_source_breakdown. A
+            # specs key keeps the size (a load index really does differ per
+            # size), so these two numbers are usually close — but they must
+            # still be reported separately, and an empty paid_keys here would
+            # read as "0 searches" and silently cap the specs budget at zero.
+            r["paid_keys"].add(c["cache_key"])
         else:
             r["dead_end"] += 1
     return rows
@@ -1335,6 +1858,11 @@ def write_approval_report(designation_rows, image_rows, free_audit, total_needs_
         "(clean.py's 5-layer inference for designation; the scraped `image_url`/`image` "
         "column for image) **and** that would actually ship to Shopify (low-quantity rows "
         "already excluded, matching each supplier's own `augment*.py` filter). "
+        "For image, \"missing\" means the storefront has no USABLE photo, not merely an "
+        "empty column: a row whose image has been measured and found to be under "
+        f"{IMAGE_MIN_SIDE_PX}px, a supplier placeholder graphic, or a dead link counts here "
+        "too. Run `enrich_runner.py --scan --check-images` to measure them (plain HTTP, "
+        "no API spend); rows never measured are not counted either way. "
         "\"Cache-fixed\" = a query for that exact brand+model+size was already paid for and "
         "returned a usable result — applied for free via `--apply`, zero network calls. "
         "\"Needs paid search\" = no cache entry exists at all for that exact query."

@@ -44,6 +44,7 @@ Usage:
     python enrich_runner.py --run --image-budget 412 --designation-budget 0 --specs-budget 665
 """
 import argparse
+import collections
 import glob
 import json
 import os
@@ -199,29 +200,100 @@ def _rel(path):
 # --scan — read-only
 # ---------------------------------------------------------------------------
 
-def scan():
+def _image_urls_on_disk():
+    """Every image URL the suppliers currently have on disk, with its row count."""
+    import pandas as pd
+
+    urls = []
+    for src in E.SOURCES:
+        if src["field"] != "image" or not src.get("value_col"):
+            continue
+        f = E.latest(src["glob"])
+        if not f:
+            continue
+        df = pd.read_csv(f, dtype=str, low_memory=False, encoding="utf-8-sig").fillna("")
+        if src["value_col"] in df.columns:
+            urls.extend(u for u in df[src["value_col"]] if str(u).strip())
+    return urls
+
+
+def _image_quality_cache(check_images, refresh_images):
+    """Measure the supplier images that have never been measured, then return
+    the verdict map. Plain HTTP against public CDNs; no SerpAPI credit, ever.
+
+    MEASURING IS THE DEFAULT, and that is the whole point of this function.
+    An unmeasured URL is deliberately classified 'unknown' and NOT counted as
+    a gap (guessing would inflate the number the client is asked to approve).
+    That is the right rule and it has a trap attached: every URL is unmeasured
+    until something measures it, so a scan that skipped measuring reported
+    almost no image gaps at all. The dashboard runs plain `--scan`, so the
+    5,662-row image gap this layer exists to surface was invisible from the
+    only screen the client uses — and would go invisible again after every
+    scrape, since a scrape rewrites the URLs.
+
+    The cost of the default is the delta, not the catalogue: verdicts are
+    cached by URL and deduped across sources (8,986 DT Tire rows share 979
+    images), so a warm cache measures nothing and a post-scrape scan measures
+    only what actually changed.
+    """
+    if not (check_images or refresh_images):
+        # Explicit --no-check-images: fall back to whatever is already on
+        # disk, and say so, because the numbers below are then only as
+        # complete as that cache.
+        cached = E.load_quality_cache()
+        print("Image quality audit: SKIPPED (--no-check-images) — using "
+              f"{len(cached)} cached verdict(s); unmeasured images are not "
+              f"counted as gaps.")
+        return cached or None
+
+    urls = _image_urls_on_disk()
+    distinct = set(urls)
+    cached = E.load_quality_cache()
+    todo = {u for u in distinct
+            if not E.judge_image_url(u) and (refresh_images or u not in cached)}
+    print(f"Image quality audit: {len(distinct)} distinct URL(s) across "
+          f"{len(urls)} row(s); {len(todo)} to measure "
+          f"({len(distinct) - len(todo)} already decided)")
+    return E.measure_image_urls(urls, refresh=refresh_images)
+
+
+def scan(check_images=True, refresh_images=False):
     """Count what enrichment could still fix, and write it as JSON.
 
-    Zero network calls and zero writes to any CSV: every number comes from
+    Zero SerpAPI calls and zero writes to any CSV: every number comes from
     reading the cleaned/raw files already on disk and comparing them against
     the cache of results already paid for.
+
+    With check_images, the images the suppliers DID give us are downloaded and
+    measured, and the unusable ones (too small, placeholder, dead link) join
+    the blank ones in `needs_search` — so the approval total reflects what the
+    storefront actually shows rather than merely whether a column is empty.
+    Those fetches are plain HTTP against public CDNs; no API credit is spent.
     """
     migrated, already = E.migrate_formula_cache()
     if migrated:
         print(f"Migrated {migrated} entr(ies) from formula's original cache "
               f"into the centralized one ({already} already present).")
 
+    quality = _image_quality_cache(check_images, refresh_images)
+
     fields = {}
+    all_paid_keys = set()
     for field in E.SUPPORTED_FIELDS:
         rows = []
-        for (supplier, ptype), r in sorted(E.per_source_breakdown(field).items()):
+        qc = quality if field == "image" else None
+        for (supplier, ptype), r in sorted(E.per_source_breakdown(field, quality_cache=qc).items()):
             rows.append(dict(
                 supplier=supplier, type=ptype,
                 missing=r["missing"],
+                peer_fixed=r.get("peer_fix", 0),
                 cache_fixed=r["cache_hit"],
                 needs_search=r["needs_paid"],
                 dead_end=r.get("dead_end", 0),
                 writable=r["writable"],
+                by_verdict=dict(r.get("by_verdict") or {}),
+                searches=len(r.get("paid_keys") or ()),
+                _keys=r.get("paid_keys") or set(),
             ))
         # Rows from a report-only source have no column to write an answer
         # into, so a search bought for them is money for a result that can
@@ -233,14 +305,23 @@ def scan():
         # dead-end row is NOT offered for spend again, because doing so would
         # buy the identical question a second time for an answer that isn't
         # out there. See enrichment.apply_spec_cache's docstring.
+        # A cache key is shared across suppliers as well as across rows (the
+        # same tire model is carried by more than one supplier), so the billed
+        # count is the union, not the sum, of the per-source key sets.
+        field_keys = set().union(*(r["_keys"] for r in rows if r["writable"])) if rows else set()
         fields[field] = dict(
-            rows=rows,
+            rows=[{k: v for k, v in r.items() if k != "_keys"} for r in rows],
             missing=sum(r["missing"] for r in rows),
             cache_hit=sum(r["cache_fixed"] for r in rows),
+            # Free from a photo the catalogue already owns — a fix, not a
+            # purchase. See enrichment.build_peer_image_index().
+            peer_fixed=sum(r["peer_fixed"] for r in rows),
             needs_paid=sum(r["needs_search"] for r in rows if r["writable"]),
+            searches=len(field_keys),
             report_only=sum(r["needs_search"] for r in rows if not r["writable"]),
             dead_end=sum(r["dead_end"] for r in rows),
         )
+        all_paid_keys |= field_keys
 
     payload = dict(
         generated=datetime.now().isoformat(timespec="seconds"),
@@ -248,7 +329,9 @@ def scan():
         completeness=field_completeness(),
         fields=fields,
         total_needs_paid=sum(f["needs_paid"] for f in fields.values()),
+        total_searches=len(all_paid_keys),
         total_cache_hit=sum(f["cache_hit"] for f in fields.values()),
+        total_peer_fixed=sum(f["peer_fixed"] for f in fields.values()),
         sources=[
             dict(supplier=s, type=t, file=_rel(f),
                  mtime=datetime.fromtimestamp(os.path.getmtime(f)).isoformat(timespec="seconds"))
@@ -259,13 +342,37 @@ def scan():
 
     print("\n=== ENRICHMENT SCAN — no API calls, no files changed ===")
     for field, f in fields.items():
+        # rows-affected and searches-billed are different numbers: one search
+        # answers every row sharing its cache key.
+        billed = (f"{f['searches']} search(es) buy {f['needs_paid']} row(s)"
+                  if f["searches"] != f["needs_paid"]
+                  else f"needs-a-paid-search={f['needs_paid']}")
         print(f"[{field}] missing={f['missing']}  free-from-cache={f['cache_hit']}  "
-              f"needs-a-paid-search={f['needs_paid']}"
+              + (f"free-from-a-photo-we-already-have={f['peer_fixed']}  "
+                 if f["peer_fixed"] else "")
+              + f"{billed}"
               + (f"  (+{f['report_only']} report-only, never bought)" if f["report_only"] else "")
               + (f"  (+{f['dead_end']} already tried, no match found — won't be re-bought)"
                  if f["dead_end"] else ""))
-    print(f"\nTotal needing approval: {payload['total_needs_paid']} search(es)")
-    print(f"Free fixes ready to apply: {payload['total_cache_hit']} row(s)")
+        # For images, say WHY each row is a gap. "blank column" and "shipped a
+        # 130px thumbnail" are both gaps but they are not the same problem,
+        # and only one of them is visible without measuring the pixels.
+        if field == "image":
+            merged = collections.Counter()
+            for r in f["rows"]:
+                merged.update(r.get("by_verdict") or {})
+            if merged:
+                label = {"missing": "no image url", "placeholder": "placeholder graphic",
+                         "low_res": f"below {E.IMAGE_MIN_SIDE_PX}px", "unusable": "dead/undecodable link"}
+                detail = ", ".join(f"{label.get(k, k)}={v}" for k, v in merged.most_common())
+                print(f"          by cause: {detail}")
+    print(f"\nTotal needing approval: {payload['total_searches']} search(es), "
+          f"filling {payload['total_needs_paid']} row(s)")
+    free_now = payload["total_cache_hit"] + payload["total_peer_fixed"]
+    print(f"Free fixes ready to apply: {free_now} row(s)"
+          + (f" ({payload['total_cache_hit']} from already-paid searches, "
+             f"{payload['total_peer_fixed']} from photos the catalogue already owns)"
+             if payload["total_peer_fixed"] else ""))
 
     comp = payload["completeness"]
     if comp["tire_rows_scanned"]:
@@ -298,7 +405,7 @@ def _apply_and_rebuild(fields):
     if "specs" in fields:
         stats["specs"] = E.apply_spec_cache(None, write=True)
     for field, s in stats.items():
-        hits = s["cache_hits"] + s.get("cache_hits_partial", 0)
+        hits = s["cache_hits"] + s.get("cache_hits_partial", 0) + s.get("peer_fixed", 0)
         print(f"  {field}: {hits} row(s) fixed from cache, "
               f"{s['still_needs_paid']} still unsearched, "
               f"{len(s['files_written'])} file(s) rewritten")
@@ -440,10 +547,28 @@ def main():
     ap.add_argument("--verify-depth", type=int, default=6,
                     help="How far down the ranked list to look for an image that "
                          "passes the pixel check (default 6).")
+    ap.add_argument("--check-images", action="store_true", default=None,
+                    help="Measure the images the suppliers actually gave us and count "
+                         "the unusable ones (130px thumbnails, placeholder graphics, "
+                         "dead links) as gaps. This is now the DEFAULT for --scan; the "
+                         "flag is kept so existing commands and docs keep working. "
+                         "Downloads images over plain HTTP — no SerpAPI credit — and "
+                         "caches every verdict by URL, so only URLs new since the last "
+                         "scan are ever fetched.")
+    ap.add_argument("--no-check-images", dest="check_images", action="store_false",
+                    help="Do NOT measure anything; score images only against verdicts "
+                         "already cached. Faster, and wrong after a scrape — a URL "
+                         "nobody has measured is not counted as a gap, so this "
+                         "under-reports exactly the images a fresh scrape just changed.")
+    ap.add_argument("--recheck-images", action="store_true",
+                    help="Re-measure URLs already in the cache (use when a CDN has "
+                         "replaced the image behind a URL that did not change).")
     args = ap.parse_args()
 
     if args.scan:
-        scan()
+        scan(check_images=(True if args.check_images is None else args.check_images)
+                          or args.recheck_images,
+             refresh_images=args.recheck_images)
         return 0
     if args.apply_only:
         return apply_only()

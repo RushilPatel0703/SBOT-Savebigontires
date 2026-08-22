@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from costar_session import CostarSessionGuard, SessionDeathError, all_zero_batch
+from costar_images import measure_and_build_image_map
 
 BASE_URL = "https://weborder.formuladistributors.com"
 API_BASE = "/WebOrder/CostarApi"
@@ -305,12 +306,16 @@ def fetch_product_specs(session, product_guids):
                     specs[guid][code] = value
                     batch_specs += 1
 
-            for entry in data.get("productImageList", []):
-                guid = entry.get("productGuid")
-                url = entry.get("url") or entry.get("imageUrl") or ""
-                if guid and url:
-                    images[guid] = url
-                    batch_images += 1
+            # Was `images[guid] = url` — last entry wins, with no regard for
+            # imageType. Costar returns several images for 26% of products and
+            # SMALL runs to a 54px median, so that rule picked a worse image
+            # than the best available LARGE on 63% of multi-image products
+            # (33 of 52 measured) and a better one on none.
+            # Picking is by MEASURED pixels, not by imageType — the label is
+            # wrong on 16% of products. See pipelines/shared/costar_images.py.
+            batch_image_map = measure_and_build_image_map(data.get("productImageList"))
+            images.update(batch_image_map)
+            batch_images += len(batch_image_map)
 
         # A whole batch with NEITHER a spec NOR an image is a much stronger
         # dead-session signal than any single empty search term — see
@@ -326,11 +331,7 @@ def fetch_product_specs(session, product_guids):
                     value = entry.get("value", "")
                     if guid:
                         specs.setdefault(guid, {})[code] = value
-                for entry in data.get("productImageList", []):
-                    guid = entry.get("productGuid")
-                    url = entry.get("url") or entry.get("imageUrl") or ""
-                    if guid and url:
-                        images[guid] = url
+                images.update(measure_and_build_image_map(data.get("productImageList")))
 
         time.sleep(REQUEST_DELAY)
 

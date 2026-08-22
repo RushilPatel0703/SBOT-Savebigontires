@@ -18,6 +18,8 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
+import large_images
+
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
@@ -128,10 +130,22 @@ def parse_item(li) -> dict:
     size = info_div.get("data-product-size", "") if info_div else ""
 
     # --- image ---
+    # This is the 130x130 listing thumbnail. It is kept only to group rows
+    # that share a photo; main() replaces it with the PDP's 600px copy via
+    # large_images.upgrade_rows(). See large_images.py for why the big URL
+    # cannot be derived from this one.
     img_el = li.select_one(".product-thumbnail")
     image_url = img_el.get("data-src", "") if img_el else ""
     if image_url and image_url.startswith("/"):
         image_url = "https://dttirehub.ca" + image_url
+
+    # PDP code (e.g. '80913.MICH') — what the full-size image lookup needs.
+    code_el = li.select_one("[data-code]")
+    product_code = code_el.get("data-code", "") if code_el else ""
+    if not product_code:
+        ajax_el = li.select_one("[data-ajaxurl]")
+        m = re.search(r"/p/tire/([^?]+)", ajax_el.get("data-ajaxurl", "")) if ajax_el else None
+        product_code = m.group(1) if m else ""
 
     # --- pricing (PDM block: P=cost, D=discount, M=margin) ---
     cost_price = ""
@@ -197,6 +211,7 @@ def parse_item(li) -> dict:
         "qty_other":     qty_other,
         "qty_total":     qty_local + qty_other,
         "image_url":     image_url,
+        "product_code":  product_code,
     }
 
 
@@ -320,6 +335,18 @@ def main():
         time.sleep(DELAY)
 
     print(f"\nPass 2 done: {len(seen_skus)} total unique SKUs.")
+
+    # ── Pass 3: full-size images ─────────────────────────────────────────────
+    # The listing only ever exposes a 130x130 thumbnail; the 600px copy lives
+    # on the PDP and its URL is not derivable from the thumbnail's. Deduped by
+    # image, so this is ~1k fetches for ~9k rows. See large_images.py.
+    print(f"\nPass 3: full-size images...")
+    try:
+        large_images.upgrade_rows(session, all_rows, "tire")
+    except Exception as exc:
+        # Never fail the whole scrape over images — 130px photos are still
+        # better than no CSV, and the enrichment layer flags what stays small.
+        print(f"  [images] WARN upgrade failed, keeping thumbnails: {exc}")
 
     # ── Write output ──────────────────────────────────────────────────────────
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")

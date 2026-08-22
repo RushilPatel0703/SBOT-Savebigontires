@@ -17,6 +17,8 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
+import large_images
+
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
@@ -195,6 +197,8 @@ def parse_item(li) -> dict:
     qty_total     = qty_local + qty_warehouse
 
     # --- image ---
+    # 130x130 listing thumbnail — kept only to group rows that share a photo.
+    # main() swaps in the PDP's 600px copy via large_images.upgrade_rows().
     img_el = li.select_one(".product-thumbnail, img.product-image, img[src*='wheel'], img")
     if img_el:
         image_url = img_el.get("data-src", "") or img_el.get("src", "")
@@ -202,6 +206,14 @@ def parse_item(li) -> dict:
         image_url = ""
     if image_url and image_url.startswith("/"):
         image_url = "https://dttirehub.ca" + image_url
+
+    # PDP code (e.g. 'A277733.FAST') — what the full-size image lookup needs.
+    code_el = li.select_one("[data-code]")
+    product_code = code_el.get("data-code", "") if code_el else ""
+    if not product_code:
+        ajax_el = li.select_one("[data-ajaxurl]")
+        m = re.search(r"/p/wheel/([^?]+)", ajax_el.get("data-ajaxurl", "")) if ajax_el else None
+        product_code = m.group(1) if m else ""
 
     return {
         "sku":             sku,
@@ -222,6 +234,7 @@ def parse_item(li) -> dict:
         "qty_warehouse":   qty_warehouse,
         "qty_total":       qty_total,
         "image_url":       image_url,
+        "product_code":    product_code,
     }
 
 
@@ -312,6 +325,15 @@ def main():
             print(f"[{i}/{total_diameters}] diameter={diameter} — 0 results")
 
         time.sleep(DELAY)
+
+    # ── Full-size images ──────────────────────────────────────────────────────
+    # The listing only exposes a 130x130 thumbnail; the 600px copy lives on the
+    # PDP and its URL is not derivable from the thumbnail's. See large_images.py.
+    print(f"\nUpgrading to full-size images...")
+    try:
+        large_images.upgrade_rows(session, all_rows, "wheel")
+    except Exception as exc:
+        print(f"  [images] WARN upgrade failed, keeping thumbnails: {exc}")
 
     # ── Write output ───────────────────────────────────────────────────────────
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")

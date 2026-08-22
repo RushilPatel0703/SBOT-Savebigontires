@@ -230,7 +230,8 @@ def test_scan_makes_no_network_call_and_writes_json(quiet_io, monkeypatch):
 def test_scan_excludes_report_only_rows_from_the_approvable_total(quiet_io, monkeypatch):
     """A row in a file with no column to write into can never ship an answer,
     so it must not appear in the number someone is asked to approve."""
-    monkeypatch.setattr(R.E, "per_source_breakdown", lambda field, sup=None: {
+    monkeypatch.setattr(R.E, "per_source_breakdown",
+                        lambda field, sup=None, quality_cache=None: {
         ("acme", "tires"): dict(missing=10, cache_hit=1, needs_paid=6, writable=True),
         ("acme", "rims"):  dict(missing=4,  cache_hit=0, needs_paid=4, writable=False),
     })
@@ -389,7 +390,8 @@ def test_run_live_never_queues_a_report_only_candidate(monkeypatch):
     """The same rule, enforced in the engine rather than the report."""
     import enrichment as E
 
-    monkeypatch.setattr(E, "discover_candidates", lambda field, sup=None: [
+    monkeypatch.setattr(E, "discover_candidates",
+                        lambda field, sup=None, quality_cache=None: [
         dict(cache_key="image:a|b|c", writable=False, query="q", brand="a",
              model="b", type="tires", supplier="acme"),
     ])
@@ -862,3 +864,104 @@ def test_slugify_still_produces_a_normal_handle(rel_path):
     # word ("t-plus-h") rather than fusing into the next letter ("t-plush").
     assert slugify("Michelin Defender T+H 245/60R18") == "michelin-defender-t-plus-h-24560r18"
     assert slugify("  Extra   Spaces--and--dashes  ") == "extra-spaces-and-dashes"
+
+
+# ── image cache key: one photo per model, not per size ───────────────────────
+
+import enrichment as _E  # noqa: E402
+
+
+class TestImageCacheKeyIsModelLevel:
+    """A tire photo is a picture of a tread pattern; suppliers store one per
+    model. Keying image searches by size bought the same picture once per
+    size — 4,586 searches for North Country's 535 distinct low-res models.
+    See enrichment.IMAGE_KEY_INCLUDES_SIZE."""
+
+    def test_two_sizes_of_one_model_share_an_image_key(self):
+        a = _E.cache_key("image", "Cooper", "Endeavor Plus", "245/60R18")
+        b = _E.cache_key("image", "Cooper", "Endeavor Plus", "225/65R17")
+        assert a == b == "image:cooper|endeavor plus|"
+
+    def test_different_models_still_have_different_keys(self):
+        assert (_E.cache_key("image", "Cooper", "Endeavor Plus", "245/60R18")
+                != _E.cache_key("image", "Cooper", "EvoWin", "245/60R18"))
+
+    def test_different_brands_still_have_different_keys(self):
+        assert (_E.cache_key("image", "Cooper", "Endeavor", "245/60R18")
+                != _E.cache_key("image", "Toyo", "Endeavor", "245/60R18"))
+
+    def test_specs_and_designation_keep_size(self):
+        """Load index and speed rating genuinely differ per size — only the
+        photo is model-level."""
+        for field in ("specs", "designation"):
+            a = _E.cache_key(field, "Cooper", "Endeavor Plus", "245/60R18")
+            b = _E.cache_key(field, "Cooper", "Endeavor Plus", "225/65R17")
+            assert a != b, field
+            assert "245/60r18" in a
+
+    def test_a_row_named_only_by_its_description_keeps_size(self):
+        """_is_queryable lets a row qualify on `extra` alone, leaving brand AND
+        model empty. Dropping size there would collapse every such row in the
+        catalogue onto "image:||" — one photo for thousands of unrelated
+        products. This is the guard against that."""
+        a = _E.cache_key("image", "", "", "17X7 6X139.7 CB106")
+        b = _E.cache_key("image", "", "", "18X8 5X114.3 CB64")
+        assert a != b
+        assert a == "image:||17x7 6x139.7 cb106"
+
+    def test_a_brand_with_no_model_is_still_model_level(self):
+        assert _E.cache_key("image", "Rovelo", "", "225/65R17") == "image:rovelo||"
+
+    def test_query_matches_the_key_and_omits_size(self):
+        """A model-level key demands a model-level query, or two different
+        searches would share one cached answer."""
+        q = _E.build_query("image", "Cooper", "Endeavor Plus", "245/60R18")
+        assert "245" not in q
+        assert q == "Cooper Endeavor Plus tire product photo"
+
+    def test_description_only_query_still_carries_size(self):
+        q = _E.build_query("image", "", "", "17X7 6X139.7",
+                           extra="STEEL WHEEL", product_type="rims")
+        assert "17X7" in q and "wheel product photo" in q
+
+    def test_the_size_behaviour_is_a_single_flag(self, monkeypatch):
+        monkeypatch.setattr(_E, "IMAGE_KEY_INCLUDES_SIZE", True)
+        a = _E.cache_key("image", "Cooper", "Endeavor Plus", "245/60R18")
+        b = _E.cache_key("image", "Cooper", "Endeavor Plus", "225/65R17")
+        assert a != b
+        assert "245/60r18" in a
+        assert "245/60R18" in _E.build_query("image", "Cooper", "Endeavor Plus",
+                                             "245/60R18")
+
+
+class TestEverySourceReportsItsSearchCount:
+    """A field whose breakdown forgets paid_keys reports "0 searches", which
+    caps that field's dashboard budget at zero and silently blocks spend the
+    client approved. specs uses a different breakdown function from
+    image/designation, so it is the easy one to miss."""
+
+    def test_spec_breakdown_carries_paid_keys(self, monkeypatch):
+        monkeypatch.setattr(_E, "load_cache", lambda: {})
+        monkeypatch.setattr(_E, "discover_spec_candidates", lambda *a, **k: [
+            dict(supplier="s", type="tires", needed={"load_index"},
+                 cache_key="specs:a|b|245/60R18"),
+            dict(supplier="s", type="tires", needed={"load_index"},
+                 cache_key="specs:a|b|225/65R17"),
+            dict(supplier="s", type="tires", needed={"load_index"},
+                 cache_key="specs:a|b|245/60R18"),   # same key as the first
+        ])
+        rows = _E.per_spec_source_breakdown()
+        r = rows[("s", "tires")]
+        assert r["needs_paid"] == 3, "three rows are missing a spec"
+        assert len(r["paid_keys"]) == 2, "but only two distinct searches buy them"
+
+    def test_image_breakdown_carries_paid_keys(self, monkeypatch):
+        monkeypatch.setattr(_E, "load_cache", lambda: {})
+        monkeypatch.setattr(_E, "discover_candidates", lambda *a, **k: [
+            dict(supplier="s", type="tires", writable=True, verdict="low_res",
+                 cache_key="image:cooper|endeavor|"),
+            dict(supplier="s", type="tires", writable=True, verdict="low_res",
+                 cache_key="image:cooper|endeavor|"),
+        ])
+        r = _E.per_source_breakdown("image")[("s", "tires")]
+        assert r["needs_paid"] == 2 and len(r["paid_keys"]) == 1

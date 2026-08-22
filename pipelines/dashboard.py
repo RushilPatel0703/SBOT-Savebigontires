@@ -622,7 +622,17 @@ def step3_section():
     img_need  = img.get("needs_paid", 0)
     des_need  = des.get("needs_paid", 0)
     spec_need = specs.get("needs_paid", 0)
-    free_now  = scan.get("total_cache_hit", 0)
+    # *_need counts ROWS the storefront is missing; *_buy counts the SEARCHES
+    # that fill them. One search answers every row sharing its cache key, and
+    # an image key covers a model rather than a single size — so these differ
+    # by ~8x on images. The budget is spend, so it is denominated in searches.
+    img_buy   = img.get("searches", img_need)
+    des_buy   = des.get("searches", des_need)
+    spec_buy  = specs.get("searches", spec_need)
+    # Two kinds of free: results already paid for in an earlier run, and
+    # photos this catalogue already owns for the same tire model (see
+    # enrichment.build_peer_image_index). Neither costs a search.
+    free_now  = scan.get("total_cache_hit", 0) + scan.get("total_peer_fixed", 0)
 
     spec_dead_end = specs.get("dead_end", 0)
 
@@ -636,7 +646,10 @@ def step3_section():
                    + (f" {spec_dead_end} more were already searched and came back with no "
                       f"match — those are excluded here and won't be bought again."
                       if spec_dead_end else ""))
-    m4.metric("Free fixes ready", free_now, help="Already paid for on an earlier run — applying them costs nothing.")
+    m4.metric("Free fixes ready", free_now,
+              help="Results already paid for on an earlier run, plus product photos this "
+                   "catalogue already carries for the same tire model at another size or "
+                   "supplier. Applying them makes no network call and costs nothing.")
     if spec_dead_end:
         st.caption(f"ℹ️  {spec_dead_end} spec gap(s) were already searched and no match was "
                    f"found — running again will not re-buy those specific rows.")
@@ -698,8 +711,15 @@ def step3_section():
             st.markdown(f"**{label}**")
             has_dead_end = any(r.get("dead_end") for r in rows)
             st.dataframe(
+                # "Rows to fill" and "Searches to buy" are different numbers:
+                # one search answers every row sharing its cache key, and an
+                # image key covers a whole model rather than a single size.
                 [{"Supplier": r["supplier"], "Type": r["type"], "Missing": r["missing"],
-                  "Free from cache": r["cache_fixed"], "Needs a search": r["needs_search"],
+                  "Free from cache": r["cache_fixed"],
+                  **({"Free from a photo we own": r.get("peer_fixed", 0)}
+                     if any(x.get("peer_fixed") for x in rows) else {}),
+                  "Rows to fill": r["needs_search"],
+                  "Searches to buy": r.get("searches", r["needs_search"]),
                   **({"Already tried, no match": r.get("dead_end", 0)} if has_dead_end else {}),
                   "Can be written": "yes" if r["writable"] else "report-only"}
                  for r in rows],
@@ -718,9 +738,13 @@ def step3_section():
 
     # ── Free path: apply what has already been paid for ────────────────────
     if free_now:
+        peer_now = scan.get("total_peer_fixed", 0)
         st.info(
-            f"{free_now} row(s) can be filled in from results already paid for on an earlier "
-            f"run. Applying them makes no network call and costs nothing."
+            f"{free_now} row(s) can be filled in for free — "
+            f"{scan.get('total_cache_hit', 0)} from results already paid for on an earlier run"
+            + (f", {peer_now} from a product photo this catalogue already carries for the "
+               f"same tire model at another size or supplier" if peer_now else "")
+            + ". Applying them makes no network call and costs nothing."
         )
         if st.button(f"♻️  Apply {free_now} free fix(es)", disabled=busy, type="primary"):
             launch("enrich", [sys.executable, ENRICH_RUNNER, "--apply-only"], BASE)
@@ -736,39 +760,42 @@ def step3_section():
         col_i, col_d, col_s = st.columns(3)
         with col_i:
             want_img = st.checkbox(
-                f"Images — {img_need} needed", value=bool(img_need),
-                disabled=not img_need or busy, key="enrich_want_image",
+                f"Images — {img_buy} search(es) fill {img_need} row(s)",
+                value=bool(img_buy),
+                disabled=not img_buy or busy, key="enrich_want_image",
             )
             st.caption("The one field with no free alternative — no supplier feed and no "
                        "amount of parsing produces a product photo.")
             img_budget = st.number_input(
-                "Cap on image searches", min_value=0, max_value=max(img_need, 0),
-                value=img_need, step=1, disabled=not want_img or busy,
+                "Cap on image searches", min_value=0, max_value=max(img_buy, 0),
+                value=img_buy, step=1, disabled=not want_img or busy,
                 key="enrich_budget_image",
             )
         with col_d:
             want_des = st.checkbox(
-                f"Designations — {des_need} needed", value=False,
-                disabled=not des_need or busy, key="enrich_want_designation",
+                f"Designations — {des_buy} search(es) fill {des_need} row(s)",
+                value=False,
+                disabled=not des_buy or busy, key="enrich_want_designation",
             )
             st.caption("Historically 4 useful results out of 253 paid searches (1.6%) — these "
                        "few rows are usually cheaper to fix by hand. Off by default.")
             des_budget = st.number_input(
-                "Cap on designation searches", min_value=0, max_value=max(des_need, 0),
-                value=des_need, step=1, disabled=not want_des or busy,
+                "Cap on designation searches", min_value=0, max_value=max(des_buy, 0),
+                value=des_buy, step=1, disabled=not want_des or busy,
                 key="enrich_budget_designation",
             )
         with col_s:
             want_specs = st.checkbox(
-                f"Specs — {spec_need} needed", value=bool(spec_need),
-                disabled=not spec_need or busy, key="enrich_want_specs",
+                f"Specs — {spec_buy} search(es) fill {spec_need} row(s)",
+                value=bool(spec_buy),
+                disabled=not spec_buy or busy, key="enrich_want_specs",
             )
             st.caption("Load index, speed rating, load range, section width, aspect ratio, "
                        "rim diameter — one search commonly fills several of these for the "
                        "same row, so this is rarely as expensive as the row count suggests.")
             specs_budget = st.number_input(
-                "Cap on specs searches", min_value=0, max_value=max(spec_need, 0),
-                value=spec_need, step=1, disabled=not want_specs or busy,
+                "Cap on specs searches", min_value=0, max_value=max(spec_buy, 0),
+                value=spec_buy, step=1, disabled=not want_specs or busy,
                 key="enrich_budget_specs",
             )
 

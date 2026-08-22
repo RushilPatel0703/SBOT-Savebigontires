@@ -22,6 +22,7 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from costar_session import CostarSessionGuard, SessionDeathError, all_zero_batch
+from costar_images import measure_and_build_image_map
 
 BASE_URL     = "https://online.northcountrytire.ca/WebOrder/CostarApi"
 _SIGNING_KEY = "5318f4ce4b9bab05c09df20c3d5d8d4c26570542501b1d58231159cd42e65505"
@@ -191,14 +192,15 @@ def get_product_info(guids: list, _retried: bool = False) -> tuple:
         _info_logged = True
 
     # ── Images ────────────────────────────────────────────────────────────────
-    guid_to_image = {}
-    for img in data.get("productImageList") or []:
-        guid = img.get("productGuid", "")
-        url  = img.get("url", "")
-        if not guid or not url:
-            continue
-        if guid not in guid_to_image or img.get("imageType", "") == "LARGE":
-            guid_to_image[guid] = url
+    # 26% of Costar products return several images, and imageType SMALL runs
+    # to a 54px median against LARGE's 351px. The old rule here let the LAST
+    # LARGE win, which is arbitrary when LARGE itself spans 51..2400px.
+    # measure_and_build_image_map measures every candidate and picks the
+    # biggest, because imageType itself is unreliable: one product in six
+    # labels its LARGEST image "SMALL". Measurements are cached by URL,
+    # so this is a one-time cost per image, not per scrape.
+    # See pipelines/shared/costar_images.py for the measurements.
+    guid_to_image = measure_and_build_image_map(data.get("productImageList"))
 
     # ── Specs ─────────────────────────────────────────────────────────────────
     guid_to_specs = {}
