@@ -64,7 +64,7 @@ def selected(args):
 
 def run_scrape(log):
     """Delegate to the existing supplier pipelines (scrape + clean + augment)."""
-    cmd = [sys.executable, "run_all.py", "--skip-sync"]
+    cmd = [sys.executable, "run_all.py"]
     log.info(f"Running supplier pipelines: {' '.join(cmd)} (cwd={config.PIPELINES_DIR})")
     result = subprocess.run(cmd, cwd=str(config.PIPELINES_DIR))
     if result.returncode != 0:

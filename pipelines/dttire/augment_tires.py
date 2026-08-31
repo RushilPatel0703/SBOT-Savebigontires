@@ -3,7 +3,7 @@
 Reads Data/cleaned_tires_*.csv → Data/Shopify_SEO_tires_<ts>.csv
 
 Only processes NEW products (net-new SKUs for create_products.py).
-Price/inventory sync for existing products is handled by pipelines/merged/.
+Price/inventory sync for existing products is handled by production/run_weekly.py.
 """
 
 import sys
@@ -191,7 +191,6 @@ def build_tags(row):
     if load_range:
         parts.append(f"LoadRange_{load_range}")
 
-    # Note: Location_* tags are NOT added here — applied by pipelines/merged/
     parts.append("Supplier_Dttire")
 
     return ",".join(parts)
