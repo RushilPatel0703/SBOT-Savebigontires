@@ -57,6 +57,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import enrichment as E  # noqa: E402  — needs the sys.path line above
+import serp_ledger as SL  # noqa: E402
 
 PIPELINES_DIR = os.path.dirname(HERE)
 SCAN_FILE     = os.path.join(PIPELINES_DIR, ".enrich_scan.json")
@@ -449,6 +450,7 @@ def _finish(mode, stats, failures, **extra):
                 for f, s in stats.items()},
         files_written=sorted({_rel(p) for s in stats.values() for p in s["files_written"]}),
         failures=failures,
+        ledger=SL.summary(),
         **extra,
     )
     _write_json(RESULT_FILE, result)
@@ -491,9 +493,13 @@ def run(image_budget, designation_budget, specs_budget=0, verify_images=True, ve
         print("ABORT: no budget approved — nothing to search for.")
         return 1
 
+    before = SL.summary()
     print(f"ENRICH START — {approved} search(es) approved (image={budgets[0][1]}, "
           f"designation={budgets[1][1]}, specs={budgets[2][1]}) against the client's "
           f"PAID SerpAPI key.")
+    print(f"  ledger before this run: {before['total_billed']} call(s) billed to date; "
+          f"this run may add up to {approved}, for a ceiling of "
+          f"{before['total_billed'] + approved}.")
 
     searched = []
     for field, budget in budgets:
@@ -512,6 +518,13 @@ def run(image_budget, designation_budget, specs_budget=0, verify_images=True, ve
             # land it rather than stranding paid-for results in the cache.
             print(f"  ERROR: live {field} search stopped early (exit {exc.code}). "
                   f"Anything already bought is cached and will still be applied.")
+
+    after = SL.summary()
+    print(f"\nENRICH PHASE: reconcile — {after['total_billed'] - before['total_billed']} "
+          f"call(s) billed this run, {after['total_billed']} total to date. "
+          f"Compare against the SerpAPI dashboard; the ledger should now match it "
+          f"or lead it by at most one.")
+    print(SL.format_summary())
 
     # Apply only the fields that were actually searched. A run approved for
     # images should not silently rewrite designation/specs columns nobody
@@ -532,6 +545,9 @@ def main():
                       help="Apply already-paid cache hits and rebuild. No network.")
     mode.add_argument("--run", action="store_true",
                       help="LIVE. Spends searches, then applies and rebuilds.")
+    mode.add_argument("--ledger", action="store_true",
+                      help="Print the SerpAPI spend ledger and exit. Reconciles "
+                           "against the SerpAPI dashboard. No network, no writes.")
     ap.add_argument("--image-budget", type=int, default=0,
                     help="Hard cap on image searches (--run only).")
     ap.add_argument("--designation-budget", type=int, default=0,
@@ -565,6 +581,9 @@ def main():
                          "replaced the image behind a URL that did not change).")
     args = ap.parse_args()
 
+    if args.ledger:
+        print(SL.format_summary())
+        return 0
     if args.scan:
         scan(check_images=(True if args.check_images is None else args.check_images)
                           or args.recheck_images,

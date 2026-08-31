@@ -94,6 +94,8 @@ APPROVAL_MD  = os.path.join(ROOT, "monitoring", "ENRICHMENT_APPROVAL.md")
 sys.path.insert(0, SHARED_DIR)
 from size_parser import (parse_tire_size, parse_load_speed, coerce_load_index,
                          extract_load_range, default_passenger_load_range)
+import serp_ledger as SL
+import tread as _TREAD
 
 FORMULA_OLD_CACHE = os.path.join(
     ROOT, "pipelines", "formula_distributors", "Data", "shopify", "serp_cache.json"
@@ -183,7 +185,8 @@ SOURCES = [
     dict(supplier="wheelsmart", type="tires", field="image",
          glob="pipelines/wheelsmart/Data/raw/wheelmart_tires_*.csv",
          brand_col=None, model_col=None, size_col="size_raw", extra_col="description",
-         value_col="image", writable=True, qty_filter="wheelsmart_tires"),
+         value_col="image", writable=True, qty_filter="wheelsmart_tires",
+         desc_parser="wheelsmart_tires"),
     dict(supplier="wheelsmart", type="rims", field="image",
          glob="pipelines/wheelsmart/Data/raw/wheelmart_rims_*.csv",
          brand_col=None, model_col="name", size_col="diameter", extra_col="description",
@@ -345,6 +348,53 @@ def _image_key_drops_size(field, brand, model, product_type="tires"):
             and bool(str(brand or "").strip() or str(model or "").strip()))
 
 
+# A trailing " - <category>" that Costar/DT Tire append to the model name:
+# "Open Country M/T  - Mud Terrain", "P Zero  - Ultra High Performance".
+# It is derived FROM the model, so it never distinguishes two products — but
+# it does split one product across several cache keys.
+#
+# The space AFTER the dash is load-bearing, and the catalogue is the reason.
+# Costar's taxonomy is punctuated "<model>  - <Category>" without exception —
+# all 15 categories in use, 7,800 rows. A dash glued to the following word
+# comes from somewhere else: North Country derives models from description
+# text, and "P-ZERO (PZ4)-SPORT - 107Y XL" yields "P-ZERO -SPORT". That is
+# Pirelli's P Zero PZ4 Sport, a different tire from the P Zero — so matching
+# it here would put one tread pattern's photo on the other's listing to save
+# a single search. Requiring the space keeps every real category merge and
+# drops that one.
+_MODEL_CATEGORY_SUFFIX = re.compile(
+    r"(?:\s+-\s+[a-z][a-z/ ]*|\s+-\s*)$", re.IGNORECASE)
+
+
+def normalize_key_token(text):
+    """Collapse a brand or model to its identity, dropping the punctuation and
+    spacing that vary between suppliers for the SAME product.
+
+    This is what makes the cache a memory of PRODUCTS rather than of strings.
+    Measured across the 2026-08-26 catalogue, these all named one tire and so
+    bought one search each, four times over:
+
+        'p zero'  'p-zero'  'p zero  - ultra high performance'
+        'wildpeak a/t4w'  'wildpeak at4w'  'wildpeak a/t4w  - all terrain'
+        'wintercontact ts 860 s'  'wintercontact ts860 s'
+
+    Collapsing them removes 178 duplicate image searches outright and — because
+    build_peer_image_index() keys off this same function — lets North Country's
+    130px thumbnails be filled from DT Tire's 600px photo of the identical
+    tread pattern, 2,122 rows of it, for free.
+
+    Verified non-destructive on the full catalogue: every key that merges more
+    than one raw brand|model merges spelling variants of a single product. Run
+    `python enrichment.py --audit-keys` to re-check that after any scrape.
+    """
+    s = str(text or "").strip().lower()
+    stripped = _MODEL_CATEGORY_SUFFIX.sub("", s)
+    # Never let the suffix strip eat the whole name ("- Touring" as a model).
+    if len(re.sub(r"[^a-z0-9]+", "", stripped)) >= 3:
+        s = stripped
+    return re.sub(r"[^a-z0-9]+", "", s)
+
+
 def cache_key(field, brand, model, size, product_type="tires"):
     """Centralized, cross-supplier key — the same brand+model+size is never
     paid for twice even if two different suppliers carry the identical tire.
@@ -353,13 +403,293 @@ def cache_key(field, brand, model, size, product_type="tires"):
     photo covers every size of a model and is bought once. Wheels and rims
     keep their size — their model column names a category or a colour as often
     as a product, so collapsing them merges different wheels onto one photo.
+
+    Brand and model go through normalize_key_token() so that punctuation and
+    spacing variants of one product share one key. Size does NOT: it is
+    already a controlled format, and stripping its separators would collapse
+    genuinely different wheel fitments ("18 5-114.3" vs "185 114.3").
     """
-    b = str(brand or "").strip().lower()
-    m = str(model or "").strip().lower()
+    b = normalize_key_token(brand)
+    m = normalize_key_token(model)
     s = str(size or "").strip().lower()
     if _image_key_drops_size(field, b, m, product_type):
         s = ""
     return f"{field}:{b}|{m}|{s}"
+
+
+def _split_cache_key(key):
+    """('image', brand, model, size) from a stored key. Brand and model can
+    themselves contain ':' (a wheel model reads 'CB:124.9 OS:131'), so the
+    field is taken off the FIRST colon and the size off the LAST pipe."""
+    field, _, rest = str(key).partition(":")
+    parts = rest.split("|")
+    if len(parts) < 3:
+        return field, rest, "", ""
+    return field, parts[0], "|".join(parts[1:-1]), parts[-1]
+
+
+def migrate_cache_keys():
+    """Re-key the centralized cache onto normalize_key_token(). Idempotent.
+
+    Without this, tightening the key throws away every answer already paid
+    for — 924 entries on 2026-08-26 — because the scan would look them up
+    under the new spelling and miss. That would be the single most expensive
+    way to land an optimisation.
+
+    When two old keys collapse onto one new key, the entry carrying a real
+    answer wins; an empty answer never overwrites a found one. Ties keep the
+    first-seen entry so the result does not depend on dict order.
+
+    Returns (rekeyed, merged).
+    """
+    cache = load_cache()
+    if not cache:
+        return 0, 0
+
+    def answer_of(field, entry):
+        if not isinstance(entry, dict):
+            return entry
+        if field == "specs":
+            return entry.get("specs") or {}
+        return entry.get(field) or ""
+
+    out, rekeyed, merged = {}, 0, 0
+    for old_key, entry in cache.items():
+        field, brand, model, size = _split_cache_key(old_key)
+        new_key = f"{field}:{normalize_key_token(brand)}|{normalize_key_token(model)}|{size}"
+        if new_key != old_key:
+            rekeyed += 1
+        if new_key in out:
+            merged += 1
+            if answer_of(field, entry) and not answer_of(field, out[new_key]):
+                out[new_key] = entry
+            elif field == "specs":
+                # Two partial spec answers for one tire are additively better
+                # than either alone, and every sub-field in them was paid for.
+                keep = dict(out[new_key])
+                specs = dict(keep.get("specs") or {})
+                specs.update({k: v for k, v in (entry.get("specs") or {}).items() if v})
+                keep["specs"] = specs
+                keep["tried"] = sorted(set(keep.get("tried") or []) |
+                                       set(entry.get("tried") or []))
+                out[new_key] = keep
+            continue
+        out[new_key] = entry
+
+    if rekeyed or merged:
+        save_cache(out)
+    return rekeyed, merged
+
+
+def catalogue_image_keys():
+    """Every image cache key the current catalogue would look up, gap or not.
+
+    Deliberately not discover_candidates(): that returns only rows with a gap
+    RIGHT NOW, which after an apply is nearly nothing. Reconciling the cache
+    against the keys the catalogue can generate is what tells you whether a
+    paid answer is still reachable.
+    """
+    keys = set()
+    for src in SOURCES:
+        if src["field"] != "image":
+            continue
+        f = latest(src["glob"])
+        if not f:
+            continue
+        try:
+            df = pd.read_csv(f, dtype=str, low_memory=False,
+                             encoding="utf-8-sig").fillna("")
+        except (OSError, ValueError):
+            continue
+        for _, row in df.iterrows():
+            brand, model = _resolve_brand_model(row, src)
+            size = row.get(src["size_col"], "") if src["size_col"] else ""
+            keys.add(cache_key("image", brand, model, size, src["type"]))
+    return keys
+
+
+def migrate_glued_load_speed_keys(write=False):
+    """Re-home answers stranded by the load/speed strip in _SPEC_TOKEN.
+
+    migrate_cache_keys() cannot do this. It re-derives a key from the STORED
+    key, where the model is already normalized to "winguardwinspike386txl" —
+    and at that point the strip is genuinely ambiguous, because nothing says
+    whether that is WinSpike 3 rated 86T or WinSpike rated 386.
+
+    The catalogue resolves it. Only one candidate stem is a key the catalogue
+    actually generates, so each stranded answer is matched against
+    catalogue_image_keys() and moved only when exactly one target fits.
+    Without this the strip would BACKFIRE: every affected product would miss
+    the cache and be bought a second time, which is the opposite of the point.
+
+    Returns (moved, skipped_ambiguous, unreachable_left).
+    """
+    cache = load_cache()
+    wanted = catalogue_image_keys()
+    answered = [k for k, v in cache.items()
+                if k.startswith("image:") and isinstance(v, dict) and v.get("image")]
+
+    moved = ambiguous = 0
+    for key in answered:
+        if key in wanted:
+            continue
+        rest = key.split(":", 1)[1]
+        if rest.count("|") < 2:
+            continue
+        brand, model, size = rest.split("|", 2)
+        hits = {model[:i] for i in range(3, len(model))
+                if _GLUED_LOAD_SPEED.fullmatch(model[i:])
+                and f"image:{brand}|{model[:i]}|{size}" in wanted}
+        if len(hits) != 1:
+            ambiguous += len(hits) > 1
+            continue
+        target = f"image:{brand}|{hits.pop()}|{size}"
+        existing = cache.get(target)
+        # An answer already sitting on the target wins; both were paid for,
+        # and the one keyed the way the catalogue asks is the live one.
+        if isinstance(existing, dict) and existing.get("image"):
+            del cache[key]
+        else:
+            cache[target] = cache.pop(key)
+        moved += 1
+
+    left = sum(1 for k, v in cache.items()
+               if k.startswith("image:") and isinstance(v, dict)
+               and v.get("image") and k not in wanted)
+    if write and moved:
+        save_cache(cache)
+    return moved, ambiguous, left
+
+
+def audit_shared_images(cache=None):
+    """Photos that ended up on more than one BRAND's product key.
+
+    The counterpart to audit_key_normalization(). That one catches two
+    spellings of one product collapsing onto a single key; this catches the
+    opposite failure, where two genuinely different products end up wearing
+    the same picture because a search returned something generic.
+
+    Sharing per se is normal and wanted: one tire model uses one photo across
+    every size it comes in. Sharing across brands is not — a Touren wheel and
+    an Envy wheel are not the same object. On the 2026-08-30 run the worst
+    offender was a Shopify *collection* thumbnail ("SATIN BLACK DEEP") that
+    won 39 keys across 5 brands, which is a category banner rather than a
+    product photo.
+
+    Returns {url: [cache_key, ...]} for the offenders only.
+    """
+    cache = load_cache() if cache is None else cache
+    by_url = collections.defaultdict(list)
+    for key, entry in cache.items():
+        if not key.startswith("image:") or not isinstance(entry, dict):
+            continue
+        url = entry.get("image")
+        if url:
+            by_url[url].append(key)
+
+    def _brand(key):
+        return key.split(":", 1)[1].split("|")[0]
+
+    return {url: sorted(keys) for url, keys in by_url.items()
+            if len({_brand(k) for k in keys}) > 1}
+
+
+def requeue_tread_rejected(cache=None, write=False):
+    """Drop cached image answers a reviewer has since rejected for pose.
+
+    After a tread review the cache is in a state nothing else resolves: the
+    key HAS an answer, so run_live skips it as already paid for, but the
+    answer is a photo the reviewer threw out, so image_verdict() calls every
+    row using it a gap. Left alone the product is stuck — permanently
+    flagged, never re-bought.
+
+    Deleting the key is right here, and is the opposite of what
+    quarantine_shared_images() does, for a reason worth keeping straight:
+      * a shared/generic photo is a question already answered badly by a
+        search that would answer it the same way again, so it is blanked and
+        NOT re-queued;
+      * a sidewall photo is a question answered from a candidate list that
+        still contains better options, and run_live now filters out every
+        URL the reviewer rejected before choosing, so asking again is a
+        different question with a different answer.
+
+    The rejection itself lives in tread_cache.json and is untouched, so the
+    same photo can never be re-selected. Returns (requeued, kept_no_gap).
+    """
+    cache = load_cache() if cache is None else cache
+    tcache = _TREAD.load()
+    requeued = 0
+    for key in list(cache):
+        if not key.startswith("image:"):
+            continue
+        entry = cache.get(key)
+        if not isinstance(entry, dict):
+            continue
+        url = entry.get("image")
+        if url and _TREAD.is_rejected(url, tcache):
+            del cache[key]
+            requeued += 1
+    if write and requeued:
+        save_cache(cache)
+    return requeued
+
+
+def quarantine_shared_images(cache=None, write=False):
+    """Blank the answer for every photo audit_shared_images() flags.
+
+    Blanked rather than deleted on purpose. Deleting the entry would put the
+    key straight back into the buy queue and the next run would pay to make
+    the same mistake; an empty answer is the module's existing "asked, nothing
+    usable came back" state, which is already excluded from both the spend
+    queue and the write path. The product ships with no photo, which is the
+    honest outcome — the same rule _is_queryable() applies when a row names no
+    product. To retry one deliberately, delete its key from the cache.
+    """
+    cache = load_cache() if cache is None else cache
+    offenders = audit_shared_images(cache)
+    touched = 0
+    for url, keys in offenders.items():
+        for key in keys:
+            entry = cache.get(key)
+            if not isinstance(entry, dict) or not entry.get("image"):
+                continue
+            entry["image"] = ""
+            entry["quarantined"] = {
+                "reason": "one photo on more than one brand",
+                "was": url,
+                "shared_with": len(keys),
+                "ts": SL._now(),
+            }
+            touched += 1
+    if write and touched:
+        save_cache(cache)
+    return offenders, touched
+
+
+def audit_key_normalization():
+    """Report every normalized key that merges more than one raw brand|model,
+    so a scrape that introduces a genuinely ambiguous model name is caught
+    rather than silently sharing one photo between two products.
+
+    Read-only. Returns {normalized key: {(brand, model), ...}} for merges only.
+    """
+    groups = collections.defaultdict(set)
+    for src in SOURCES:
+        if src["field"] != "image" or not src.get("value_col"):
+            continue
+        f = latest(src["glob"])
+        if not f:
+            continue
+        df = pd.read_csv(f, dtype=str, low_memory=False, encoding="utf-8-sig").fillna("")
+        for _, row in df.iterrows():
+            brand = _resolve_brand(row, src["brand_col"], src.get("mfr_col"))
+            model = _resolve_model(row, src["model_col"], src.get("desc_col"))
+            if not (brand.strip() and model.strip()):
+                continue
+            size = row.get(src["size_col"], "") if src["size_col"] else ""
+            key = cache_key("image", brand, model, size, src["type"])
+            groups[key].add((brand.strip().lower(), model.strip().lower()))
+    return {k: v for k, v in groups.items() if len(v) > 1}
 
 
 def migrate_formula_cache():
@@ -379,9 +709,16 @@ def migrate_formula_cache():
     cache = load_cache()
     migrated, already = 0, 0
     for old_key, entry in old.items():
-        # Old key format: "brand|model|size" (lowercase) — identical
-        # normalization to cache_key(), just missing the field prefix.
-        new_key = f"designation:{old_key}"
+        # Old key format: "brand|model|size", lowercased but NOT otherwise
+        # normalized — it predates normalize_key_token(). Rebuilding it through
+        # cache_key() is what makes this migration idempotent: interpolating the
+        # raw string instead re-injected 250 un-normalized keys on every single
+        # run, which migrate_cache_keys() then folded straight back onto the
+        # entries they duplicated. No answer was ever lost, but every report
+        # rewrote the cache twice and announced a 250-entry re-key that had
+        # already happened.
+        _, brand, model, size = _split_cache_key(f"designation:{old_key}")
+        new_key = cache_key("designation", brand, model, size)
         if new_key in cache:
             already += 1
             continue
@@ -452,8 +789,35 @@ _CODE_LIKE = re.compile(r"^[A-Z0-9]{2,6}$")
 _SKU_LIKE = re.compile(r"[:#]|[A-Za-z]{1,6}-?\d{3,}")
 
 # Spec tokens that lead wheel/tire descriptions: 24X10, ET42, 5X120, CB72.6.
+# Tokens that describe the FITMENT rather than name the product, stripped out
+# of description-derived model text before it becomes a cache key.
+#
+# The load-index/speed pair ("86T", "115T", "92T XL") is here because North
+# Country states it in two different places for the same tire:
+#
+#     'WINGUARD winSpike 3 86T XL (Studdable #12)'   -> winguardwinspike386txl
+#     'WINGUARD winSpike 3 (Studdable #12) - 92T XL' -> winguardwinspike3
+#
+# One product, two keys, two searches — and on the 2026-08-30 run that pattern
+# split 19 products across 219 keys, buying 154 photos of tires the catalogue
+# had already photographed. It has to be stripped HERE, before
+# normalize_key_token() removes the spaces: afterwards "winguardwinspike386txl"
+# genuinely cannot be told apart from a model named "WinSpike" rated 386.
+#
+# The load index is bounded to 60-150 (real load indices) so a model that
+# merely ends in digits keeps them — "Voyager 777EV" and "Firehawk Indy 500"
+# are unaffected — and the speed letter comes from size_parser's own symbol
+# table rather than a fresh guess at which letters count.
+_SPEED_SYMBOLS = "BCDEFGHJKLMNPQRSTUVWYZ"
 _SPEC_TOKEN = re.compile(
-    r"^(?:\d+(?:\.\d+)?X[\d.]+|ET-?\d+|CB[\d.]+|\d+PR|3PMS|M\+S)$", re.I)
+    r"^(?:\d+(?:\.\d+)?X[\d.]+|ET-?\d+|CB[\d.]+|\d+PR|3PMS|M\+S"
+    rf"|(?:6\d|[7-9]\d|1[0-4]\d|150)[{_SPEED_SYMBOLS}]{{1,2}}|XL)$", re.I)
+
+# The same pair, but GLUED to the end of an already-normalized model, as it
+# appears inside a cache key written before the strip above existed. Used only
+# by migrate_glued_load_speed_keys() to re-home those answers.
+_GLUED_LOAD_SPEED = re.compile(
+    rf"(?:6\d|[7-9]\d|1[0-4]\d|150)[{_SPEED_SYMBOLS.lower()}]{{1,2}}(?:xl)?$")
 
 # Words that describe any wheel or tire and so identify nothing on their own.
 _GENERIC_WORDS = {
@@ -503,6 +867,18 @@ def _resolve_model(row, model_col, desc_col):
     return desc or model
 
 
+# Words that describe a tread PATTERN, not a product. A handful of DT Tire
+# rows carry one of these in the model column, which reads as a real name to
+# _meaningful_tokens: "Bridgestone Asymmetrical tire product photo" buys a
+# photo of whichever Bridgestone Google ranks first, and the storefront then
+# shows a confidently wrong picture. Kept as an explicit deny-list rather than
+# a rule about short or generic models, because the obvious general rule
+# ("a model with no distinctive word is unqueryable") also throws out Starfire
+# WR, Amp Terrain Pro A/T and American Truxx DNA, which are all real.
+_PATTERN_ONLY_MODELS = {"directional", "asymmetrical", "symmetrical",
+                        "non-directional", "nondirectional"}
+
+
 def _is_queryable(brand, model, extra):
     """False when nothing in the row actually names the product.
 
@@ -510,7 +886,155 @@ def _is_queryable(brand, model, extra):
     arbitrary product, so it is money spent on a wrong picture. Skipping costs
     nothing: the product ships without an image, which is the honest outcome.
     """
+    if str(model or "").strip().lower() in _PATTERN_ONLY_MODELS:
+        # The brand may still look "meaningful", but a brand alone cannot
+        # identify one tire out of that brand's whole range.
+        model = ""
+        if not _meaningful_tokens(extra):
+            return False
     return bool(_meaningful_tokens(f"{brand} {model}") or _meaningful_tokens(extra))
+
+# ---------------------------------------------------------------------------
+# WheelSmart's tire feed carries no brand and no model column. Everything that
+# names the product sits inside one free-text description:
+#
+#     "235/55R20 102V DELINTE DS2 SUV ALL SEASON..."
+#      <size>     <ld/sp> <brand> <----model----> <category>
+#
+# Left unparsed, _resolve_brand and _resolve_model both return "", build_query
+# falls back to the raw description (which begins with an 11-digit SKU and ends
+# in a truncated "..."), and cache_key degrades to "image:||<sku>". Both
+# consequences are paid for in searches:
+#
+#   * every other supplier keys a tire photo at model level, so one search
+#     covers a model in all its sizes. Keyed on SKU instead, WheelSmart buys
+#     one photo per size — 49 Delinte DS2 rows were 49 separate searches.
+#   * a query led by an 11-digit SKU returns an arbitrary product, so the
+#     search is not merely duplicated, it is likely to buy the wrong picture.
+#
+# The brand list is explicit rather than inferred. This feed is a short tail of
+# budget marques the other four suppliers do not stock (so there is no brand
+# column anywhere else to learn from), and the source data misspells them
+# —"LANVIGTOR", "DELINT", "GOUNDSPEED"— often enough that the variants have to
+# fold onto one canonical name or the de-duplication above does not happen.
+# ---------------------------------------------------------------------------
+
+# Canonical brand -> misspellings seen in the live feed. Longest match wins, so
+# two-word brands are tried before the single-word ones they start with.
+_WS_BRANDS = {
+    "LANVIGATOR":   ("LANVIGTOR", "ALNVIGATOR", "LANVIGATROR", "LANVIGAOTR"),
+    "DELINTE":      ("DELINT",),
+    "GROUND SPEED": ("GROUNDSPEED", "GOUNDSPEED"),
+    "ROYAL BLACK":  (),
+    "GREEN-MAX":    ("GREENMAX",),
+    "SONIX":        ("SONIX-ROADMARCH",),
+    "POWERTRAC":    (),
+    "POWERHUB":     (),
+    "ROADMARCH":    (),
+    "ROCKBLADE":    (),
+    "ILINK":        (),
+    "COMPASAL":     (),
+    "STATURE":      (),
+    "LEXANI":       (),
+    "LANDSAIL":     (),
+    "SUREGRIP":     (),
+    "GREENTRAC":    (),
+}
+
+# alias (upper, no punctuation collapsed) -> canonical brand
+_WS_BRAND_LOOKUP = {}
+for _canon, _aliases in _WS_BRANDS.items():
+    for _name in (_canon,) + tuple(_aliases):
+        _WS_BRAND_LOOKUP[_name] = _canon
+# Longest first so "GROUND SPEED" is not shadowed by a future "GROUND".
+_WS_BRAND_ORDER = sorted(_WS_BRAND_LOOKUP, key=len, reverse=True)
+
+# A leading token that describes the fitment rather than the product.
+_WS_SIZE = re.compile(
+    r"^(LT|P|ST)?\(?(LT)?\d{2,3}(\.\d+)?"
+    r"(/\d{2,3}(\.\d+)?|X\d{1,2}(\.\d+)?)"
+    r"(Z)?R?\d{1,2}(\.\d+)?(LT)?[A-Z]{0,2}(\(POR\))?$", re.I)
+_WS_LOADSPD = re.compile(r"^\d{2,3}(/\d{2,3})?[A-Z]{1,3}$", re.I)
+_WS_PLY     = re.compile(r"^\d{1,2}PR$", re.I)
+_WS_LEAD_NOISE = {"XL", "LT", "C", "STD", "POR", "-"}
+
+# Trailing words that name the CATEGORY, never the model. Deliberately short:
+# "A/S", "A/T", "M/T" and "SUV" are left in the model because Lanvigator ships
+# both a "CATCHFORS" and a "CATCHFORS A/S", and stripping the suffix would
+# collapse two real products onto one photo — the same mistake the model-suffix
+# rule in normalize_key_token is written to avoid.
+_WS_CATEGORY_TAIL = (
+    "ALL SEASON", "ALL-SEASON", "ALL WEATHER", "ALL-WEATHER", "ALL TERRAIN",
+    "ALL-TERRAIN", "MUD TERRAIN", "HIGHWAY TERRAIN", "WINTER", "SUMMER", "SNOW",
+)
+
+
+def _parse_wheelsmart_tire_desc(desc):
+    """'235/55R20 102V DELINTE DS2 SUV ALL SEASON...' -> ('DELINTE', 'DS2 SUV').
+
+    Returns ("", "") when the description names no brand this feed is known to
+    carry — the caller then falls back to the old behaviour, which is a skipped
+    row rather than a guessed one.
+    """
+    text = re.sub(r"\s+", " ", str(desc or "").replace("...", " ")).strip()
+    text = re.sub(r"\s+-\s+", " ", text)
+    toks = text.upper().split()
+    while toks and (_WS_SIZE.match(toks[0]) or _WS_LOADSPD.match(toks[0])
+                    or _WS_PLY.match(toks[0]) or toks[0] in _WS_LEAD_NOISE
+                    or toks[0][:1].isdigit()):
+        toks.pop(0)
+    tail = " ".join(toks).strip()
+    if not tail:
+        return "", ""
+
+    brand = ""
+    for alias in _WS_BRAND_ORDER:
+        if tail == alias or tail.startswith(alias + " "):
+            brand = _WS_BRAND_LOOKUP[alias]
+            tail = tail[len(alias):].strip()
+            break
+    if not brand:
+        # A few rows lead with the model and put the marque second
+        # ("ROCK525 ROCKBLADE MUD TERRAIN"). Pull the brand out of wherever it
+        # sits so those rows key alongside the brand-first spelling of the
+        # same product instead of forming a second key for it.
+        for alias in _WS_BRAND_ORDER:
+            if re.search(r"(?:^|\s)" + re.escape(alias) + r"(?:\s|$)", tail):
+                brand = _WS_BRAND_LOOKUP[alias]
+                tail = re.sub(r"(?:^|\s)" + re.escape(alias) + r"(?:\s|$)",
+                              " ", tail).strip()
+                break
+    if not brand:
+        return "", ""
+
+    for cat in _WS_CATEGORY_TAIL:
+        if tail.endswith(" " + cat) or tail == cat:
+            tail = tail[: len(tail) - len(cat)].strip()
+            break
+    return brand, tail
+
+
+_ROW_PARSERS = {"wheelsmart_tires": _parse_wheelsmart_tire_desc}
+
+
+def _resolve_brand_model(row, src):
+    """Brand and model for one row, honouring a per-source description parser.
+
+    Sources with real brand/model columns keep the existing resolution
+    untouched; only a feed that hides both inside free text declares a
+    `desc_parser`, and even then a parse that recognises nothing falls back
+    rather than inventing a product name.
+    """
+    parser = _ROW_PARSERS.get(src.get("desc_parser"))
+    if parser:
+        col = src.get("extra_col") or src.get("desc_col")
+        brand, model = parser(row.get(col, "") if col else "")
+        if brand or model:
+            return brand, model
+    return (_resolve_brand(row, src["brand_col"], src.get("mfr_col")),
+            _resolve_model(row, src["model_col"], src.get("desc_col")))
+
+
 
 
 # ---------------------------------------------------------------------------
@@ -726,13 +1250,24 @@ def measure_image_urls(urls, workers=8, refresh=False, progress=200, verbose=Tru
     return cache
 
 
-def image_verdict(url, quality_cache):
-    """Combined name-then-pixel verdict for one URL.
+def image_verdict(url, quality_cache, tread_cache=None):
+    """Combined name-then-pixel-then-pose verdict for one URL.
 
-    Returns one of: 'missing', 'placeholder', 'low_res', 'unusable', 'ok',
-    or 'unknown' when quality has never been measured for it. 'unknown' is
-    deliberately NOT treated as a gap — an unmeasured image is not evidence
-    of a bad image, and guessing would inflate the spend estimate.
+    Returns one of: 'missing', 'placeholder', 'low_res', 'unusable',
+    'no_tread', 'ok', or 'unknown' when quality has never been measured for
+    it. 'unknown' is deliberately NOT treated as a gap — an unmeasured image
+    is not evidence of a bad image, and guessing would inflate the spend
+    estimate.
+
+    'no_tread' means a labeller positively said the photo shows the side of
+    the tire rather than the tread (see tread.py). An image nobody has
+    reviewed yet reads 'unlabelled' there and stays 'ok' here, for the same
+    reason 'unknown' is not a gap: the client is not billed for a search on
+    the strength of a question no one has answered.
+
+    Resolution is checked BEFORE pose. A 130px photo is a gap whether or not
+    its tread shows, and reporting it as 'low_res' names the cause that a new
+    search actually has to beat.
     """
     named = judge_image_url(url)
     if named:
@@ -740,11 +1275,15 @@ def image_verdict(url, quality_cache):
     entry = (quality_cache or {}).get(str(url).strip())
     if not entry:
         return "unknown"
-    return entry.get("verdict", "unknown")
+    verdict = entry.get("verdict", "unknown")
+    if verdict == "ok" and tread_cache is not None:
+        if _TREAD.verdict(url, tread_cache) == _TREAD.NOT_VISIBLE:
+            return "no_tread"
+    return verdict
 
 
 # Verdicts that make a row worth spending a search on.
-BAD_IMAGE_VERDICTS = ("missing", "placeholder", "low_res", "unusable")
+BAD_IMAGE_VERDICTS = ("missing", "placeholder", "low_res", "unusable", "no_tread")
 
 
 # ---------------------------------------------------------------------------
@@ -809,9 +1348,16 @@ def build_peer_image_index(quality_cache=USE_DISK_QUALITY_CACHE, supplier_filter
         # the columns the key is built from are needed. Deduping on those
         # columns first turns northcountry/tires from 6,452 row lookups into
         # ~900 — the same photo repeats across every size of a model.
+        #
+        # A photo a reviewer rejected for showing the sidewall is disqualified
+        # as a donor too: copying it onto 66 other rows would spread the exact
+        # defect the client asked to remove, for free, which is worse than the
+        # thumbnail it replaces.
+        tcache = _TREAD.load()
         usable = df[src["value_col"]].map(
             lambda u: bool((quality_cache.get(str(u or "").strip()) or {}).get("w"))
-            and (quality_cache.get(str(u or "").strip()) or {}).get("verdict") == "ok")
+            and (quality_cache.get(str(u or "").strip()) or {}).get("verdict") == "ok"
+            and not _TREAD.is_rejected(u, tcache))
         donors = df[usable]
         if donors.empty:
             continue
@@ -945,7 +1491,9 @@ def discover_candidates(field, supplier_filter=None,
                 if quality_cache is None:
                     mask = col.apply(_is_missing_image)
                 else:
-                    verdicts = col.apply(lambda v: image_verdict(v, quality_cache))
+                    tcache = _TREAD.load()
+                    verdicts = col.apply(
+                        lambda v: image_verdict(v, quality_cache, tcache))
                     mask = verdicts.isin(BAD_IMAGE_VERDICTS)
             else:
                 mask = col.apply(_is_missing_designation)
@@ -967,8 +1515,7 @@ def discover_candidates(field, supplier_filter=None,
         desc_col  = src.get("desc_col")
         for idx in df.index[mask]:
             row = df.loc[idx]
-            brand = _resolve_brand(row, brand_col, mfr_col)
-            model = _resolve_model(row, model_col, desc_col)
+            brand, model = _resolve_brand_model(row, src)
             size  = row.get(src["size_col"], "") if src["size_col"] else ""
             extra = row.get(extra_col, "") if extra_col else ""
             if not _is_queryable(brand, model, extra):
@@ -1114,8 +1661,7 @@ def discover_spec_candidates(supplier_filter=None):
             report_only_subfields += len(needed_all) - len(needed)
             if not needed:
                 continue
-            brand = _resolve_brand(row, brand_col, mfr_col)
-            model = _resolve_model(row, model_col, desc_col)
+            brand, model = _resolve_brand_model(row, src)
             size  = row.get(src["size_col"], "") if src["size_col"] else ""
             extra = row.get(extra_col, "") if extra_col else ""
             if not _is_queryable(brand, model, extra):
@@ -1219,6 +1765,100 @@ def apply_cached(fields, supplier_filter=None, write=False,
     return report
 
 
+# ---------------------------------------------------------------------------
+# Load-index plausibility.
+#
+# A searched load index is the one enriched value that is WORSE than a blank
+# when it is wrong: it reads as a real measurement on a load-bearing part.
+# Live results included "load index 70" for a Continental CHD3 245/70R19.5 —
+# 70 rates 335 kg, and no 19.5" commercial tire carries 335 kg. It comes from
+# _parse_spec_result reading a load/speed token that belongs to some smaller
+# tire also named in the result text.
+#
+# The check does not invent a threshold. The suppliers' own feeds already
+# state a load index for ~1,000 distinct sizes, so the catalogue itself is the
+# reference. Two tires of one size DO differ by a few indices when their load
+# range differs (33X12.50R20 is 114 at E and 121 at F), so only a large gap
+# counts: each index step is about +1.25% capacity, making 20 steps roughly
+# half the load — far outside any same-size variation, and comfortably inside
+# the 40-70 step errors actually observed.
+#
+# Rejecting only the load index, and only downward, is deliberate. An
+# unexpectedly HIGH value is usually a heavier load range of the same tire,
+# and the other sub-fields from the same search (speed rating, load range)
+# are unaffected by this particular failure.
+# ---------------------------------------------------------------------------
+
+_LOAD_INDEX_GAP = 20
+_load_index_ref = None
+
+
+def _normalize_size_token(text):
+    return re.sub(r"[^0-9A-Z.]", "", str(text or "").upper())
+
+
+def load_index_reference(refresh=False):
+    """{normalized size: lowest load index the suppliers state for it}."""
+    global _load_index_ref
+    if _load_index_ref is not None and not refresh:
+        return _load_index_ref
+    ref = {}
+    for src in SPEC_SOURCES:
+        li_col, sz_col = src.get("load_index_col"), src.get("size_col")
+        if not li_col or not sz_col:
+            continue
+        f = latest(src["glob"])
+        if not f:
+            continue
+        try:
+            df = pd.read_csv(f, dtype=str, low_memory=False,
+                             encoding="utf-8-sig").fillna("")
+        except (OSError, ValueError):
+            continue
+        if li_col not in df.columns or sz_col not in df.columns:
+            continue
+        for sz, li in zip(df[sz_col], df[li_col]):
+            key = _normalize_size_token(sz)
+            val = str(li).strip()
+            if key and val.isdigit():
+                v = int(val)
+                if key not in ref or v < ref[key]:
+                    ref[key] = v
+    _load_index_ref = ref
+    return ref
+
+
+def implausible_load_index(size, value):
+    """True when `value` is too low to be this size's load index at any load
+    range. False whenever the catalogue has nothing to compare against — an
+    unknown size is not evidence of a bad answer."""
+    val = str(value or "").strip()
+    if not val.isdigit():
+        return False
+    ref = load_index_reference()
+    known = ref.get(_normalize_size_token(size))
+    if known is None:
+        return False
+    return int(val) < known - _LOAD_INDEX_GAP
+
+
+# A flotation size states overall diameter x section width on a rim —
+# "LT35X12.50R17" is 35 inches tall, 12.50 wide, on a 17 inch wheel. There is
+# no aspect ratio in it; the number simply does not exist for this shape of
+# size. A search still returns one, because the result text names other tires:
+# the live run answered LT35X12.50R17 with aspect_ratio 55, which would print
+# a fabricated measurement onto the product page.
+_FLOTATION_SIZE = re.compile(r"^(?:LT|P|ST)?\d{2,3}(?:\.\d+)?X", re.I)
+
+
+def spec_not_applicable(size, subfield):
+    """True when this sub-field cannot exist for this shape of size, so any
+    answer for it is fabricated rather than merely uncertain."""
+    if subfield != "aspect_ratio":
+        return False
+    return bool(_FLOTATION_SIZE.match(str(size or "").strip()))
+
+
 def apply_spec_cache(supplier_filter=None, write=False):
     """specs counterpart to apply_cached() — same (d)-step contract (cache
     hits only, zero network calls regardless of `write`), different write
@@ -1256,6 +1896,17 @@ def apply_spec_cache(supplier_filter=None, write=False):
             specs = entry.get("specs", {})
             tried = set(entry.get("tried", []))
             found = {sub: specs[sub] for sub in c["needed"] if specs.get(sub)}
+            # Drop a load index the size says is impossible. Checked here
+            # rather than at search time so results cached by earlier runs are
+            # covered as well; the sub-field stays in `tried`, so refusing to
+            # write it never turns into re-buying it.
+            if found.get("load_index") and implausible_load_index(
+                    c.get("size"), found["load_index"]):
+                stats["rejected_load_index"] = stats.get("rejected_load_index", 0) + 1
+                found.pop("load_index")
+            for sub in [s for s in found if spec_not_applicable(c.get("size"), s)]:
+                stats["rejected_not_applicable"] = stats.get("rejected_not_applicable", 0) + 1
+                found.pop(sub)
             never_tried = {sub for sub in c["needed"] if sub not in tried}
 
             if len(found) == len(c["needed"]):
@@ -1337,13 +1988,89 @@ DOMAIN_ALLOWLIST_BIAS = {
     "yokohamatire.com", "generaltire.com", "coopertire.com", "falkentire.com",
     "nittotire.com", "kumhotire.com", "nexentireusa.com",
 }
+# Matched on the leading token, not the whole hostname: these serve images
+# from CDNs that carry the brand but not the domain — "i.ebayimg.com",
+# "external-preview.redd.it" — and both got through the full-hostname test and
+# were bought, then rejected by the reviewer.
 DOMAIN_DEPRIORITIZE = {
-    "pinterest.com", "pinterest.ca", "ebay.com", "ebay.ca", "reddit.com",
-    "facebook.com", "instagram.com", "alibaba.com", "aliexpress.com",
+    "pinterest.com", "ebay.com", "ebayimg.com", "reddit.com", "redd.it",
+    "facebook.com", "fbcdn.net", "instagram.com", "alibaba.com",
+    "aliexpress.com", "made-in-china.com", "yandex.net", "mvideo.ru",
 }
 
 MIN_SIDE_PX      = 800    # hard floor — below this, reject outright
 TARGET_LONG_EDGE = 1200   # soft preference — scored, not required
+
+
+# Retail CDNs name the shot in the path: ".../951-sidewall/...", "-side.jpg",
+# "?view=sidewall". Matched on the URL only — a page TITLE mentioning
+# "sidewall" is usually prose about the tire, not a description of the photo.
+_SIDEWALL_URL = re.compile(r"side[-_]?wall|[-_/]side[-_/.]|[-_/]side\d*\.(?:jpg|jpeg|png|webp)",
+                           re.I)
+# "sidetread" and "tread" mean the tread IS in frame, and the substring
+# "side" inside "sidetread" would otherwise trip the pattern above.
+_TREAD_URL = re.compile(r"tread", re.I)
+# Larger than the full spread of domain_score + long_edge + squareness, so a
+# sidewall shot always sorts last without ever being removed from the list.
+_POSE_PENALTY = 10
+
+# Gallery position, for hosts measured to encode it in the filename.
+#
+# PriorityTire serves a numbered gallery per tire — "...-b-aaa-1.jpg",
+# "...-b-aaa-22.jpg" — and the number is the shot, not the product. Measured
+# against 206 of its photos labelled by hand after the 2026-08-30 run:
+#
+#     index  1   191 visible /   7 rejected    4% wrong
+#     index  2    21 visible /   1 rejected    5% wrong
+#     index  3     9 visible /   7 rejected   44% wrong
+#     index  4    14 visible /   3 rejected   18% wrong
+#     index 22     0 visible /  20 rejected  100% wrong
+#     all host   254 visible /  59 rejected   19% wrong
+#
+# Measured over every photo this host ever supplied, including ones since
+# replaced. An earlier cut of this table read index 1 at 2% and the host at
+# 21%; that counted only the photos still in the cache, which excludes the
+# rejects that had already been swapped out, and so flattered both figures.
+#
+# Image 1 is the hero tread shot; the high numbers are alternate angles, and
+# the sidewall lives among them. Preferring index 1 on this host takes its
+# reject rate from 21% to 2%.
+#
+# Kept as a per-host table rather than a general "prefer the lowest number"
+# rule because it does NOT generalize: SimpleTire names its shots
+# (sidetread / treadfull / treadonly) and those split 15% / 9% / 23%, which is
+# no signal at all. A host earns an entry here by being measured, not assumed.
+_GALLERY_INDEX = {
+    "backend.prioritytire.com": re.compile(r"-(\d+)\.jpg$", re.I),
+}
+_GALLERY_FIRST_BONUS = 2      # index 1-2 — the hero shot
+_GALLERY_LATE_PENALTY = 4     # index >= 3 — measured 18-100% wrong
+_GALLERY_LATE_FROM = 3
+
+
+def _gallery_score(domain, url):
+    """Bonus/penalty from a host's own gallery numbering. 0 when unmeasured."""
+    pattern = _GALLERY_INDEX.get(domain)
+    if not pattern:
+        return 0
+    m = pattern.search(url or "")
+    if not m:
+        return 0
+    idx = int(m.group(1))
+    if idx <= 2:
+        return _GALLERY_FIRST_BONUS
+    if idx >= _GALLERY_LATE_FROM:
+        return -_GALLERY_LATE_PENALTY
+    return 0
+
+
+# Formats Shopify's product-CSV import cannot ingest. Unlike pose, this is not
+# a preference to be scored: the image simply never attaches, and the listing
+# ships blank with nothing in the logs to say why. A live run bought
+# "l_zeal_56-2.heic" from a Shopify-hosted storefront — the format is fine
+# where it came from, and useless on import. Rejected outright so the walk
+# moves on to a candidate that will actually load.
+_UNUSABLE_FORMAT = re.compile(r"\.(?:heic|heif|avif|bmp|tiff?|svg)(?:$|[?#])", re.I)
 
 
 def filter_image_candidates(results, brand="", model="", product_type="tires"):
@@ -1421,18 +2148,40 @@ def filter_image_candidates(results, brand="", model="", product_type="tires"):
         # reported source as well as the URL host, since retailers commonly
         # serve from a CDN that carries none of their branding.
         url = c.get("original") or c.get("link") or ""
+        if _UNUSABLE_FORMAT.search(url):
+            continue
         domain = urlparse(url).netloc.lower()
         domain_score = _retailer_tier(domain, f"{c.get('source','')} {c.get('title','')}")
         if domain_score == 0:
             if any(d in domain for d in DOMAIN_ALLOWLIST_BIAS):
                 domain_score = 2          # manufacturer — good, but hero/lifestyle heavy
-            elif any(d in domain for d in DOMAIN_DEPRIORITIZE):
+            elif any(d.split(".")[0] in domain for d in DOMAIN_DEPRIORITIZE):
                 domain_score = -2
 
         # Square-ish shots sit better in a product grid than 4:3.
         squareness_bonus = 1 if 0.9 <= ratio <= 1.11 else 0
 
-        score = domain_score + long_edge_bonus + squareness_bonus
+        # Pose, read off what the PUBLISHER called the file rather than off
+        # the pixels. This is the one reliable tread signal available at rank
+        # time: image_view's face_on/core_bg_frac test was measured against 76
+        # hand-labelled photos and caught 0 of 5 true sidewall shots while
+        # firing on good three-quarter ones (the numbers are in tread.py), and
+        # a live run watched it accept ".../951-sidewall/general-altimax-
+        # arctic.png" after demoting two candidates. A path segment reading
+        # "sidewall" is not an inference about the image — it is SimpleTire
+        # saying which shot it is.
+        #
+        # Scored, never a hard reject, and deliberately larger than the whole
+        # rest of the scale so a sidewall shot sorts below every alternative
+        # but is still bought when it is the only candidate. Getting a photo
+        # the reviewer can throw out beats shipping a blank listing, and a
+        # hard reject here would silently turn "wrong pose" into "no image".
+        pose_penalty = _POSE_PENALTY if _SIDEWALL_URL.search(url) else 0
+        if _TREAD_URL.search(url):
+            pose_penalty = 0
+
+        score = (domain_score + long_edge_bonus + squareness_bonus
+                 + _gallery_score(domain, url) - pose_penalty)
         scored.append((score, w * h, c))
 
     scored.sort(key=lambda t: (-t[0], -t[1]))
@@ -1539,6 +2288,11 @@ def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6
                   f"Install them, or pass --no-verify-images to skip the check.")
             sys.exit(1)
 
+    # Before a single call goes out: fold every already-paid answer onto the
+    # key the scan will look it up under. Skipping this would re-buy answers
+    # the client has already paid for.
+    migrate_cache_keys()
+
     cache = load_cache()
     spent = 0
     seen = set()
@@ -1575,22 +2329,29 @@ def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6
                     continue
                 seen.add(c["cache_key"])
 
-                results = GoogleSearch({
-                    "engine": "google", "q": c["query"], "num": 6,
-                    "api_key": SERPAPI_KEY_CLIENT,
-                }).get_dict()
-                texts = []
-                for r in results.get("shopping_results", [])[:6]:
-                    texts += [r.get("title", ""), r.get("snippet", "")]
-                for r in results.get("organic_results", [])[:6]:
-                    texts += [r.get("title", ""), r.get("snippet", "")]
-                found = _parse_spec_result(" ".join(filter(None, texts)), c["size"], still_needed)
+                # The ledger entry is written before the request goes out, so
+                # the call is on the books even if the parse below dies. See
+                # serp_ledger.py for why ordering, not bookkeeping, is the fix.
+                with SL.billed_call("specs", c["cache_key"], c["query"]) as call:
+                    results = GoogleSearch({
+                        "engine": "google", "q": c["query"], "num": 6,
+                        "api_key": SERPAPI_KEY_CLIENT,
+                    }).get_dict()
+                    texts = []
+                    for r in results.get("shopping_results", [])[:6]:
+                        texts += [r.get("title", ""), r.get("snippet", "")]
+                    for r in results.get("organic_results", [])[:6]:
+                        texts += [r.get("title", ""), r.get("snippet", "")]
+                    found = _parse_spec_result(" ".join(filter(None, texts)), c["size"], still_needed)
+                    call.usable = bool(found)
 
-                merged = dict(existing)
-                merged.update(found)
-                cache[c["cache_key"]] = {"specs": merged, "query": c["query"],
-                                         "tried": sorted(tried | still_needed)}
-                save_cache(cache)
+                    merged = dict(existing)
+                    merged.update(found)
+                    cache[c["cache_key"]] = {"specs": merged, "query": c["query"],
+                                             "tried": sorted(tried | still_needed),
+                                             "ts": SL._now(), "call": call.id,
+                                             "supplier": c["supplier"]}
+                    save_cache(cache)
                 spent += 1
                 print(f"  [{spent}/{budget}] specs: {c['query']!r} "
                       f"needed={sorted(still_needed)} -> {found or '(nothing found)'}")
@@ -1620,43 +2381,65 @@ def run_live(fields, supplier_filter, budget, verify_images=True, verify_depth=6
                 continue  # already paid for, or covered earlier in this same batch
             seen.add(c["cache_key"])
 
-            if field == "designation":
-                results = GoogleSearch({
-                    "engine": "google", "q": c["query"], "num": 6,
-                    "api_key": SERPAPI_KEY_CLIENT,
-                }).get_dict()
-                texts = []
-                for r in results.get("shopping_results", [])[:6]:
-                    texts += [r.get("title", ""), r.get("snippet", "")]
-                kg = results.get("knowledge_graph", {})
-                texts += [kg.get("title", ""), kg.get("type", ""), kg.get("description", "")]
-                for r in results.get("organic_results", [])[:4]:
-                    texts += [r.get("title", ""), r.get("snippet", "")]
-                value = _keyword_lookup(" ".join(filter(None, texts)))
-            else:  # image
-                results = GoogleSearch({
-                    "engine": "google_images", "q": c["query"],
-                    "api_key": SERPAPI_KEY_CLIENT,
-                }).get_dict()
-                candidates_raw = results.get("images_results", [])
-                ptype = c.get("type", "tires")
-                best = filter_image_candidates(candidates_raw, c["brand"], c["model"], ptype)
-                # Metadata ranking picks the queue; pixels pick the winner.
-                # Walking down the list costs NO extra SerpAPI credit — every
-                # candidate came from the one search already paid for above.
-                if verify_images and best:
-                    winner, check_log = pick_verified_image(
-                        best, ptype, max_fetch=verify_depth, verbose=True)
-                    verify_logs[c["cache_key"]] = check_log
-                    value = (winner.get("original") or winner.get("link") or "") if winner else ""
-                else:
-                    value = (best[0].get("original") or best[0].get("link") or "") if best else ""
+            # One wrapper covers both branches and the cache write. The image
+            # branch is the reason this has to span the parse: pick_verified_image()
+            # does its own network fetches, so it is the most likely place for a
+            # call that has ALREADY been billed to die without leaving a record.
+            with SL.billed_call(field, c["cache_key"], c["query"]) as call:
+                if field == "designation":
+                    results = GoogleSearch({
+                        "engine": "google", "q": c["query"], "num": 6,
+                        "api_key": SERPAPI_KEY_CLIENT,
+                    }).get_dict()
+                    texts = []
+                    for r in results.get("shopping_results", [])[:6]:
+                        texts += [r.get("title", ""), r.get("snippet", "")]
+                    kg = results.get("knowledge_graph", {})
+                    texts += [kg.get("title", ""), kg.get("type", ""), kg.get("description", "")]
+                    for r in results.get("organic_results", [])[:4]:
+                        texts += [r.get("title", ""), r.get("snippet", "")]
+                    value = _keyword_lookup(" ".join(filter(None, texts)))
+                else:  # image
+                    results = GoogleSearch({
+                        "engine": "google_images", "q": c["query"],
+                        "api_key": SERPAPI_KEY_CLIENT,
+                    }).get_dict()
+                    candidates_raw = results.get("images_results", [])
+                    ptype = c.get("type", "tires")
+                    best = filter_image_candidates(candidates_raw, c["brand"], c["model"], ptype)
+                    # Never re-select a photo a reviewer has already rejected
+                    # for showing the sidewall. The same stock image is served
+                    # by many retailers, so without this the walk below can buy
+                    # its way back to a picture already thrown out by hand.
+                    tcache = _TREAD.load()
+                    best = [b for b in best
+                            if not _TREAD.is_rejected(
+                                b.get("original") or b.get("link") or "", tcache)]
+                    # Metadata ranking picks the queue; pixels pick the winner.
+                    # Walking down the list costs NO extra SerpAPI credit — every
+                    # candidate came from the one search already paid for above.
+                    if verify_images and best:
+                        winner, check_log = pick_verified_image(
+                            best, ptype, max_fetch=verify_depth, verbose=True)
+                        verify_logs[c["cache_key"]] = check_log
+                        value = (winner.get("original") or winner.get("link") or "") if winner else ""
+                    else:
+                        value = (best[0].get("original") or best[0].get("link") or "") if best else ""
 
-            entry = {field: value, "query": c["query"]}
-            if field == "image" and c["cache_key"] in verify_logs:
-                entry["verified"] = verify_logs[c["cache_key"]]
-            cache[c["cache_key"]] = entry
-            save_cache(cache)
+                call.usable = bool(value)
+                # `ts` and `call` are what turn the cache from "an answer" into
+                # a record of WHICH tire was enriched with WHAT, WHEN, and by
+                # which billed call — so a row on the storefront can be traced
+                # back to the line in serp_ledger.jsonl that paid for it, and
+                # so a stale answer can be expired by date without discarding
+                # the whole cache. `supplier` records who needed it first.
+                entry = {field: value, "query": c["query"],
+                         "ts": SL._now(), "call": call.id,
+                         "supplier": c["supplier"]}
+                if field == "image" and c["cache_key"] in verify_logs:
+                    entry["verified"] = verify_logs[c["cache_key"]]
+                cache[c["cache_key"]] = entry
+                save_cache(cache)
             spent += 1
             print(f"  [{spent}/{budget}] {field}: {c['query']!r} -> {value!r}")
 
@@ -1979,6 +2762,10 @@ def report(fields, supplier_filter=None, budget_hint=5000, apply_cache=False, wr
     if migrated:
         print(f"Migrated {migrated} entries from formula's old serp_cache.json into the "
               f"centralized cache ({already} were already present).")
+    rekeyed, merged = migrate_cache_keys()
+    if rekeyed:
+        print(f"Re-keyed {rekeyed} cache entr(ies) onto the normalized product key "
+              f"({merged} collapsed onto an entry already held). No answer was lost.")
 
     simple_fields = [f for f in fields if f != "specs"]
     stats = apply_cached(simple_fields, supplier_filter, write=(apply_cache and write))
@@ -2048,7 +2835,78 @@ def main():
     ap.add_argument("--verify-depth", type=int, default=6,
                      help="How far down the ranked list to walk while looking for an "
                           "image that passes the pixel check (default 6).")
+    ap.add_argument("--requeue-rejected", action="store_true",
+                     help="Drop cached image answers a reviewer rejected for pose, so "
+                          "the next live run can buy a replacement. Without this they "
+                          "stay flagged as gaps forever and are never re-bought. "
+                          "Read-only unless --write is also given.")
+    ap.add_argument("--migrate-suffix-keys", action="store_true",
+                     help="Re-home image answers stranded by the load/speed strip, "
+                          "matching each against the keys the catalogue actually "
+                          "generates. Read-only unless --write is also given.")
+    ap.add_argument("--write", action="store_true",
+                     help="Let --migrate-suffix-keys save its changes.")
+    ap.add_argument("--audit-images", action="store_true",
+                     help="List every photo that ended up on more than one BRAND — "
+                          "a generic or category image that won several unrelated "
+                          "products. Read-only unless --quarantine is also given.")
+    ap.add_argument("--quarantine", action="store_true",
+                     help="With --audit-images, blank those answers so the products "
+                          "ship with no photo instead of a wrong one. Costs nothing "
+                          "and does not re-queue them for purchase.")
+    ap.add_argument("--audit-keys", action="store_true",
+                     help="List every normalized product key that merges more than one "
+                          "raw brand|model, so an ambiguous new model name is caught "
+                          "before two products end up sharing one photo. Read-only.")
     args = ap.parse_args()
+
+    if args.requeue_rejected:
+        n = requeue_tread_rejected(write=args.write)
+        print(f"{n} cached answer(s) hold a photo the reviewer rejected for pose.")
+        if args.write:
+            print("Dropped, so the next live run can buy a replacement. The "
+                  "rejections themselves stay in tread_cache.json, so none of "
+                  "those photos can be chosen again.")
+        else:
+            print("Read-only. Re-run with --write to drop them.")
+        return
+
+    if args.migrate_suffix_keys:
+        moved, ambiguous, left = migrate_glued_load_speed_keys(write=args.write)
+        print(f"{moved} answer(s) re-homed onto the key the catalogue asks for.")
+        print(f"{ambiguous} skipped as ambiguous (more than one stem fits).")
+        print(f"{left} paid answer(s) still unreachable — products the catalogue "
+              f"no longer carries, so nothing re-buys them.")
+        if not args.write:
+            print("Read-only. Re-run with --write to save.")
+        return
+
+    if args.audit_images:
+        offenders, touched = quarantine_shared_images(write=args.quarantine)
+        keys_hit = sum(len(v) for v in offenders.values())
+        print(f"{len(offenders)} photo(s) landed on more than one brand, "
+              f"covering {keys_hit} product key(s).\n")
+        for url, keys in sorted(offenders.items(), key=lambda kv: -len(kv[1])):
+            brands = sorted({k.split(":", 1)[1].split("|")[0] for k in keys})
+            print(f"  {len(keys)} keys across {len(brands)} brands: {', '.join(brands)}")
+            print(f"      {url[:110]}")
+        if args.quarantine:
+            print(f"\nBlanked {touched} answer(s). Those products now ship with no "
+                  f"photo rather than a wrong one, and are NOT re-queued for spend.")
+        elif offenders:
+            print("\nRead-only. Re-run with --quarantine to blank these.")
+        return
+
+    if args.audit_keys:
+        merges = audit_key_normalization()
+        print(f"{len(merges)} normalized key(s) merge more than one raw brand|model.\n")
+        for key, variants in sorted(merges.items(), key=lambda kv: -len(kv[1]))[:40]:
+            print(f"  {key}  ({len(variants)} spellings)")
+            for brand, model in sorted(variants):
+                print(f"      {brand!r} | {model!r}")
+        print("\nEach group above shares ONE cached answer. Confirm they are spelling "
+              "variants of a single product, not two different products.")
+        return
 
     fields = list(SUPPORTED_FIELDS) if args.field == "all" else [args.field]
 

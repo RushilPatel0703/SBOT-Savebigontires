@@ -471,7 +471,7 @@ class TestImageKeyIsPerProductType:
     def test_tire_sizes_still_share_one_photo(self):
         a = E.cache_key("image", "Cooper", "Endeavor Plus", "245/60R18", "tires")
         b = E.cache_key("image", "Cooper", "Endeavor Plus", "225/65R17", "tires")
-        assert a == b == "image:cooper|endeavor plus|"
+        assert a == b == "image:cooper|endeavorplus|"
 
     @pytest.mark.parametrize("ptype", ["wheels", "rims"])
     def test_wheel_sizes_do_not_share_one_photo(self, ptype):
@@ -491,7 +491,7 @@ class TestImageKeyIsPerProductType:
     def test_the_default_product_type_is_the_tire_behaviour(self):
         """Every pre-existing caller passes no product type and means tires."""
         assert (E.cache_key("image", "Cooper", "Endeavor Plus", "245/60R18")
-                == "image:cooper|endeavor plus|")
+                == "image:cooper|endeavorplus|")
 
     def test_the_description_only_guard_still_applies_to_tires(self):
         a = E.cache_key("image", "", "", "17X7 6X139.7 CB106", "tires")
@@ -617,7 +617,7 @@ class TestPeerImageReuse:
             brand_col="brand", model_col="model", size_col="size", extra_col=None,
             desc_col="tread_design", value_col="image_url", writable=True)])
         index = E.build_peer_image_index(_q(**{"big.jpg": 1500, "small.jpg": 200}))
-        assert index == {"image:toyo|opat iii|": (1500, "big.jpg", "t")}
+        assert index == {"image:toyo|opatiii|": (1500, "big.jpg", "t")}
 
     def test_wheels_never_donate(self, monkeypatch, tmp_path):
         """A wheel's 'model' names a colour or a category as often as a
