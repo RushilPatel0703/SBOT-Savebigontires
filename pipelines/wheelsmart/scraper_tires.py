@@ -11,7 +11,7 @@ API_URL = f"{BASE_URL}/v1/tires/?api_client_id=5&api_key=IhSkw9YNImRW3QKIZowLePX
 
 COOKIES = {
     "_identity": "93dfc22644ea3f5d23a9bea988a54528628d4965f14521883bf5d2d624ab36a2a%3A2%3A%7Bi%3A0%3Bs%3A9%3A%22_identity%22%3Bi%3A1%3Bs%3A48%3A%22%5B409%2C%22HnB5HZV0OHwmNe9vml8upqll2EmRCmCk%22%2C2592000%5D%22%3B%7D",
-    "PHPSESSID": "fc03378f46c866dc91cbcb5a455a23df",
+    "PHPSESSID": "81e2c58cf3c8d6446347d4562a7e1a10",
 }
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",

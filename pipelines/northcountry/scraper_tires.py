@@ -28,7 +28,7 @@ BASE_URL     = "https://online.northcountrytire.ca/WebOrder/CostarApi"
 _SIGNING_KEY = "5318f4ce4b9bab05c09df20c3d5d8d4c26570542501b1d58231159cd42e65505"
 
 # ── Update this when session expires ─────────────────────────────────────────
-COOKIE_STRING = "CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.7.151.0&DbVersion=0005.0007.0151.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=3w%2bczgMX6A7n3RHKeBte4NRwZMbXBiom1HbS2aNXu3MudpUukoAAvqK8Ff0xxPsn&UnifiedBuildNumber=5.7.151.0&Ux=M48B07OD&CostarLanguage=&SessionID=9ec756ef-07dc-49ac-8a90-e7ec881ec1cb; CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=&UserID=3a743520-dce4-4a69-b4f0-ee2960e625d7; ASP.NET_SessionId=gi0rolmr5in13jmb113q41pn"
+COOKIE_STRING = "CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.7.151.0&DbVersion=0005.0007.0151.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=SoaN3Um9uaaMHXz40iHDpdo54XBDeiQTPHxqhOEhRfsFaUazPargnJnphR%2fQ07y4&UnifiedBuildNumber=5.7.151.0&Ux=M48B07OD&CostarLanguage=&SessionID=32df2df9-2485-4546-b46e-764e76bdbe56; CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=&UserID=638f9904-5a4e-42cf-9965-dccb3034d00e; ASP.NET_SessionId=ysczoxfiyatjjlland3jnzdn"
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Live, refreshable session state — api_post() always reads _SESSION.cookie,
