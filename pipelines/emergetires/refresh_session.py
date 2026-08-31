@@ -8,6 +8,9 @@ id="Login" in the AngularJS SPA (not type="submit").
 import pathlib, re, sys, time, urllib.parse
 from playwright.sync_api import sync_playwright
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "shared"))
+from tls_chain import browser_needs_chain_bypass
+
 LOGIN_URL = "https://order.emergetires.com/WebOrder/Product/Search"
 USERNAME  = "SAVEB"
 PASSWORD  = "saveburnaby604"
@@ -33,7 +36,13 @@ def main():
         # Must use headless=False — the Costar SPA only calls User/Login API
         # (which sets CwsVersion in CostarWebAppData) when a real browser is used.
         browser = pw.chromium.launch(headless=False)
-        ctx = browser.new_context()
+        # order.emergetires.com omits its issuing intermediate; Chromium will not
+        # fetch it and refuses the page. See ../shared/tls_chain.py — the bypass
+        # only applies to a certificate verified there first.
+        ctx = browser.new_context(
+            ignore_https_errors=browser_needs_chain_bypass(
+                urllib.parse.urlparse(LOGIN_URL).hostname)
+        )
         page = ctx.new_page()
         print("Navigating to login page...")
         page.goto(LOGIN_URL, wait_until="networkidle", timeout=60000)

@@ -34,14 +34,19 @@ sys.stdout.reconfigure(encoding="utf-8")  # avoid UnicodeEncodeError on Windows
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from costar_session import CostarSessionGuard, SessionDeathError, all_zero_batch
 from costar_images import measure_and_build_image_map
+from tls_chain import ca_bundle
 
 BASE_URL = "https://order.emergetires.com/WebOrder/CostarApi"
+
+# Emerge serves its TLS chain without the issuing intermediate, so certifi alone
+# cannot verify it and every POST below raises SSLError. See shared/tls_chain.py.
+CA_BUNDLE = ca_bundle()
 
 # Phase 0.3 confirmed: same key as Formula/NC despite different CwsVersion (5.6.15.0).
 _SIGNING_KEY = "5318f4ce4b9bab05c09df20c3d5d8d4c26570542501b1d58231159cd42e65505"
 
 # >>> Update when session expires (~2 weeks). Captured 2026-06 — verify in Phase 0.1.
-COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=Gjg2uck6Y7pl%2fZtRFx567g%3d%3d&UserID=881da3c4-d072-41b3-9cd5-6c3a55f73752; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.6.15.0&DbVersion=0005.0006.0015.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=yIecmNFG7sacG0QQy7p2dwu4guhDaZoE98B79AfWCpltwMDmhdNm29vPEIe7eZEq&UnifiedBuildNumber=5.6.15.0&Ux=I34R06XR&CostarLanguage=&SessionID=cf66a72c-0b23-4e00-a8f9-ad8fadef4f8a; ASP.NET_SessionId=h32fmzmb5mfnc5y0x4l3wzsb"
+COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=Gjg2uck6Y7pl%2fZtRFx567g%3d%3d&UserID=d9abb481-b735-427a-82ac-ff694b0817b6; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.6.15.0&DbVersion=0005.0006.0015.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=aSADmAUVufHJuRK%2feXmZkCUj2Hjk5xjj4meRil9QOVDJ6yTQWrHreYPJX3RU3zOp&UnifiedBuildNumber=5.6.15.0&Ux=I34R06XR&CostarLanguage=&SessionID=ca77399f-b44e-47f4-b462-ae7320e27cea; ASP.NET_SessionId=nnkuzhgqhgbtclhsurqw0xca"
 
 # Live, refreshable session state — see costar_session.py / northcountry/scraper_tires.py.
 _SESSION = CostarSessionGuard("emerge", COOKIE_STRING, __file__)
@@ -121,7 +126,8 @@ def api_post(endpoint: str, body: dict, _retries: int = 4) -> dict:
     for attempt in range(_retries):
         signed  = _sign(body_str)
         headers = {**HEADERS, **signed, "Cookie": _SESSION.cookie}
-        resp = requests.post(f"{BASE_URL}/{endpoint}", headers=headers, data=body_str, timeout=30)
+        resp = requests.post(f"{BASE_URL}/{endpoint}", headers=headers, data=body_str,
+                             timeout=30, verify=CA_BUNDLE)
         if resp.ok:
             return resp.json()
         if resp.status_code in (429, 500, 502, 503, 504) and attempt < _retries - 1:
