@@ -24,6 +24,9 @@ pipelines/*/logs/
 # run_all.py opens a log handler at import time, so even a test collection
 # creates this one — a directory up from the per-supplier logs/ above.
 pipelines/logs/
+# run_all.py invoked from the repo ROOT writes here instead of the two above.
+# Same class of artifact; every file it had left behind was zero bytes.
+/logs/
 pipelines/dashboard_logs/
 upload_ready/
 
