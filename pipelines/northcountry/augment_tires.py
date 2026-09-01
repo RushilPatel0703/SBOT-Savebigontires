@@ -3,7 +3,7 @@
 Reads Data/cleaned/cleaned_tires_*.csv → Data/shopify/Shopify_SEO_northcountry_tires_<ts>.csv
 
 Only processes NEW products (net-new SKUs for create_products.py).
-Price/inventory sync for existing products is handled by pipelines/merged/.
+Price/inventory sync for existing products is handled by production/run_weekly.py.
 """
 
 import sys

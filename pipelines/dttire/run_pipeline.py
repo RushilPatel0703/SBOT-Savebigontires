@@ -8,17 +8,18 @@ Steps (in order):
 enrich_tires/enrich_wheels run the shared enrichment layer
 (pipelines/shared/enrichment.py --apply --supplier dttire), applying only
 already-cached (already-paid-for) designation/image fixes — zero network
-calls. Both steps invoke the same script; each only touches whichever cleaned
-CSV exists yet at that point in the run (wheels' doesn't exist until
-clean_wheels runs later in this same list), which is safe and idempotent. See
-monitoring/ENRICHMENT_APPROVAL.md and monitoring/SERP_LAYER_DESIGN.md.
+calls, so they run by default like every other step. Both steps invoke the
+same script; each only touches whichever cleaned CSV exists yet at that point
+in the run (wheels' doesn't exist until clean_wheels runs later in this same
+list), which is safe and idempotent. See monitoring/ENRICHMENT_APPROVAL.md and
+monitoring/SERP_LAYER_DESIGN.md.
 
 Usage:
-  python run_pipeline.py                                        # full run (tires + wheels)
+  python run_pipeline.py                                        # full run (tires + wheels), enrich included
   python run_pipeline.py --skip scraper_tires scraper_wheels   # skip scraping, use existing data
+  python run_pipeline.py --skip enrich_tires enrich_wheels      # skip the free cache-apply step
   python run_pipeline.py --only augment_tires                  # run one step only
   python run_pipeline.py --from clean_tires                    # run from step onwards
-  python run_pipeline.py --enable-enrich                       # include enrich_tires/enrich_wheels
 
 Cookie / session note: if scraper fails with auth errors, refresh COOKIE_STRING in
 scraper_tires.py and scraper_wheels.py from browser DevTools (see Tamper monkey script).
@@ -63,10 +64,6 @@ STEPS = [
 
 DRY_RUN_STEPS = {"create_tires", "create_wheels"}
 
-# enrich_* only ever runs with --apply (cache-hit fixes, zero network calls).
-# Opt-in only, like the other steps that mutate cleaned CSVs.
-ENRICH_OPT_IN_STEPS = {"enrich_tires", "enrich_wheels"}
-
 STEP_NAMES = [n for n, _, _ in STEPS]
 
 
@@ -93,14 +90,12 @@ def main():
     parser.add_argument("--dry-run", action="store_true",
                         help="Pass --dry-run to create steps (no Shopify writes)")
     parser.add_argument("--enable-enrich", action="store_true",
-                        help="Include enrich_tires/enrich_wheels in a full/--skip run. They only "
-                             "apply already-cached (already-paid-for) designation/image fixes — "
-                             "zero network calls — but still rewrite cleaned CSVs in place, so "
-                             "they're opt-in like the other steps that mutate data.")
+                        help="No longer needed — enrich_tires/enrich_wheels run by default "
+                             "(free cache-apply, zero network calls). Kept as a no-op so old "
+                             "commands don't break. Use --skip enrich_tires enrich_wheels to omit them.")
     args = parser.parse_args()
 
     steps_to_run = STEPS
-    explicit_enrich = args.only in ENRICH_OPT_IN_STEPS or args.from_step in ENRICH_OPT_IN_STEPS
 
     if args.only:
         steps_to_run = [(n, s, a) for n, s, a in STEPS if n == args.only]
@@ -119,15 +114,6 @@ def main():
             log.error(f"Unknown steps to skip: {unknown}. Valid: {STEP_NAMES}")
             sys.exit(1)
         steps_to_run = [(n, s, a) for n, s, a in STEPS if n not in args.skip]
-
-    if not explicit_enrich and not args.enable_enrich:
-        before = len(steps_to_run)
-        steps_to_run = [(n, s, a) for n, s, a in steps_to_run if n not in ENRICH_OPT_IN_STEPS]
-        if len(steps_to_run) < before:
-            log.warning(
-                "Skipping enrich_tires/enrich_wheels — they rewrite cleaned CSVs in place. "
-                "Pass --enable-enrich to include them, or run one explicitly with --only."
-            )
 
     log.info(f"Pipeline start — {len(steps_to_run)} step(s): {[n for n, _, _ in steps_to_run]}")
 

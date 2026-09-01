@@ -880,7 +880,7 @@ class TestImageCacheKeyIsModelLevel:
     def test_two_sizes_of_one_model_share_an_image_key(self):
         a = _E.cache_key("image", "Cooper", "Endeavor Plus", "245/60R18")
         b = _E.cache_key("image", "Cooper", "Endeavor Plus", "225/65R17")
-        assert a == b == "image:cooper|endeavor plus|"
+        assert a == b == "image:cooper|endeavorplus|"
 
     def test_different_models_still_have_different_keys(self):
         assert (_E.cache_key("image", "Cooper", "Endeavor Plus", "245/60R18")
@@ -957,6 +957,11 @@ class TestEverySourceReportsItsSearchCount:
 
     def test_image_breakdown_carries_paid_keys(self, monkeypatch):
         monkeypatch.setattr(_E, "load_cache", lambda: {})
+        # The peer index has to be stubbed too, or this reads the real CSVs on
+        # disk and the made-up key below can collide with a genuine donor —
+        # which is exactly what happened once the key was normalized and the
+        # catalogue turned out to carry a real "Cooper Endeavor".
+        monkeypatch.setattr(_E, "build_peer_image_index", lambda *a, **k: {})
         monkeypatch.setattr(_E, "discover_candidates", lambda *a, **k: [
             dict(supplier="s", type="tires", writable=True, verdict="low_res",
                  cache_key="image:cooper|endeavor|"),

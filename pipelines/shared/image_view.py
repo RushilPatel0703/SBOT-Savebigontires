@@ -53,8 +53,12 @@ GETs against public CDNs.
 import io
 import json
 import os
+import re
+import ssl
 import sys
 import urllib.request
+
+from tls_chain import ca_bundle
 
 try:
     import numpy as np
@@ -67,6 +71,23 @@ MIN_SIDE_PX = 800          # matches enrichment.MIN_SIDE_PX
 MAX_FETCH_BYTES = 12 << 20  # 12 MB - a product photo above this is wrong
 FETCH_TIMEOUT = 20
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) SaveBigOnTires-image-check/1.0"
+
+# Pose declared by the publisher in the URL path — ".../951-sidewall/x.png",
+# "-side.jpg", "?view=sidewall". This is not a guess about the pixels the way
+# face_on below is; it is the retailer stating which shot the file holds, and on
+# the one live run that was watched it was right where face_on was wrong.
+# "sidetread" and "tread" mean the tread IS in frame, and "sidetread" contains
+# the substring "side", so the tread pattern has to override.
+SIDEWALL_URL = re.compile(
+    r"side[-_]?wall|[-_/]side[-_/.]|[-_/]side\d*\.(?:jpg|jpeg|png|webp)", re.I)
+TREAD_URL = re.compile(r"tread", re.I)
+
+
+def url_declares_sidewall(url):
+    """True when the URL itself says the photo is a sidewall shot."""
+    u = str(url or "")
+    return bool(SIDEWALL_URL.search(u)) and not TREAD_URL.search(u)
+
 
 # Calibrated on the 10 labelled tire images from the approved test batch.
 # Good shots sat at 0.001-0.240; the two face-on shots at 0.388 and 0.639.
@@ -81,11 +102,26 @@ class ImageCheckError(Exception):
     """Raised when a candidate cannot be fetched or decoded."""
 
 
+# Costar suppliers serve product images off the same host as their API, and
+# Emerge's host omits its issuing intermediate — without the completed bundle
+# every Emerge image fails to fetch, which this module reports as an unusable
+# candidate rather than as the TLS problem it is. See shared/tls_chain.py.
+_SSL_CONTEXT = None
+
+
+def _ssl_context():
+    global _SSL_CONTEXT
+    if _SSL_CONTEXT is None:
+        _SSL_CONTEXT = ssl.create_default_context(cafile=ca_bundle())
+    return _SSL_CONTEXT
+
+
 def fetch_image(url, timeout=FETCH_TIMEOUT, max_bytes=MAX_FETCH_BYTES):
     """GET `url` and return raw bytes. Raises ImageCheckError on any failure."""
     try:
         req = urllib.request.Request(url, headers={"User-Agent": UA})
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        with urllib.request.urlopen(req, timeout=timeout,
+                                    context=_ssl_context()) as resp:
             data = resp.read(max_bytes + 1)
     except Exception as exc:                            # noqa: BLE001 - any network failure is the same outcome
         raise ImageCheckError(f"fetch failed: {type(exc).__name__}: {exc}") from exc
@@ -203,9 +239,18 @@ def pick_verified_image(ranked, product_type="tires", max_fetch=6,
     With strict=False (default) a face-on shot is demoted but still usable as a
     last resort - better a face-on photo than an empty listing. With strict=True
     it is dropped outright.
+
+    Three tiers, worst last: accepted > demoted (face_on fired) > sidewall (the
+    URL says so). The ordering matters because face_on is a pixel guess and the
+    URL is the publisher's own label. On the live run this was written for, two
+    good candidates were demoted by face_on and the walk then ACCEPTED
+    ".../951-sidewall/general-altimax-arctic.png" — a passing tier always beats
+    a demoted one, so ranking the sidewall shot lower in the input list was not
+    enough on its own. It has to be a tier of its own, below face_on, or the
+    least trustworthy signal keeps overriding the most trustworthy one.
     """
     log = []
-    passed, demoted = [], []
+    passed, demoted, sidewall = [], [], []
 
     for cand in (ranked or [])[:max_fetch]:
         url = cand.get("original") or cand.get("link") or ""
@@ -234,6 +279,13 @@ def pick_verified_image(ranked, product_type="tires", max_fetch=6,
             if verbose:
                 print(f"    reject {url[:70]}: {entry['status']}")
             continue
+        if url_declares_sidewall(url):
+            entry["status"] = "sidewall: the URL names this shot a sidewall"
+            sidewall.append(cand)
+            log.append(entry)
+            if verbose:
+                print(f"    sidewall {url[:70]}: URL declares the pose")
+            continue
         if finding["face_on"]:
             entry["status"] = "demoted: face-on, tread not visible"
             demoted.append(cand)
@@ -251,8 +303,15 @@ def pick_verified_image(ranked, product_type="tires", max_fetch=6,
 
     if passed:
         return passed[0], log
-    if demoted and not strict:
+    if strict:
+        return None, log
+    if demoted:
         return demoted[0], log
+    # Last resort only. A sidewall photo still beats a blank listing, and the
+    # reviewer will see it in tread_review.py — where a rejection is recorded
+    # once and never re-bought.
+    if sidewall:
+        return sidewall[0], log
     return None, log
 
 

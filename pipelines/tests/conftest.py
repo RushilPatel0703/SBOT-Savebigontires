@@ -121,6 +121,26 @@ def dashboard():
     return _import_dashboard()
 
 
+# ── SerpAPI ledger isolation ──────────────────────────────────────────────────
+
+@pytest.fixture(autouse=True)
+def _isolate_serp_ledger(tmp_path, monkeypatch):
+    """Never let a test append to the real spend ledger.
+
+    Autouse and unconditional on purpose. Several tests in test_enrich_runner.py
+    drive the REAL enrichment.run_live() with a faked GoogleSearch, so they walk
+    straight through serp_ledger.billed_call() and would otherwise write phantom
+    calls into pipelines/shared/Data/serp_ledger.jsonl — the one file whose whole
+    job is to reconcile against the client's SerpAPI bill. A test run must never
+    be able to make that number wrong.
+    """
+    sys.path.insert(0, str(_PIPELINES_DIR / "shared"))
+    import serp_ledger
+
+    monkeypatch.setattr(serp_ledger, "LEDGER_FILE",
+                        str(tmp_path / "ledger" / "serp_ledger.jsonl"))
+
+
 # ── Temporary directory helpers ───────────────────────────────────────────────
 
 @pytest.fixture()

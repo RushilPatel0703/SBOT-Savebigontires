@@ -125,6 +125,95 @@ Shopify CSVs in Step 4 carry the fix.
 To block paid searches entirely, create an empty file at
 `monitoring/SERP_KILL_SWITCH` — the run refuses to start while it exists.
 
+#### Checking a run afterwards
+
+Two audits are worth running after any paid enrichment. Both are read-only
+until you pass the second flag, and neither makes a network call.
+
+```bash
+cd pipelines/shared
+python enrichment.py --audit-images                    # then --quarantine
+python enrichment.py --migrate-suffix-keys             # then --write
+```
+
+- **`--audit-images`** lists any photo that ended up on more than one *brand*.
+  Sharing one photo across a model's sizes is normal and wanted; sharing one
+  across brands means a search returned something generic. The 30 August run
+  turned up five, including a Shopify collection banner on 39 products and a
+  lug-nut "install kit" photo on seven. `--quarantine` blanks those answers, so
+  the product ships with no photo instead of a wrong one, and does not put them
+  back in the buy queue.
+- **`--migrate-suffix-keys`** re-homes answers stranded when a model's cache
+  key changes shape. Run it after any change to how model text is cleaned;
+  without it those products miss the cache and get bought a second time.
+
+#### Tire photos: is the tread facing the camera?
+
+A photo can be sharp, large, and still be the wrong shot — the tire seen
+side-on, so the buyer gets a black ring and no tread pattern. No pixel
+measurement decides this reliably (the numbers are in `pipelines/shared/tread.py`),
+so it is settled by eye, once per picture, and remembered forever.
+
+```bash
+cd pipelines/shared
+python tread_review.py
+```
+
+That opens a review page in your browser at `http://127.0.0.1:8777`.
+
+Every photo starts as **keep**. Click only the ones that show the side of the
+tire instead of the tread — across the 1,429 supplier photos reviewed in full,
+that was 5% of them, so most of a batch needs no clicks at all. A second click marks a photo
+**unsure**, a third puts it back to keep. Press **Save and load next** and the
+labels are written straight into `Data/tread_cache.json`; there is no CSV to
+shuffle and no import step. Close the tab or press Ctrl-C when you have had
+enough — everything already saved stays saved.
+
+Each card shows the brand, model, and how many listings share that photo, and
+the queue is ordered by that last number, so the pictures on hundreds of
+listings come first. Stopping early still gets you the most valuable labels.
+
+Everything you reject becomes a gap the next enrichment run offers to replace,
+and is never re-used as a free donor for another listing. Everything you keep
+is settled permanently — **a photo is reviewed once, no matter how many scrapes
+it survives or how many products share it.** 6,452 North Country rows share 520
+distinct pictures, so the review is priced per picture, not per row.
+
+`python tread.py` prints how many are labelled so far. Add `--all` to
+`tread_review.py` to revisit photos that already carry a label — useful for
+correcting a machine-made pass, since a label you set by hand always wins.
+
+**Photos bought in Step 3 need reviewing too.** A search result arrives
+unlabelled, and unlabelled deliberately does not count as a gap — otherwise
+the next run would offer to re-buy every photo it just paid for. Two things
+keep that from meaning "unchecked ships forever":
+
+- At purchase time the ranking reads the pose out of the URL. Retail CDNs name
+  the shot in the path (`.../951-sidewall/…`), and unlike a pixel measurement
+  that is the publisher stating which photo it is, so a sidewall shot is
+  ranked last and only bought when it is the sole candidate.
+- After the run, `python tread_review.py` queues whatever is new, highest
+  blast-radius first, exactly as it did for the supplier photos.
+
+Run the review after enrichment, not just before it.
+
+<details>
+<summary>Offline alternative: printable contact sheets</summary>
+
+If you would rather review away from the machine that holds the data:
+
+```bash
+python tread.py --sheets ../../review     # numbered contact sheets + a CSV
+```
+
+Mark each numbered image in the CSV's `label` column — `v` keep, `n` replace,
+`?` unsure, blank to decide later — then:
+
+```bash
+python tread.py --import ../../review/tread_labels.csv
+```
+</details>
+
 **Product spec fields.** The same panel reports completeness for the nine
 fields shown in each product's description block — Brand, Style, Section
 width, Aspect ratio, Rim diameter, Load index, Speed rating, Load range,
@@ -152,17 +241,12 @@ Only needed when suppliers have new SKUs that aren't in Shopify yet.
 
 ## Adding New Products to Shopify
 
-When a supplier has new products (SKUs that don't exist in Shopify yet), a
-price/inventory sync alone won't create them. You need to:
+When a supplier has new products (SKUs that don't exist in Shopify yet):
 
 1. After Step 2 (and Step 3, if you want images filled in), click
    **Prepare Upload Files** in Step 4
 2. Go to **Shopify Admin → Products → Import** and upload the generated
    files from `upload_ready/`, in order
-3. Then run the price/inventory sync (`pipelines/merged/run_sync.py`)
-
-For regular bi-weekly syncs where no new products are being added,
-skip the import and go straight to the sync.
 
 ---
 

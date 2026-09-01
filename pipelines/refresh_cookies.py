@@ -14,10 +14,13 @@ import asyncio
 import re
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 from playwright.async_api import async_playwright
 
 BASE_DIR = Path(__file__).parent
+sys.path.insert(0, str(BASE_DIR / "shared"))
+from tls_chain import browser_needs_chain_bypass  # noqa: E402
 _HEADED = False
 
 # ── Supplier configs ──────────────────────────────────────────────────────────
@@ -78,9 +81,18 @@ SUPPLIERS = {
 
 async def login_costar(supplier: dict) -> str | None:
     """Log into a Costar WebOrder portal and return a fresh COOKIE_STRING."""
+    host = urlparse(supplier["login_url"]).hostname
+    # Emerge serves its chain without the issuing intermediate, which Chromium
+    # (unlike a desktop browser) will not fetch for itself — page.goto() dies on
+    # ERR_CERT_AUTHORITY_INVALID before a login form is ever rendered. Ignore
+    # that error only for a certificate we have verified ourselves; see
+    # shared/tls_chain.py.
+    ignore_https_errors = browser_needs_chain_bypass(host)
+
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=not _HEADED)
         ctx = await browser.new_context(
+            ignore_https_errors=ignore_https_errors,
             user_agent=(
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "

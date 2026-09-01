@@ -2,14 +2,13 @@
 """
 Master Orchestrator — Save Big On Tires Inventory Pipeline
 
-Runs all 5 supplier pipelines sequentially, then the merged Shopify sync.
+Runs all 5 supplier pipelines sequentially. Shopify sync is handled separately
+by production/run_weekly.py.
 Each supplier pipeline runs from its own directory (scripts use relative paths).
 
 Run from: pipelines/
 Usage:
-    python run_all.py                          # full run — all suppliers + sync
-    python run_all.py --dry-run               # preview inventory changes only (no Shopify writes)
-    python run_all.py --skip-sync             # run supplier pipelines only, skip Shopify sync
+    python run_all.py                          # full run — all suppliers
     python run_all.py --skip-scraping         # skip scraping on all suppliers (reuse existing CSVs)
     python run_all.py --suppliers formula nc  # run specific suppliers only
 """
@@ -87,10 +86,6 @@ def run_step(label: str, cmd: list, cwd: Path) -> bool:
 
 def main():
     parser = argparse.ArgumentParser(description="Save Big On Tires — Full Pipeline")
-    parser.add_argument("--dry-run",       action="store_true",
-                        help="Pass --dry-run to sync (preview only, no Shopify writes)")
-    parser.add_argument("--skip-sync",     action="store_true",
-                        help="Skip the merged Shopify sync after supplier pipelines")
     parser.add_argument("--skip-scraping", action="store_true",
                         help="Skip scraping on all suppliers — reuse most recent raw CSVs")
     parser.add_argument("--suppliers",     nargs="+", choices=list(SUPPLIERS),
@@ -99,8 +94,6 @@ def main():
     args = parser.parse_args()
 
     log.info(f"Pipeline run started — suppliers: {args.suppliers}")
-    if args.dry_run:
-        log.info("Mode: DRY RUN — inventory steps will preview only")
     if args.skip_scraping:
         log.info("Mode: SKIP SCRAPING — using existing raw CSVs")
 
@@ -112,18 +105,6 @@ def main():
         extra = cfg["skip_args"] if args.skip_scraping else cfg["run_args"]
         cmd   = [sys.executable, "run_pipeline.py"] + extra
         results[key] = run_step(f"Supplier: {key}", cmd, cfg["dir"])
-
-    # ── Merged sync ────────────────────────────────────────────────────────────
-    if not args.skip_sync:
-        if not any(results.values()):
-            log.error("All supplier pipelines failed — skipping merged sync.")
-        else:
-            cmd = [sys.executable, "run_sync.py"]
-            if args.dry_run:
-                cmd.append("--dry-run")
-            results["sync"] = run_step("Merged Sync", cmd, HERE / "merged")
-    else:
-        log.info("Skipping merged sync (--skip-sync).")
 
     # ── Summary ────────────────────────────────────────────────────────────────
     log.info("=" * 60)

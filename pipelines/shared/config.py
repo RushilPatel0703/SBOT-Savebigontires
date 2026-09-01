@@ -34,8 +34,7 @@ SERPAPI_KEY_CLIENT = _secret(
 # ── Per-supplier markup (updated July 2026) ───────────────────────────────────
 # Flat dollar amount added to the supplier's COST price to produce the Shopify
 # selling price. These differ per supplier — do not collapse back to one flat
-# rate. Keys match the supplier keys used in production/config.py and
-# pipelines/merged/merge_suppliers.py.
+# rate. Keys match the supplier keys used in production/config.py.
 SUPPLIER_MARKUP = {
     "northcountry": 46.50,
     "dttire":       46.50,

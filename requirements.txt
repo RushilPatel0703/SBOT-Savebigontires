@@ -1,4 +1,7 @@
 requests
+# Direct dependency, not just requests' transitive one: pipelines/shared/tls_chain.py
+# reads certifi's root bundle to build the completed chain Emerge under-serves.
+certifi
 pandas
 openpyxl
 beautifulsoup4
