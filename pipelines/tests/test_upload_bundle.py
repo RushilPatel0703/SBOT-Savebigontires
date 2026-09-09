@@ -221,3 +221,119 @@ class TestStaleSourceGuard:
         monkeypatch.setattr(builtins, "__import__", boom)
         monkeypatch.delitem(sys.modules, "enrichment", raising=False)
         assert UB.stale_sources([out]) == []
+
+
+class TestNewProductsOnlyFilter:
+    """Bundling only products the store does not have yet.
+
+    An import exists to CREATE products. Re-uploading the ~15.6k rows that
+    already exist changes nothing (price and quantity are the sync's job) and
+    turns one 4 MB file into several 15 MB ones. The risk in filtering is
+    getting "already exists" wrong in either direction: dropping a genuinely new
+    product means it never reaches the store, and keeping everything means the
+    filter silently did nothing.
+    """
+
+    def test_keeps_only_skus_absent_from_the_store(self):
+        df = _df([
+            {"Handle": "a", "Variant SKU": "IN-STORE"},
+            {"Handle": "b", "Variant SKU": "NEW-1"},
+            {"Handle": "c", "Variant SKU": "NEW-2"},
+        ])
+        kept, dropped = UB.filter_new_products(df, {"IN-STORE"})
+        assert dropped == 1
+        assert list(kept["Variant SKU"]) == ["NEW-1", "NEW-2"]
+
+    def test_leading_zeros_are_significant(self):
+        """Both sides of the comparison are the SKU as Shopify holds it, so
+        '000539' and '539' are different products. Normalising either side
+        would invent a match the store does not have."""
+        df = _df([
+            {"Handle": "a", "Variant SKU": "000539"},
+            {"Handle": "b", "Variant SKU": "539"},
+        ])
+        kept, dropped = UB.filter_new_products(df, {"539"})
+        assert dropped == 1
+        assert list(kept["Variant SKU"]) == ["000539"]
+
+    def test_surrounding_whitespace_still_matches(self):
+        df = _df([{"Handle": "a", "Variant SKU": " ABC "}])
+        kept, dropped = UB.filter_new_products(df, {"ABC"})
+        assert dropped == 1
+        assert kept.empty
+
+    def test_empty_store_set_keeps_everything(self):
+        df = _df([{"Handle": "a", "Variant SKU": "X"},
+                  {"Handle": "b", "Variant SKU": "Y"}])
+        kept, dropped = UB.filter_new_products(df, set())
+        assert dropped == 0
+        assert len(kept) == 2
+
+    def test_missing_sku_column_is_left_alone(self):
+        """filter_new_products is a pure helper; prepare_upload_files is what
+        refuses the build, so this must not silently drop every row."""
+        df = _df([{"Handle": "a"}])
+        kept, dropped = UB.filter_new_products(df, {"X"})
+        assert dropped == 0
+        assert len(kept) == 1
+
+
+class TestNewProductsOnlyBuild:
+    """The two ways a filtered build can be wrong enough to refuse."""
+
+    @staticmethod
+    def _supplier_dir(tmp_path, skus):
+        d = tmp_path / "supplier" / "Data" / "shopify"
+        d.mkdir(parents=True)
+        pd.DataFrame([
+            {"Handle": f"h-{s}", "Variant SKU": s, "Title": f"T {s}"} for s in skus
+        ]).to_csv(d / "Shopify_SEO_tires_20260101_000000.csv", index=False)
+        return tmp_path / "supplier"
+
+    def test_refuses_when_nothing_is_new(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(UB, "stale_sources", lambda s: [])
+        src = self._supplier_dir(tmp_path, ["A", "B"])
+        files, err = UB.prepare_upload_files(
+            [src], out_root=tmp_path / "out", exclude_skus={"A", "B"})
+        assert files == []
+        assert "already exists in the store" in err
+
+    def test_refuses_when_the_filter_matched_nothing(self, tmp_path, monkeypatch):
+        """A non-empty store that overlaps the CSVs in zero places means the two
+        sides are not talking about the same SKUs — a stale mirror, or SKU
+        formats that have diverged. Bundling the whole catalogue under a "new
+        products" label is worse than stopping."""
+        monkeypatch.setattr(UB, "stale_sources", lambda s: [])
+        src = self._supplier_dir(tmp_path, ["A", "B"])
+        files, err = UB.prepare_upload_files(
+            [src], out_root=tmp_path / "out", exclude_skus={"totally", "unrelated"})
+        assert files == []
+        assert "not credible" in err
+
+    def test_writes_a_distinctly_named_bundle(self, tmp_path, monkeypatch):
+        """A new-products bundle and a full one are imported identically, so the
+        name is the only thing keeping them apart in upload_ready/."""
+        monkeypatch.setattr(UB, "stale_sources", lambda s: [])
+        src = self._supplier_dir(tmp_path, ["A", "B", "C"])
+        files, err = UB.prepare_upload_files(
+            [src], out_root=tmp_path / "out", exclude_skus={"A"})
+        assert err == ""
+        assert len(files) == 1
+        assert files[0].name == "shopify_new_products.csv"
+        assert "(new products)" in files[0].parent.name
+
+        written = pd.read_csv(files[0], dtype=str, keep_default_na=False)
+        assert sorted(written["Variant SKU"]) == ["B", "C"]
+
+        manifest = (files[0].parent / "manifest.txt").read_text(encoding="utf-8")
+        assert "Contents: NEW products only" in manifest
+        assert "Rows skipped as already in the store: 1" in manifest
+
+    def test_unfiltered_build_is_unchanged(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(UB, "stale_sources", lambda s: [])
+        src = self._supplier_dir(tmp_path, ["A", "B"])
+        files, err = UB.prepare_upload_files([src], out_root=tmp_path / "out")
+        assert err == ""
+        assert files[0].name == "shopify_upload.csv"
+        assert "(new products)" not in files[0].parent.name
+        assert len(pd.read_csv(files[0], dtype=str)) == 2

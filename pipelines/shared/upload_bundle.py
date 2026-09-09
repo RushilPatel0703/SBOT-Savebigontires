@@ -19,8 +19,24 @@ build record its own inputs.
     python upload_bundle.py                 # build from every supplier
     python upload_bundle.py --dry-run       # show what WOULD go in, write nothing
 
+NEW PRODUCTS ONLY
+-----------------
+An import exists to CREATE products; price and quantity for products the store
+already has are the sync's job (production/run_weekly.py). Bundling everything
+therefore re-uploads ~15.6k rows to change nothing, and splits into several
+15 MB parts instead of one small file. Pass the SKUs already in the store and
+only the rest are bundled:
+
+    python ../../production/store_skus.py --out skus.json
+    python upload_bundle.py --known-skus skus.json
+
+The build refuses rather than guesses in the two cases where the comparison is
+not trustworthy: nothing is new, or nothing matched at all (a stale catalog
+mirror, or SKU formats that have diverged between the two sides).
+
 Each build writes a manifest.txt beside the CSVs naming every source file and
-its row count, so a bundle can always be traced back to what produced it.
+its row count, so a bundle can always be traced back to what produced it, plus
+whether it was a full or new-products-only build.
 """
 
 import argparse
@@ -201,8 +217,29 @@ def _dedupe_handles(df):
     return df, fixed
 
 
+SKU_COLUMN = "Variant SKU"
+
+
+def filter_new_products(frame, exclude_skus):
+    """Rows whose SKU is not already in the store. Returns (kept, dropped_count).
+
+    Matching is on the raw string, deliberately: both sides of this comparison
+    are "the SKU as Shopify holds it" — the mirror is read back out of Shopify,
+    and this column is what a Shopify import writes in. Normalising either side
+    (stripping leading zeros, coercing numerics) would invent a difference that
+    the store itself does not have. '000539' and '539' are two different
+    products here, and pandas reads this file with dtype=str precisely so that
+    distinction survives.
+    """
+    if SKU_COLUMN not in frame.columns:
+        return frame, 0
+    skus = frame[SKU_COLUMN].astype(str).str.strip()
+    keep = ~skus.isin(exclude_skus)
+    return frame[keep], int((~keep).sum())
+
+
 def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None,
-                         allow_stale=False):
+                         allow_stale=False, exclude_skus=None):
     """Merge every supplier's latest CSV and split into Shopify-sized parts.
 
     Returns (out_files, error). On dry_run, returns ([], "") after printing the
@@ -213,6 +250,13 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None,
     and never reached the output, and bundling it ships the old data under a
     fresh timestamp. `allow_stale=True` overrides, and names what it is
     ignoring.
+
+    exclude_skus: SKUs already present in the store. When given, only products
+    Shopify does not have yet are bundled — the import then creates products
+    rather than re-uploading the entire catalogue to change nothing. Price and
+    quantity for products that already exist are the sync's job, not an
+    import's, so an all-products bundle is mostly redundant work: ~17.6k rows
+    to create ~2k products.
     """
     sources = collect_source_csvs(supplier_dirs)
     if not sources:
@@ -229,21 +273,52 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None,
         print(f"WARNING: bundling {len(stale)} stale source(s) because "
               f"--allow-stale was given: {detail}")
 
+    exclude_skus = set(exclude_skus) if exclude_skus else None
+
     frames, manifest = [], []
+    total_dropped = 0
     for path in sources:
         try:
             frame = pd.read_csv(path, dtype=str, keep_default_na=False)
         except Exception as exc:                        # noqa: BLE001
             return [], f"Error reading {path.name}: {exc}"
+        source_rows = len(frame)
+        dropped = 0
+        if exclude_skus is not None:
+            if SKU_COLUMN not in frame.columns:
+                return [], (f"{path.name} has no '{SKU_COLUMN}' column, so new-vs-existing "
+                            f"cannot be determined — refusing to guess which of its "
+                            f"{source_rows} rows are new.")
+            frame, dropped = filter_new_products(frame, exclude_skus)
+            total_dropped += dropped
         frames.append(frame)
         manifest.append((path, len(frame),
-                         datetime.fromtimestamp(path.stat().st_mtime)))
+                         datetime.fromtimestamp(path.stat().st_mtime), source_rows, dropped))
 
     print(f"Sources ({len(manifest)}):")
-    for path, rows, mtime in manifest:
-        print(f"  {mtime:%Y-%m-%d %H:%M}  {rows:7,d}  {path.name}")
-    total_rows = sum(rows for _, rows, _ in manifest)
+    for path, rows, mtime, source_rows, dropped in manifest:
+        suffix = f"  (of {source_rows:,}, {dropped:,} already in store)" if exclude_skus is not None else ""
+        print(f"  {mtime:%Y-%m-%d %H:%M}  {rows:7,d}  {path.name}{suffix}")
+    total_rows = sum(rows for _, rows, _, _, _ in manifest)
     print(f"  {'':16s}  {total_rows:7,d}  TOTAL")
+
+    if exclude_skus is not None:
+        print(f"\nNew-products-only: {total_dropped:,} row(s) skipped as already in the "
+              f"store, {total_rows:,} to create.")
+        if total_rows == 0:
+            return [], ("Every product in the supplier CSVs already exists in the store — "
+                        "there is nothing new to import. Use the Sync button to update "
+                        "their prices and quantities.")
+        # A filter that excluded nothing against a non-empty store means the two
+        # sides are not talking about the same SKUs (a stale mirror, or a change
+        # in how SKUs are written on one side). Bundling the whole catalogue
+        # under a "new products" label is worse than stopping.
+        if total_dropped == 0:
+            return [], (f"None of the {total_rows:,} rows matched any of the "
+                        f"{len(exclude_skus):,} SKUs already in the store, which is not "
+                        f"credible — the catalog mirror is probably stale or the SKU "
+                        f"formats have diverged. Re-run the sync (it refreshes the "
+                        f"mirror) and try again, or bundle all products instead.")
 
     if dry_run:
         print("\n--dry-run: nothing written.")
@@ -261,15 +336,23 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None,
               f"doesn't drop them as duplicates")
 
     now = datetime.now()
+    # The folder and the file names both say which kind of bundle this is. A
+    # new-products bundle and a full one look identical from the outside and are
+    # imported the same way, so the only thing standing between them and a
+    # mix-up is the name.
+    kind = "NEW products only" if exclude_skus is not None else "all products"
     folder = f"{now.day} {now:%B %Y} {now:%H-%M-%S}"
+    if exclude_skus is not None:
+        folder += " (new products)"
     out_dir = Path(out_root or UPLOAD_READY) / folder
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    stem = "shopify_new_products" if exclude_skus is not None else "shopify_upload"
     header, chunks = _split_chunks(merged, int(CSV_TARGET_MB * 1024 * 1024))
     out_files = []
     for idx, chunk in enumerate(chunks, 1):
-        name = (f"shopify_upload_{idx}of{len(chunks)}.csv"
-                if len(chunks) > 1 else "shopify_upload.csv")
+        name = (f"{stem}_{idx}of{len(chunks)}.csv"
+                if len(chunks) > 1 else f"{stem}.csv")
         out_path = out_dir / name
         out_path.write_text(header + "".join(chunk), encoding="utf-8", newline="")
         out_files.append(out_path)
@@ -278,10 +361,15 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None,
     # timestamp is the only clue to its contents, and that timestamp lies
     # whenever a source CSV is regenerated moments later.
     lines = [f"Bundle built {now:%Y-%m-%d %H:%M:%S}",
+             f"Contents: {kind}",
              f"Total rows: {len(merged):,}",
-             f"Handle collisions disambiguated: {handle_fixes}", "", "Sources:"]
+             f"Handle collisions disambiguated: {handle_fixes}"]
+    if exclude_skus is not None:
+        lines += [f"Rows skipped as already in the store: {total_dropped:,}",
+                  f"Store SKUs compared against: {len(exclude_skus):,}"]
+    lines += ["", "Sources:"]
     lines += [f"  {m:%Y-%m-%d %H:%M}  {r:7,d}  {_repo_rel(p)}"
-              for p, r, m in manifest]
+              for p, r, m, _sr, _d in manifest]
     lines += ["", "Parts:"]
     lines += [f"  {p.name}" for p in out_files]
     (out_dir / "manifest.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -302,9 +390,25 @@ def main():
                          "there because that gap is invisible in the finished bundle — "
                          "it is newer than everything in it and still carries the old "
                          "data.")
+    ap.add_argument("--known-skus", metavar="FILE",
+                    help="JSON file holding the SKUs already in the store (a list, or "
+                         "an object with a 'skus' key — the shape "
+                         "production/store_skus.py writes). Only products NOT in that "
+                         "set are bundled, so the import creates products instead of "
+                         "re-uploading the whole catalogue. Generate it with: "
+                         "python ../../production/store_skus.py --out skus.json")
     args = ap.parse_args()
 
-    _, error = prepare_upload_files(dry_run=args.dry_run, allow_stale=args.allow_stale)
+    exclude = None
+    if args.known_skus:
+        import json
+        with open(args.known_skus, encoding="utf-8") as fh:
+            doc = json.load(fh)
+        exclude = set(doc["skus"] if isinstance(doc, dict) else doc)
+        print(f"Filtering against {len(exclude):,} SKUs already in the store.")
+
+    _, error = prepare_upload_files(dry_run=args.dry_run, allow_stale=args.allow_stale,
+                                    exclude_skus=exclude)
     if error:
         print(f"ERROR: {error}")
         sys.exit(1)
