@@ -18,6 +18,16 @@ import streamlit as st
 
 _STATUS_LOCK = threading.Lock()
 
+# Per-supplier markup lives in shared/markup.py — the same module the supplier
+# pipelines and the production run price from, so what the client saves here is
+# exactly what both of them use. Loaded by path: shared/ is not on sys.path.
+import importlib.util as _ilu
+
+_markup_spec = _ilu.spec_from_file_location(
+    "_sbot_markup", str(Path(__file__).parent / "shared" / "markup.py"))
+markup = _ilu.module_from_spec(_markup_spec)
+_markup_spec.loader.exec_module(markup)
+
 # ── Constants ──────────────────────────────────────────────────────────────────
 BASE        = Path(__file__).parent
 STATUS_FILE = BASE / ".dashboard_status.json"
@@ -111,6 +121,9 @@ PIPELINES = {
         "label":        "Emerge Tires",
         "dir":          BASE / "emergetires",
         "script":       "run_pipeline.py",
+        # this pipeline's directory is "emergetires" but every pricing layer
+        # keys the supplier as "emerge" — see markup_key_for()
+        "markup_key":   "emerge",
         "always_skip":  ["create_tires"],
         "scrape_steps": ["scraper"],
         "color":        "violet",
@@ -255,6 +268,42 @@ def launch(key: str, cmd: list, cwd: Path):
     })
     threading.Thread(target=_wait_and_finish, args=(key, proc, f), daemon=False).start()
 
+PRODUCTION = BASE.parent / "production"
+
+# production/ is driven as a subprocess rather than imported. Both this project
+# and production/ have a module named `config` (pipelines/shared/config.py is
+# already on sys.path above, for upload_bundle), so importing production's
+# modules here would let `import config` inside them bind to the wrong file
+# depending on sys.path order — and the wrong one still *works*, silently, with
+# different markup and different store credentials. A subprocess gets
+# production/ as its own cwd and its own resolution.
+def _production_json(script: str, args: list[str], timeout: int = 180):
+    """Run a production/ helper with --json and parse its stdout.
+
+    Returns (payload, error_message) — exactly one is None.
+    """
+    env = os.environ.copy()
+    env["PYTHONUTF8"] = "1"
+    try:
+        proc = subprocess.run(
+            [sys.executable, script, *args, "--json"],
+            cwd=str(PRODUCTION), capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=timeout, env=env,
+        )
+    except subprocess.TimeoutExpired:
+        return None, f"{script} timed out after {timeout}s."
+    except OSError as e:
+        return None, f"Could not run {script}: {e}"
+    # preflight exits 1 when a check fails, which is a result, not a crash —
+    # so parse stdout first and only treat unparseable output as an error.
+    try:
+        return json.loads(proc.stdout), None
+    except ValueError:
+        detail = (proc.stderr or proc.stdout or "").strip()
+        return None, f"{script} produced no usable output:\n{detail[-1500:]}"
+
+
+
 # ── UI helpers ─────────────────────────────────────────────────────────────────
 def status_badge(s: dict, running: bool):
     if running:
@@ -383,6 +432,9 @@ def sidebar_status():
     if status.get("enrich", {}).get("status") or is_running("enrich", status):
         st.sidebar.divider()
         _line("Enrichment", status.get("enrich", {}), is_running("enrich", status))
+    if status.get("sync", {}).get("status") or is_running("sync", status):
+        st.sidebar.divider()
+        _line("Shopify sync", status.get("sync", {}), is_running("sync", status))
 
 sidebar_status()
 
@@ -410,6 +462,94 @@ st.divider()
 st.header("Step 2 — Run Supplier Pipelines")
 st.caption("Run each supplier. Pipelines run in the background — you can close this browser tab if you'd like.")
 st.warning("⚠️  Do not turn off or restart the computer while pipelines are running — this kills any scrape in progress.")
+
+def markup_key_for(key: str) -> str:
+    """Dashboard pipeline key → the supplier key the pricing layers use."""
+    return PIPELINES[key].get("markup_key", key)
+
+
+# Deliberately NOT an st.fragment(run_every=...): the surrounding sections
+# auto-refresh every 2s, which would reset these inputs mid-edit.
+def markup_section():
+    st.subheader("Markup")
+    st.caption(
+        "How much is added to each supplier's **cost** price to get the selling "
+        "price. Set this before running a pipeline below — prices are calculated "
+        "while the pipeline runs, so a change made afterwards has no effect until "
+        "you run it again."
+    )
+
+    try:
+        rules = markup.load()
+    except markup.MarkupConfigError as e:
+        st.error(f"Markup settings could not be read, so nothing here is safe to run: {e}")
+        st.caption(f"Fix or delete `{markup.OVERRIDES_FILE}` and reload this page.")
+        return
+
+    status  = load_status()
+    running = [PIPELINES[k]["label"] for k in PIPELINES if is_running(k, status)]
+    if running:
+        # A markup edit mid-run would apply to whichever pipelines hadn't reached
+        # their pricing step yet, silently splitting one run across two tables.
+        st.info(f"Markup is locked while a pipeline is running ({', '.join(running)}).")
+
+    with st.form("markup_form"):
+        head = st.columns([3, 3, 2, 3])
+        head[1].markdown("**Type**")
+        head[2].markdown("**Amount**")
+        head[3].markdown("**A $100 cost sells for**")
+
+        chosen = {}
+        for key, cfg in PIPELINES.items():
+            mk   = markup_key_for(key)
+            rule = rules.get(mk, {"mode": markup.DOLLAR, "value": 0.0})
+            cols = st.columns([3, 3, 2, 3])
+
+            cols[0].markdown(f"{cfg['icon']} **{cfg['label']}**")
+            mode = cols[1].radio(
+                f"{cfg['label']} markup type",
+                [markup.DOLLAR, markup.PERCENT],
+                index=0 if rule["mode"] == markup.DOLLAR else 1,
+                format_func=lambda m: "$ per tire" if m == markup.DOLLAR else "% of cost",
+                key=f"markup_mode_{mk}",
+                horizontal=True,
+                label_visibility="collapsed",
+                disabled=bool(running),
+            )
+            value = cols[2].number_input(
+                f"{cfg['label']} markup amount",
+                min_value=0.0,
+                max_value=float(markup.MAX_PERCENT if mode == markup.PERCENT else markup.MAX_DOLLAR),
+                value=float(rule["value"]),
+                step=0.50,
+                format="%.2f",
+                key=f"markup_value_{mk}",
+                label_visibility="collapsed",
+                disabled=bool(running),
+            )
+            # Worked example against the values as they were last saved, so the
+            # client can see what a dollar vs percent choice actually does.
+            cols[3].markdown(f"`${markup.price_with_markup(100.0, mk, rules):,.2f}`"
+                             f" &nbsp;({markup.describe(mk, rules)})", unsafe_allow_html=True)
+            # Left uncoerced on purpose: keyed widgets need session state, so on a
+            # bare `import dashboard` (the tests do this) they hand back a sentinel
+            # rather than a number. Coerced below, where a real run is guaranteed.
+            chosen[mk] = {"mode": mode, "value": value}
+
+        saved = st.form_submit_button("Save markup", type="primary", disabled=bool(running))
+
+    if saved:
+        merged = dict(rules)          # keep suppliers that have no dashboard card
+        merged.update({mk: {"mode": str(r["mode"]), "value": float(r["value"])}
+                       for mk, r in chosen.items()})
+        try:
+            markup.save(merged)
+        except markup.MarkupConfigError as e:
+            st.error(f"Not saved — {e}")
+        else:
+            st.success("Markup saved. It applies to the next pipeline run.")
+            st.rerun()
+
 
 def pipeline_args(key: str, cfg: dict) -> list:
     """Build run_pipeline.py args for a supplier from its checkbox state."""
@@ -523,6 +663,8 @@ def step2_section():
 
         show_log(s, label=f"View log — {cfg['label']}", expanded=running)
 
+markup_section()
+st.write("")
 step2_section()
 st.divider()
 
@@ -856,7 +998,7 @@ def collect_source_csvs() -> list[Path]:
     """Return the most recent Shopify_SEO_*.csv per product-type per supplier."""
     return _upload_bundle.collect_source_csvs([cfg["dir"] for cfg in PIPELINES.values()])
 
-def prepare_upload_files() -> tuple[list[Path], str]:
+def prepare_upload_files(exclude_skus=None) -> tuple[list[Path], str]:
     """Merge all supplier CSVs, split at 15 MB, write to a dated upload_ready/ folder.
 
     Delegates to pipelines/shared/upload_bundle.py so the button here and the
@@ -864,24 +1006,79 @@ def prepare_upload_files() -> tuple[list[Path], str]:
     recording which source CSV each bundle was built from — without it, a
     bundle's folder timestamp is the only clue to its contents, and that lies
     whenever a supplier CSV is regenerated moments after a build.
+
+    exclude_skus: when given, products already in the store are left out and the
+    bundle contains only what the import needs to create.
     """
     return _upload_bundle.prepare_upload_files(
-        [cfg["dir"] for cfg in PIPELINES.values()])
+        [cfg["dir"] for cfg in PIPELINES.values()], exclude_skus=exclude_skus)
 
 
 # Show existing upload_ready folders — sort by actual mtime, not folder name (names like "9 July" sort after "10 July" alphabetically)
 existing_runs = sorted(UPLOAD_READY.glob("*/"), key=lambda p: p.stat().st_mtime, reverse=True) if UPLOAD_READY.exists() else []
 
+def _store_sku_set() -> tuple[set, dict | None, str | None]:
+    """SKUs already in the store, read from the catalog mirror via production/.
+
+    The SKU list is written to a file rather than returned on stdout — 13k SKUs
+    is a few hundred KB, and piping that through a pipe just to parse it back
+    is needless.
+    """
+    import tempfile  # noqa: PLC0415
+    tmp = Path(tempfile.gettempdir()) / "sbot_store_skus.json"
+    meta, err = _production_json("store_skus.py", ["--out", str(tmp)], timeout=180)
+    if err:
+        return set(), None, err
+    try:
+        doc = json.loads(tmp.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        return set(), meta, f"Could not read the store SKU list: {e}"
+    return set(doc.get("skus", [])), meta, None
+
+
+# Which products go in the bundle. "New only" is the default because an import
+# exists to CREATE products: re-uploading the ~15.6k that already exist changes
+# nothing in the store (price and quantity are the Sync button's job) and turns
+# a single 4 MB file into several 15 MB ones that take far longer to import.
+bundle_mode = st.radio(
+    "What to include",
+    ["New products only (not yet in the store)", "All products"],
+    index=0, horizontal=True, key="bundle_mode",
+    help="New-only compares the supplier CSVs against the store's SKUs, using the "
+         "catalog mirror that the Sync button refreshes on every run.",
+)
+new_only = bundle_mode.startswith("New")
+
 col_btn, col_info = st.columns([2, 5])
 with col_btn:
     if st.button("📦  Prepare Upload Files", use_container_width=True, type="primary"):
-        with st.spinner("Merging CSVs…"):
-            files, err = prepare_upload_files()
-        if err:
-            st.error(err)
+        exclude, meta, sku_err = (set(), None, None)
+        if new_only:
+            with st.spinner("Reading the SKUs already in the store…"):
+                exclude, meta, sku_err = _store_sku_set()
+        if sku_err:
+            st.error(sku_err)
+        elif new_only and not exclude:
+            st.error(
+                "The catalog mirror is empty, so every product would look new. "
+                "Run Step 5 → Preview once (it refreshes the mirror from Shopify), "
+                "then try again."
+            )
         else:
-            st.success(f"Ready — {len(files)} file(s) generated.")
-        st.rerun()
+            with st.spinner("Merging CSVs…"):
+                files, err = prepare_upload_files(
+                    exclude_skus=exclude if new_only else None)
+            if err:
+                st.error(err)
+            else:
+                kind = "new product" if new_only else "product"
+                st.success(f"Ready — {len(files)} {kind} file(s) generated.")
+            st.rerun()
+    if new_only:
+        st.caption(
+            "Compares against the store, so only products Shopify doesn't have "
+            "are included."
+        )
 with col_info:
     _sources = collect_source_csvs()
     source_count = len(_sources)
@@ -906,6 +1103,27 @@ with col_info:
         if _pending:
             st.caption(f"⚠️  {_pending} row(s) could still be enriched in Step 3 above. "
                        f"Bundling now ships them without an image.")
+
+        # How current the new-vs-existing comparison is. The mirror is refreshed
+        # by Step 5's catalog export, so a client who has not synced in a while
+        # would re-import products that already exist — harmless (Shopify matches
+        # on Handle and updates) but slow and confusing. Say it up front.
+        if new_only:
+            _mirror = st.session_state.get("bundle_mirror_meta")
+            if _mirror is None:
+                _mirror, _ = _production_json("store_skus.py", [], timeout=120)
+                st.session_state["bundle_mirror_meta"] = _mirror or {}
+            _age = (_mirror or {}).get("age_hours")
+            _count = (_mirror or {}).get("count")
+            if _count:
+                _line = f"Comparing against {_count:,} SKUs in `{_mirror.get('shop','the store')}`"
+                if _age is not None:
+                    _line += f", last refreshed {_age} h ago."
+                if _age is not None and _age > 24:
+                    st.warning(_line + " Run Step 5 → Preview to refresh it, or products "
+                                       "created since will be bundled as new again.")
+                else:
+                    st.caption(_line)
     else:
         st.caption("No supplier CSVs found yet — run Step 2 first.")
 
@@ -957,6 +1175,192 @@ else:
 
 st.divider()
 
+# ─── Step 5: Sync prices + inventory ───────────────────────────────────────────
+st.header("Step 5 — Sync Prices & Inventory to Shopify")
+st.caption(
+    "Pushes the merged supplier prices and quantities straight to the store over the "
+    "Shopify API — no CSV, no manual import. Only what actually changed is sent."
+)
+
+_SYNC_KEY = "sync"
+
+def sync_section():
+    status  = load_status()
+    running = is_running(_SYNC_KEY, status)
+    s       = status.get(_SYNC_KEY, {})
+
+    # ── what this would write to ───────────────────────────────────────────────
+    # Everything shown here comes from the readiness check, which is the same
+    # preflight module the run itself uses — so this panel cannot disagree with
+    # where the write actually lands. Deliberately NOT recomputed on render:
+    # Streamlit re-runs this script on every widget interaction, and spawning a
+    # subprocess each time made the whole page sluggish for a line of text.
+    preflight = st.session_state.get("sync_preflight") or {}
+    def _row(name):
+        return next((c for c in preflight.get("checks", []) if c["check"] == name), None)
+
+    shop_row  = _row("shopify_reachable")
+    warehouse = _row("warehouse")
+    is_dev    = bool(shop_row.get("is_dev")) if shop_row else None
+    shop_name = shop_row.get("shop") if shop_row else None
+
+    c1, c2 = st.columns([3, 2])
+    with c1:
+        if shop_name:
+            badge = "🧪 DEV store" if is_dev else "🔴 LIVE store"
+            st.markdown(f"**Target store:** `{shop_name}`  —  {badge}")
+        else:
+            st.markdown("**Target store:** _run the readiness check below to confirm_")
+    with c2:
+        if warehouse:
+            st.markdown(f"**Run history:** {warehouse['detail']}")
+
+    # ── readiness ──────────────────────────────────────────────────────────────
+    st.subheader("1. Check readiness")
+    st.caption(
+        "Confirms the store answers, the token can write prices and inventory, the "
+        "primary location is unambiguous, and the supplier CSVs are fresh enough."
+    )
+    if st.button("🩺  Check readiness", disabled=running, use_container_width=False,
+                 type="primary"):
+        with st.spinner("Checking store, token, warehouse and supplier feeds…"):
+            payload, err = _production_json("preflight.py", [], timeout=120)
+        st.session_state["sync_preflight"] = payload
+        st.session_state["sync_preflight_err"] = err
+        st.rerun()
+
+    if st.session_state.get("sync_preflight_err"):
+        st.error(st.session_state["sync_preflight_err"])
+    checks = (st.session_state.get("sync_preflight") or {}).get("checks")
+    if checks:
+        icon = {"ok": "✅", "warning": "⚠️", "failed": "❌"}
+        blocking = [c for c in checks if c["status"] == "failed"]
+        stale    = [c for c in checks if c["check"].startswith("feed:") and c["status"] != "ok"]
+        with st.expander(
+                f"Readiness — {len(blocking)} blocking, {len(stale)} feed warning(s)",
+                expanded=bool(blocking)):
+            for c in checks:
+                st.markdown(f"{icon[c['status']]}  **{c['check']}** — {c['detail']}")
+        if stale and not any(c["check"].startswith("feed:") is False and c["status"] == "failed"
+                             for c in checks):
+            st.warning(
+                "Some supplier CSVs are older than the freshness limit. Syncing now would "
+                "push prices and quantities from those older files — re-run Step 2 for "
+                "those suppliers first, or tick the override below if that is intended."
+            )
+
+    # ── options ────────────────────────────────────────────────────────────────
+    st.subheader("2. Choose what to sync")
+    opt1, opt2 = st.columns([2, 3])
+    with opt1:
+        types = st.multiselect("Product types", ["tires", "wheels"],
+                               default=["tires", "wheels"], disabled=running,
+                               key="sync_types")
+    with opt2:
+        force = st.checkbox(
+            "Sync even if the safety gates fail (stale or short feeds)",
+            value=False, disabled=running, key="sync_force",
+            help="The gates stop a broken or half-finished scrape from repricing or "
+                 "zeroing the store. Only override when you know the feeds are correct.")
+
+    # ── run ────────────────────────────────────────────────────────────────────
+    st.subheader("3. Run")
+    if not types:
+        st.info("Pick at least one product type above.")
+        return
+
+    def _cmd(dry: bool) -> list:
+        # create_products is skipped: new products still go through Step 4's CSV
+        # upload. This button changes prices and quantities on products that
+        # already exist in the store, and nothing else.
+        cmd = [sys.executable, "run_weekly.py", "--skip", "create_products",
+               "--type", *types]
+        if dry:
+            cmd.append("--dry-run")
+        if force:
+            cmd.append("--force")
+        return cmd
+
+    run1, run2 = st.columns(2)
+    with run1:
+        if st.button("🔍  Preview changes (writes nothing)", disabled=running,
+                     use_container_width=True, type="primary"):
+            launch(_SYNC_KEY, _cmd(dry=True), PRODUCTION)
+            st.rerun()
+        st.caption("Runs the whole sync and records every change it *would* make.")
+
+    with run2:
+        # A preview is cheap and reversible; an apply is neither. Require an
+        # explicit tick, and a second one when the target is not the dev store.
+        confirm = st.checkbox("I want to write these changes to the store",
+                              disabled=running, key="sync_confirm")
+        live_ok = True
+        if is_dev is False:
+            live_ok = st.checkbox(
+                f"⚠️  Yes — write to the LIVE store ({shop_name})",
+                disabled=running, key="sync_confirm_live")
+        elif is_dev is None:
+            live_ok = False
+
+        if st.button("🚀  Apply to store", disabled=running or not (confirm and live_ok),
+                     use_container_width=True, type="primary"):
+            launch(_SYNC_KEY, _cmd(dry=False), PRODUCTION)
+            st.rerun()
+        if is_dev is None:
+            st.caption("Run the readiness check first — it confirms which store this writes to.")
+        else:
+            st.caption("Sends the changes for real. Preview first.")
+
+    # ── progress + result ──────────────────────────────────────────────────────
+    st.write("")
+    status_badge(s, running)
+    if running:
+        st.caption(
+            "Running in the background — you can close this tab. The catalog export "
+            "alone takes a few minutes on a 10,000-product store."
+        )
+    show_log(s, label="View sync log", expanded=running)
+
+    if not running and s.get("status") in ("success", "failed"):
+        # Cached against the run's finish time for the same reason as the target
+        # panel above: the summary only changes when a run ends, but this script
+        # re-runs on every click.
+        cache_key = f"sync_summary::{s.get('finished')}"
+        if cache_key not in st.session_state:
+            st.session_state[cache_key] = _production_json("report.py", [], timeout=90)
+        summary, err = st.session_state[cache_key]
+        if err:
+            st.caption("Could not read the run summary.")
+            return
+        run = (summary or {}).get("run") or {}
+        if not run:
+            return
+        mode_label = "PREVIEW — nothing was written" if run.get("mode") == "dry_run" \
+                     else "APPLIED to the store"
+        st.markdown(f"**Last run #{run['run_id']}** — {run['status']} · {mode_label}")
+
+        counts = {}
+        for a in summary.get("actions", []):
+            counts[a["action"]] = counts.get(a["action"], 0) + a["n"]
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Price changes",   counts.get("price_update", 0))
+        m2.metric("Quantity updates", counts.get("inventory_set", 0))
+        m3.metric("Zeroed (no longer supplied)", counts.get("inventory_zero", 0))
+
+        failed = sum(a["n"] for a in summary.get("actions", []) if a["status"] == "failed")
+        if failed:
+            st.error(f"{failed} change(s) failed — see the log above.")
+
+        gates = summary.get("failed_gates") or []
+        if gates:
+            with st.expander(f"⚠️  {len(gates)} validation gate(s) did not pass"):
+                for g in gates:
+                    st.markdown(f"- **{g['check_name']}** ({g['severity']}) — `{g['details']}`")
+
+sync_section()
+
+st.divider()
+
 # ─── Reset stuck state ─────────────────────────────────────────────────────────
 @st.fragment(run_every=5)
 def reset_section():
@@ -966,8 +1370,9 @@ def reset_section():
             "click the button below to clear its stale status."
         )
         _reset_status = load_status()
-        _all_keys     = ["cookies"] + list(PIPELINES) + ["enrich_scan", "enrich"]
-        _extra_labels = {"enrich_scan": "Enrichment scan", "enrich": "Enrichment"}
+        _all_keys     = ["cookies"] + list(PIPELINES) + ["enrich_scan", "enrich", "sync"]
+        _extra_labels = {"enrich_scan": "Enrichment scan", "enrich": "Enrichment",
+                         "sync": "Shopify sync"}
         stuck = [k for k in _all_keys if _reset_status.get(k, {}).get("status") == "running"
                  and not pid_alive(_reset_status[k].get("pid"))]
         if not stuck:

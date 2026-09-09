@@ -1,3 +1,4 @@
 requests>=2.31
 pandas>=2.0
 python-dotenv>=1.0
+duckdb>=1.0        # local warehouse backend (SBOT_WAREHOUSE=local)

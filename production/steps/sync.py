@@ -46,7 +46,7 @@ def _shopify_types_sql(ctx):
 # ── prices ─────────────────────────────────────────────────────────────────────
 def run_prices(ctx, shopify, dry_run):
     with ctx.step("sync_prices") as step:
-        diff = ctx.hasura.select(f"""
+        diff = ctx.wh.select(f"""
             select ms.sku, sp.product_id, sp.variant_id,
                    sp.current_price::float as old_price,
                    round(ms.merged_price, 2)::float as new_price
@@ -61,7 +61,7 @@ def run_prices(ctx, shopify, dry_run):
                   is distinct from sp.current_price
             order by ms.sku;
         """)
-        unmapped = ctx.hasura.select_one(f"""
+        unmapped = ctx.wh.select_one(f"""
             select count(*)::int as n from merged_snapshot ms
             where ms.run_id = {ctx.run_id}
               and ms.product_type in ({_types_sql(ctx)})
@@ -74,29 +74,48 @@ def run_prices(ctx, shopify, dry_run):
                      f"not created by create_products, e.g. no SEO definition)")
 
         breaker = CircuitBreaker(ctx.log)
-        actions, applied = [], 0
-        for row in diff:
-            status, error = ("dry_run", None)
-            if not dry_run:
-                try:
-                    shopify.update_variant_price(row["product_id"], row["variant_id"],
-                                                 float(row["new_price"]))
-                    status = "applied"
-                except ShopifyError as e:
-                    status, error = "failed", str(e)[:500]
-                breaker.record(status == "applied")
-            applied += status in ("applied", "dry_run")
-            actions.append({"sku": row["sku"], "action": "price_update",
-                            "old_value": str(row["old_price"]), "new_value": str(row["new_price"]),
-                            "status": status, "error": error})
-            if len(actions) >= 500:
-                ctx.record_sync_actions(actions)
-                actions = []
-                ctx.log.info(f"  price sync progress: {breaker.done}/{len(diff)}")
-        ctx.record_sync_actions(actions)
+        applied = 0
+
+        # Pushed in aliased batches (core/shopify_gql.py::update_prices_batched)
+        # rather than one HTTP request per SKU — a full reprice is thousands of
+        # SKUs and the per-request latency, not Shopify's cost budget, was the
+        # binding constraint.
+        #
+        # The outer chunk exists for the circuit breaker: it can only abort work
+        # that has not been sent yet, so results have to come back periodically
+        # rather than once at the end. 500 keeps that check frequent while still
+        # collapsing ~500 round-trips into ~20.
+        CHUNK = 500
+        for start in range(0, len(diff), CHUNK):
+            rows = diff[start:start + CHUNK]
+            if dry_run:
+                statuses = [("dry_run", None)] * len(rows)
+            else:
+                # results come back in input order, one entry per SKU
+                results = shopify.update_prices_batched(
+                    [(r["sku"], r["product_id"], r["variant_id"], float(r["new_price"]))
+                     for r in rows])
+                statuses = [("applied", None) if ok else ("failed", err)
+                            for _sku, ok, err in results]
+                for status, _ in statuses:
+                    breaker.record(status == "applied")
+
+            applied += sum(1 for s, _ in statuses if s in ("applied", "dry_run"))
+            ctx.record_sync_actions([
+                {"sku": r["sku"], "action": "price_update",
+                 "old_value": str(r["old_price"]), "new_value": str(r["new_price"]),
+                 "status": statuses[j][0], "error": statuses[j][1]}
+                for j, r in enumerate(rows)
+            ])
+            for j, (status, error) in enumerate(statuses):
+                if status == "failed":
+                    ctx.log.warning(f"  price failed SKU {rows[j]['sku']}: {str(error)[:200]}")
+            ctx.log.info(f"  price sync progress: {min(start + CHUNK, len(diff))}/{len(diff)}")
 
         step.rows_out = applied
         step.details["failed"] = breaker.failed
+        if not dry_run:
+            step.details["shopify_cost"] = shopify.cost_summary()
         ctx.log.info(f"Price sync done: {applied} {'previewed' if dry_run else 'applied'}, "
                      f"{breaker.failed} failed")
     return applied
@@ -105,7 +124,7 @@ def run_prices(ctx, shopify, dry_run):
 # ── inventory ──────────────────────────────────────────────────────────────────
 def run_inventory(ctx, shopify, dry_run):
     with ctx.step("sync_inventory") as step:
-        sets = ctx.hasura.select(f"""
+        sets = ctx.wh.select(f"""
             select ms.sku, sp.inventory_item_id,
                    sp.current_qty::int as old_qty, ms.merged_qty::int as new_qty
             from merged_snapshot ms
@@ -115,7 +134,7 @@ def run_inventory(ctx, shopify, dry_run):
               and ms.merged_qty is distinct from sp.current_qty
             order by ms.sku;
         """)
-        zeros = ctx.hasura.select(f"""
+        zeros = ctx.wh.select(f"""
             select sp.sku, sp.inventory_item_id, sp.current_qty::int as old_qty
             from shopify_products sp
             where sp.product_type in ({_shopify_types_sql(ctx)})
@@ -176,6 +195,8 @@ def run_inventory(ctx, shopify, dry_run):
         step.rows_out = applied
         step.details.update({"qty_changes": len(sets), "zero_outs": len(zeros),
                              "failed": breaker.failed})
+        if not dry_run:
+            step.details["shopify_cost"] = shopify.cost_summary()
         ctx.log.info(f"Inventory sync done: {applied} {'previewed' if dry_run else 'applied'}, "
                      f"{breaker.failed} failed")
     return applied

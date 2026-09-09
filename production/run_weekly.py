@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """Weekly production run — Save Big On Tires.
 
-GraphQL-only pipeline: supplier CSVs → Neon warehouse (via Hasura) → validated
-diff sync to Shopify (GraphQL Admin API). Designed for unattended cron on the
-Oracle VM; every run and every change is recorded in the warehouse.
+GraphQL-only pipeline: supplier CSVs → warehouse → validated diff sync to
+Shopify (GraphQL Admin API). Designed for unattended cron on the Oracle VM;
+every run and every change is recorded in the warehouse.
+
+The warehouse is Hasura/Neon in the cloud and an embedded DuckDB file when run
+locally (SBOT_WAREHOUSE, default 'local' — see core/warehouse.py). Every step
+below is identical either way, which is what makes the dashboard's Sync button
+a rehearsal of the cron run rather than a lookalike of it.
 
 Steps: [scrape] → catalog → ingest → merge → validate → create_products
        → sync_prices → sync_inventory

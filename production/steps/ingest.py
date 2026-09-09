@@ -169,7 +169,7 @@ def run(ctx, suppliers=None):
                 if rows:
                     for r in rows:
                         r["run_id"] = ctx.run_id
-                    inserted = ctx.hasura.insert_many("supplier_staging", rows)
+                    inserted = ctx.wh.insert_many("supplier_staging", rows)
                     total += inserted
         step.rows_out = total
         step.details["feeds"] = all_meta

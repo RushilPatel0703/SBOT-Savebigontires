@@ -69,7 +69,7 @@ def _types_sql(ctx):
 
 def run(ctx, shopify, dry_run):
     with ctx.step("create_products") as step:
-        new = ctx.hasura.select(f"""
+        new = ctx.wh.select(f"""
             select ms.product_type, ms.sku,
                    ms.merged_price::float as price, ms.merged_qty::int as qty
             from merged_snapshot ms
@@ -118,7 +118,7 @@ def run(ctx, shopify, dry_run):
             ctx.record_sync_actions(actions)
             actions.clear()
             if mirror_rows:
-                ctx.hasura.insert_many("shopify_products", mirror_rows)
+                ctx.wh.insert_many("shopify_products", mirror_rows)
                 mirror_rows.clear()
 
         for row in new:

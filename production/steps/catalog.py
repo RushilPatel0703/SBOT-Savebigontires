@@ -47,33 +47,12 @@ def run(ctx, shopify):
                 "last_run_id": ctx.run_id,
             })
 
-        # upsert mirror
-        mutation = """
-        mutation($objects: [shopify_products_insert_input!]!) {
-          insert_shopify_products(
-            objects: $objects,
-            on_conflict: {
-              constraint: shopify_products_pkey,
-              update_columns: [product_id, variant_id, inventory_item_id, handle,
-                               title, product_type, tags, current_price, current_qty,
-                               refreshed_at, last_run_id]
-            }
-          ) { affected_rows }
-        }"""
-        upserted = 0
-        chunk = config.HASURA_INSERT_CHUNK
-        for i in range(0, len(rows), chunk):
-            data = ctx.hasura.graphql(mutation, {"objects": rows[i:i + chunk]})
-            upserted += data["insert_shopify_products"]["affected_rows"]
-
-        # remove mirror rows for products no longer in the store
-        deleted = ctx.hasura.graphql(
-            """
-            mutation($run_id: bigint!) {
-              delete_shopify_products(where: {last_run_id: {_neq: $run_id}}) { affected_rows }
-            }""",
-            {"run_id": ctx.run_id},
-        )["delete_shopify_products"]["affected_rows"]
+        # upsert mirror, then remove mirror rows for products no longer in the
+        # store. Both are warehouse-backend calls rather than inline GraphQL:
+        # Hasura reaches them through auto-generated mutations and DuckDB
+        # through `on conflict do update`, and this step should not care which.
+        upserted = ctx.wh.upsert_shopify_products(rows)
+        deleted  = ctx.wh.delete_stale_shopify_products(ctx.run_id)
 
         step.rows_out = len(rows)
         step.details.update({"no_sku_variants": no_sku, "duplicate_skus": dupes,

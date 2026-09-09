@@ -16,3 +16,11 @@ python-dotenv
 # to trusting SerpAPI's metadata, which cannot tell a real photo from a placeholder.
 Pillow
 numpy
+
+# Embedded warehouse behind the dashboard's "Sync Prices & Inventory" button
+# (production/core/local_warehouse.py). Runs the same merge/validate/sync SQL the
+# cloud run executes on Neon, with no database server to install. Chosen over
+# SQLite because the step SQL uses Postgres constructs SQLite lacks — filter
+# (where ...), string_agg(... order by ...), ::casts — and forking that SQL per
+# backend is exactly the duplication the warehouse split exists to prevent.
+duckdb

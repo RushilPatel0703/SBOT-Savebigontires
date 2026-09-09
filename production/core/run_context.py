@@ -6,9 +6,11 @@ Owns:
   - per-step bookkeeping in run_steps (timings, row counts, errors)
   - a logger writing to console + logs/run_<ts>.log
 
-DB bookkeeping is written through Hasura. If a bookkeeping write fails the run
-continues (the file log is the fallback record) — but data-path writes elsewhere
-are never best-effort.
+DB bookkeeping goes through whichever warehouse backend is configured (see
+core/warehouse.py) — Hasura/Neon in the cloud, an embedded DuckDB file behind
+the dashboard's Sync button. If a bookkeeping write fails the run continues (the
+file log is the fallback record) — but data-path writes elsewhere are never
+best-effort.
 """
 
 import getpass
@@ -19,7 +21,7 @@ from contextlib import contextmanager
 from datetime import datetime
 
 import config
-from core.hasura import Hasura, HasuraError
+from core.warehouse import get_warehouse
 
 
 def make_logger(name):
@@ -48,29 +50,27 @@ class StepFailed(Exception):
 
 
 class RunContext:
-    def __init__(self, mode, product_types, hasura=None, logger=None):
+    def __init__(self, mode, product_types, warehouse=None, logger=None):
         self.mode          = mode                       # live | dry_run
         self.product_types = list(product_types)
-        self.hasura        = hasura or Hasura()
         self.log           = logger or make_logger("run")
+        self.wh            = warehouse or get_warehouse(logger=self.log)
         self.stats         = {}
 
-        data = self.hasura.graphql(
-            """
-            mutation($mode: String!, $by: String, $types: [String!]!) {
-              insert_pipeline_runs_one(object: {
-                mode: $mode, triggered_by: $by, product_types: $types
-              }) { run_id started_at }
-            }
-            """,
-            {
-                "mode": mode,
-                "by": f"{getpass.getuser()}@{socket.gethostname()}",
-                "types": self.product_types,
-            },
-        )["insert_pipeline_runs_one"]
-        self.run_id = data["run_id"]
+        self.log.info(f"Warehouse: {self.wh.describe()}")
+        self.run_id = self.wh.start_run(
+            mode=mode,
+            triggered_by=f"{getpass.getuser()}@{socket.gethostname()}",
+            product_types=self.product_types,
+        )
         self.log.info(f"Run #{self.run_id} started — mode={mode}, types={self.product_types}")
+
+    # Steps written against the old Hasura-only context still say ctx.hasura.
+    # It is the same object; the name just stopped being accurate once a run
+    # could be backed by DuckDB.
+    @property
+    def hasura(self):
+        return self.wh
 
     # ── step bookkeeping ───────────────────────────────────────────────────────
     @contextmanager
@@ -88,35 +88,10 @@ class RunContext:
             rec.finish("success")
 
     def _insert_step(self, name):
-        try:
-            return self.hasura.graphql(
-                """
-                mutation($run_id: bigint!, $step: String!) {
-                  insert_run_steps_one(object: {run_id: $run_id, step: $step}) { id }
-                }""",
-                {"run_id": self.run_id, "step": name},
-            )["insert_run_steps_one"]["id"]
-        except HasuraError as e:
-            self.log.warning(f"run_steps bookkeeping insert failed: {e}")
-            return None
+        return self.wh.insert_step(self.run_id, name)
 
     def _update_step(self, step_id, status, rows_in, rows_out, error, details):
-        if step_id is None:
-            return
-        try:
-            self.hasura.graphql(
-                """
-                mutation($id: bigint!, $set: run_steps_set_input!) {
-                  update_run_steps_by_pk(pk_columns: {id: $id}, _set: $set) { id }
-                }""",
-                {"id": step_id, "set": {
-                    "status": status, "finished_at": "now()",
-                    "rows_in": rows_in, "rows_out": rows_out,
-                    "error": error, "details": details or {},
-                }},
-            )
-        except HasuraError as e:
-            self.log.warning(f"run_steps bookkeeping update failed: {e}")
+        self.wh.update_step(step_id, status, rows_in, rows_out, error, details)
 
     # ── validation + audit writers ─────────────────────────────────────────────
     def record_validation(self, check_name, passed, severity="error", details=None):
@@ -127,11 +102,11 @@ class RunContext:
         (self.log.info if passed else
          self.log.warning if severity == "warning" else self.log.error)(line)
         try:
-            self.hasura.insert_many("validation_results", [{
+            self.wh.insert_many("validation_results", [{
                 "run_id": self.run_id, "check_name": check_name,
                 "severity": severity, "passed": passed, "details": details or {},
             }])
-        except HasuraError as e:
+        except Exception as e:
             self.log.warning(f"validation_results write failed: {e}")
 
     def record_sync_actions(self, actions):
@@ -140,23 +115,11 @@ class RunContext:
             return
         for a in actions:
             a["run_id"] = self.run_id
-        self.hasura.insert_many("sync_actions", actions)
+        self.wh.insert_many("sync_actions", actions)
 
     # ── finalize ───────────────────────────────────────────────────────────────
     def finalize(self, status, notes=None):
-        try:
-            self.hasura.graphql(
-                """
-                mutation($id: bigint!, $set: pipeline_runs_set_input!) {
-                  update_pipeline_runs_by_pk(pk_columns: {run_id: $id}, _set: $set) { run_id }
-                }""",
-                {"id": self.run_id, "set": {
-                    "status": status, "finished_at": "now()",
-                    "stats": self.stats, "notes": notes,
-                }},
-            )
-        except HasuraError as e:
-            self.log.warning(f"pipeline_runs finalize write failed: {e}")
+        self.wh.finalize_run(self.run_id, status, self.stats, notes)
         self.log.info(f"Run #{self.run_id} finished — status={status}")
         self.log.info(f"Stats: {json.dumps(self.stats, default=str)}")
 

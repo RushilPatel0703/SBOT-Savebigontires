@@ -8,7 +8,7 @@ GraphQL-only, warehouse-backed pipeline designed for unattended runs.
 supplier CSVs (existing pipelines/<supplier>/ scrape+clean — the raw layer)
       │  ingest
       ▼
-Neon Postgres  ◄── Hasura GraphQL (the only DB access path)
+warehouse  ◄── DuckDB file (local) OR Hasura/Neon (cloud) — same SQL either way
   supplier_staging → merged_snapshot → validation gates → diff vs shopify_products
       │  sync (only changed values)
       ▼
@@ -34,13 +34,57 @@ Shopify GraphQL Admin API
   re-running a step re-computes from the same inputs. `inventorySetQuantities`
   sets absolute values, so replays are safe.
 
-## Setup
+## Two ways to run it
+
+The pipeline is one codebase with two warehouse backends behind
+`core/warehouse.py`. **The steps do not change between them** — same ingest, same
+merge, same markup, same safety gates, same diff — so what the client previews on
+their laptop is what the cron run applies.
+
+| | `SBOT_WAREHOUSE=local` (default) | `SBOT_WAREHOUSE=hasura` |
+|---|---|---|
+| storage | `production/Data/warehouse.duckdb` | Neon Postgres via Hasura |
+| needs | nothing but `pip install duckdb` | a live Hasura project + secrets |
+| driven by | the dashboard's **Step 5 — Sync** button | cron on the VM |
+| run history | in that file, queryable with `report.py` | in Neon, queryable in the console |
+
+### Setup — local (what the client uses today)
 ```bash
 cd production
 pip install -r requirements.txt
-cp .env.example .env        # fill in Hasura + Shopify credentials
+cp .env.example .env        # Shopify shop + Admin API token; leave SBOT_WAREHOUSE=local
+python preflight.py         # store reachable? token scoped? feeds fresh? location unambiguous?
+```
+No migration step: the DuckDB schema is applied automatically on first use.
+
+### Setup — cloud
+```bash
+cd production
+pip install -r requirements.txt
+cp .env.example .env        # + Hasura credentials, and set SBOT_WAREHOUSE=hasura
 python db/migrate.py        # apply schema to Neon + track tables in Hasura
 ```
+
+## Going from the dashboard button to an unattended cloud run
+
+The sync is deliberately *not* wired for automation yet. What is already done:
+the run is a single non-interactive command with a proper exit code, all
+configuration is env-driven, the warehouse is swappable, and `preflight.py`
+fails fast on a bad token or a suspended warehouse. What remains:
+
+1. **Point at the live store.** Set `SHOPIFY_SHOP` / `SHOPIFY_TOKEN` in `.env` to
+   the live shop and an Admin API token with `read_products`, `write_products`,
+   `read_inventory`, `write_inventory`, `read_locations`. Confirm with
+   `python preflight.py` — it prints which store it resolved and whether it
+   considers it dev or live.
+2. **Choose the warehouse.** Leave it `local` (the DuckDB file lives on the VM
+   and is the run history) or set `SBOT_WAREHOUSE=hasura` and run `db/migrate.py`.
+   Nothing else changes.
+3. **Schedule it.** See the cron block below. Run `--dry-run` on a schedule first
+   for a week and read `report.py` before letting it write.
+4. **Still manual, by design:** supplier cookie refresh (`pipelines/refresh_cookies.py`)
+   and new-product creation (the client uploads the Step 4 CSV bundle). Neither is
+   part of the price/inventory sync.
 
 ## Running
 ```bash
@@ -54,6 +98,18 @@ Steps: `catalog → ingest → merge → validate → create_products → sync_p
 (`--skip`, `--only`, `--from` compose as in the old pipelines).
 
 Exit code 0 = success; non-zero = failed/aborted (cron-friendly).
+
+```bash
+python preflight.py            # read-only readiness check; also --json, --no-store
+python report.py               # recent runs
+python report.py --run 12      # one run: steps, gates that failed, what it changed
+```
+
+### From the dashboard
+**Step 5 — Sync Prices & Inventory** runs exactly the command above
+(`run_weekly.py --skip create_products`), with `--dry-run` behind the *Preview*
+button. `create_products` is skipped there because new SKUs still go through the
+Step 4 CSV bundle, which remains the supported path for creating products.
 
 ## Weekly cron on the Oracle VM
 ```cron
@@ -101,5 +157,26 @@ delete from pipeline_runs where started_at < now() - interval '90 days';
 ```
 
 ## Thresholds
-All tunables live at the top of `config.py` (markup, freshness, qty-delta,
-zero-out cap, price bounds, circuit breaker). Change them there — not in step code.
+All tunables live at the top of `config.py` (freshness, qty-delta, zero-out cap,
+price bounds, circuit breaker). Change them there — not in step code.
+
+## Markup
+Markup is per supplier and is **not** edited in `config.py`. The client sets it
+before a run in the dashboard ("Step 2 — Markup"), which writes
+`pipelines/shared/Data/markup_overrides.json`. Each supplier is either a flat
+dollar amount on cost or a percentage of cost, never both:
+
+```json
+{"suppliers": {"dttire":  {"mode": "dollar",  "value": 46.50},
+               "formula": {"mode": "percent", "value": 22.0}}}
+```
+
+`pipelines/shared/markup.py` is the single definition — the supplier pipelines
+and this production run both load it, so an edit cannot reach one and miss the
+other. The merge step applies it inside `min()`, so `merged_snapshot.merged_price`
+is the FINAL selling price; nothing downstream may add markup again. Each run
+logs the table it priced with and records it in `run_steps.details`.
+
+A markup file that exists but won't parse is a hard failure rather than a
+fallback to the defaults — pricing off a stale table after an edit is the one
+outcome worse than stopping.

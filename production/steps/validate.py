@@ -43,7 +43,7 @@ def run(ctx, ingest_meta):
 
         # 2 — total qty delta vs last successful run
         for product_type in ctx.product_types:
-            row = ctx.hasura.select_one(f"""
+            row = ctx.wh.select_one(f"""
                 with prev as (
                     select coalesce(sum(ms.merged_qty), 0) as qty
                     from merged_snapshot ms
@@ -83,7 +83,7 @@ def run(ctx, ingest_meta):
         # 3 — zero-out cap: mapped catalog SKUs absent from this snapshot
         for product_type in ctx.product_types:
             shopify_type = config.SHOPIFY_PRODUCT_TYPE[product_type]
-            row = ctx.hasura.select_one(f"""
+            row = ctx.wh.select_one(f"""
                 select
                     count(*)::int as catalog,
                     count(*) filter (
@@ -99,8 +99,35 @@ def run(ctx, ingest_meta):
             catalog    = int(row["catalog"]) if row else 0
             would_zero = int(row["would_zero"]) if row else 0
             if catalog == 0:
-                ctx.record_validation(f"zero_out_cap:{product_type}", True, "warning",
-                                      {"note": "no products of this type in store"})
+                # A zero count here used to be recorded as a plain pass ("no
+                # products of this type in store"). That reads as reassurance
+                # while actually meaning the gate measured nothing — and the
+                # same mismatch also makes the zero-out sync a no-op, so
+                # discontinued products keep their stock forever.
+                #
+                # Distinguish the two causes: an empty mirror is genuinely
+                # nothing to check; a non-empty mirror in which no row carries
+                # this product_type is a configuration mismatch between
+                # config.SHOPIFY_PRODUCT_TYPE and what the store actually holds.
+                # Name the types that ARE present so it is fixable from the log.
+                present = ctx.wh.select("""
+                    select coalesce(nullif(product_type, ''), '(blank)') as product_type,
+                           count(*)::int as n
+                    from shopify_products group by 1 order by n desc;
+                """)
+                if not present:
+                    ctx.record_validation(f"zero_out_cap:{product_type}", True, "warning",
+                                          {"note": "catalog mirror is empty — nothing to check"})
+                else:
+                    ctx.record_validation(
+                        f"zero_out_cap:{product_type}", False, "warning", {
+                            "note": (f"no store product is typed "
+                                     f"'{shopify_type}', so this gate checked nothing "
+                                     f"and inventory_zero can never fire for "
+                                     f"{product_type}"),
+                            "expected_product_type": shopify_type,
+                            "product_types_in_store": {p["product_type"]: p["n"] for p in present},
+                        })
                 continue
             pct = would_zero / catalog * 100
             ok = pct <= config.MAX_ZERO_OUT_PCT
@@ -110,7 +137,7 @@ def run(ctx, ingest_meta):
             failures += not ok
 
         # 4 — price sanity on final prices (merged_price is already marked up)
-        row = ctx.hasura.select_one(f"""
+        row = ctx.wh.select_one(f"""
             select
                 count(*) filter (where merged_price is null or merged_price <= 0)::int as unpriced,
                 count(*) filter (where merged_price < {config.MIN_PRICE}
@@ -124,7 +151,7 @@ def run(ctx, ingest_meta):
         })
 
         # 5 — per-SKU price swing vs live store (warning only)
-        row = ctx.hasura.select_one(f"""
+        row = ctx.wh.select_one(f"""
             select count(*)::int as big_swings
             from merged_snapshot ms
             join shopify_products sp on sp.sku = ms.sku
