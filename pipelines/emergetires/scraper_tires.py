@@ -46,7 +46,7 @@ CA_BUNDLE = ca_bundle()
 _SIGNING_KEY = "5318f4ce4b9bab05c09df20c3d5d8d4c26570542501b1d58231159cd42e65505"
 
 # >>> Update when session expires (~2 weeks). Captured 2026-06 — verify in Phase 0.1.
-COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=Gjg2uck6Y7pl%2fZtRFx567g%3d%3d&UserID=d9abb481-b735-427a-82ac-ff694b0817b6; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.6.15.0&DbVersion=0005.0006.0015.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=aSADmAUVufHJuRK%2feXmZkCUj2Hjk5xjj4meRil9QOVDJ6yTQWrHreYPJX3RU3zOp&UnifiedBuildNumber=5.6.15.0&Ux=I34R06XR&CostarLanguage=&SessionID=ca77399f-b44e-47f4-b462-ae7320e27cea; ASP.NET_SessionId=nnkuzhgqhgbtclhsurqw0xca"
+COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=Gjg2uck6Y7pl%2fZtRFx567g%3d%3d&UserID=ff13c604-7331-4f53-8a6b-1f7337f97a33; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.6.15.0&DbVersion=0005.0006.0015.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=9o9Ctxiy7TrgS3eCkGlEEZ6FCLOl%2foybTCw9yFLlcLI5uvXhQmnYEqu4mUVDkhPG&UnifiedBuildNumber=5.6.15.0&Ux=I34R06XR&CostarLanguage=&SessionID=a329bcc8-3e8e-4289-b665-80c096926420; ASP.NET_SessionId=tau4c2on0ih5lhf1z2x0sb4h"
 
 # Live, refreshable session state — see costar_session.py / northcountry/scraper_tires.py.
 _SESSION = CostarSessionGuard("emerge", COOKIE_STRING, __file__)

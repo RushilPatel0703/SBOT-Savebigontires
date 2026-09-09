@@ -2133,9 +2133,18 @@
     ]
   },
   "specs:nexen|nb4svan|195/75r16c e": {
-    "specs": {},
+    "specs": {
+      "load_index": "110",
+      "speed_rating": "R"
+    },
     "query": "Nexen NB4SVan 195/75R16C E tire size load index speed rating",
-    "tried": []
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-08T18:34:32+00:00",
+    "call": "80bd51fe9e4b",
+    "supplier": "northcountry"
   },
   "specs:continental|vancontactas|195/75r16c": {
     "specs": {
@@ -3929,9 +3938,18 @@
     ]
   },
   "specs:general|grabberhts60|275/65r18": {
-    "specs": {},
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "S"
+    },
     "query": "General Grabber HTS60 275/65R18 tire size load index speed rating",
-    "tried": []
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-08T18:34:35+00:00",
+    "call": "a7871824ce89",
+    "supplier": "northcountry"
   },
   "specs:amp|terrainproat|lt275/65r20 e": {
     "specs": {
@@ -6279,9 +6297,18 @@
     "supplier": "northcountry"
   },
   "specs:carlisle|radialtrailhd|st205/75r14 d": {
-    "specs": {},
+    "specs": {
+      "load_index": "105",
+      "speed_rating": "M"
+    },
     "query": "Carlisle Radial Trail HD ST205/75R14 D tire size load index speed rating",
-    "tried": []
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-08T18:35:16+00:00",
+    "call": "cff2b5f217c3",
+    "supplier": "northcountry"
   },
   "specs:carlisle|suretrail|st215/75r14 c": {
     "specs": {
@@ -23705,10 +23732,11 @@
     "query": "LT 33125018118-10 tire size load index speed rating",
     "tried": [
       "aspect_ratio",
+      "load_index",
       "rim_diameter"
     ],
-    "ts": "2026-08-31T21:18:53+00:00",
-    "call": "e49418f7153e",
+    "ts": "2026-09-08T18:36:23+00:00",
+    "call": "065f547ccc6e",
     "supplier": "wheelsmart"
   },
   "specs:|lt35x1250r1710prlanvigatorcatchforsmtallseason|35125017121-10": {
@@ -24367,5 +24395,1055 @@
         "face_on": false
       }
     ]
+  },
+  "image:bridgestone|blizzaklm001rft|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/bridgestone/bridgestone-blizzak-lm001-rft-b-aab-1.jpg",
+    "query": "Bridgestone BLIZZAK LM001 RFT tire product photo",
+    "ts": "2026-09-08T18:24:04+00:00",
+    "call": "cdf5c6db4f59",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/bridgestone/bridgestone-blizzak-lm001-rft-b-aab-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.1029,
+        "face_on": false
+      }
+    ]
+  },
+  "image:continental|procontactrxbswsil|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/continental/continental-procontact-rx-b-aaa-2.jpg",
+    "query": "Continental ProContact RX BSW SIL tire product photo",
+    "ts": "2026-09-08T18:24:17+00:00",
+    "call": "a27764d8b9ba",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/continental/continental-procontact-rx-b-aaa-2.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.1054,
+        "face_on": false
+      }
+    ]
+  },
+  "image:hankook|h426|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/hankook/hankook-optimo-h426-b-aaa-1.jpg",
+    "query": "Hankook H426 tire product photo",
+    "ts": "2026-09-08T18:24:38+00:00",
+    "call": "afc3de60d88a",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/hankook/hankook-optimo-h426-b-aaa-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.1079,
+        "face_on": false
+      }
+    ]
+  },
+  "image:maxtrek|maximusm287v|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/maxtrek/maxtrek-maximus-m2-b-aaa-2.jpg",
+    "query": "Maxtrek MAXIMUS M2 87 V tire product photo",
+    "ts": "2026-09-08T18:24:43+00:00",
+    "call": "7305d8562a06",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/maxtrek/maxtrek-maximus-m2-b-aaa-2.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1539,
+        "core_bg_frac": 0.0504,
+        "face_on": false
+      }
+    ]
+  },
+  "image:pirelli|winter210snowcontrolserie3|": {
+    "image": "https://images.simpletire.com/images/q_auto/f_auto,q_auto,fl_lossy,h_3840/line-images/12047/12047-sidetread/pirelli-w210-snowcontrol-serie-3.png",
+    "query": "Pirelli WINTER 210 SNOWCONTROL SERIE 3 tire product photo",
+    "ts": "2026-09-08T18:25:03+00:00",
+    "call": "0e71e05dbb45",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://images.simpletire.com/images/q_auto/f_auto,q_auto,fl_lossy,h_3840/line-images/12047/12047-treadonly/pirelli-w210-snowcontrol-serie-3.png",
+        "domain": "SimpleTire",
+        "status": "demoted: face-on, tread not visible",
+        "width": 3840,
+        "height": 3840,
+        "core_bg_frac": 0.7731,
+        "face_on": true
+      },
+      {
+        "url": "https://images.simpletire.com/images/q_auto/f_auto,q_auto,fl_lossy,h_3840/line-images/12047/12047-sidetread/pirelli-w210-snowcontrol-serie-3.png",
+        "domain": "SimpleTire",
+        "status": "accepted",
+        "width": 2765,
+        "height": 3840,
+        "core_bg_frac": 0.1693,
+        "face_on": false
+      }
+    ]
+  },
+  "image:bridgestone|duravism705dbl|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/bridgestone/bridgestone-duravis-m705-b-aaa1-1.jpg",
+    "query": "Bridgestone DURAVIS M705 D BL tire product photo",
+    "ts": "2026-09-08T18:25:09+00:00",
+    "call": "3f851948bfca",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/bridgestone/bridgestone-duravis-m705-b-aaa1-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.0227,
+        "face_on": false
+      }
+    ]
+  },
+  "image:yokohama|s34nv|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/yokohama/yokohama-avid-s34nv-b-aaa1-1.jpg",
+    "query": "Yokohama S34NV tire product photo",
+    "ts": "2026-09-08T18:25:17+00:00",
+    "call": "e811ea99c597",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/yokohama/yokohama-avid-s34nv-b-aaa1-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.146,
+        "face_on": false
+      }
+    ]
+  },
+  "image:falken|espiaepzii|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/falken/falken-espia-epz-ii-suv-b-aab-1.jpg",
+    "query": "Falken ESPIA EPZII tire product photo",
+    "ts": "2026-09-08T18:25:32+00:00",
+    "call": "f0c3ef447518",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/falken/falken-espia-epz-ii-suv-b-aab-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.0338,
+        "face_on": false
+      }
+    ]
+  },
+  "image:toyo|psport|": {
+    "image": "https://media.toyotires.com/media/x2vjs0fz/proxes-sport-r_33525zr20_right_hires.jpg?v=1dc48f0c0de7e70",
+    "query": "Toyo PSport tire product photo",
+    "ts": "2026-09-08T18:25:42+00:00",
+    "call": "245be98eb5ab",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://media.toyotires.com/media/x2vjs0fz/proxes-sport-r_33525zr20_right_hires.jpg?v=1dc48f0c0de7e70",
+        "domain": "Toyo Tires",
+        "status": "accepted",
+        "width": 2346,
+        "height": 2652,
+        "core_bg_frac": 0.0041,
+        "face_on": false
+      }
+    ]
+  },
+  "image:bridgestone|turanzals100|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/bridgestone/bridgestone-turanza-ls100-b-aaa1-1.jpg",
+    "query": "Bridgestone TURANZA LS100 tire product photo",
+    "ts": "2026-09-08T18:25:48+00:00",
+    "call": "61cb3f028efd",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/bridgestone/bridgestone-turanza-ls100-b-aaa1-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.2631,
+        "face_on": false
+      }
+    ]
+  },
+  "image:yokohama|s34pv|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/yokohama/yokohama-avid-s34pv-b-aaa-1.jpg",
+    "query": "Yokohama S34PV tire product photo",
+    "ts": "2026-09-08T18:25:56+00:00",
+    "call": "63e08a26849a",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/yokohama/yokohama-avid-s34pv-b-aaa-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.0283,
+        "face_on": false
+      }
+    ]
+  },
+  "image:hankook|k117|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/hankook/hankook-ventus-s1-evo2-b-aaa1-1.jpg",
+    "query": "Hankook K117 tire product photo",
+    "ts": "2026-09-08T18:26:02+00:00",
+    "call": "bf0487b94934",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/hankook/hankook-ventus-s1-evo2-b-aaa1-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.1458,
+        "face_on": false
+      }
+    ]
+  },
+  "image:bridgestone|ecopiahl422plussp|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/bridgestone/bridgestone-ecopia-hl-422-plus-b-aaa1-1.jpg",
+    "query": "Bridgestone ECOPIA H/L 422 PLUS SP tire product photo",
+    "ts": "2026-09-08T18:26:16+00:00",
+    "call": "2a1cb788d8fd",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/bridgestone/bridgestone-ecopia-hl-422-plus-b-aaa1-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.0657,
+        "face_on": false
+      }
+    ]
+  },
+  "image:bridgestone|alenzaas02bl|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/bridgestone/bridgestone-alenza-as-02-b-n1557101-aaa3-2.jpg",
+    "query": "Bridgestone ALENZA A/S 02 BL tire product photo",
+    "ts": "2026-09-08T18:26:23+00:00",
+    "call": "9b6a2c18fa07",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/bridgestone/bridgestone-alenza-as-02-b-n1557101-aaa3-2.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.1656,
+        "face_on": false
+      }
+    ]
+  },
+  "image:yokohama|s33b|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/yokohama/yokohama-avid-s33b-b-aaa1-1.jpg",
+    "query": "Yokohama S33B tire product photo",
+    "ts": "2026-09-08T18:26:45+00:00",
+    "call": "49d5b17c09dd",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/yokohama/yokohama-avid-s33b-b-aaa1-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.2473,
+        "face_on": false
+      }
+    ]
+  },
+  "image:toyo|m165121120r|": {
+    "image": "https://i5.walmartimages.com/asr/ea880798-9957-4fc0-ae72-d449c1925b57.6416a552076f8863305d811192f3c4bd.jpeg",
+    "query": "Toyo M165 121/120R tire product photo",
+    "ts": "2026-09-08T18:27:04+00:00",
+    "call": "fca188880fe0",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://i5.walmartimages.com/asr/ea880798-9957-4fc0-ae72-d449c1925b57.6416a552076f8863305d811192f3c4bd.jpeg",
+        "domain": "Walmart",
+        "status": "accepted",
+        "width": 2000,
+        "height": 2000,
+        "core_bg_frac": 0.1887,
+        "face_on": false
+      }
+    ]
+  },
+  "image:kumho|wintercrafticewi31108t|": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/TigerPawIce_Snow4Angle_ae28da1a-73e2-4d7e-9394-26090c5218f3.png?v=1724178056",
+    "query": "Kumho WinterCraft Ice WI31 -108T tire product photo",
+    "ts": "2026-09-08T18:27:34+00:00",
+    "call": "14bd2cc0e897",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/TigerPawIce_Snow4Angle_ae28da1a-73e2-4d7e-9394-26090c5218f3.png?v=1724178056",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1140,
+        "height": 1140,
+        "core_bg_frac": 0.0286,
+        "face_on": false
+      }
+    ]
+  },
+  "image:bridgestone|potenzare71rs|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/bridgestone/bridgestone-potenza-re-71rs-b-aaa1-1.jpg",
+    "query": "Bridgestone POTENZA RE-71RS tire product photo",
+    "ts": "2026-09-08T18:27:48+00:00",
+    "call": "e3bd37cb0270",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/bridgestone/bridgestone-potenza-re-71rs-b-aaa1-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.134,
+        "face_on": false
+      }
+    ]
+  },
+  "image:firestone|destinationat|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/firestone/firestone-destination-at-b-aaa1-2.jpg",
+    "query": "Firestone DESTINATION A/T tire product photo",
+    "ts": "2026-09-08T18:28:07+00:00",
+    "call": "1d392687bec1",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/firestone/firestone-destination-at-b-aaa1-1.jpg",
+        "domain": "Priority Tire",
+        "status": "demoted: face-on, tread not visible",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.3734,
+        "face_on": true
+      },
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/firestone/firestone-destination-at-b-aaa1-2.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.205,
+        "face_on": false
+      }
+    ]
+  },
+  "image:hankook|ionicepthl|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/hankook/hankook-ion-i-cept-suv-b-aab-1.jpg",
+    "query": "Hankook iON i*cept HL tire product photo",
+    "ts": "2026-09-08T18:28:17+00:00",
+    "call": "a490ff18e72a",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/hankook/hankook-ion-i-cept-suv-b-aab-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.1637,
+        "face_on": false
+      }
+    ]
+  },
+  "image:bridgestone|alenza001sp|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/bridgestone/bridgestone-alenza-001-b-aaa1-1.jpg",
+    "query": "Bridgestone ALENZA 001 SP tire product photo",
+    "ts": "2026-09-08T18:28:22+00:00",
+    "call": "c9f8d841e880",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/bridgestone/bridgestone-alenza-001-b-aaa1-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.0584,
+        "face_on": false
+      }
+    ]
+  },
+  "image:continental|sportcontact6slbswmo|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/continental/continental-sportcontact-6-b-caa-2.jpg",
+    "query": "Continental SportContact 6 SL BSW MO tire product photo",
+    "ts": "2026-09-08T18:28:30+00:00",
+    "call": "02f1f9edb578",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/continental/continental-sportcontact-6-b-caa-2.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.1397,
+        "face_on": false
+      }
+    ]
+  },
+  "image:general|grabberarcticxsl|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/general/general-grabber-arctic-b-aac-2.jpg",
+    "query": "General Grabber Arctic X SL tire product photo",
+    "ts": "2026-09-08T18:28:50+00:00",
+    "call": "73cd2b714854",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/general/general-grabber-arctic-b-aac-2.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.1839,
+        "face_on": false
+      }
+    ]
+  },
+  "image:continental|terraincontactat2sl|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/continental/continental-terraincontact-at-b-aaa1-1.jpg",
+    "query": "Continental TerrainContact A/T 2 SL tire product photo",
+    "ts": "2026-09-08T18:29:19+00:00",
+    "call": "3ab1a3ab6813",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/continental/continental-terraincontact-at-b-aaa1-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.1499,
+        "face_on": false
+      }
+    ]
+  },
+  "image:continental|extremecontactsport02100y|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/continental/continental-extremecontact-sport-02-b-aaa1-2.jpg",
+    "query": "Continental ExtremeContact Sport 02 -100Y tire product photo",
+    "ts": "2026-09-08T18:29:25+00:00",
+    "call": "83bdbdfb89a3",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/continental/continental-extremecontact-sport-02-b-aaa1-2.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.228,
+        "face_on": false
+      }
+    ]
+  },
+  "image:toyo|opencountrypro123120q|": {
+    "image": "http://vanquishproducts.com/cdn/shop/files/VP_Toyo_Open_Country_525_RT_PRO_1500x1500_5260d4bf-951f-4234-8e9b-af66b91ecff3.jpg?v=1758049793",
+    "query": "Toyo Open Country Pro 123/120Q tire product photo",
+    "ts": "2026-09-08T18:29:26+00:00",
+    "call": "ab9d887445d6",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "http://vanquishproducts.com/cdn/shop/files/VP_Toyo_Open_Country_525_RT_PRO_1500x1500_5260d4bf-951f-4234-8e9b-af66b91ecff3.jpg?v=1758049793",
+        "domain": "Vanquish Products",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.039,
+        "face_on": false
+      }
+    ]
+  },
+  "image:paragon|tracrnht2|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/paragon/paragon-tracrunner-ht-b-aaa-1.jpg",
+    "query": "Paragon TRACRNHT2 tire product photo",
+    "ts": "2026-09-08T18:29:47+00:00",
+    "call": "64464374669c",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/paragon/paragon-tracrunner-ht-b-aaa-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.2587,
+        "face_on": false
+      }
+    ]
+  },
+  "image:rssw|strikesb|17 5-127 (8)": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/collections/38d22c2ee5a15894262fc942cfae935fbd05e2fc_R241_SATIN_BLACK__DEEP_559e0aa5-7ac4-442f-8654-270f88371419.jpg?v=1692301408",
+    "query": "RSSW Strike-SB 17 5-127 (8) wheel product photo",
+    "ts": "2026-09-08T18:30:11+00:00",
+    "call": "add6b2909fc8",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/collections/38d22c2ee5a15894262fc942cfae935fbd05e2fc_R241_SATIN_BLACK__DEEP_559e0aa5-7ac4-442f-8654-270f88371419.jpg?v=1692301408",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1000,
+        "height": 1000,
+        "core_bg_frac": 0.2713,
+        "face_on": false
+      }
+    ]
+  },
+  "image:rssw|blitzsb|17 6-139.7 (8)": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/collections/38d22c2ee5a15894262fc942cfae935fbd05e2fc_R241_SATIN_BLACK__DEEP_559e0aa5-7ac4-442f-8654-270f88371419.jpg?v=1692301408",
+    "query": "RSSW Blitz-SB 17 6-139.7 (8) wheel product photo",
+    "ts": "2026-09-08T18:30:32+00:00",
+    "call": "febd9fbe14a7",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/collections/38d22c2ee5a15894262fc942cfae935fbd05e2fc_R241_SATIN_BLACK__DEEP_559e0aa5-7ac4-442f-8654-270f88371419.jpg?v=1692301408",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1000,
+        "height": 1000,
+        "core_bg_frac": 0.2713,
+        "face_on": false
+      }
+    ]
+  },
+  "image:rssw|carbons|18 5-120 (8)": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/76RR_10.5_MB_S_1200x1200_a6661ee3-2c4c-4c12-9430-275ae079d17c.webp?v=1757617167",
+    "query": "RSSW Carbon-S 18 5-120 (8) wheel product photo",
+    "ts": "2026-09-08T18:30:54+00:00",
+    "call": "a065bf787018",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/76RR_10.5_MB_S_1200x1200_a6661ee3-2c4c-4c12-9430-275ae079d17c.webp?v=1757617167",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1200,
+        "height": 1199,
+        "core_bg_frac": 0.3251,
+        "face_on": false
+      }
+    ]
+  },
+  "image:rssw|steelwheel|15 5-105 (6)": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/collections/38d22c2ee5a15894262fc942cfae935fbd05e2fc_R241_SATIN_BLACK__DEEP_559e0aa5-7ac4-442f-8654-270f88371419.jpg?v=1692301408",
+    "query": "RSSW Steel Wheel 15 5-105 (6) wheel product photo",
+    "ts": "2026-09-08T18:31:06+00:00",
+    "call": "b101d65d5dca",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://www.1010tires.com/images/wheels/super/RSSW_AGM557A_lg_super.jpg",
+        "domain": "1010Tires.com",
+        "status": "unusable: fetch failed: HTTPError: HTTP Error 403: Forbidden"
+      },
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/collections/38d22c2ee5a15894262fc942cfae935fbd05e2fc_R241_SATIN_BLACK__DEEP_559e0aa5-7ac4-442f-8654-270f88371419.jpg?v=1692301408",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1000,
+        "height": 1000,
+        "core_bg_frac": 0.2713,
+        "face_on": false
+      }
+    ]
+  },
+  "image:rssw|steelwheel|17 8-210 (6.5)": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/WEB_X47472_e89a05a4-76f6-4753-b00c-f9c3fd9f9c91.png",
+    "query": "RSSW Steel Wheel 17 8-210 (6.5) wheel product photo",
+    "ts": "2026-09-08T18:31:15+00:00",
+    "call": "bee4bf1079e8",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/WEB_X47472_e89a05a4-76f6-4753-b00c-f9c3fd9f9c91.png",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1200,
+        "height": 1139,
+        "core_bg_frac": 0.0982,
+        "face_on": false
+      }
+    ]
+  },
+  "image:rssw|steelwheel|16 5-160 (6.5)": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/WEB_X46556_56a0947f-811b-4f33-88be-03b0f491e1d5.png?v=1722974559",
+    "query": "RSSW Steel Wheel 16 5-160 (6.5) wheel product photo",
+    "ts": "2026-09-08T18:31:24+00:00",
+    "call": "3cd35c5e1363",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/WEB_X46556_56a0947f-811b-4f33-88be-03b0f491e1d5.png?v=1722974559",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1200,
+        "height": 1244,
+        "core_bg_frac": 0.1867,
+        "face_on": false
+      }
+    ]
+  },
+  "image:rssw|steelwheel|17 5-127 (7)": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/WEB_X47472_e89a05a4-76f6-4753-b00c-f9c3fd9f9c91.png",
+    "query": "RSSW Steel Wheel 17 5-127 (7) wheel product photo",
+    "ts": "2026-09-08T18:31:33+00:00",
+    "call": "baea396113ae",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/WEB_X47472_e89a05a4-76f6-4753-b00c-f9c3fd9f9c91.png",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1200,
+        "height": 1139,
+        "core_bg_frac": 0.0982,
+        "face_on": false
+      }
+    ]
+  },
+  "image:rssw|steelwheel|17 8-165.1 (6)": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/WEB_X47472_e89a05a4-76f6-4753-b00c-f9c3fd9f9c91.png",
+    "query": "RSSW Steel Wheel 17 8-165.1 (6) wheel product photo",
+    "ts": "2026-09-08T18:31:38+00:00",
+    "call": "e41fbf2cc356",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/WEB_X47472_e89a05a4-76f6-4753-b00c-f9c3fd9f9c91.png",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1200,
+        "height": 1139,
+        "core_bg_frac": 0.0982,
+        "face_on": false
+      }
+    ]
+  },
+  "image:rssw|steelwheel|17 8-165.1 (7)": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/WEB_X47472_e89a05a4-76f6-4753-b00c-f9c3fd9f9c91.png",
+    "query": "RSSW Steel Wheel 17 8-165.1 (7) wheel product photo",
+    "ts": "2026-09-08T18:31:49+00:00",
+    "call": "ce32541bcdf8",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/WEB_X47472_e89a05a4-76f6-4753-b00c-f9c3fd9f9c91.png",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1200,
+        "height": 1139,
+        "core_bg_frac": 0.0982,
+        "face_on": false
+      }
+    ]
+  },
+  "image:rssw|blitzsb|20 8-165.1 (9)": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/FUEL-FC889-BLADE-22X10-6-ET-18-MATTE-BLACK-A1-jpg_56faaf75-402b-4081-a336-8f18fcfb1917.png?v=1757617210",
+    "query": "RSSW Blitz-SB 20 8-165.1 (9) wheel product photo",
+    "ts": "2026-09-08T18:32:05+00:00",
+    "call": "fbe53ecf4856",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/FUEL-FC889-BLADE-22X10-6-ET-18-MATTE-BLACK-A1-jpg_56faaf75-402b-4081-a336-8f18fcfb1917.png?v=1757617210",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1000,
+        "height": 1000,
+        "core_bg_frac": 0.2445,
+        "face_on": false
+      }
+    ]
+  },
+  "image:rssw|steelwheel|18 5-150 (8)": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/MOTO-METAL-MO810-LEGACY-20X10-6-ET-18-GLOSS-BLACK-A1-png_46594a4a-e64e-494e-9e00-6846b412f402.png?v=1713983690",
+    "query": "RSSW Steel Wheel 18 5-150 (8) wheel product photo",
+    "ts": "2026-09-08T18:32:13+00:00",
+    "call": "960fcb822f30",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/MOTO-METAL-MO810-LEGACY-20X10-6-ET-18-GLOSS-BLACK-A1-png_46594a4a-e64e-494e-9e00-6846b412f402.png?v=1713983690",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1000,
+        "height": 1000,
+        "core_bg_frac": 0.2273,
+        "face_on": false
+      }
+    ]
+  },
+  "image:rssw|steelwheel|17 7-150 (7.5)": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/WEB_X47472_e89a05a4-76f6-4753-b00c-f9c3fd9f9c91.png",
+    "query": "RSSW Steel Wheel 17 7-150 (7.5) wheel product photo",
+    "ts": "2026-09-08T18:32:31+00:00",
+    "call": "50af0d6098f2",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/files/WEB_X47472_e89a05a4-76f6-4753-b00c-f9c3fd9f9c91.png",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1200,
+        "height": 1139,
+        "core_bg_frac": 0.0982,
+        "face_on": false
+      }
+    ]
+  },
+  "image:rssw|steelwheel|18 5-112 (6.5)": {
+    "image": "https://cdn.shopify.com/s/files/1/0515/0851/0900/collections/38d22c2ee5a15894262fc942cfae935fbd05e2fc_R241_SATIN_BLACK__DEEP_559e0aa5-7ac4-442f-8654-270f88371419.jpg?v=1692301408",
+    "query": "RSSW Steel Wheel 18 5-112 (6.5) wheel product photo",
+    "ts": "2026-09-08T18:32:48+00:00",
+    "call": "6f71e237ed93",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://cdn.shopify.com/s/files/1/0515/0851/0900/collections/38d22c2ee5a15894262fc942cfae935fbd05e2fc_R241_SATIN_BLACK__DEEP_559e0aa5-7ac4-442f-8654-270f88371419.jpg?v=1692301408",
+        "domain": "PMCtire",
+        "status": "accepted",
+        "width": 1000,
+        "height": 1000,
+        "core_bg_frac": 0.2713,
+        "face_on": false
+      }
+    ]
+  },
+  "image:||1855515853": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/firestone/firestone-all-season-b-aaa2-2.jpg",
+    "query": "1855515853 185/55R15 85H FORMOZA FD3 ALL SEASON... tire product photo",
+    "ts": "2026-09-08T18:32:55+00:00",
+    "call": "877629c0bac6",
+    "supplier": "wheelsmart",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/firestone/firestone-all-season-b-aaa2-1.jpg",
+        "domain": "Priority Tire",
+        "status": "demoted: face-on, tread not visible",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.3276,
+        "face_on": true
+      },
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/firestone/firestone-all-season-b-aaa2-2.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.075,
+        "face_on": false
+      }
+    ]
+  },
+  "image:||2255018953": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/federal/federal-formoza-fd2-b-aaa-2.jpg",
+    "query": "2255018953 225/50ZR18 95W FD3 FORMOZA ALL SEASON... tire product photo",
+    "ts": "2026-09-08T18:33:31+00:00",
+    "call": "537b4e67b6a5",
+    "supplier": "wheelsmart",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/federal/federal-formoza-fd2-b-aaa-2.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.2481,
+        "face_on": false
+      }
+    ]
+  },
+  "image:||2557018113": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/centara/centara-grand-tourer-ht-b-aaa2-1.jpg",
+    "query": "2557018113 255/70R18 113H CENTARA GRAND TOURER H/T ALL SEASON... tire product photo",
+    "ts": "2026-09-08T18:33:43+00:00",
+    "call": "9ea4dedee054",
+    "supplier": "wheelsmart",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/centara/centara-grand-tourer-ht-b-aaa2-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.1301,
+        "face_on": false
+      }
+    ]
+  },
+  "image:||2155517983": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/federal/federal-formoza-az01-b-aaa-1.jpg",
+    "query": "2155517983 215/55ZR17 98WXL FD3 FORMOZA ALL SEASON... tire product photo",
+    "ts": "2026-09-08T18:33:49+00:00",
+    "call": "85e00a28d444",
+    "supplier": "wheelsmart",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/federal/federal-formoza-az01-b-aaa-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.0389,
+        "face_on": false
+      }
+    ]
+  },
+  "image:||185651588": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/goodride/goodride-radial-rp88-b-aaa1-2.jpg",
+    "query": "185651588 185/65R15 RP88 GOODRIDE ALL SEASON... tire product photo",
+    "ts": "2026-09-08T18:34:03+00:00",
+    "call": "8ecc6cd0aed8",
+    "supplier": "wheelsmart",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/goodride/goodride-radial-rp88-b-aaa1-2.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.1563,
+        "face_on": false
+      }
+    ]
+  },
+  "image:||1856015843": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/firestone/firestone-all-season-b-aaa2-2.jpg",
+    "query": "1856015843 185/60R15 84H FORMOZA FD3 ALL SEASON... tire product photo",
+    "ts": "2026-09-08T18:34:11+00:00",
+    "call": "95df24fd1603",
+    "supplier": "wheelsmart",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/firestone/firestone-all-season-b-aaa2-1.jpg",
+        "domain": "Priority Tire",
+        "status": "demoted: face-on, tread not visible",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.3276,
+        "face_on": true
+      },
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/firestone/firestone-all-season-b-aaa2-2.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.075,
+        "face_on": false
+      }
+    ]
+  },
+  "specs:predator|dirtrebelatsblk|35x12.50r22lt f": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Predator DIRT REBEL ATS BLK 35X12.50R22LT F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-08T18:34:19+00:00",
+    "call": "6cefcc66d819",
+    "supplier": "northcountry"
+  },
+  "specs:hankook|rw11|lt275/65r18 e": {
+    "specs": {
+      "load_index": "123",
+      "speed_rating": "R"
+    },
+    "query": "Hankook RW11 LT275/65R18 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-08T18:34:41+00:00",
+    "call": "781ec3bdd53d",
+    "supplier": "northcountry"
+  },
+  "specs:nexen|roadianhtxrh5|lt235/80r17 e": {
+    "specs": {
+      "load_index": "120",
+      "speed_rating": "R"
+    },
+    "query": "Nexen Roadian HTX RH5 LT235/80R17 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-08T18:34:48+00:00",
+    "call": "a3fc42304b29",
+    "supplier": "northcountry"
+  },
+  "specs:amp|terrainproat|lt285/55r22 e": {
+    "specs": {
+      "load_index": "124",
+      "speed_rating": "R"
+    },
+    "query": "Amp Terrain Pro A/T LT285/55R22 E tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-08T18:35:00+00:00",
+    "call": "e0e43e4b2f67",
+    "supplier": "northcountry"
+  },
+  "specs:maxtrek|mudtrac|lt315/75r16 d": {
+    "specs": {
+      "load_index": "121",
+      "speed_rating": "Q"
+    },
+    "query": "Maxtrek Mud Trac LT315/75R16 D tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-08T18:35:10+00:00",
+    "call": "d40ac6c9963d",
+    "supplier": "northcountry"
+  },
+  "specs:advance|gl285tallsteeltrailer|st235/85r16 g": {
+    "specs": {},
+    "query": "Advance GL285T All Steel Trailer ST235/85R16 G tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-08T18:35:23+00:00",
+    "call": "b9f1810a34af",
+    "supplier": "northcountry"
+  },
+  "specs:grenlander|kingproone|205/55r16": {
+    "specs": {
+      "load_index": "94",
+      "speed_rating": "W"
+    },
+    "query": "Grenlander KingPro One 205/55R16 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-08T18:35:25+00:00",
+    "call": "5bd7dd062898",
+    "supplier": "emergetires"
+  },
+  "specs:grenlander|coloh02|205/65r15": {
+    "specs": {
+      "load_index": "96",
+      "speed_rating": "V"
+    },
+    "query": "Grenlander COLO H02 205/65R15 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-08T18:35:29+00:00",
+    "call": "6ded172da667",
+    "supplier": "emergetires"
+  },
+  "specs:grenlander|maho79|225/65r17": {
+    "specs": {
+      "load_index": "102",
+      "speed_rating": "H"
+    },
+    "query": "Grenlander MAHO 79 225/65R17 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-08T18:35:40+00:00",
+    "call": "14fff539a75e",
+    "supplier": "emergetires"
+  },
+  "specs:grenlander|steadtrekat|265/60r18": {
+    "specs": {},
+    "query": "Grenlander STEADTREK A/T 265/60R18 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-08T18:35:47+00:00",
+    "call": "7561a070d94b",
+    "supplier": "emergetires"
+  },
+  "specs:antares|su8306plyc|165r13": {
+    "specs": {},
+    "query": "Antares SU-830 6PLY C 165R13 tire size load index speed rating",
+    "tried": [
+      "aspect_ratio"
+    ],
+    "ts": "2026-09-08T18:36:01+00:00",
+    "call": "526e099f4028",
+    "supplier": "formula_distributors"
+  },
+  "specs:lexani|lxuhp207|225/60r18": {
+    "specs": {
+      "load_index": "104",
+      "speed_rating": "V"
+    },
+    "query": "Lexani LXUHP-207 225/60R18 tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-08T18:36:09+00:00",
+    "call": "f52bf91439a6",
+    "supplier": "formula_distributors"
+  },
+  "specs:lexani|lxht206|lt265/70r17": {
+    "specs": {
+      "load_range": "E"
+    },
+    "query": "Lexani LXHT-206 LT265/70R17 tire size load index speed rating",
+    "tried": [
+      "load_range"
+    ],
+    "ts": "2026-09-08T18:36:19+00:00",
+    "call": "65ebb34f0c58",
+    "supplier": "formula_distributors"
+  },
+  "specs:|lt33x1250r20|33125020114-10": {
+    "specs": {},
+    "query": "LT33X12.50R20 33125020114-10 tire size load index speed rating",
+    "tried": [
+      "aspect_ratio",
+      "rim_diameter"
+    ],
+    "ts": "2026-09-08T18:36:21+00:00",
+    "call": "7f708fd43a4e",
+    "supplier": "wheelsmart"
   }
 }
