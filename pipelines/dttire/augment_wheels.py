@@ -9,12 +9,12 @@ import re
 import pandas as pd
 from datetime import datetime
 
-from config import find_latest, get_logger, markup_for
+from config import find_latest, get_logger, price_with_markup
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from dedupe import dedupe_titles
 
-MARKUP = markup_for("dttire")
+MARKUP_SUPPLIER = "dttire"
 
 LOCATIONS = [
     "Burnaby", "Langley", "MapleRidge",
@@ -297,7 +297,7 @@ def main():
     out["Variant Taxable"]             = "TRUE"
 
     cost_prices          = pd.to_numeric(df["cost_price"], errors="coerce").fillna(0)
-    out["Variant Price"] = (cost_prices + MARKUP).round(2).astype(str)
+    out["Variant Price"] = price_with_markup(cost_prices, MARKUP_SUPPLIER).round(2).astype(str)
 
     out["Image Src"]      = df["image_url"] if "image_url" in df.columns else ""
     out["Image Position"] = out["Image Src"].apply(lambda s: 1 if str(s).strip() else "")

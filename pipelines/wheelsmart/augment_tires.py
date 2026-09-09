@@ -25,7 +25,7 @@ sys.path.append(os.path.normpath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "shared")))
 import no_price
 
-from config import markup_for
+from config import price_with_markup
 
 # WheelMart has no separate clean.py — this augment step reads the raw scrape
 # directly, so it's also where a stale "latest" raw file (scraper step
@@ -38,7 +38,7 @@ from size_parser import parse_tire_size, default_passenger_load_range
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
-MARKUP = markup_for("wheelsmart")
+MARKUP_SUPPLIER = "wheelsmart"
 LOW_QTY_THRESHOLD = 4          # keep if qty >= 4; drop if qty < 4
 API_URL = (
     "https://wheelmartcanada.ca/v1/tires/"
@@ -776,7 +776,7 @@ def main():
         )
 
     df["_cost_price"]    = cost_prices.where(~missing_cost_mask, retail_prices)
-    out["Variant Price"] = (df["_cost_price"] + MARKUP).round(2).astype(str)
+    out["Variant Price"] = price_with_markup(df["_cost_price"], MARKUP_SUPPLIER).round(2).astype(str)
 
     out["Variant Requires Shipping"] = "TRUE"
     out["Variant Taxable"]           = "TRUE"

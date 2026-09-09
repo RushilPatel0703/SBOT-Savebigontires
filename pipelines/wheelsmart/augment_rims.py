@@ -24,12 +24,12 @@ sys.path.append(os.path.normpath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "shared")))
 import no_price
 
-from config import markup_for
+from config import price_with_markup
 
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
-MARKUP            = markup_for("wheelsmart")
+MARKUP_SUPPLIER = "wheelsmart"
 
 # Canonical SKU collision resolution, shared with production/steps/ingest.py so
 # both derivations of the WheelMart rim SKU stay identical.
@@ -749,7 +749,7 @@ def main():
         )
 
     df["_cost_price"] = cost.where(~missing_cost_mask, retail)
-    out["Variant Price"] = (df["_cost_price"] + MARKUP).round(2).astype(str)
+    out["Variant Price"] = price_with_markup(df["_cost_price"], MARKUP_SUPPLIER).round(2).astype(str)
 
     out["Image Src"]      = df["image"]
     out["Image Position"] = out["Image Src"].apply(lambda s: 1 if str(s).strip() else "")

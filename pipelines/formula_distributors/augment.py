@@ -11,13 +11,13 @@ import logging
 import pandas as pd
 from datetime import datetime
 
-from config import markup_for
+from config import price_with_markup
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from size_parser import (parse_tire_size, parse_load_speed, default_passenger_load_range,
                          coerce_load_index)
 
-MARKUP = markup_for("formula")
+MARKUP_SUPPLIER = "formula"
 
 
 def normalize_size(size):
@@ -415,7 +415,7 @@ def main():
         log.warning(f"{fallback_mask.sum()} / {len(df)} rows missing/zero cost_price — "
                     f"falling back to retail_price for Variant Price basis.")
     price_basis = cost_prices.where(~fallback_mask, retail_prices)
-    out["Variant Price"]               = (price_basis + MARKUP).round(2).astype(str)
+    out["Variant Price"]               = price_with_markup(price_basis, MARKUP_SUPPLIER).round(2).astype(str)
     out["Variant Requires Shipping"]   = "TRUE"
     out["Variant Taxable"]             = "TRUE"
 

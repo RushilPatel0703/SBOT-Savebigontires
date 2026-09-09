@@ -17,13 +17,13 @@ import logging
 import pandas as pd
 from datetime import datetime
 
-from config import markup_for
+from config import price_with_markup
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from size_parser import parse_wheel_size, format_wheel_size
 from dedupe import dedupe_titles
 
-MARKUP            = markup_for("formula")
+MARKUP_SUPPLIER = "formula"
 # Keep qty >= 4, matching every other supplier. This was 3, which quietly let
 # formula wheels onto the store at a stock level every other feed treats as too
 # low to list. See northcountry/emergetires/formula clean.py and
@@ -381,7 +381,7 @@ def main():
         log.warning(f"{fallback_mask.sum()} / {len(df)} rows missing/zero cost_price — "
                     f"falling back to retail_price for Variant Price basis.")
     price_basis = cost_prices.where(~fallback_mask, retail_prices)
-    out["Variant Price"] = (price_basis + MARKUP).round(2).astype(str)
+    out["Variant Price"] = price_with_markup(price_basis, MARKUP_SUPPLIER).round(2).astype(str)
 
     out["Image Src"]      = df["image_url"]
     out["Image Position"] = out["Image Src"].apply(lambda s: 1 if str(s).strip() else "")

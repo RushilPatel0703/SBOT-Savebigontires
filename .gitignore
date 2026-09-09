@@ -50,3 +50,9 @@ pipelines/.enrich_result.json
 
 # Quarantined no-cost-price rows are regenerated every run (data, not source)
 no price detected/*.csv
+
+# ── Coverage checks ───────────────────────────────────────────────────────────
+# Dated dev-store-vs-supplier reports plus the tooling that produces them. Same
+# class as monitoring/: run output and analysis, regenerated on demand from the
+# store and the raw scrapes, not part of the app the client runs.
+coverage/

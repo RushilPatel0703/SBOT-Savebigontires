@@ -21,8 +21,11 @@ api_put         = _m.api_put
 api_delete      = _m.api_delete
 api_post        = _m.api_post
 get_logger      = _m.get_logger
-SUPPLIER_MARKUP = _m.SUPPLIER_MARKUP
-markup_for      = _m.markup_for
+markup_for        = _m.markup_for
+price_with_markup = _m.price_with_markup
+price_floor       = _m.price_floor
+describe_markup   = _m.describe_markup
+load_markups      = _m.load_markups
 
 # Canonical SKU helpers live in shared/sku_normalize.py; re-exported here so the
 # wheelsmart scripts import them the same way they import everything else shared.

@@ -12,13 +12,13 @@ import re
 import pandas as pd
 from datetime import datetime
 
-from config import find_latest, get_logger, markup_for
+from config import find_latest, get_logger, price_with_markup
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from size_parser import parse_tire_size, coerce_load_index
 from dedupe import dedupe_titles
 
-MARKUP = markup_for("dttire")
+MARKUP_SUPPLIER = "dttire"
 
 # Maps cleaned designation → Shopify Type_ tag value
 # "Unknown" is intentionally omitted — no Type_ tag is added
@@ -249,7 +249,7 @@ def main():
     out["Variant Fulfillment Service"] = "manual"
 
     cost_prices          = pd.to_numeric(df["cost_price"], errors="coerce").fillna(0)
-    out["Variant Price"] = (cost_prices + MARKUP).round(2).astype(str)
+    out["Variant Price"] = price_with_markup(cost_prices, MARKUP_SUPPLIER).round(2).astype(str)
 
     out["Variant Requires Shipping"] = "TRUE"
     out["Variant Taxable"]           = "TRUE"

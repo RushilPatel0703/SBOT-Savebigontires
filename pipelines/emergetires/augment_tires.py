@@ -6,7 +6,8 @@ Key differences from northcountry/augment_tires.py:
   - SKU: f"EMRG-{raw_sku}" prefix (cross-supplier collision guard)
   - Supplier tag: Supplier_Emergetires
   - Output filename: Shopify_SEO_emergetires_tires_<ts>.csv
-  - MARKUP = markup_for("emerge") — per-supplier markup, not the same as other suppliers
+  - Prices through the "emerge" markup rule, which the client sets per supplier
+    and may be a dollar amount or a percentage of cost
 """
 
 import sys
@@ -16,13 +17,13 @@ import re
 import pandas as pd
 from datetime import datetime
 
-from config import markup_for
+from config import price_with_markup
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from size_parser import (parse_tire_size, parse_load_speed, coerce_load_index,
                          default_passenger_load_range)
 
-MARKUP = markup_for("emerge")
+MARKUP_SUPPLIER = "emerge"
 
 LOCATIONS = [
     "Burnaby", "Langley", "MapleRidge",
@@ -439,7 +440,7 @@ def main():
         print(f"WARNING: {fallback_mask.sum()} / {len(df)} rows missing/zero cost_price — "
               f"falling back to retail_price for Variant Price basis.")
     price_basis = cost_prices.where(~fallback_mask, retail_prices)
-    out["Variant Price"] = (price_basis + MARKUP).round(2).astype(str)
+    out["Variant Price"] = price_with_markup(price_basis, MARKUP_SUPPLIER).round(2).astype(str)
 
     out["Variant Requires Shipping"] = "TRUE"
     out["Variant Taxable"]           = "TRUE"

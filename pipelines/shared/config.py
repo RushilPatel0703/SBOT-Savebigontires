@@ -31,34 +31,49 @@ SERPAPI_KEY_CLIENT = _secret(
     "SBOT_SERPAPI_KEY_CLIENT",
     "d64a4db1926cf1a1a7f7c6796403bf0a22dc78b2519bdaad48e41514b2861e59")
 
-# ── Per-supplier markup (updated July 2026) ───────────────────────────────────
-# Flat dollar amount added to the supplier's COST price to produce the Shopify
-# selling price. These differ per supplier — do not collapse back to one flat
-# rate. Keys match the supplier keys used in production/config.py.
-SUPPLIER_MARKUP = {
-    "northcountry": 46.50,
-    "dttire":       46.50,
-    "formula":      46.50,
-    "wheelsmart":   36.50,
-    "emerge":       36.50,
-    "wheelspro":    46.50,   # no pipeline exists yet — recorded for when it lands
-}
+# ── Per-supplier markup ───────────────────────────────────────────────────────
+# The table is no longer hard-coded here: the client edits it before each run
+# (dashboard → "Markup per supplier"), and markup.py is the single definition
+# shared with production/config.py. Each supplier is either dollar or percent.
+#
+# Loaded by path, not by `import markup`: the per-supplier config.py shims pull
+# this file in via spec_from_file_location, so pipelines/shared/ is never on
+# sys.path and a plain import would fail there.
+import importlib.util as _ilu
+
+_markup_spec = _ilu.spec_from_file_location(
+    "_sbot_markup",
+    _os_env.path.join(_os_env.path.dirname(_os_env.path.abspath(__file__)), "markup.py"),
+)
+markup = _ilu.module_from_spec(_markup_spec)
+_markup_spec.loader.exec_module(markup)
+
+DEFAULT_RULES     = markup.DEFAULT_RULES
+MarkupConfigError = markup.MarkupConfigError
+describe_markup   = markup.describe
+load_markups      = markup.load
+save_markups      = markup.save
+price_floor       = markup.price_floor
+price_with_markup = markup.price_with_markup
+markup_rule_for   = markup.rule_for
 
 
 def markup_for(supplier):
-    """Return the markup for a supplier key.
+    """Back-compat shim: the flat dollar markup for a supplier.
 
-    Raises on an unknown supplier rather than falling back to a default: a
-    silently-wrong markup is a pricing error on every SKU that supplier feeds,
-    which is far worse than a loud failure.
+    Only meaningful while that supplier is on dollar mode. Under percent mode
+    the markup depends on the item's cost, so there is no single number to
+    return and this raises — callers must use price_with_markup(cost, supplier).
+    Failing here is the point: a caller that kept doing `cost + markup_for(s)`
+    after the client switched s to a percentage would misprice that whole feed.
     """
-    try:
-        return SUPPLIER_MARKUP[supplier]
-    except KeyError:
-        raise KeyError(
-            f"No markup configured for supplier {supplier!r}. "
-            f"Known suppliers: {sorted(SUPPLIER_MARKUP)}"
-        ) from None
+    rule = markup_rule_for(supplier)
+    if rule["mode"] != "dollar":
+        raise MarkupConfigError(
+            f"Supplier {supplier!r} uses a {rule['mode']} markup "
+            f"({describe_markup(supplier)}), which has no fixed dollar value. "
+            f"Use price_with_markup(cost, {supplier!r}) instead of markup_for().")
+    return rule["value"]
 
 # ── Shared SKU/handle map paths (absolute — always written/read from shared/Data/) ──
 import os as _os

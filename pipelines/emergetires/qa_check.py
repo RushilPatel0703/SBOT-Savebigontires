@@ -16,9 +16,13 @@ import csv
 import re
 from collections import Counter
 
-from config import markup_for
+from config import describe_markup, price_floor
 
-MARKUP = markup_for("emerge")
+MARKUP_SUPPLIER = "emerge"
+# Cheapest price the markup alone can produce (a zero-cost row). Under a dollar
+# markup that is the markup itself; under a percent markup it is 0, since a
+# percentage of a missing cost is 0 rather than a bare markup.
+PRICE_FLOOR = price_floor(MARKUP_SUPPLIER)
 
 # ── Thresholds ────────────────────────────────────────────────────────────────
 RIMDIATAG_MIN_PCT   = 99.0
@@ -207,11 +211,12 @@ def main():
     for r in shopify_rows:
         try:
             price = float(r.get("Variant Price", 0) or 0)
-            if price <= MARKUP:
+            if price <= PRICE_FLOOR:
                 price_issues += 1
         except (ValueError, TypeError):
             price_issues += 1
-    record("6: Variant Price > MARKUP", f"{price_issues} issues", "0",
+    record(f"6: Variant Price > markup floor ({describe_markup(MARKUP_SUPPLIER)})",
+           f"{price_issues} issues", "0",
            "PASS" if price_issues == 0 else "FAIL")
 
     # ── Check 7: Duplicate size in title ─────────────────────────────────────
