@@ -28,7 +28,7 @@ BASE_URL     = "https://online.northcountrytire.ca/WebOrder/CostarApi"
 _SIGNING_KEY = "5318f4ce4b9bab05c09df20c3d5d8d4c26570542501b1d58231159cd42e65505"
 
 # ── Update this when session expires ─────────────────────────────────────────
-COOKIE_STRING = "CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.7.151.0&DbVersion=0005.0007.0151.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=%2f8ePywhbmdFAiW5PmeBA0H3l0kof%2bWz6CvX%2fdS9szeYaRIt%2ffqdrgd6VeJ2OYO74&UnifiedBuildNumber=5.7.151.0&Ux=M48B07OD&CostarLanguage=&SessionID=8d4205cf-4120-4d4c-9bec-80222ea97135; CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=&UserID=e00a3412-880f-46fd-8380-a4ef55b571ce; ASP.NET_SessionId=ydmhek4igjdksh0osaot4akb"
+COOKIE_STRING = "CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.7.151.0&DbVersion=0005.0007.0151.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=R8DkHILdQzKWxK4KKfoxGnPbNHP%2fdG6ou%2fxKy7JtUAuI19cPXaNZpz%2fkPslUJMjh&UnifiedBuildNumber=5.7.151.0&Ux=M48B07OD&CostarLanguage=&SessionID=d1feba5e-2eae-4626-a4f4-32357389b11d; CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=&UserID=cc332d82-a5cb-4682-823e-229272aaf7e7; ASP.NET_SessionId=0tgas04e42nx5rrv20oukp5i"
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Live, refreshable session state — see scraper_tires.py / costar_session.py.

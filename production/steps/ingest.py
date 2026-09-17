@@ -29,6 +29,15 @@ _sku_normalize_spec.loader.exec_module(_sku_normalize_mod)
 normalize_sku = _sku_normalize_mod.normalize_sku
 disambiguate_skus = _sku_normalize_mod.disambiguate_skus
 
+# Same file-path load for the consumer-tire filter, for the same reason: the
+# keep/discard rules are the client's and must read identically here and in the
+# pipelines/ layer.
+_size_parser_spec = importlib.util.spec_from_file_location(
+    "_size_parser", config.PIPELINES_DIR / "shared" / "size_parser.py")
+_size_parser_mod = importlib.util.module_from_spec(_size_parser_spec)
+_size_parser_spec.loader.exec_module(_size_parser_mod)
+consumer_size_filter = _size_parser_mod.consumer_size_filter
+
 
 def find_latest(pattern_path):
     import glob
@@ -44,13 +53,31 @@ def coerce_qty(val):
         return 0
 
 
+def filter_size_series(df):
+    """The column to run the consumer-tire filter against, or None if there isn't one.
+
+    Most cleaned feeds carry a parsed 'size'. WheelMart is ingested from its raw
+    file, where the only usable size is the leading token of 'description'
+    ("LT265/70R17 121/118S - 10PR POWERHUB…") — its own size_raw is a digit
+    blob (2355018101) that the filter would reject wholesale. The token is
+    taken rather than the whole description on purpose: a filter that scans
+    free text would read the LT in a model name like "XLT" as a light-truck
+    marker and keep whatever follows.
+    """
+    if "size" in df.columns:
+        return df["size"].astype(str)
+    if "description" in df.columns:
+        return df["description"].astype(str).str.strip().str.split().str[0].fillna("")
+    return None
+
+
 def load_supplier_frame(supplier, cfg, product_type, log):
     """Returns (rows, meta) — rows ready for supplier_staging, meta for validation."""
     file_type = cfg.get("type_alias", {}).get(product_type, product_type)
     pattern   = config.PIPELINES_DIR / cfg["pattern"].format(type=file_type)
     path      = find_latest(pattern)
     meta = {"supplier": supplier, "product_type": product_type,
-            "file": None, "age_days": None, "rows": 0}
+            "file": None, "age_days": None, "rows": 0, "non_consumer_dropped": 0}
     if not path:
         log.warning(f"[{supplier}/{product_type}] no file matching {pattern}")
         return [], meta
@@ -111,6 +138,31 @@ def load_supplier_frame(supplier, cfg, product_type, log):
         before = len(df)
         df = df[df["_qty"] >= cfg.get("min_qty", 4)]
         log.info(f"[{supplier}/{product_type}] low-qty filter: {before} → {len(df)}")
+
+    # ATV, UTV, golf-cart and heavy-commercial sizes ship inside the same
+    # supplier feeds as the passenger and light-truck tires the store sells.
+    # Drop them here, at the edge of the warehouse, so no later step has to
+    # re-derive the distinction — and before the dedup, so a dropped row cannot
+    # be the "first occurrence" that wins over a kept duplicate.
+    if product_type == "tires":
+        sizes = filter_size_series(df)
+        if sizes is None:
+            log.error(f"[{supplier}/{product_type}] no size or description column — "
+                      f"feed passes through UNFILTERED for ATV/UTV/golf/commercial sizes")
+            meta["non_consumer_refused"] = "no size column"
+        else:
+            before = len(df)
+            keep, dropped, refusal = consumer_size_filter(sizes)
+            if refusal:
+                log.error(f"[{supplier}/{product_type}] non-consumer size filter {refusal}")
+                meta["non_consumer_refused"] = refusal
+            df = df[pd.Series(keep, index=df.index)]
+            meta["non_consumer_dropped"] = before - len(df)
+            if dropped and not refusal:
+                log.info(f"[{supplier}/{product_type}] non-consumer size filter: "
+                         f"{before} → {len(df)} ({before - len(df)} ATV/UTV/golf/"
+                         f"commercial, {len(dropped)} distinct sizes, "
+                         f"e.g. {', '.join(dropped[:5])})")
 
     # WheelMart lists some rims under both a "WHEEL:" and a "RAC:" name sharing
     # one trailing model code. They are DIFFERENT products (client-confirmed),
