@@ -40,7 +40,7 @@ CA_BUNDLE    = ca_bundle()
 _SIGNING_KEY = "5318f4ce4b9bab05c09df20c3d5d8d4c26570542501b1d58231159cd42e65505"
 
 # ── Update this when session expires (or run refresh_session.py) ──────────────
-COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=Gjg2uck6Y7pl%2fZtRFx567g%3d%3d&UserID=ff13c604-7331-4f53-8a6b-1f7337f97a33; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.6.15.0&DbVersion=0005.0006.0015.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=9o9Ctxiy7TrgS3eCkGlEEZ6FCLOl%2foybTCw9yFLlcLI5uvXhQmnYEqu4mUVDkhPG&UnifiedBuildNumber=5.6.15.0&Ux=I34R06XR&CostarLanguage=&SessionID=a329bcc8-3e8e-4289-b665-80c096926420; ASP.NET_SessionId=tau4c2on0ih5lhf1z2x0sb4h"
+COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=Gjg2uck6Y7pl%2fZtRFx567g%3d%3d&UserID=43580a72-3107-450a-baed-fef4ec591237; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.6.15.0&DbVersion=0005.0006.0015.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=N8j4L6skDR5IDBglLjQzU%2b5V6Asmr4CY%2f3Pyv1L0Xvys%2bLxPJ%2bfr2wC6xb5X1kIP&UnifiedBuildNumber=5.6.15.0&Ux=I34R06XR&CostarLanguage=&SessionID=7a77858c-87dd-4d06-882b-be356389cdfc; ASP.NET_SessionId=apl2y5oer13wgp0abcqf54i1"
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Live, refreshable session state — see costar_session.py / northcountry/scraper_tires.py.

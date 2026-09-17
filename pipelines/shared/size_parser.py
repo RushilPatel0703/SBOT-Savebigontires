@@ -370,3 +370,167 @@ def format_wheel_size(size_str):
     if w is None:
         return str(d)
     return f"{d}X{int(round(w * 10))}"
+
+
+# ── Consumer-tire filter: passenger (P-metric/euro-metric) + light truck only ──
+# The supplier feeds carry ATV, UTV, golf-cart and heavy-commercial sizes in the
+# same files as the tires the store actually sells. Client-specified rules,
+# evaluated in this exact priority order:
+#
+#   1. Any size carrying an LT marker is kept, whatever shape it has
+#      (LT265/70R17, 35X12.50R17LT, 7.50R16LT) — except a half-inch rim,
+#      which is a commercial fitment, not a pickup one.
+#   2. Otherwise the rim diameter decides: 8/9/10/12 is ATV, UTV or golf cart,
+#      and 14 is ATV *only* when the size is written in the X/dash flotation
+#      form (30X10R14) — plenty of real passenger tires are 14" metric.
+#   3. What survives must look like a passenger size: a P prefix, or a
+#      3-digit section width in 135-335 followed by a slash.
+#   4. Trailer (ST) and commercial half-inch rims are excluded outright.
+#
+# Rule 4 is applied ahead of rule 3 because it is an exclusion and rule 3 is an
+# accept — 275/70R22.5 matches the passenger shape but is a semi-truck tire.
+
+# Rim diameter is the last number introduced by a size separator, which skips
+# trailing load-index/speed tokens ("265/70R17 112T" → 17) and the section
+# width ("25X8-12" → 12). Diameters are 1-2 digits, optionally .5, and the
+# 3-digit lookahead is what keeps a load index out ("LT265/70R17 121/118S").
+# R and D take an optional F: on a run-flat (285/45RF21) the construction
+# letter is followed by the F, and without it the rim read as the aspect
+# ratio — 45 rather than 21.
+_RIM_AFTER_SEP = re.compile(r'(?:[-/X]|[RD]F?)(\d{1,2}(?:\.\d+)?)(?!\d)')
+
+_FILTER_PASSENGER_P     = re.compile(r'^P\s*\d')     # P215/65R16
+_FILTER_PASSENGER_WIDTH = re.compile(r'^(\d{3})/')   # 205/55R16
+
+
+def _rim_diameter(upper_size):
+    """Last separator-introduced number in an upper-cased size, or None."""
+    matches = _RIM_AFTER_SEP.findall(upper_size)
+    return float(matches[-1]) if matches else None
+
+
+# Formula writes its sizes as 185-65-15. Its augment step rewrites that to
+# 185/65R15 before the Shopify CSV is built, which left the two roads to the
+# store disagreeing about 14 real passenger tires: the bundle saw the slash
+# form and kept them, ingest saw the dashed form and dropped them as
+# unrecognized — and rule 2 would have read a dashed 14" rim as an ATV. The
+# spelling is not a different tire, so undo it before the rules run. Pattern
+# copied from formula_distributors/augment.py normalize_size(); the two must
+# not drift.
+_DASHED_SIZE = re.compile(r'^(LT|ST|P)?(\d+)-(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)$')
+
+
+def _undash(upper_size):
+    """'185-65-15' → '185/65R15'. Anything else is returned unchanged."""
+    m = _DASHED_SIZE.match(upper_size)
+    return f"{m.group(1) or ''}{m.group(2)}/{m.group(3)}R{m.group(4)}" if m else upper_size
+
+
+def is_consumer_tire_size(size):
+    """True for a passenger or light-truck size, False for ATV/UTV/golf/commercial.
+
+    Deliberately strict: a size this cannot recognize is dropped rather than
+    listed, because an ATV tire sold as a passenger tire is a safety problem
+    while a missing SKU is a revenue one. Takes a size in any spelling the
+    feeds use — slash, dashed or the decimal-free tag form once
+    size_from_tags() has read it — so that the same tire gets the same verdict
+    whichever layer asks.
+    """
+    s = _undash(str(size or "").strip().upper())
+    if not s:
+        return False
+
+    rim = _rim_diameter(s)
+    # A half-inch rim is a commercial fitment — 16.5, 17.5, 19.5, 22.5, 24.5 —
+    # and nothing a passenger car or a pickup wears. The rules name it twice:
+    # as the exception to the LT keep, and as "commercial rim sizes like 22.5
+    # or 24.5". Reading it as one test rather than two is what makes those
+    # agree: taken literally, 8.75R16.5LT was excluded while 225/70R19.5, a
+    # medium-duty truck tire, was kept — 57 such rows across the current feeds.
+    commercial_rim = (rim is not None and rim % 1 == 0.5) or "22.5" in s or "24.5" in s
+
+    # 1. LT force-keep, minus those commercial rims.
+    if "LT" in s:
+        return not commercial_rim
+
+    # 2. ATV / UTV / golf-cart rim boundary.
+    if rim is not None:
+        if rim in (8, 9, 10, 12):
+            return False
+        if rim == 14 and ("X" in s or "-" in s):
+            return False
+
+    # 4. Trailer and heavy-commercial exclusions (before the rule-3 accept).
+    if s.startswith("ST") or commercial_rim:
+        return False
+
+    # 3. Standard passenger shapes.
+    if _FILTER_PASSENGER_P.match(s):
+        return True
+    m = _FILTER_PASSENGER_WIDTH.match(s)
+    return bool(m and 135 <= int(m.group(1)) <= 335)
+
+
+# A filter that reads the wrong column drops everything, and "everything" does
+# not look like an error downstream — it looks like a supplier that stopped
+# carrying tires, which the sync answers by zeroing that supplier's inventory
+# in the live store. So the whole-feed decision is a separate call that refuses
+# rather than proceeds, and refuses OPEN: listing an ATV tire for another week
+# is recoverable, zeroing thousands of real products is not.
+NON_CONSUMER_DROP_LIMIT_PCT = 25.0   # worst real feed today is 6.3% (formula)
+# A share is only evidence on a feed big enough to have one. Under this many
+# rows the proportion says nothing — a 4-row file with two ATV tires in it is
+# 50% and perfectly correct — so small inputs are filtered on their merits.
+# 50 matches config.MIN_ROWS_PER_SUPPLIER, this repo's existing threshold for
+# "a tire feed this short is a broken scrape, not a small supplier".
+NON_CONSUMER_GUARD_MIN_ROWS = 50
+
+
+def consumer_size_filter(sizes, limit_pct=NON_CONSUMER_DROP_LIMIT_PCT,
+                         min_rows=NON_CONSUMER_GUARD_MIN_ROWS):
+    """Apply is_consumer_tire_size across one feed.
+
+    Returns (keep_flags, dropped_sizes, refusal) — `refusal` is '' when the
+    result is usable, and otherwise explains why the filter declined to act,
+    in which case keep_flags is all-True and the caller must log loudly rather
+    than treat the feed as clean.
+    """
+    sizes = list(sizes)
+    keep = [is_consumer_tire_size(s) for s in sizes]
+    dropped = sorted({str(s).strip() for s, k in zip(sizes, keep) if not k})
+    n, n_dropped = len(keep), keep.count(False)
+    if n >= min_rows and n_dropped * 100.0 / n > limit_pct:
+        return ([True] * n, dropped,
+                f"would drop {n_dropped} of {n} rows ({n_dropped * 100.0 / n:.1f}%), "
+                f"over the {limit_pct}% limit — the size column is probably not the "
+                f"one this feed keeps sizes in; feed passed through UNFILTERED")
+    return keep, dropped, ""
+
+
+# The Shopify import CSVs carry no size column; the size lives in a structured
+# tag the augment step writes ("Brand_Atturo,Size_28X10R14,Width_28,…"), in the
+# decimal-stripped widget spelling (33X1250R20 for 33X12.50R20).
+_SIZE_TAG = re.compile(r'(?:^|,)\s*Size_([^,]*)')
+
+
+# …and that spelling is lossy in the one way these rules turn on. A half-inch
+# rim loses its point (255/70R22.5 → Size_255/70R225), which defeats both the
+# literal "22.5" exclusion and the rim parse, so 33 North Country semi-truck
+# tires read as ordinary 255-section passenger tires and were bundled. No tire
+# has a 3-digit rim diameter — the largest made is 30 — so a 3-digit run after
+# the construction letter is always a stripped half-inch. Restoring it here,
+# at the point the tag is read, keeps is_consumer_tire_size taking one kind of
+# input: a size as a human would write it.
+_TAG_STRIPPED_RIM = re.compile(r'(?<=[RD])(\d{2})(\d)(?!\d)')
+
+
+def size_from_tags(tags):
+    """The Size_ tag out of a Shopify import row's Tags cell, or ''.
+
+    Returned in ordinary size spelling, not the tag's decimal-free one.
+    """
+    m = _SIZE_TAG.search(str(tags or ""))
+    if not m:
+        return ""
+    return _TAG_STRIPPED_RIM.sub(lambda hit: hit.group(1) + "." + hit.group(2),
+                                 m.group(1).strip())

@@ -50,6 +50,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from size_parser import consumer_size_filter, size_from_tags
+
 CSV_TARGET_MB = 14.5          # safety margin under Shopify's hard 15 MB limit
 _TS_SUFFIX = re.compile(r"_\d{8}_\d{6}$")
 
@@ -220,6 +222,43 @@ def _dedupe_handles(df):
 SKU_COLUMN = "Variant SKU"
 
 
+def source_product_type(path):
+    """'tires' | 'wheels' | '' for a Shopify_SEO source file, from its name."""
+    m = _TYPE_TOKEN.search(_TS_SUFFIX.sub("", Path(path).stem))
+    if not m:
+        return ""
+    token = m.group(1).lower()
+    return "wheels" if token == "rims" else token
+
+
+def filter_consumer_tires(frame, path):
+    """Drop ATV/UTV/golf-cart/commercial rows from a tires import file.
+
+    This is the second road to the storefront. production/steps/ingest.py
+    filters the road the weekly sync takes; this one is the bundle the client
+    uploads by hand from the dashboard, and it is built from the augment
+    output rather than from the cleaned CSVs, so the ingest filter never sees
+    it. Before this, the first three rows of the North Country bundle were
+    Atturo/Kenda 28X10R14 SxS tires — side-by-sides, uploaded as passenger
+    stock. Both roads must apply the same rules or the store's contents depend
+    on which button was pressed.
+
+    Returns (kept_frame, dropped_count, refusal).
+    """
+    if source_product_type(path) != "tires":
+        return frame, 0, ""
+    if "Tags" not in frame.columns:
+        return frame, 0, (f"{Path(path).name} has no 'Tags' column, which is where the "
+                          f"size lives in a Shopify import file — passed through "
+                          f"UNFILTERED")
+    sizes = frame["Tags"].apply(size_from_tags)
+    keep, _dropped, refusal = consumer_size_filter(sizes)
+    if refusal:
+        return frame, 0, f"{Path(path).name}: {refusal}"
+    kept = frame[pd.Series(keep, index=frame.index)]
+    return kept, len(frame) - len(kept), ""
+
+
 def filter_new_products(frame, exclude_skus):
     """Rows whose SKU is not already in the store. Returns (kept, dropped_count).
 
@@ -277,6 +316,7 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None,
 
     frames, manifest = [], []
     total_dropped = 0
+    total_non_consumer = 0
     for path in sources:
         try:
             frame = pd.read_csv(path, dtype=str, keep_default_na=False)
@@ -284,6 +324,10 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None,
             return [], f"Error reading {path.name}: {exc}"
         source_rows = len(frame)
         dropped = 0
+        frame, non_consumer, refusal = filter_consumer_tires(frame, path)
+        if refusal:
+            print(f"WARNING: non-consumer size filter {refusal}")
+        total_non_consumer += non_consumer
         if exclude_skus is not None:
             if SKU_COLUMN not in frame.columns:
                 return [], (f"{path.name} has no '{SKU_COLUMN}' column, so new-vs-existing "
@@ -292,15 +336,21 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None,
             frame, dropped = filter_new_products(frame, exclude_skus)
             total_dropped += dropped
         frames.append(frame)
-        manifest.append((path, len(frame),
-                         datetime.fromtimestamp(path.stat().st_mtime), source_rows, dropped))
+        manifest.append((path, len(frame), datetime.fromtimestamp(path.stat().st_mtime),
+                         source_rows, dropped, non_consumer))
 
     print(f"Sources ({len(manifest)}):")
-    for path, rows, mtime, source_rows, dropped in manifest:
-        suffix = f"  (of {source_rows:,}, {dropped:,} already in store)" if exclude_skus is not None else ""
+    for path, rows, mtime, source_rows, dropped, non_consumer in manifest:
+        why = ([f"{dropped:,} already in store"] if exclude_skus is not None else [])
+        why += ([f"{non_consumer:,} non-consumer"] if non_consumer else [])
+        suffix = f"  (of {source_rows:,}, {', '.join(why)})" if why else ""
         print(f"  {mtime:%Y-%m-%d %H:%M}  {rows:7,d}  {path.name}{suffix}")
-    total_rows = sum(rows for _, rows, _, _, _ in manifest)
+    total_rows = sum(rows for _, rows, _, _, _, _ in manifest)
     print(f"  {'':16s}  {total_rows:7,d}  TOTAL")
+    if total_non_consumer:
+        print("")
+        print(f"Non-consumer size filter: {total_non_consumer:,} ATV/UTV/golf-cart/"
+              f"commercial row(s) excluded.")
 
     if exclude_skus is not None:
         print(f"\nNew-products-only: {total_dropped:,} row(s) skipped as already in the "
@@ -364,12 +414,14 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None,
              f"Contents: {kind}",
              f"Total rows: {len(merged):,}",
              f"Handle collisions disambiguated: {handle_fixes}"]
+    if total_non_consumer:
+        lines += [f"Rows excluded as ATV/UTV/golf-cart/commercial: {total_non_consumer:,}"]
     if exclude_skus is not None:
         lines += [f"Rows skipped as already in the store: {total_dropped:,}",
                   f"Store SKUs compared against: {len(exclude_skus):,}"]
     lines += ["", "Sources:"]
     lines += [f"  {m:%Y-%m-%d %H:%M}  {r:7,d}  {_repo_rel(p)}"
-              for p, r, m, _sr, _d in manifest]
+              for p, r, m, _sr, _d, _nc in manifest]
     lines += ["", "Parts:"]
     lines += [f"  {p.name}" for p in out_files]
     (out_dir / "manifest.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")

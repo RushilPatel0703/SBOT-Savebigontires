@@ -27,7 +27,7 @@ OUTPUT_FILE = f"Data/raw/formula_tires_{datetime.now().strftime('%Y%m%d_%H%M%S')
 # ── Cookies ──────────────────────────────────────────────────────────────────
 # Paste the full cookie string from the browser (copy as cURL → -b "...") here.
 # At minimum you need ASP.NET_SessionId + the CostarWeb* cookies.
-COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=j2tgG82DEmJzPxfO1ysuHg%3d%3d&UserID=edbf7344-4e9c-499d-8f40-0d42154b14d8; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.7.138.0&DbVersion=0005.0007.0138.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=IObt80n5mar5hRkCzVzZLA%2b6oOyPbzZLE3LfT2jO32MWA9vfH5cElQPGliO%2bkYBD&UnifiedBuildNumber=5.7.138.0&Ux=R64Q46VF&CostarLanguage=&SessionID=5ff3b8ca-56d0-44a9-a83d-a1f6ac2f4844; ASP.NET_SessionId=n1lbt5xqmiwgud1gytgbchfl"
+COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=j2tgG82DEmJzPxfO1ysuHg%3d%3d&UserID=f0fea50f-4495-42e7-aeb5-199405bd49c2; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.7.138.0&DbVersion=0005.0007.0138.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=TRuoaCyfYDx04F0QCLYZYgjB5e15CpjG6agkuoRmJZQgEr3V%2bAhEapHq6d0ycsul&UnifiedBuildNumber=5.7.138.0&Ux=R64Q46VF&CostarLanguage=&SessionID=26eaa4ed-f559-48dc-b41c-526beacb9222; ASP.NET_SessionId=gszst0at43q3vf3r5whakibg"
 
 # Live, refreshable session state — see costar_session.py / northcountry/scraper_tires.py.
 _SESSION = CostarSessionGuard("formula", COOKIE_STRING, __file__)

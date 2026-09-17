@@ -494,16 +494,15 @@ def markup_section():
         st.info(f"Markup is locked while a pipeline is running ({', '.join(running)}).")
 
     with st.form("markup_form"):
-        head = st.columns([3, 3, 2, 3])
+        head = st.columns([3, 3, 2])
         head[1].markdown("**Type**")
         head[2].markdown("**Amount**")
-        head[3].markdown("**A $100 cost sells for**")
 
         chosen = {}
         for key, cfg in PIPELINES.items():
             mk   = markup_key_for(key)
             rule = rules.get(mk, {"mode": markup.DOLLAR, "value": 0.0})
-            cols = st.columns([3, 3, 2, 3])
+            cols = st.columns([3, 3, 2])
 
             cols[0].markdown(f"{cfg['icon']} **{cfg['label']}**")
             mode = cols[1].radio(
@@ -527,10 +526,6 @@ def markup_section():
                 label_visibility="collapsed",
                 disabled=bool(running),
             )
-            # Worked example against the values as they were last saved, so the
-            # client can see what a dollar vs percent choice actually does.
-            cols[3].markdown(f"`${markup.price_with_markup(100.0, mk, rules):,.2f}`"
-                             f" &nbsp;({markup.describe(mk, rules)})", unsafe_allow_html=True)
             # Left uncoerced on purpose: keyed widgets need session state, so on a
             # bare `import dashboard` (the tests do this) they hand back a sentinel
             # rather than a number. Coerced below, where a real run is guaranteed.
