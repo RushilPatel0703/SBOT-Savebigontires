@@ -1,0 +1,25 @@
+# Theme for the inventory dashboard.
+#
+# Read from the working directory, and launch_dashboard.bat / .sh both `cd
+# pipelines` before starting Streamlit — so this file must live here, not at the
+# repo root, or Streamlit will not find it.
+#
+# primaryColor is the same blue the supplier-card rule in dashboard.py uses
+# (rgb 28,131,225), so the accent on a button and the rule on a card are one
+# color rather than two that nearly match.
+
+[theme]
+base                     = "light"
+primaryColor             = "#1C83E1"
+backgroundColor          = "#FFFFFF"
+secondaryBackgroundColor = "#F3F6FA"
+textColor                = "#16202B"
+font                     = "sans serif"
+
+[server]
+# A scrape writes into Data/ while the dashboard is open; without this, every
+# CSV a pipeline produces restarts the page and loses the form state on it.
+fileWatcherType = "none"
+
+[browser]
+gatherUsageStats = false

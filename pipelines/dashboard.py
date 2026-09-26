@@ -303,7 +303,6 @@ def _production_json(script: str, args: list[str], timeout: int = 180):
         return None, f"{script} produced no usable output:\n{detail[-1500:]}"
 
 
-
 # ── UI helpers ─────────────────────────────────────────────────────────────────
 def status_badge(s: dict, running: bool):
     if running:
@@ -372,76 +371,78 @@ def parse_log_progress(log_path: str | None) -> dict:
         "step_list":  step_list,
     }
 
-# ── Page ───────────────────────────────────────────────────────────────────────
-st.set_page_config(page_title="Tire Inventory Pipeline", page_icon="🔄", layout="wide")
-st.title("🔄  Save Big On Tires — Inventory Pipeline")
-st.caption("Scrape, clean, and sync tire & wheel inventory from all 5 suppliers to Shopify.")
-
-# Per-supplier card styling — rgba() washes rather than fixed hex so the tint
-# blends correctly against both light and dark theme backgrounds automatically.
-_CARD_RGB = {
-    "blue":   (28, 131, 225),
-    "green":  (33, 195, 84),
-    "orange": (255, 140, 0),
-    "violet": (138, 63, 252),
-    "red":    (229, 72, 77),
-}
-_TINT_RGB = _CARD_RGB["blue"]  # same wash on every card, regardless of accent color
-_card_css = "\n".join(
-    f""".st-key-card_{key} {{
-        border: 1px solid rgba({_TINT_RGB[0]},{_TINT_RGB[1]},{_TINT_RGB[2]},0.35) !important;
-        border-left: 5px solid rgba({_TINT_RGB[0]},{_TINT_RGB[1]},{_TINT_RGB[2]},0.9) !important;
-        background: rgba({_TINT_RGB[0]},{_TINT_RGB[1]},{_TINT_RGB[2]},0.06);
-        border-radius: 10px;
-        transition: box-shadow .15s ease, transform .15s ease;
-    }}
-    .st-key-card_{key}:hover {{
-        box-shadow: 0 6px 16px rgba({_TINT_RGB[0]},{_TINT_RGB[1]},{_TINT_RGB[2]},0.25);
-        transform: translateY(-2px);
-    }}"""
-    for key in PIPELINES
+# ── Page config + theme ────────────────────────────────────────────────────────
+st.set_page_config(
+    page_title="Save Big On Tires — Inventory Pipeline",
+    page_icon="🔄",
+    layout="wide",
+    initial_sidebar_state="expanded",
 )
-# Progress bars only — scoped to stProgress so the primary-button color elsewhere
-# on the page (Run, Cancel, etc.) is untouched.
-_gr = _CARD_RGB["green"]
-_progress_css = f"""
-[data-testid="stProgressBarTrack"] > div {{ background-color: rgb({_gr[0]},{_gr[1]},{_gr[2]}) !important; }}
-"""
-st.markdown(f"<style>{_card_css}\n{_progress_css}</style>", unsafe_allow_html=True)
 
-# ─── Sidebar: at-a-glance status ────────────────────────────────────────────────
+# Colors, fonts and the button accent live in .streamlit/config.toml. Only what
+# the theme cannot reach is set here, and it stays in rgba() so the same rule
+# works against either theme background.
+_ACCENT = (28, 131, 225)
+_a = _ACCENT
+_CSS = f"""
+/* Supplier rows: one quiet left rule each. The previous tinted, hover-lifting
+   panels turned five stacked cards into five competing surfaces. */
+{", ".join(f".st-key-card_{k}" for k in PIPELINES)} {{
+    border: 1px solid rgba({_a[0]},{_a[1]},{_a[2]},0.16) !important;
+    border-left: 3px solid rgba({_a[0]},{_a[1]},{_a[2]},0.7) !important;
+    border-radius: 6px;
+    background: transparent !important;
+}}
+/* Progress bars only — scoped to stProgress so buttons keep the theme accent. */
+[data-testid="stProgressBarTrack"] > div {{
+    background-color: rgba({_a[0]},{_a[1]},{_a[2]},0.85) !important;
+}}
+/* The tab strip is now the page's primary navigation, so give it some weight. */
+[data-baseweb="tab-list"] {{ gap: 2px; }}
+button[data-baseweb="tab"] {{ font-size: 0.95rem; font-weight: 500; }}
+/* Headers sit closer to the copy that explains them. */
+h2, h3 {{ padding-top: 0.2rem; padding-bottom: 0.2rem; }}
+"""
+st.markdown(f"<style>{_CSS}</style>", unsafe_allow_html=True)
+
+# ─── Sidebar: the one overall status summary ────────────────────────────────────
+# Each tab shows only its own step, so this is where "where is the run up to?"
+# gets answered — and the only place it is answered, which is why the supplier
+# cards no longer carry a status badge of their own.
 @st.fragment(run_every=2)
 def sidebar_status():
     status = load_status()
-    st.sidebar.subheader("At a glance")
+    st.sidebar.markdown("#### Progress")
 
     def _line(label: str, s: dict, running: bool):
         if running:
-            st.sidebar.markdown(f"⏳ **{label}** — running")
+            dot, tail = ":blue[●]", " — running"
         elif s.get("status") == "success":
-            st.sidebar.markdown(f"✅ **{label}** — done")
+            dot, tail = ":green[●]", " — done"
         elif s.get("status") == "failed":
-            st.sidebar.markdown(f"❌ **{label}** — failed")
+            dot, tail = ":red[●]", " — failed"
         else:
-            st.sidebar.markdown(f"⚪ **{label}** — not run")
+            dot, tail = ":gray[○]", ""
+        st.sidebar.markdown(f"{dot} {label}{tail}")
 
+    st.sidebar.caption("STEP 1 — COOKIES")
     _line("Cookies", status.get("cookies", {}), is_running("cookies", status))
-    st.sidebar.divider()
+
+    st.sidebar.caption("STEP 2 — SUPPLIERS")
     for key, cfg in PIPELINES.items():
         _line(cfg["label"], status.get(key, {}), is_running(key, status))
+    done = sum(1 for k in PIPELINES if status.get(k, {}).get("status") == "success")
+    st.sidebar.progress(done / len(PIPELINES),
+                        text=f"{done} of {len(PIPELINES)} suppliers complete")
+
     if status.get("enrich", {}).get("status") or is_running("enrich", status):
-        st.sidebar.divider()
+        st.sidebar.caption("STEP 3 — ENRICHMENT")
         _line("Enrichment", status.get("enrich", {}), is_running("enrich", status))
     if status.get("sync", {}).get("status") or is_running("sync", status):
-        st.sidebar.divider()
+        st.sidebar.caption("STEP 5 — SHOPIFY SYNC")
         _line("Shopify sync", status.get("sync", {}), is_running("sync", status))
 
-sidebar_status()
-
 # ─── Step 1: Cookies ───────────────────────────────────────────────────────────
-st.header("Step 1 — Refresh Cookies")
-st.caption("Run before every pipeline run.")
-
 @st.fragment(run_every=3)
 def step1_section():
     status  = load_status()
@@ -455,14 +456,8 @@ def step1_section():
         status_badge(s, running)
     show_log(s, expanded=running)
 
-step1_section()
-st.divider()
 
-# ─── Step 2: Supplier Pipelines ────────────────────────────────────────────────
-st.header("Step 2 — Run Supplier Pipelines")
-st.caption("Run each supplier. Pipelines run in the background — you can close this browser tab if you'd like.")
-st.warning("⚠️  Do not turn off or restart the computer while pipelines are running — this kills any scrape in progress.")
-
+# ─── Step 2: Supplier pipelines ────────────────────────────────────────────────
 def markup_key_for(key: str) -> str:
     """Dashboard pipeline key → the supplier key the pricing layers use."""
     return PIPELINES[key].get("markup_key", key)
@@ -658,21 +653,8 @@ def step2_section():
 
         show_log(s, label=f"View log — {cfg['label']}", expanded=running)
 
-markup_section()
-st.write("")
-step2_section()
-st.divider()
 
-# ─── Step 3: Data Enrichment ───────────────────────────────────────────────────
-st.header("Step 3 — Data Enrichment (optional)")
-st.caption(
-    "Fills in product images, designations, and tire specs (load index, speed rating, "
-    "load range, section width, aspect ratio, rim diameter) that no supplier feed "
-    "provides and free parsing couldn't recover. Fixes reused from searches already "
-    "paid for are free; anything new costs a search on the client's SerpAPI key and "
-    "needs your approval below."
-)
-
+# ─── Step 3: Data enrichment ───────────────────────────────────────────────────
 ENRICH_RUNNER    = "shared/enrich_runner.py"
 ENRICH_SCAN_FILE = BASE / ".enrich_scan.json"
 
@@ -972,15 +954,8 @@ def step3_section():
                        "continue to Step 4 below.")
         show_log(enrich_s, label="View log — enrichment", expanded=enriching)
 
-step3_section()
-st.divider()
 
-# ─── CSV Upload helper ─────────────────────────────────────────────────────────
-st.header("Step 4 — Upload New Products to Shopify (when needed)")
-st.caption(
-    "Only required when suppliers have new SKUs not yet in Shopify. "
-    "For regular price/inventory syncs, no upload is needed."
-)
+# ─── Step 4: CSV upload bundle ─────────────────────────────────────────────────
 
 CSV_LIMIT_MB  = 15.0   # Shopify hard limit per import file
 CSV_TARGET_MB = 14.5   # split target — safety margin under the hard limit
@@ -1008,10 +983,6 @@ def prepare_upload_files(exclude_skus=None) -> tuple[list[Path], str]:
     return _upload_bundle.prepare_upload_files(
         [cfg["dir"] for cfg in PIPELINES.values()], exclude_skus=exclude_skus)
 
-
-# Show existing upload_ready folders — sort by actual mtime, not folder name (names like "9 July" sort after "10 July" alphabetically)
-existing_runs = sorted(UPLOAD_READY.glob("*/"), key=lambda p: p.stat().st_mtime, reverse=True) if UPLOAD_READY.exists() else []
-
 def _store_sku_set() -> tuple[set, dict | None, str | None]:
     """SKUs already in the store, read from the catalog mirror via production/.
 
@@ -1029,98 +1000,6 @@ def _store_sku_set() -> tuple[set, dict | None, str | None]:
     except (OSError, ValueError) as e:
         return set(), meta, f"Could not read the store SKU list: {e}"
     return set(doc.get("skus", [])), meta, None
-
-
-# Which products go in the bundle. "New only" is the default because an import
-# exists to CREATE products: re-uploading the ~15.6k that already exist changes
-# nothing in the store (price and quantity are the Sync button's job) and turns
-# a single 4 MB file into several 15 MB ones that take far longer to import.
-bundle_mode = st.radio(
-    "What to include",
-    ["New products only (not yet in the store)", "All products"],
-    index=0, horizontal=True, key="bundle_mode",
-    help="New-only compares the supplier CSVs against the store's SKUs, using the "
-         "catalog mirror that the Sync button refreshes on every run.",
-)
-new_only = bundle_mode.startswith("New")
-
-col_btn, col_info = st.columns([2, 5])
-with col_btn:
-    if st.button("📦  Prepare Upload Files", use_container_width=True, type="primary"):
-        exclude, meta, sku_err = (set(), None, None)
-        if new_only:
-            with st.spinner("Reading the SKUs already in the store…"):
-                exclude, meta, sku_err = _store_sku_set()
-        if sku_err:
-            st.error(sku_err)
-        elif new_only and not exclude:
-            st.error(
-                "The catalog mirror is empty, so every product would look new. "
-                "Run Step 5 → Preview once (it refreshes the mirror from Shopify), "
-                "then try again."
-            )
-        else:
-            with st.spinner("Merging CSVs…"):
-                files, err = prepare_upload_files(
-                    exclude_skus=exclude if new_only else None)
-            if err:
-                st.error(err)
-            else:
-                kind = "new product" if new_only else "product"
-                st.success(f"Ready — {len(files)} {kind} file(s) generated.")
-            st.rerun()
-    if new_only:
-        st.caption(
-            "Compares against the store, so only products Shopify doesn't have "
-            "are included."
-        )
-with col_info:
-    _sources = collect_source_csvs()
-    source_count = len(_sources)
-    if source_count:
-        st.caption(f"{source_count} supplier CSV(s) found and ready to merge.")
-        # Say this BEFORE the click, not as an error after it. A supplier CSV
-        # older than the cleaned file behind it means a fix never reached the
-        # output, and the finished bundle cannot show that — it is newer than
-        # everything in it either way.
-        _stale = _upload_bundle.stale_sources(_sources)
-        if _stale:
-            _nl = chr(10)
-            _lines = [f"- `{o.name}` <- `{i.name}`" for o, i in _stale]
-            st.error(
-                f"{len(_stale)} supplier CSV(s) are older than the data they were "
-                f"built from, so bundling is blocked until their augment step is "
-                f"re-run:" + _nl + _nl + _nl.join(_lines)
-            )
-        # Bundling before enriching produces a valid upload that is simply
-        # missing images it could have had — worth a nudge, not a block.
-        _pending = load_enrich_scan().get("total_needs_paid", 0)
-        if _pending:
-            st.caption(f"⚠️  {_pending} row(s) could still be enriched in Step 3 above. "
-                       f"Bundling now ships them without an image.")
-
-        # How current the new-vs-existing comparison is. The mirror is refreshed
-        # by Step 5's catalog export, so a client who has not synced in a while
-        # would re-import products that already exist — harmless (Shopify matches
-        # on Handle and updates) but slow and confusing. Say it up front.
-        if new_only:
-            _mirror = st.session_state.get("bundle_mirror_meta")
-            if _mirror is None:
-                _mirror, _ = _production_json("store_skus.py", [], timeout=120)
-                st.session_state["bundle_mirror_meta"] = _mirror or {}
-            _age = (_mirror or {}).get("age_hours")
-            _count = (_mirror or {}).get("count")
-            if _count:
-                _line = f"Comparing against {_count:,} SKUs in `{_mirror.get('shop','the store')}`"
-                if _age is not None:
-                    _line += f", last refreshed {_age} h ago."
-                if _age is not None and _age > 24:
-                    st.warning(_line + " Run Step 5 → Preview to refresh it, or products "
-                                       "created since will be bundled as new again.")
-                else:
-                    st.caption(_line)
-    else:
-        st.caption("No supplier CSVs found yet — run Step 2 first.")
 
 def _open_folder(path: Path):
     """Open a folder in the OS file browser — dashboard runs on the same machine as the browser."""
@@ -1151,32 +1030,121 @@ def _render_run_files(run_dir: Path, collapsed: bool = False):
     if len(files) > 1:
         st.info(f"Upload these {len(files)} files **in order** (1 → {len(files)}). Each is under {CSV_LIMIT_MB:.0f} MB.")
 
-if existing_runs:
-    col_hdr, col_open = st.columns([5, 2])
-    with col_hdr:
-        st.markdown("**Upload-ready files** — upload to Shopify Admin → Products → Import:")
-    with col_open:
-        if st.button("📂  Open Latest Folder", use_container_width=True, type="primary"):
-            _open_folder(existing_runs[0])
-    _render_run_files(existing_runs[0])
+def step4_section():
 
-    if len(existing_runs) > 1:
-        with st.expander(f"Previous runs ({len(existing_runs) - 1} older)"):
-            for run in existing_runs[1:]:
-                _render_run_files(run, collapsed=True)
-                st.divider()
-else:
-    st.caption("No upload-ready files yet — click **Prepare Upload Files** above once Step 2 has produced new products.")
+    # Show existing upload_ready folders — sort by actual mtime, not folder name (names like "9 July" sort after "10 July" alphabetically)
+    existing_runs = sorted(UPLOAD_READY.glob("*/"), key=lambda p: p.stat().st_mtime, reverse=True) if UPLOAD_READY.exists() else []
 
-st.divider()
+    # Which products go in the bundle. "New only" is the default because an import
+    # exists to CREATE products: re-uploading the ~15.6k that already exist changes
+    # nothing in the store (price and quantity are the Sync button's job) and turns
+    # a single 4 MB file into several 15 MB ones that take far longer to import.
+    bundle_mode = st.radio(
+        "What to include",
+        ["New products only (not yet in the store)", "All products"],
+        index=0, horizontal=True, key="bundle_mode",
+        help="New-only compares the supplier CSVs against the store's SKUs, using the "
+             "catalog mirror that the Sync button refreshes on every run.",
+    )
+    new_only = bundle_mode.startswith("New")
+
+    col_btn, col_info = st.columns([2, 5])
+    with col_btn:
+        if st.button("📦  Prepare Upload Files", use_container_width=True, type="primary"):
+            exclude, meta, sku_err = (set(), None, None)
+            if new_only:
+                with st.spinner("Reading the SKUs already in the store…"):
+                    exclude, meta, sku_err = _store_sku_set()
+            if sku_err:
+                st.error(sku_err)
+            elif new_only and not exclude:
+                st.error(
+                    "The catalog mirror is empty, so every product would look new. "
+                    "Run Step 5 → Preview once (it refreshes the mirror from Shopify), "
+                    "then try again."
+                )
+            else:
+                with st.spinner("Merging CSVs…"):
+                    files, err = prepare_upload_files(
+                        exclude_skus=exclude if new_only else None)
+                if err:
+                    st.error(err)
+                else:
+                    kind = "new product" if new_only else "product"
+                    st.success(f"Ready — {len(files)} {kind} file(s) generated.")
+                st.rerun()
+        if new_only:
+            st.caption(
+                "Compares against the store, so only products Shopify doesn't have "
+                "are included."
+            )
+    with col_info:
+        _sources = collect_source_csvs()
+        source_count = len(_sources)
+        if source_count:
+            st.caption(f"{source_count} supplier CSV(s) found and ready to merge.")
+            # Say this BEFORE the click, not as an error after it. A supplier CSV
+            # older than the cleaned file behind it means a fix never reached the
+            # output, and the finished bundle cannot show that — it is newer than
+            # everything in it either way.
+            _stale = _upload_bundle.stale_sources(_sources)
+            if _stale:
+                _nl = chr(10)
+                _lines = [f"- `{o.name}` <- `{i.name}`" for o, i in _stale]
+                st.error(
+                    f"{len(_stale)} supplier CSV(s) are older than the data they were "
+                    f"built from, so bundling is blocked until their augment step is "
+                    f"re-run:" + _nl + _nl + _nl.join(_lines)
+                )
+            # Bundling before enriching produces a valid upload that is simply
+            # missing images it could have had — worth a nudge, not a block.
+            _pending = load_enrich_scan().get("total_needs_paid", 0)
+            if _pending:
+                st.caption(f"⚠️  {_pending} row(s) could still be enriched in Step 3 above. "
+                           f"Bundling now ships them without an image.")
+
+            # How current the new-vs-existing comparison is. The mirror is refreshed
+            # by Step 5's catalog export, so a client who has not synced in a while
+            # would re-import products that already exist — harmless (Shopify matches
+            # on Handle and updates) but slow and confusing. Say it up front.
+            if new_only:
+                _mirror = st.session_state.get("bundle_mirror_meta")
+                if _mirror is None:
+                    _mirror, _ = _production_json("store_skus.py", [], timeout=120)
+                    st.session_state["bundle_mirror_meta"] = _mirror or {}
+                _age = (_mirror or {}).get("age_hours")
+                _count = (_mirror or {}).get("count")
+                if _count:
+                    _line = f"Comparing against {_count:,} SKUs in `{_mirror.get('shop','the store')}`"
+                    if _age is not None:
+                        _line += f", last refreshed {_age} h ago."
+                    if _age is not None and _age > 24:
+                        st.warning(_line + " Run Step 5 → Preview to refresh it, or products "
+                                           "created since will be bundled as new again.")
+                    else:
+                        st.caption(_line)
+        else:
+            st.caption("No supplier CSVs found yet — run Step 2 first.")
+
+    if existing_runs:
+        col_hdr, col_open = st.columns([5, 2])
+        with col_hdr:
+            st.markdown("**Upload-ready files** — upload to Shopify Admin → Products → Import:")
+        with col_open:
+            if st.button("📂  Open Latest Folder", use_container_width=True, type="primary"):
+                _open_folder(existing_runs[0])
+        _render_run_files(existing_runs[0])
+
+        if len(existing_runs) > 1:
+            with st.expander(f"Previous runs ({len(existing_runs) - 1} older)"):
+                for run in existing_runs[1:]:
+                    _render_run_files(run, collapsed=True)
+                    st.divider()
+    else:
+        st.caption("No upload-ready files yet — click **Prepare Upload Files** above once Step 2 has produced new products.")
+
 
 # ─── Step 5: Sync prices + inventory ───────────────────────────────────────────
-st.header("Step 5 — Sync Prices & Inventory to Shopify")
-st.caption(
-    "Pushes the merged supplier prices and quantities straight to the store over the "
-    "Shopify API — no CSV, no manual import. Only what actually changed is sent."
-)
-
 _SYNC_KEY = "sync"
 
 def sync_section():
@@ -1352,11 +1320,8 @@ def sync_section():
                 for g in gates:
                     st.markdown(f"- **{g['check_name']}** ({g['severity']}) — `{g['details']}`")
 
-sync_section()
 
-st.divider()
-
-# ─── Reset stuck state ─────────────────────────────────────────────────────────
+# ─── Advanced: reset stuck state ───────────────────────────────────────────────
 @st.fragment(run_every=5)
 def reset_section():
     with st.expander("⚙️  Advanced — reset stuck status"):
@@ -1378,4 +1343,64 @@ def reset_section():
                 _update_status(key, {"status": "failed", "pid": None})
                 st.rerun()
 
-reset_section()
+
+# ── Render ─────────────────────────────────────────────────────────────────────
+# Everything above is a definition. The page itself is assembled once, here: one
+# tab per step, so a client on Step 1 is not also looking at a LIVE-store apply
+# button and a SerpAPI budget form.
+st.title("Save Big On Tires — Inventory Pipeline")
+st.caption("Scrape, clean and sync tire & wheel inventory from all five suppliers to Shopify.")
+
+sidebar_status()
+
+_tabs = st.tabs([
+    "1 · Cookies",
+    "2 · Suppliers",
+    "3 · Enrichment",
+    "4 · Upload",
+    "5 · Sync",
+    "Advanced",
+])
+
+with _tabs[0]:
+    st.subheader("Refresh cookies")
+    st.caption("Run this before every pipeline run — supplier sessions expire.")
+    step1_section()
+
+with _tabs[1]:
+    st.subheader("Run supplier pipelines")
+    st.caption(
+        "Pipelines run in the background, so this browser tab can be closed. Leave the "
+        "computer on — a shutdown or restart kills any scrape in progress."
+    )
+    markup_section()
+    step2_section()
+
+with _tabs[2]:
+    st.subheader("Data enrichment")
+    st.caption(
+        "Fills in product images, designations and tire specs that no supplier feed "
+        "provides. Cached results are free; anything new spends a search on the "
+        "client's SerpAPI key and needs approval below."
+    )
+    step3_section()
+
+with _tabs[3]:
+    st.subheader("Upload new products to Shopify")
+    st.caption(
+        "Only needed when suppliers have SKUs the store does not carry yet. Regular "
+        "price and inventory syncs need no upload — that is Step 5."
+    )
+    step4_section()
+
+with _tabs[4]:
+    st.subheader("Sync prices & inventory")
+    st.caption(
+        "Pushes merged supplier prices and quantities straight to the store over the "
+        "Shopify API — no CSV, no manual import. Only what changed is sent."
+    )
+    sync_section()
+
+with _tabs[5]:
+    st.subheader("Advanced")
+    reset_section()
