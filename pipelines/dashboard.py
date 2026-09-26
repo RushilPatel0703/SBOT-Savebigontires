@@ -305,14 +305,21 @@ def _production_json(script: str, args: list[str], timeout: int = 180):
 
 # ── UI helpers ─────────────────────────────────────────────────────────────────
 def status_badge(s: dict, running: bool):
+    """One line of state. Deliberately not an alert panel.
+
+    These used to be st.info/st.success/st.error, which put a tinted panel on
+    the page for every step whether or not anything had happened — so a panel
+    stopped meaning "read this". Coloured text carries the same state at a
+    fraction of the weight, and the emoji are gone because an alert box already
+    draws its own icon and a plain line does not need one.
+    """
+    ts = (s.get("finished") or "")[:16].replace("T", " ")
     if running:
-        st.info("⏳ Running…")
+        st.markdown(":blue[**Running…**]")
     elif s.get("status") == "success":
-        ts = s.get("finished", "")[:16].replace("T", " ")
-        st.success(f"✅  Done  {ts}")
+        st.markdown(f":green[**Done**] · {ts}")
     elif s.get("status") == "failed":
-        ts = s.get("finished", "")[:16].replace("T", " ")
-        st.error(f"❌  Failed  {ts}")
+        st.markdown(f":red[**Failed**] · {ts}")
     else:
         st.caption("Not yet run")
 
@@ -450,7 +457,7 @@ def step1_section():
     running = is_running("cookies", status)
     c1, c2  = st.columns([2, 4])
     with c1:
-        if st.button("🔑  Refresh All Cookies", disabled=running, use_container_width=True, type="primary"):
+        if st.button("Refresh all cookies", disabled=running, width="stretch", type="primary"):
             launch("cookies", [sys.executable, "refresh_cookies.py"], BASE)
     with c2:
         status_badge(s, running)
@@ -465,15 +472,24 @@ def markup_key_for(key: str) -> str:
 
 # Deliberately NOT an st.fragment(run_every=...): the surrounding sections
 # auto-refresh every 2s, which would reset these inputs mid-edit.
-def markup_section():
-    st.subheader("Markup")
-    st.caption(
-        "How much is added to each supplier's **cost** price to get the selling "
-        "price. Set this before running a pipeline below — prices are calculated "
-        "while the pipeline runs, so a change made afterwards has no effect until "
-        "you run it again."
-    )
+def _markup_summary(rules: dict) -> str:
+    """"Formula $12.00 · North Country 8%" — the whole table on one line.
 
+    Lets the form below stay closed by default without hiding the numbers it
+    holds. Markup is set once and then left alone for weeks, so an always-open
+    five-row form sat above the Run buttons competing with the thing the client
+    actually opened this tab to press.
+    """
+    parts = []
+    for key, cfg in PIPELINES.items():
+        rule = rules.get(markup_key_for(key), {"mode": markup.DOLLAR, "value": 0.0})
+        amount = (f"{rule['value']:.0f}%" if rule["mode"] == markup.PERCENT
+                  else f"${rule['value']:.2f}")
+        parts.append(f"{cfg['label']} {amount}")
+    return " · ".join(parts)
+
+
+def markup_section():
     try:
         rules = markup.load()
     except markup.MarkupConfigError as e:
@@ -483,11 +499,21 @@ def markup_section():
 
     status  = load_status()
     running = [PIPELINES[k]["label"] for k in PIPELINES if is_running(k, status)]
-    if running:
-        # A markup edit mid-run would apply to whichever pipelines hadn't reached
-        # their pricing step yet, silently splitting one run across two tables.
-        st.info(f"Markup is locked while a pipeline is running ({', '.join(running)}).")
 
+    with st.expander(f"Markup — {_markup_summary(rules)}"):
+        st.caption(
+            "Added to each supplier's cost price to get the selling price. Prices are "
+            "calculated while a pipeline runs, so set this **before** running one below "
+            "— a change made afterwards takes effect on the next run, not this one."
+        )
+        if running:
+            # A markup edit mid-run would apply to whichever pipelines hadn't reached
+            # their pricing step yet, silently splitting one run across two tables.
+            st.warning(f"Locked while a pipeline is running ({', '.join(running)}).")
+        _markup_form(rules, running)
+
+
+def _markup_form(rules: dict, running: list):
     with st.form("markup_form"):
         head = st.columns([3, 3, 2])
         head[1].markdown("**Type**")
@@ -499,7 +525,7 @@ def markup_section():
             rule = rules.get(mk, {"mode": markup.DOLLAR, "value": 0.0})
             cols = st.columns([3, 3, 2])
 
-            cols[0].markdown(f"{cfg['icon']} **{cfg['label']}**")
+            cols[0].markdown(f"**{cfg['label']}**")
             mode = cols[1].radio(
                 f"{cfg['label']} markup type",
                 [markup.DOLLAR, markup.PERCENT],
@@ -526,7 +552,9 @@ def markup_section():
             # rather than a number. Coerced below, where a real run is guaranteed.
             chosen[mk] = {"mode": mode, "value": value}
 
-        saved = st.form_submit_button("Save markup", type="primary", disabled=bool(running))
+        # Secondary: this tab exists to press Run. Saving markup supports that,
+        # so it should not carry the same weight as the action it supports.
+        saved = st.form_submit_button("Save markup", disabled=bool(running))
 
     if saved:
         merged = dict(rules)          # keep suppliers that have no dashboard card
@@ -537,7 +565,12 @@ def markup_section():
         except markup.MarkupConfigError as e:
             st.error(f"Not saved — {e}")
         else:
-            st.success("Markup saved. It applies to the next pipeline run.")
+            # A toast rather than st.success: the st.rerun() on the next line
+            # throws the page away, so the success panel was drawn and discarded
+            # in the same instant and the client never saw a confirmation. The
+            # rerun is needed — it is what refreshes the summary in the expander
+            # label — and a toast is the one thing that survives it.
+            st.toast("Markup saved — applies to the next pipeline run.", icon="✅")
             st.rerun()
 
 
@@ -563,7 +596,6 @@ def step2_section():
     started        = [k for k in PIPELINES if status.get(k, {}).get("status")]
     with_data      = {k: all_prog[k] for k in started if all_prog[k].get("total")}
     running_no_log = [k for k in PIPELINES if is_running(k, status) and k not in with_data]
-    done_count     = sum(1 for k in PIPELINES if status.get(k, {}).get("status") == "success")
     if started or running_no_log:
         # running pipelines with no log yet contribute 1 unfinished step so bar never falsely hits 100%
         total_steps = sum(p["total"]     for p in with_data.values()) + len(running_no_log)
@@ -571,43 +603,49 @@ def step2_section():
         pct_all     = min(done_steps / total_steps, 1.0) if total_steps else 0.0
         running_now = [PIPELINES[k]["label"] for k in PIPELINES if is_running(k, status)]
 
-        m1, m2, m3 = st.columns(3)
-        m1.metric("Steps complete", f"{done_steps} / {total_steps}")
-        m2.metric("Suppliers complete", f"{done_count} / {len(PIPELINES)}")
-        m3.metric("Running now", len(running_now) if running_now else "—")
-        st.progress(pct_all, text=", ".join(running_now) if running_now else "No pipelines currently running")
-        st.write("")
+        # One bar, not a three-metric row above it. "Steps complete 41 / 63",
+        # "Suppliers complete 2 / 5" and "Running now 1" were three restatements
+        # of what the bar and its own caption already say, and the sidebar says
+        # the supplier count a third time.
+        bar_text = (f"{', '.join(running_now)} — step {done_steps} of {total_steps}"
+                    if running_now else
+                    f"{done_steps} of {total_steps} steps complete · nothing running")
+        st.progress(pct_all, text=bar_text)
 
     for key, cfg in PIPELINES.items():
         s       = status.get(key, {})
         running = is_running(key, status)
         prog    = all_prog.get(key, {})
 
+        # Name · option · button. The fourth column used to hold a status badge,
+        # which said what the progress bar directly below it already says and the
+        # sidebar says a third time — so five cards carried fifteen renderings of
+        # the same five states.
         with st.container(border=True, key=f"card_{key}"):
-            cols = st.columns([3, 2, 2, 4])
+            cols = st.columns([4, 4, 2], vertical_alignment="center")
             with cols[0]:
                 logo = _find_logo(key)
                 if logo:
                     st.markdown(
-                        '<div style="display:flex;align-items:center;gap:12px;margin-top:4px;">'
-                        f'<img src="{_logo_data_uri(logo)}" style="height:44px;width:auto;max-width:140px;object-fit:contain;">'
-                        f'<span style="font-size:1.5rem;font-weight:600;line-height:1;">{cfg["label"]}</span>'
+                        '<div style="display:flex;align-items:center;gap:12px;">'
+                        f'<img src="{_logo_data_uri(logo)}" style="height:32px;width:auto;max-width:110px;object-fit:contain;">'
+                        f'<span style="font-size:1.05rem;font-weight:600;line-height:1;">{cfg["label"]}</span>'
                         '</div>',
                         unsafe_allow_html=True,
                     )
                 else:
-                    st.subheader(f"{cfg['icon']} :{cfg['color']}[{cfg['label']}]")
+                    st.markdown(f"**{cfg['label']}**")
             with cols[1]:
                 if cfg.get("full_option"):
                     st.checkbox(
-                        ":orange[Full scrape]",
+                        "Full scrape",
                         key=f"full_{key}",
                         disabled=running,
                         help="Also re-check search terms that returned nothing on previous "
                              "scrapes (rebuilds the zero-terms cache — slowest). Normal runs "
-                             "scrape fresh inventory but skip those known-empty terms.",
+                             "scrape fresh inventory but skip those known-empty terms. "
+                             "Worth doing every alternate week.",
                     )
-                    st.caption("Run with full scrape every alternate week")
                 else:
                     st.checkbox(
                         "Skip scraping",
@@ -618,38 +656,41 @@ def step2_section():
             with cols[2]:
                 extra = pipeline_args(key, cfg)
                 if running:
-                    if st.button("⏹  Cancel", key=f"cancel_{key}", use_container_width=True, type="primary"):
+                    # Secondary: stopping a run is a correction, not the action
+                    # this tab is for.
+                    if st.button("Cancel", key=f"cancel_{key}", width="stretch"):
                         _kill_pipeline(key, status)
                         st.rerun()
                 else:
-                    if st.button("▶  Run", key=f"btn_{key}", use_container_width=True, type="primary"):
+                    if st.button("Run", key=f"btn_{key}", width="stretch", type="primary"):
                         launch(key, [sys.executable, cfg["script"]] + extra, cfg["dir"])
-            with cols[3]:
-                status_badge(s, running)
 
-        # Progress bar — outside container so it always renders
+        # Progress bar — outside the container so it always renders. Its text no
+        # longer repeats the supplier name: the card immediately above it is the
+        # only thing this bar can belong to, and five bars each re-announcing
+        # their own supplier was five lines of text saying nothing new.
         pipe_status = s.get("status")
         if not pipe_status:
-            st.progress(0.0, text=f"{cfg['label']}: not yet started")
+            st.progress(0.0, text="Not yet started")
         elif prog.get("total"):
             completed = prog["completed"]
             total     = prog["total"]
             pct       = min(completed / total, 1.0)
             if running and prog.get("current"):
-                bar_txt = f"{cfg['label']}: step {completed} / {total} — currently: {prog['current']}"
+                bar_txt = f"Step {completed} of {total} — {prog['current']}"
             elif prog.get("complete"):
-                bar_txt = f"{cfg['label']}: all {total} steps complete ✓"
+                bar_txt = f"All {total} steps complete"
             elif prog.get("failed"):
-                bar_txt = f"{cfg['label']}: failed at step {completed + 1} / {total} (last: {prog.get('current', '?')})"
+                bar_txt = f"Failed at step {completed + 1} of {total} (last: {prog.get('current', '?')})"
             else:
-                bar_txt = f"{cfg['label']}: step {completed} / {total}"
+                bar_txt = f"Step {completed} of {total}"
             st.progress(pct, text=bar_txt)
         elif running:
-            st.progress(0.0, text=f"{cfg['label']}: starting…")
+            st.progress(0.0, text="Starting…")
         elif pipe_status == "failed":
-            st.progress(0.0, text=f"{cfg['label']}: failed — check log for details")
+            st.progress(0.0, text="Failed — see the log below")
         elif pipe_status == "success":
-            st.progress(1.0, text=f"{cfg['label']}: complete ✓")
+            st.progress(1.0, text="Complete")
 
         show_log(s, label=f"View log — {cfg['label']}", expanded=running)
 
@@ -703,12 +744,13 @@ def step3_section():
 
     c1, c2 = st.columns([2, 5])
     with c1:
-        if st.button("🔄  Recheck counts", disabled=busy, use_container_width=True, type="primary"):
+        if st.button("Recheck counts", disabled=busy, width="stretch"):
             st.session_state["_enrich_scanned_for"] = sig
             launch("enrich_scan", [sys.executable, ENRICH_RUNNER, "--scan"], BASE)
     with c2:
         if scanning:
-            st.info("⏳ Counting what needs enrichment — free, no searches are made.")
+            st.markdown(":blue[**Counting what needs enrichment…**]")
+            st.caption("Free — the scan makes no searches.")
         elif done_count < len(PIPELINES):
             st.caption(
                 f"{done_count} / {len(PIPELINES)} supplier pipelines complete. Counts appear "
@@ -730,7 +772,7 @@ def step3_section():
 
     if scan.get("kill_switch"):
         st.error(
-            "🛑 SERP kill switch is active (`monitoring/SERP_KILL_SWITCH`). Paid searches are "
+            "SERP kill switch is active (`monitoring/SERP_KILL_SWITCH`). Paid searches are "
             "blocked until that file is deleted. Free cache fixes below still work."
         )
 
@@ -769,10 +811,6 @@ def step3_section():
               help="Results already paid for on an earlier run, plus product photos this "
                    "catalogue already carries for the same tire model at another size or "
                    "supplier. Applying them makes no network call and costs nothing.")
-    if spec_dead_end:
-        st.caption(f"ℹ️  {spec_dead_end} spec gap(s) were already searched and no match was "
-                   f"found — running again will not re-buy those specific rows.")
-
     # ── Completeness of the nine spec fields the storefront shows ──────────
     comp = scan.get("completeness", {})
     if comp.get("tire_rows_scanned"):
@@ -799,7 +837,7 @@ def step3_section():
                   "% of rows": f"{totals.get(f, 0) / scanned * 100:.1f}%" if scanned else "—",
                   "Status": "✅ complete" if not totals.get(f, 0) else "⚠️ gaps"}
                  for f in totals],
-                hide_index=True, use_container_width=True,
+                hide_index=True, width="stretch",
             )
             st.caption(
                 "Blank counts a value that is absent **or** a `0.0000` placeholder — on a "
@@ -812,9 +850,9 @@ def step3_section():
                     [dict(File=r["file"], Rows=r["total"],
                           **{f: r["missing"].get(f, 0) for f in totals})
                      for r in per_file],
-                    hide_index=True, use_container_width=True,
+                    hide_index=True, width="stretch",
                 )
-            st.info(
+            st.caption(
                 "Brand, Style, Section width, Aspect ratio, Rim diameter, Designation and Image "
                 "are filled in for free by parsing the supplier feed or applying a cached search — "
                 "a gap in those is a real parsing shortfall worth reporting, not something more "
@@ -842,7 +880,7 @@ def step3_section():
                   **({"Already tried, no match": r.get("dead_end", 0)} if has_dead_end else {}),
                   "Can be written": "yes" if r["writable"] else "report-only"}
                  for r in rows],
-                hide_index=True, use_container_width=True,
+                hide_index=True, width="stretch",
             )
             if f.get("report_only"):
                 st.caption(
@@ -858,14 +896,13 @@ def step3_section():
     # ── Free path: apply what has already been paid for ────────────────────
     if free_now:
         peer_now = scan.get("total_peer_fixed", 0)
-        st.info(
-            f"{free_now} row(s) can be filled in for free — "
+        st.caption(
             f"{scan.get('total_cache_hit', 0)} from results already paid for on an earlier run"
             + (f", {peer_now} from a product photo this catalogue already carries for the "
                f"same tire model at another size or supplier" if peer_now else "")
             + ". Applying them makes no network call and costs nothing."
         )
-        if st.button(f"♻️  Apply {free_now} free fix(es)", disabled=busy, type="primary"):
+        if st.button(f"Apply {free_now} free fix(es)", disabled=busy, type="primary"):
             launch("enrich", [sys.executable, ENRICH_RUNNER, "--apply-only"], BASE)
 
     # ── Paid path: explicit, budgeted, confirmed ───────────────────────────
@@ -873,7 +910,7 @@ def step3_section():
         st.success("Nothing needs a paid search — enrichment is up to date for this catalog.")
     else:
         st.warning(
-            "⚠️  Everything below spends real searches on the client's **paid** SerpAPI key. "
+            "Everything below spends real searches on the client's **paid** SerpAPI key. "
             "Review the numbers, set a cap, and approve only what you mean to buy."
         )
         col_i, col_d, col_s = st.columns(3)
@@ -882,9 +919,12 @@ def step3_section():
                 f"Images — {img_buy} search(es) fill {img_need} row(s)",
                 value=bool(img_buy),
                 disabled=not img_buy or busy, key="enrich_want_image",
+                help="The one field with no free alternative — no supplier feed and no "
+                     "amount of parsing produces a product photo. One search covers a whole "
+                     "tire model rather than a single size, which is why the search count is "
+                     "far below the row count.",
             )
-            st.caption("The one field with no free alternative — no supplier feed and no "
-                       "amount of parsing produces a product photo.")
+            st.caption("No free alternative exists for this field.")
             img_budget = st.number_input(
                 "Cap on image searches", min_value=0, max_value=max(img_buy, 0),
                 value=img_buy, step=1, disabled=not want_img or busy,
@@ -895,9 +935,11 @@ def step3_section():
                 f"Designations — {des_buy} search(es) fill {des_need} row(s)",
                 value=False,
                 disabled=not des_buy or busy, key="enrich_want_designation",
+                help="Historically 4 useful results out of 253 paid searches (1.6%), so these "
+                     "few rows are usually cheaper to fix by hand than to search for. Off by "
+                     "default for that reason.",
             )
-            st.caption("Historically 4 useful results out of 253 paid searches (1.6%) — these "
-                       "few rows are usually cheaper to fix by hand. Off by default.")
+            st.caption("Poor hit rate (1.6%) — off by default.")
             des_budget = st.number_input(
                 "Cap on designation searches", min_value=0, max_value=max(des_buy, 0),
                 value=des_buy, step=1, disabled=not want_des or busy,
@@ -908,10 +950,11 @@ def step3_section():
                 f"Specs — {spec_buy} search(es) fill {spec_need} row(s)",
                 value=bool(spec_buy),
                 disabled=not spec_buy or busy, key="enrich_want_specs",
+                help="Load index, speed rating, load range, section width, aspect ratio and "
+                     "rim diameter. One search commonly fills several of these for the same "
+                     "row, so this is rarely as expensive as the row count suggests.",
             )
-            st.caption("Load index, speed rating, load range, section width, aspect ratio, "
-                       "rim diameter — one search commonly fills several of these for the "
-                       "same row, so this is rarely as expensive as the row count suggests.")
+            st.caption("Six fields, often several per search.")
             specs_budget = st.number_input(
                 "Cap on specs searches", min_value=0, max_value=max(spec_buy, 0),
                 value=spec_buy, step=1, disabled=not want_specs or busy,
@@ -936,7 +979,7 @@ def step3_section():
         confirmed = (typed or "").strip().upper() == "ENRICH" \
             and total > 0 and not scan.get("kill_switch")
 
-        if st.button("🔍  Run Enrichment", disabled=busy or not confirmed, type="primary"):
+        if st.button("Run enrichment", disabled=busy or not confirmed):
             launch("enrich", [sys.executable, ENRICH_RUNNER, "--run",
                               "--image-budget", str(approve_img),
                               "--designation-budget", str(approve_des),
@@ -947,7 +990,7 @@ def step3_section():
     # ── Run status ─────────────────────────────────────────────────────────
     enrich_s = status.get("enrich", {})
     if enrich_s.get("status"):
-        st.write("")
+        st.divider()
         status_badge(enrich_s, enriching)
         if enrich_s.get("status") == "success" and not enriching:
             st.caption("Enrichment applied and the affected Shopify CSVs were rebuilt — "
@@ -1020,15 +1063,17 @@ def _render_run_files(run_dir: Path, collapsed: bool = False):
     st.markdown(label)
     for i, f in enumerate(files, 1):
         size_mb = f.stat().st_size / (1024 * 1024)
-        c1, c2, c3 = st.columns([1, 5, 2])
+        c1, c2, c3 = st.columns([1, 5, 2], vertical_alignment="center")
         with c1:
-            st.write(f"File {i} of {len(files)}" if len(files) > 1 else "File")
+            st.caption(f"File {i} of {len(files)}" if len(files) > 1 else "File")
         with c2:
             st.code(str(f.relative_to(UPLOAD_READY.parent)), language="")
         with c3:
-            st.success(f"✅ {size_mb:.1f} MB")
+            st.caption(f"{size_mb:.1f} MB")
     if len(files) > 1:
-        st.info(f"Upload these {len(files)} files **in order** (1 → {len(files)}). Each is under {CSV_LIMIT_MB:.0f} MB.")
+        # Order matters, so this one stays a panel.
+        st.info(f"Upload these {len(files)} files **in order** (1 → {len(files)}). "
+                f"Each is under {CSV_LIMIT_MB:.0f} MB.")
 
 def step4_section():
 
@@ -1050,7 +1095,7 @@ def step4_section():
 
     col_btn, col_info = st.columns([2, 5])
     with col_btn:
-        if st.button("📦  Prepare Upload Files", use_container_width=True, type="primary"):
+        if st.button("Prepare upload files", width="stretch", type="primary"):
             exclude, meta, sku_err = (set(), None, None)
             if new_only:
                 with st.spinner("Reading the SKUs already in the store…"):
@@ -1060,7 +1105,7 @@ def step4_section():
             elif new_only and not exclude:
                 st.error(
                     "The catalog mirror is empty, so every product would look new. "
-                    "Run Step 5 → Preview once (it refreshes the mirror from Shopify), "
+                    "Run Preview on the Sync tab once (it refreshes the mirror from Shopify), "
                     "then try again."
                 )
             else:
@@ -1100,7 +1145,7 @@ def step4_section():
             # missing images it could have had — worth a nudge, not a block.
             _pending = load_enrich_scan().get("total_needs_paid", 0)
             if _pending:
-                st.caption(f"⚠️  {_pending} row(s) could still be enriched in Step 3 above. "
+                st.caption(f"{_pending} row(s) could still be enriched on the Enrichment tab. "
                            f"Bundling now ships them without an image.")
 
             # How current the new-vs-existing comparison is. The mirror is refreshed
@@ -1119,19 +1164,19 @@ def step4_section():
                     if _age is not None:
                         _line += f", last refreshed {_age} h ago."
                     if _age is not None and _age > 24:
-                        st.warning(_line + " Run Step 5 → Preview to refresh it, or products "
-                                           "created since will be bundled as new again.")
+                        st.warning(_line + " Run Preview on the Sync tab to refresh it, or "
+                                           "products created since will be bundled as new again.")
                     else:
                         st.caption(_line)
         else:
-            st.caption("No supplier CSVs found yet — run Step 2 first.")
+            st.caption("No supplier CSVs found yet — run the Suppliers tab first.")
 
     if existing_runs:
         col_hdr, col_open = st.columns([5, 2])
         with col_hdr:
-            st.markdown("**Upload-ready files** — upload to Shopify Admin → Products → Import:")
+            st.markdown("**Upload-ready files** — Shopify Admin → Products → Import")
         with col_open:
-            if st.button("📂  Open Latest Folder", use_container_width=True, type="primary"):
+            if st.button("Open latest folder", width="stretch", type="tertiary"):
                 _open_folder(existing_runs[0])
         _render_run_files(existing_runs[0])
 
@@ -1141,7 +1186,8 @@ def step4_section():
                     _render_run_files(run, collapsed=True)
                     st.divider()
     else:
-        st.caption("No upload-ready files yet — click **Prepare Upload Files** above once Step 2 has produced new products.")
+        st.caption("No upload-ready files yet — press **Prepare upload files** above once "
+                   "the supplier pipelines have produced new products.")
 
 
 # ─── Step 5: Sync prices + inventory ───────────────────────────────────────────
@@ -1170,22 +1216,21 @@ def sync_section():
     c1, c2 = st.columns([3, 2])
     with c1:
         if shop_name:
-            badge = "🧪 DEV store" if is_dev else "🔴 LIVE store"
-            st.markdown(f"**Target store:** `{shop_name}`  —  {badge}")
+            badge = ":blue[**DEV store**]" if is_dev else ":red[**LIVE store**]"
+            st.markdown(f"Target store   `{shop_name}`   {badge}")
         else:
-            st.markdown("**Target store:** _run the readiness check below to confirm_")
+            st.caption("Target store — run the readiness check below to confirm.")
     with c2:
         if warehouse:
-            st.markdown(f"**Run history:** {warehouse['detail']}")
+            st.caption(f"Run history — {warehouse['detail']}")
 
     # ── readiness ──────────────────────────────────────────────────────────────
-    st.subheader("1. Check readiness")
+    st.markdown("##### 1 · Check readiness")
     st.caption(
         "Confirms the store answers, the token can write prices and inventory, the "
         "primary location is unambiguous, and the supplier CSVs are fresh enough."
     )
-    if st.button("🩺  Check readiness", disabled=running, use_container_width=False,
-                 type="primary"):
+    if st.button("Check readiness", disabled=running):
         with st.spinner("Checking store, token, warehouse and supplier feeds…"):
             payload, err = _production_json("preflight.py", [], timeout=120)
         st.session_state["sync_preflight"] = payload
@@ -1213,7 +1258,7 @@ def sync_section():
             )
 
     # ── options ────────────────────────────────────────────────────────────────
-    st.subheader("2. Choose what to sync")
+    st.markdown("##### 2 · Choose what to sync")
     opt1, opt2 = st.columns([2, 3])
     with opt1:
         types = st.multiselect("Product types", ["tires", "wheels"],
@@ -1227,7 +1272,7 @@ def sync_section():
                  "zeroing the store. Only override when you know the feeds are correct.")
 
     # ── run ────────────────────────────────────────────────────────────────────
-    st.subheader("3. Run")
+    st.markdown("##### 3 · Run")
     if not types:
         st.info("Pick at least one product type above.")
         return
@@ -1246,8 +1291,8 @@ def sync_section():
 
     run1, run2 = st.columns(2)
     with run1:
-        if st.button("🔍  Preview changes (writes nothing)", disabled=running,
-                     use_container_width=True, type="primary"):
+        if st.button("Preview changes (writes nothing)", disabled=running,
+                     width="stretch", type="primary"):
             launch(_SYNC_KEY, _cmd(dry=True), PRODUCTION)
             st.rerun()
         st.caption("Runs the whole sync and records every change it *would* make.")
@@ -1260,13 +1305,13 @@ def sync_section():
         live_ok = True
         if is_dev is False:
             live_ok = st.checkbox(
-                f"⚠️  Yes — write to the LIVE store ({shop_name})",
+                f"Yes — write to the LIVE store ({shop_name})",
                 disabled=running, key="sync_confirm_live")
         elif is_dev is None:
             live_ok = False
 
-        if st.button("🚀  Apply to store", disabled=running or not (confirm and live_ok),
-                     use_container_width=True, type="primary"):
+        if st.button("Apply to store", disabled=running or not (confirm and live_ok),
+                     width="stretch"):
             launch(_SYNC_KEY, _cmd(dry=False), PRODUCTION)
             st.rerun()
         if is_dev is None:
@@ -1275,7 +1320,7 @@ def sync_section():
             st.caption("Sends the changes for real. Preview first.")
 
     # ── progress + result ──────────────────────────────────────────────────────
-    st.write("")
+    st.divider()
     status_badge(s, running)
     if running:
         st.caption(
@@ -1316,7 +1361,7 @@ def sync_section():
 
         gates = summary.get("failed_gates") or []
         if gates:
-            with st.expander(f"⚠️  {len(gates)} validation gate(s) did not pass"):
+            with st.expander(f"{len(gates)} validation gate(s) did not pass"):
                 for g in gates:
                     st.markdown(f"- **{g['check_name']}** ({g['severity']}) — `{g['details']}`")
 
@@ -1324,24 +1369,24 @@ def sync_section():
 # ─── Advanced: reset stuck state ───────────────────────────────────────────────
 @st.fragment(run_every=5)
 def reset_section():
-    with st.expander("⚙️  Advanced — reset stuck status"):
-        st.caption(
-            "If a pipeline shows 'Running' but the terminal was closed or the process crashed, "
-            "click the button below to clear its stale status."
-        )
-        _reset_status = load_status()
-        _all_keys     = ["cookies"] + list(PIPELINES) + ["enrich_scan", "enrich", "sync"]
-        _extra_labels = {"enrich_scan": "Enrichment scan", "enrich": "Enrichment",
-                         "sync": "Shopify sync"}
-        stuck = [k for k in _all_keys if _reset_status.get(k, {}).get("status") == "running"
-                 and not pid_alive(_reset_status[k].get("pid"))]
-        if not stuck:
-            st.success("All pipelines are in a clean state — nothing to reset.")
-        for key in stuck:
-            label = PIPELINES[key]["label"] if key in PIPELINES else _extra_labels.get(key, key.title())
-            if st.button(f"Clear '{label}' stuck state", key=f"reset_{key}", type="primary"):
-                _update_status(key, {"status": "failed", "pid": None})
-                st.rerun()
+    st.markdown("##### Reset stuck status")
+    st.caption(
+        "If a pipeline shows 'Running' but the terminal was closed or the process crashed, "
+        "clear its stale status here."
+    )
+    _reset_status = load_status()
+    _all_keys     = ["cookies"] + list(PIPELINES) + ["enrich_scan", "enrich", "sync"]
+    _extra_labels = {"enrich_scan": "Enrichment scan", "enrich": "Enrichment",
+                     "sync": "Shopify sync"}
+    stuck = [k for k in _all_keys if _reset_status.get(k, {}).get("status") == "running"
+             and not pid_alive(_reset_status[k].get("pid"))]
+    if not stuck:
+        st.markdown(":green[All pipelines are in a clean state — nothing to reset.]")
+    for key in stuck:
+        label = PIPELINES[key]["label"] if key in PIPELINES else _extra_labels.get(key, key.title())
+        if st.button(f"Clear '{label}' stuck state", key=f"reset_{key}"):
+            _update_status(key, {"status": "failed", "pid": None})
+            st.rerun()
 
 
 # ── Render ─────────────────────────────────────────────────────────────────────
