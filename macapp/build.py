@@ -175,7 +175,10 @@ def finalize_bundle(version):
 
 
 def selftest(home):
-    env = {**os.environ, "SBOT_HOME": str(home), "SBOT_NO_UI": "1"}
+    # An empty browser folder, so the self-test does the real first-launch
+    # download through the frozen driver rather than finding CI's own Chromium.
+    env = {**os.environ, "SBOT_HOME": str(home), "SBOT_NO_UI": "1",
+           "PLAYWRIGHT_BROWSERS_PATH": str(home.parent / "ms-playwright")}
     sh(EXE, "--sbot-selftest", env=env, cwd=home)
 
 

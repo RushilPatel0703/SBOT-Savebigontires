@@ -243,18 +243,39 @@ def _driver_command():
     return cmd, get_driver_env()
 
 
-def browser_installed() -> bool:
+def _use_user_browser_cache():
+    """Keep Playwright's Chromium in the per-user cache, outside the app.
+
+    Frozen, Playwright defaults PLAYWRIGHT_BROWSERS_PATH to "0": browsers inside
+    its own package directory, i.e. inside the .app. A downloaded app is
+    read-only (App Translocation) and writing into it breaks its signature, so
+    use the location a normal install would. Set in the environment, so every
+    pipeline step launched from here inherits it.
+    """
+    if sys.platform == "darwin":
+        default = Path.home() / "Library" / "Caches" / "ms-playwright"
+    else:
+        default = Path.home() / ".cache" / "ms-playwright"
+    os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", str(default))
+
+
+def browser_installed(log=None) -> bool:
     try:
         from playwright.sync_api import sync_playwright
         with sync_playwright() as pw:
-            return Path(pw.chromium.executable_path).exists()
-    except Exception:                                       # noqa: BLE001
+            path = Path(pw.chromium.executable_path)
+            if log and not path.exists():
+                log(f"Chromium not found at {path}")
+            return path.exists()
+    except Exception as e:                                  # noqa: BLE001
+        if log:
+            log(f"Playwright check failed: {type(e).__name__}: {e}")
         return False
 
 
 def ensure_browser(log=print) -> bool:
     """Download Playwright's Chromium (~150 MB, once) into ~/Library/Caches."""
-    if browser_installed():
+    if browser_installed(log):
         return True
     notify("First-time setup: downloading a browser component (about 150 MB). "
            "The dashboard opens when it's done.")
@@ -262,9 +283,10 @@ def ensure_browser(log=print) -> bool:
     log(f"Installing Playwright Chromium: {cmd + ['install', 'chromium']}")
     proc = subprocess.run([*cmd, "install", "chromium"], env=env,
                           capture_output=True, text=True)
+    log(f"install exit {proc.returncode}")
     log(proc.stdout[-4000:])
     log(proc.stderr[-4000:])
-    return proc.returncode == 0 and browser_installed()
+    return proc.returncode == 0 and browser_installed(log)
 
 
 # ── the dashboard server ──────────────────────────────────────────────────────
@@ -426,6 +448,7 @@ def selftest(args: list[str]) -> int:
 
 def main() -> int:
     _install_import_shims()
+    _use_user_browser_cache()
     # Finder adds -psn_0_NNN on older macOS; it is not ours.
     args = [a for a in sys.argv[1:] if not a.startswith("-psn_")]
     if not args:
