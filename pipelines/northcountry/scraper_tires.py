@@ -22,13 +22,16 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from costar_session import CostarSessionGuard, SessionDeathError, all_zero_batch
+import cookie_store
 from costar_images import measure_and_build_image_map
 
 BASE_URL     = "https://online.northcountrytire.ca/WebOrder/CostarApi"
 _SIGNING_KEY = "5318f4ce4b9bab05c09df20c3d5d8d4c26570542501b1d58231159cd42e65505"
 
 # ── Update this when session expires ─────────────────────────────────────────
-COOKIE_STRING = "CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.7.151.0&DbVersion=0005.0007.0151.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=R8DkHILdQzKWxK4KKfoxGnPbNHP%2fdG6ou%2fxKy7JtUAuI19cPXaNZpz%2fkPslUJMjh&UnifiedBuildNumber=5.7.151.0&Ux=M48B07OD&CostarLanguage=&SessionID=d1feba5e-2eae-4626-a4f4-32357389b11d; CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=&UserID=cc332d82-a5cb-4682-823e-229272aaf7e7; ASP.NET_SessionId=0tgas04e42nx5rrv20oukp5i"
+COOKIE_STRING = "CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.7.151.0&DbVersion=0005.0007.0151.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=ldpNebwghSxcBfxSDJKt3rMFjw7VCPOTuKmPsMjb1K8tKYW22ypUAGw348ewB9Up&UnifiedBuildNumber=5.7.151.0&Ux=M48B07OD&CostarLanguage=&SessionID=9cd0c7c0-ca4e-4d54-845b-e9cbd396e138; CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=&UserID=5e859ff9-762d-4bc3-89e4-684095665bee; ASP.NET_SessionId=4z5foayr4cmyrlk0bbrlbjkk"
+# A refreshed cookie (refresh_cookies.py / in-run re-auth) wins over the literal above.
+COOKIE_STRING = cookie_store.get("nc", COOKIE_STRING)
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Live, refreshable session state — api_post() always reads _SESSION.cookie,
@@ -149,7 +152,7 @@ def api_post(endpoint: str, body: dict, _retries: int = 4) -> dict:
     # Proactive keepalive — re-auth on a fixed interval regardless of symptoms.
     # See pipelines/shared/costar_session.py module docstring for why 3h.
     if _SESSION.keepalive_due():
-        _SESSION.reauth(_SESSION.cookie, "proactive keepalive interval elapsed")
+        _SESSION.reauth(_SESSION.cookie, "proactive keepalive interval elapsed", proactive=True)
 
     body_str = json.dumps(body, separators=(",", ":"))
     for attempt in range(_retries):

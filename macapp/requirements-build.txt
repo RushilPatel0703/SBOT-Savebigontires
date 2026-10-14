@@ -1,0 +1,20 @@
+# Installed together with ../requirements.txt to build the Mac app (macapp/build.py).
+# The runtime packages are pinned to the versions the pipelines were last tested
+# with, so a build does not quietly pick up a new pandas or Streamlit that nobody
+# has run the suppliers through. Bump deliberately, after a run on the new version.
+pandas==3.0.1
+numpy==2.4.3
+requests==2.33.0
+certifi==2026.2.25
+beautifulsoup4==4.14.3
+openpyxl==3.1.5
+playwright==1.58.0
+google-search-results==2.4.2
+streamlit==1.59.1
+psutil==7.2.2
+pillow==12.1.1
+
+# Build tooling only — not inside the app.
+pyinstaller>=6.16
+reportlab>=4.2
+pytest

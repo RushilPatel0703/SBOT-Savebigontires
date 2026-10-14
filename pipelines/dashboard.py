@@ -34,6 +34,12 @@ STATUS_FILE = BASE / ".dashboard_status.json"
 LOGS_DIR    = BASE / "dashboard_logs"
 LOGS_DIR.mkdir(exist_ok=True)
 
+# The packaged Mac app (macapp/) sets this. That copy only produces CSVs: it has
+# no production/ directory and no store credentials, so the Sync tab and the
+# store-comparing "new products only" bundle are left out rather than shown and
+# left to fail.
+CLIENT_BUILD = os.environ.get("SBOT_CLIENT_BUILD") == "1"
+
 # Drop a logo file named "<supplier_key>.png" (or .jpg/.jpeg/.svg/.webp) in here
 # to have it prefixed on that supplier's card — falls back to the colored dot
 # icon (see PIPELINES) until a matching file shows up.
@@ -75,11 +81,14 @@ else:
     _POPEN_FLAGS       = 0
     _START_NEW_SESSION = True
 
-    if sys.platform == "darwin":
+    if sys.platform == "darwin" and not os.environ.get("_SBOT_CAFFEINATED"):
         # Same idle-sleep prevention as Windows, via caffeinate. -w ties its
         # lifetime to this process so it exits on its own when the dashboard closes.
+        # This module re-runs on every interaction; the env flag keeps it to one
+        # caffeinate per server rather than one per click.
         try:
             subprocess.Popen(["caffeinate", "-i", "-w", str(os.getpid())])
+            os.environ["_SBOT_CAFFEINATED"] = "1"
         except FileNotFoundError:
             pass
 
@@ -1002,10 +1011,12 @@ def step3_section():
 
 CSV_LIMIT_MB  = 15.0   # Shopify hard limit per import file
 CSV_TARGET_MB = 14.5   # split target — safety margin under the hard limit
-UPLOAD_READY  = BASE.parent / "upload_ready"   # project root — easy for the client to find
-
 sys.path.append(str(BASE / "shared"))
 import upload_bundle as _upload_bundle
+
+# Project root, easy for the client to find; the Mac app moves it to a visible
+# folder via SBOT_UPLOAD_READY. One definition, shared with the bundle build.
+UPLOAD_READY  = _upload_bundle.UPLOAD_READY
 
 def collect_source_csvs() -> list[Path]:
     """Return the most recent Shopify_SEO_*.csv per product-type per supplier."""
@@ -1084,14 +1095,19 @@ def step4_section():
     # exists to CREATE products: re-uploading the ~15.6k that already exist changes
     # nothing in the store (price and quantity are the Sync button's job) and turns
     # a single 4 MB file into several 15 MB ones that take far longer to import.
-    bundle_mode = st.radio(
-        "What to include",
-        ["New products only (not yet in the store)", "All products"],
-        index=0, horizontal=True, key="bundle_mode",
-        help="New-only compares the supplier CSVs against the store's SKUs, using the "
-             "catalog mirror that the Sync button refreshes on every run.",
-    )
-    new_only = bundle_mode.startswith("New")
+    # The client build has no catalog mirror to compare against (it has no Sync),
+    # so it always bundles every product.
+    if CLIENT_BUILD:
+        new_only = False
+    else:
+        bundle_mode = st.radio(
+            "What to include",
+            ["New products only (not yet in the store)", "All products"],
+            index=0, horizontal=True, key="bundle_mode",
+            help="New-only compares the supplier CSVs against the store's SKUs, using the "
+                 "catalog mirror that the Sync button refreshes on every run.",
+        )
+        new_only = bundle_mode.startswith("New")
 
     col_btn, col_info = st.columns([2, 5])
     with col_btn:
@@ -1375,7 +1391,8 @@ def reset_section():
         "clear its stale status here."
     )
     _reset_status = load_status()
-    _all_keys     = ["cookies"] + list(PIPELINES) + ["enrich_scan", "enrich", "sync"]
+    _all_keys     = ["cookies"] + list(PIPELINES) + ["enrich_scan", "enrich"] \
+                    + ([] if CLIENT_BUILD else ["sync"])
     _extra_labels = {"enrich_scan": "Enrichment scan", "enrich": "Enrichment",
                      "sync": "Shopify sync"}
     stuck = [k for k in _all_keys if _reset_status.get(k, {}).get("status") == "running"
@@ -1394,25 +1411,24 @@ def reset_section():
 # tab per step, so a client on Step 1 is not also looking at a LIVE-store apply
 # button and a SerpAPI budget form.
 st.title("Save Big On Tires — Inventory Pipeline")
-st.caption("Scrape, clean and sync tire & wheel inventory from all five suppliers to Shopify.")
+st.caption("Scrape and clean tire & wheel inventory from all five suppliers into Shopify "
+           "import files." if CLIENT_BUILD else
+           "Scrape, clean and sync tire & wheel inventory from all five suppliers to Shopify.")
 
 sidebar_status()
 
-_tabs = st.tabs([
-    "1 · Cookies",
-    "2 · Suppliers",
-    "3 · Enrichment",
-    "4 · Upload",
-    "5 · Sync",
-    "Advanced",
-])
+_tab_names = ["1 · Cookies", "2 · Suppliers", "3 · Enrichment", "4 · Upload"]
+if not CLIENT_BUILD:
+    _tab_names.append("5 · Sync")
+_tab_names.append("Advanced")
+_tabs = dict(zip(_tab_names, st.tabs(_tab_names)))
 
-with _tabs[0]:
+with _tabs["1 · Cookies"]:
     st.subheader("Refresh cookies")
     st.caption("Run this before every pipeline run — supplier sessions expire.")
     step1_section()
 
-with _tabs[1]:
+with _tabs["2 · Suppliers"]:
     st.subheader("Run supplier pipelines")
     st.caption(
         "Pipelines run in the background, so this browser tab can be closed. Leave the "
@@ -1421,7 +1437,7 @@ with _tabs[1]:
     markup_section()
     step2_section()
 
-with _tabs[2]:
+with _tabs["3 · Enrichment"]:
     st.subheader("Data enrichment")
     st.caption(
         "Fills in product images, designations and tire specs that no supplier feed "
@@ -1430,22 +1446,43 @@ with _tabs[2]:
     )
     step3_section()
 
-with _tabs[3]:
-    st.subheader("Upload new products to Shopify")
-    st.caption(
-        "Only needed when suppliers have SKUs the store does not carry yet. Regular "
-        "price and inventory syncs need no upload — that is Step 5."
-    )
+with _tabs["4 · Upload"]:
+    if CLIENT_BUILD:
+        st.subheader("Build Shopify import files")
+        st.caption(
+            "Merges every supplier's latest output into Shopify import CSVs (Shopify "
+            "Admin → Products → Import). Each product is tagged with the supplier it "
+            "came from."
+        )
+    else:
+        st.subheader("Upload new products to Shopify")
+        st.caption(
+            "Only needed when suppliers have SKUs the store does not carry yet. Regular "
+            "price and inventory syncs need no upload — that is Step 5."
+        )
     step4_section()
 
-with _tabs[4]:
-    st.subheader("Sync prices & inventory")
-    st.caption(
-        "Pushes merged supplier prices and quantities straight to the store over the "
-        "Shopify API — no CSV, no manual import. Only what changed is sent."
-    )
-    sync_section()
+if not CLIENT_BUILD:
+    with _tabs["5 · Sync"]:
+        st.subheader("Sync prices & inventory")
+        st.caption(
+            "Pushes merged supplier prices and quantities straight to the store over the "
+            "Shopify API — no CSV, no manual import. Only what changed is sent."
+        )
+        sync_section()
 
-with _tabs[5]:
+with _tabs["Advanced"]:
     st.subheader("Advanced")
     reset_section()
+    if CLIENT_BUILD:
+        # The Mac app runs this server in the background with no window of its
+        # own, so this is the way to stop it. Opening the app again restarts it.
+        st.markdown("##### Close the app")
+        st.caption(
+            "Stops the dashboard. Pipelines that are already running keep going in the "
+            "background; open the app again to see their progress."
+        )
+        if st.button("Close the app"):
+            import signal  # noqa: PLC0415
+            st.success("Closed. You can close this browser tab.")
+            threading.Timer(1.0, os.kill, args=(os.getpid(), signal.SIGTERM)).start()

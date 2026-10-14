@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Refresh Emerge Tires Costar session cookies and patch scraper_wheels.py and scraper_tires.py.
+"""Refresh Emerge Tires Costar session cookies into shared/cookie_store (read by both scrapers).
 
 The Costar SPA sets CostarWebAppData (with CwsVersion) only after the User/Login API
 call completes — this requires a headed browser (headless=False). The login button is
@@ -10,12 +10,11 @@ from playwright.sync_api import sync_playwright
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "shared"))
 from tls_chain import browser_needs_chain_bypass
+import cookie_store
 
 LOGIN_URL = "https://order.emergetires.com/WebOrder/Product/Search"
 USERNAME  = "SAVEB"
 PASSWORD  = "saveburnaby604"
-HERE      = pathlib.Path(__file__).parent
-SCRAPERS  = [HERE / "scraper_wheels.py", HERE / "scraper_tires.py"]
 
 NEEDED_COOKIES = {"CostarWebAppData", "CostarWebUserData", "ASP.NET_SessionId"}
 
@@ -105,34 +104,8 @@ def main():
     cookie_str = "; ".join(f"{k}={v}" for k, v in kept.items())
     print(f"New COOKIE_STRING (first 80 chars): {cookie_str[:80]}...")
 
-    def _patch_scraper(path: pathlib.Path):
-        if not path.exists():
-            print(f"  Skipping {path.name} (not found)")
-            return
-        src = path.read_text(encoding="utf-8")
-        # Replace the COOKIE_STRING = ( ... ) block (multi-line string concat form)
-        new_src = re.sub(
-            r'(COOKIE_STRING\s*=\s*\()[\s\S]*?(\))',
-            f'COOKIE_STRING = (\n    "{cookie_str}"\n)',
-            src,
-            count=1,
-        )
-        if new_src == src:
-            # Fallback: replace single-string assignment
-            new_src = re.sub(
-                r'(COOKIE_STRING\s*=\s*")[^"]*(")',
-                f'\\1{cookie_str}\\2',
-                src,
-                count=1,
-            )
-        if new_src == src:
-            print(f"  WARNING: could not find COOKIE_STRING pattern in {path.name}")
-            return
-        path.write_text(new_src, encoding="utf-8")
-        print(f"  Patched {path.name} with fresh cookies.")
-
-    for scraper in SCRAPERS:
-        _patch_scraper(scraper)
+    cookie_store.put("emerge", cookie_str)
+    print(f"Saved fresh cookies to {cookie_store.STORE.name} (read by both scrapers).")
 
 if __name__ == "__main__":
     main()

@@ -78,10 +78,22 @@ actually observed, at the cost of a ~10-20s Playwright login roughly every
 
 FAILURE BUDGET
 ---------------
-Re-auth is capped at MAX_REAUTH_ATTEMPTS per run (shared across search-phase
-and ProductInfo-phase triggers — one budget, not one per phase) with
-exponential backoff between failed login attempts (60s, 120s, 240s, capped
-at 600s). Exhausting the budget raises SessionDeathError.
+MAX_REAUTH_ATTEMPTS caps CONSECUTIVE FAILED logins, with exponential backoff
+between them (60s, 120s, 240s, capped at 600s). A successful login resets
+the count. Exhausting it raises SessionDeathError.
+
+This budget used to count every login, successful or not, across the whole
+run. The NC run of 2026-10-09 16:45 spent all 4 attempts on successful
+re-auths in its first ~180 terms. Its first 3h keepalive at 20:44 then found
+the budget empty and raised "re-auth failed after 4 attempts" without trying
+to log in at all. The keepalive alone would have exhausted it on any run
+longer than 12h.
+
+Proactive keepalives don't count against anything. Symptom-triggered re-auths
+that SUCCEED are capped separately at MAX_SYMPTOM_REAUTHS per run. That cap
+only guards against an endless detect -> login -> detect loop when a fresh
+cookie doesn't cure the symptom, so it is set well above what a healthy run
+uses.
 
 WHY SessionDeathError SUBCLASSES BaseException, NOT Exception
 ---------------------------------------------------------------
@@ -106,7 +118,8 @@ PIPELINES_DIR = SHARED_DIR.parent
 
 ZERO_STREAK_THRESHOLD = 25          # search phase — see module docstring
 KEEPALIVE_INTERVAL_S = 3 * 60 * 60  # 3h — see module docstring
-MAX_REAUTH_ATTEMPTS = 4
+MAX_REAUTH_ATTEMPTS = 4             # consecutive failed logins — see FAILURE BUDGET
+MAX_SYMPTOM_REAUTHS = 20            # successful symptom-triggered re-auths per run
 _CANARY_MIN_COUNT = 5               # only anchor the canary on a "solid" result
 
 
@@ -153,18 +166,20 @@ class CostarSessionGuard:
     def __init__(self, supplier_key, cookie, scraper_file,
                  zero_streak_threshold=ZERO_STREAK_THRESHOLD,
                  keepalive_interval_s=KEEPALIVE_INTERVAL_S,
-                 max_reauth_attempts=MAX_REAUTH_ATTEMPTS):
+                 max_reauth_attempts=MAX_REAUTH_ATTEMPTS,
+                 max_symptom_reauths=MAX_SYMPTOM_REAUTHS):
         self.supplier_key = supplier_key
         self.cookie = cookie
         self.scraper_file = Path(scraper_file)
         self.zero_streak_threshold = zero_streak_threshold
         self.keepalive_interval_s = keepalive_interval_s
         self.max_reauth_attempts = max_reauth_attempts
+        self.max_symptom_reauths = max_symptom_reauths
 
         self._lock = threading.Lock()
         self._zero_streak = 0
         self._last_healthy_term = None
-        self._reauth_count = 0
+        self._symptom_reauths = 0
         self._last_reauth_ts = time.monotonic()
 
     # ---- search-phase signal ----------------------------------------------
@@ -195,25 +210,36 @@ class CostarSessionGuard:
         return (time.monotonic() - self._last_reauth_ts) >= self.keepalive_interval_s
 
     # ---- re-auth --------------------------------------------------------------
-    def reauth(self, bad_cookie, reason):
+    def reauth(self, bad_cookie, reason, proactive=False):
         """Re-authenticate. If `bad_cookie` no longer matches the guard's
         current cookie, someone else already refreshed it (avoids duplicate
         Playwright logins when multiple worker threads hit the same dead
         session at once) — return the current cookie with no network call.
 
         Otherwise loops internally (own backoff) until either a fresh cookie
-        is obtained or MAX_REAUTH_ATTEMPTS is exhausted, in which case this
-        raises SessionDeathError. Never returns a still-bad cookie — callers
-        can assume "returned normally" means "safe to retry now".
+        is obtained or MAX_REAUTH_ATTEMPTS consecutive logins fail, in which
+        case this raises SessionDeathError. Never returns a still-bad cookie —
+        callers can assume "returned normally" means "safe to retry now".
+
+        `proactive=True` marks a keepalive refresh: it is not counted toward
+        MAX_SYMPTOM_REAUTHS. See FAILURE BUDGET in the module docstring.
         """
         with self._lock:
             if bad_cookie is not None and self.cookie != bad_cookie:
                 return self.cookie  # already refreshed by another caller/thread
 
-            print(f"  [session] suspected session death ({self.supplier_key}) — {reason}")
-            while self._reauth_count < self.max_reauth_attempts:
-                self._reauth_count += 1
-                attempt = self._reauth_count
+            if proactive:
+                print(f"  [session] proactive re-auth ({self.supplier_key}) — {reason}")
+            else:
+                if self._symptom_reauths >= self.max_symptom_reauths:
+                    raise SessionDeathError(
+                        f"[{self.supplier_key}] {self._symptom_reauths} re-auths this run "
+                        f"each succeeded but the session kept presenting as dead — "
+                        f"{reason}. A run that cannot get data must not exit 0."
+                    )
+                print(f"  [session] suspected session death ({self.supplier_key}) — {reason}")
+
+            for attempt in range(1, self.max_reauth_attempts + 1):
                 print(f"  [session] re-auth attempt {attempt}/{self.max_reauth_attempts}"
                       f" ({self.supplier_key})...")
                 try:
@@ -227,11 +253,13 @@ class CostarSessionGuard:
                     self._persist(new_cookie)
                     self._zero_streak = 0
                     self._last_reauth_ts = time.monotonic()
+                    if not proactive:
+                        self._symptom_reauths += 1
                     print(f"  [session] re-auth OK on attempt {attempt} — cookie "
                           f"refreshed in-process and persisted to disk")
                     return new_cookie
 
-                if self._reauth_count < self.max_reauth_attempts:
+                if attempt < self.max_reauth_attempts:
                     wait = min(60 * (2 ** (attempt - 1)), 600)
                     print(f"  [session] re-auth attempt {attempt} FAILED — "
                           f"backing off {wait}s before retrying")
@@ -239,14 +267,14 @@ class CostarSessionGuard:
 
             raise SessionDeathError(
                 f"[{self.supplier_key}] re-auth failed after "
-                f"{self.max_reauth_attempts} attempts — {reason}. "
+                f"{self.max_reauth_attempts} consecutive attempts — {reason}. "
                 f"A run that cannot get data must not exit 0."
             )
 
     def _persist(self, cookie):
-        """Patch COOKIE_STRING back into every file refresh_cookies.py knows
-        about for this supplier (not just the currently-running script), so
-        the NEXT run also starts from a fresh cookie."""
+        """Save the cookie to shared/cookie_store (via refresh_cookies), which
+        every scraper for this supplier reads at startup, so the NEXT run also
+        starts from a fresh cookie."""
         try:
             rc = _load_refresh_module()
             supplier_cfg = rc.SUPPLIERS[self.supplier_key]

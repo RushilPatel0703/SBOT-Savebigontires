@@ -2,7 +2,8 @@
 """
 Cookie refresh utility — programmatic login for all 4 suppliers.
 Run from: pipelines/
-Updates COOKIE_STRING (or COOKIES dict) in every scraper file.
+Saves each fresh session to shared/Data/session_cookies.json (see
+shared/cookie_store.py), which every scraper reads at startup.
 
 Usage:
     python refresh_cookies.py              # refresh all
@@ -21,6 +22,7 @@ from playwright.async_api import async_playwright
 BASE_DIR = Path(__file__).parent
 sys.path.insert(0, str(BASE_DIR / "shared"))
 from tls_chain import browser_needs_chain_bypass  # noqa: E402
+import cookie_store  # noqa: E402
 _HEADED = False
 
 # ── Supplier configs ──────────────────────────────────────────────────────────
@@ -32,12 +34,6 @@ SUPPLIERS = {
         "username": "12656",
         "password": "torque",
         "platform": "costar",
-        "files": [
-            "formula_distributors/scraper.py",
-            "formula_distributors/scraper_wheels.py",
-            "formula_distributors/check_coverage.py",
-            "formula_distributors/check_coverage_wheels.py",
-        ],
     },
     "nc": {
         "name": "North Country",
@@ -46,10 +42,6 @@ SUPPLIERS = {
         "username": "4s011",
         "password": "5069362",
         "platform": "costar",
-        "files": [
-            "northcountry/scraper_tires.py",
-            "northcountry/scraper_wheels.py",
-        ],
     },
     "emerge": {
         "name": "Emerge Tires",
@@ -58,11 +50,6 @@ SUPPLIERS = {
         "username": "SAVEB",
         "password": "saveburnaby604",
         "platform": "costar",
-        "files": [
-            "emergetires/scraper_tires.py",
-            "emergetires/scraper_wheels.py",
-            "emergetires/check_coverage.py",
-        ],
     },
     "wheelsmart": {
         "name": "WheelMart Canada",
@@ -71,10 +58,6 @@ SUPPLIERS = {
         "username": "savebigontiresburnaby@gmail.com",
         "password": "123456",
         "platform": "wheelsmart",
-        "files": [
-            "wheelsmart/scraper_tires.py",
-            "wheelsmart/scraper_rims.py",
-        ],
     },
 }
 
@@ -219,65 +202,34 @@ async def login_wheelsmart(supplier: dict) -> dict | None:
 
 
 def update_costar_files(supplier: dict, cookie_str: str):
-    """Replace COOKIE_STRING in all files for a Costar supplier."""
-    # The COOKIE_STRING spans multiple lines with string concatenation:
-    #   COOKIE_STRING = (
-    #       "part1; "
-    #       "part2"
-    #   )
-    # Replace the whole block with a single-line version.
-    pattern = re.compile(
-        r'(COOKIE_STRING\s*=\s*)(\([^)]*\)|"[^"]*")',
-        re.DOTALL
-    )
-    new_value = f'"{cookie_str}"'
+    """Save a Costar supplier's fresh COOKIE_STRING to shared/cookie_store.
 
-    updated = []
-    for rel_path in supplier["files"]:
-        path = BASE_DIR / rel_path
-        if not path.exists():
-            print(f"  [skip] {rel_path} not found")
-            continue
-        text = path.read_text(encoding="utf-8")
-        new_text, n = pattern.subn(lambda m: m.group(1) + new_value, text)
-        if n:
-            path.write_text(new_text, encoding="utf-8")
-            print(f"  [updated] {rel_path}")
-            updated.append(rel_path)
-        else:
-            print(f"  [no match] {rel_path} — COOKIE_STRING pattern not found")
-    return updated
+    The scrapers read the store at startup (falling back to their own literal),
+    so nothing here edits a scraper's source any more. The name is kept because
+    costar_session and backfill_costar_images call it."""
+    cookie_store.put(_store_key(supplier), cookie_str)
+    print(f"  [saved] {supplier['name']} cookie -> {cookie_store.STORE.name}")
+    return [cookie_store.STORE.name]
 
 
 def update_wheelsmart_files(supplier: dict, cookies: dict):
-    """Replace _identity and PHPSESSID in WheelMart scraper files."""
-    updated = []
-    for rel_path in supplier["files"]:
-        path = BASE_DIR / rel_path
-        if not path.exists():
-            print(f"  [skip] {rel_path} not found")
-            continue
-        text = path.read_text(encoding="utf-8")
-        original = text
-        if cookies.get("_identity"):
-            text = re.sub(
-                r'("_identity"\s*:\s*)"[^"]*"',
-                lambda m: m.group(1) + f'"{cookies["_identity"]}"',
-                text
-            )
-        if cookies.get("PHPSESSID"):
-            text = re.sub(
-                r'("PHPSESSID"\s*:\s*)"[^"]*"',
-                lambda m: m.group(1) + f'"{cookies["PHPSESSID"]}"',
-                text
-            )
-        if text != original:
-            path.write_text(text, encoding="utf-8")
-            print(f"  [updated] {rel_path}")
-            updated.append(rel_path)
-        else:
-            print(f"  [no match] {rel_path}")
-    return updated
+    """Save WheelMart's _identity / PHPSESSID to shared/cookie_store."""
+    kept = {k: v for k, v in cookies.items() if k in ("_identity", "PHPSESSID") and v}
+    if not kept:
+        print(f"  [no change] {supplier['name']} - login returned no cookies")
+        return []
+    current = cookie_store.get("wheelsmart", {}) or {}
+    cookie_store.put("wheelsmart", {**current, **kept})
+    print(f"  [saved] {supplier['name']} cookies -> {cookie_store.STORE.name}")
+    return [cookie_store.STORE.name]
+
+
+def _store_key(supplier: dict) -> str:
+    """SUPPLIERS key for a supplier config dict (the store is keyed the same way)."""
+    for key, cfg in SUPPLIERS.items():
+        if cfg is supplier or cfg["name"] == supplier["name"]:
+            return key
+    raise KeyError(f"unknown supplier {supplier.get('name')!r}")
 
 
 async def refresh_supplier(key: str):

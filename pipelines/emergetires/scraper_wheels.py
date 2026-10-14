@@ -29,6 +29,7 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from costar_session import CostarSessionGuard, SessionDeathError, all_zero_batch
+import cookie_store
 from costar_images import measure_and_build_image_map
 from tls_chain import ca_bundle
 
@@ -40,7 +41,9 @@ CA_BUNDLE    = ca_bundle()
 _SIGNING_KEY = "5318f4ce4b9bab05c09df20c3d5d8d4c26570542501b1d58231159cd42e65505"
 
 # ── Update this when session expires (or run refresh_session.py) ──────────────
-COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=Gjg2uck6Y7pl%2fZtRFx567g%3d%3d&UserID=43580a72-3107-450a-baed-fef4ec591237; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.6.15.0&DbVersion=0005.0006.0015.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=N8j4L6skDR5IDBglLjQzU%2b5V6Asmr4CY%2f3Pyv1L0Xvys%2bLxPJ%2bfr2wC6xb5X1kIP&UnifiedBuildNumber=5.6.15.0&Ux=I34R06XR&CostarLanguage=&SessionID=7a77858c-87dd-4d06-882b-be356389cdfc; ASP.NET_SessionId=apl2y5oer13wgp0abcqf54i1"
+COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=Gjg2uck6Y7pl%2fZtRFx567g%3d%3d&UserID=3deb1119-5026-41f1-a164-3901b825b59f; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.6.15.0&DbVersion=0005.0006.0015.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=xRmXYn42X2ISdqVPQmrdo8OLUar62IXGUhV%2bZcoUScfB4Ypen%2fgJ1sN2Tei9Sq3t&UnifiedBuildNumber=5.6.15.0&Ux=I34R06XR&CostarLanguage=&SessionID=8d73aab7-6645-4be6-a596-b115065198bc; ASP.NET_SessionId=rn0epdjotmlnu3bny3zpzvsp"
+# A refreshed cookie (refresh_cookies.py / in-run re-auth) wins over the literal above.
+COOKIE_STRING = cookie_store.get("emerge", COOKIE_STRING)
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Live, refreshable session state — see costar_session.py / northcountry/scraper_tires.py.
@@ -100,7 +103,7 @@ def _sign(body_str: str) -> dict:
 def api_post(endpoint: str, body: dict) -> dict:
     # Proactive keepalive — see pipelines/shared/costar_session.py.
     if _SESSION.keepalive_due():
-        _SESSION.reauth(_SESSION.cookie, "proactive keepalive interval elapsed")
+        _SESSION.reauth(_SESSION.cookie, "proactive keepalive interval elapsed", proactive=True)
 
     body_str = json.dumps(body, separators=(",", ":"))
     signed   = _sign(body_str)

@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
 from costar_session import CostarSessionGuard, SessionDeathError, all_zero_batch
+import cookie_store
 from costar_images import measure_and_build_image_map
 
 BASE_URL = "https://weborder.formuladistributors.com"
@@ -27,7 +28,9 @@ OUTPUT_FILE = f"Data/raw/formula_wheels_{datetime.now().strftime('%Y%m%d_%H%M%S'
 # ── Cookies ──────────────────────────────────────────────────────────────────
 # Paste the full cookie string from the browser (copy as cURL → -b "...") here.
 # At minimum you need ASP.NET_SessionId + the CostarWeb* cookies.
-COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=j2tgG82DEmJzPxfO1ysuHg%3d%3d&UserID=f0fea50f-4495-42e7-aeb5-199405bd49c2; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.7.138.0&DbVersion=0005.0007.0138.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=TRuoaCyfYDx04F0QCLYZYgjB5e15CpjG6agkuoRmJZQgEr3V%2bAhEapHq6d0ycsul&UnifiedBuildNumber=5.7.138.0&Ux=R64Q46VF&CostarLanguage=&SessionID=26eaa4ed-f559-48dc-b41c-526beacb9222; ASP.NET_SessionId=gszst0at43q3vf3r5whakibg"
+COOKIE_STRING = "CostarWebUserData=jRa4aGghLZiK4h9tf9KS2w%3d%3d=&CultureCode=en-US&IsRememberMe=True&UserRequestedUx=&wO3%2fdZCItViuMG66VHQitQ%3d%3d=j2tgG82DEmJzPxfO1ysuHg%3d%3d&UserID=453b68d2-3324-47f1-915b-1ce34ee55c5c; CostarWebAppData=M1dloT0oGu5oPHZUHVYKjw%3d%3d=&CwsVersion=5.7.138.0&DbVersion=0005.0007.0138.0000&5lG0d7HPQ%2fkTy%2fCvDKdPsQ%3d%3d=Bpa0ErpMP%2fzjCmqr7pDsO09titLWwyXSTnuUN1UgR22KF3PEd0Pmf2qYc%2fpW5uTg&UnifiedBuildNumber=5.7.138.0&Ux=R64Q46VF&CostarLanguage=&SessionID=0a81abd0-cc8c-4a2a-b9eb-634ebd78c5ce; ASP.NET_SessionId=0kvpbte1ibuqbwfrrvwdklzr"
+# A refreshed cookie (refresh_cookies.py / in-run re-auth) wins over the literal above.
+COOKIE_STRING = cookie_store.get("formula", COOKIE_STRING)
 
 # Live, refreshable session state — see costar_session.py / northcountry/scraper_tires.py.
 _SESSION = CostarSessionGuard("formula", COOKIE_STRING, __file__)
@@ -151,7 +154,7 @@ def build_product_info_payload(product_guids):
 def post(session, path, payload):
     # Proactive keepalive — see pipelines/shared/costar_session.py.
     if _SESSION.keepalive_due():
-        _SESSION.reauth(_SESSION.cookie, "proactive keepalive interval elapsed")
+        _SESSION.reauth(_SESSION.cookie, "proactive keepalive interval elapsed", proactive=True)
     session.headers["Cookie"] = _SESSION.cookie
 
     url = BASE_URL + path

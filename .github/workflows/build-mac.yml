@@ -1,0 +1,50 @@
+# Builds the client's Mac app (macapp/build.py) on GitHub's Apple Silicon runner.
+# The zip it uploads is what goes to the client: the app plus its install guide.
+name: Build Mac app
+
+on:
+  push:
+    branches: [mac-app]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r macapp/requirements-build.txt
+          python -m playwright install chromium
+
+      # The pipelines' own suite, on macOS, before anything is packaged.
+      - name: Test pipelines
+        working-directory: pipelines
+        run: python -m pytest tests/ -q
+
+      - name: Build, self-test and package
+        run: python macapp/build.py
+
+      - name: Upload app
+        uses: actions/upload-artifact@v4
+        with:
+          name: SaveBigOnTires-mac
+          path: macapp/dist/SaveBigOnTires-mac.zip
+          if-no-files-found: error
+
+      - name: Upload screenshots and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-evidence
+          path: |
+            macapp/dist/screens/
+            macapp/build/pyinstaller/**/warn-*.txt
+          if-no-files-found: ignore
