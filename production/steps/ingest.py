@@ -38,6 +38,13 @@ _size_parser_mod = importlib.util.module_from_spec(_size_parser_spec)
 _size_parser_spec.loader.exec_module(_size_parser_mod)
 consumer_size_filter = _size_parser_mod.consumer_size_filter
 
+# And the per-product denylist, which covers what no size rule can express.
+_denylist_spec = importlib.util.spec_from_file_location(
+    "_product_denylist", config.PIPELINES_DIR / "shared" / "product_denylist.py")
+_denylist_mod = importlib.util.module_from_spec(_denylist_spec)
+_denylist_spec.loader.exec_module(_denylist_mod)
+denied_flags = _denylist_mod.denied_flags
+
 
 def find_latest(pattern_path):
     import glob
@@ -177,6 +184,17 @@ def load_supplier_frame(supplier, cfg, product_type, log):
         if changed:
             log.info(f"[{supplier}/{product_type}] disambiguated {changed} "
                      f"prefix-colliding SKU(s)")
+
+    # Products the client has struck off by name. Runs after disambiguation so
+    # _sku is in its final, Shopify-shaped form — that is what the denylist is
+    # keyed on — and for wheels as well as tires, since the size filter above
+    # covers tires only.
+    keep_allowed, denied = denied_flags(df["_sku"])
+    if denied:
+        df = df[pd.Series(keep_allowed, index=df.index)]
+        meta["denylisted"] = len(denied)
+        log.info(f"[{supplier}/{product_type}] product denylist: dropped "
+                 f"{len(denied)} SKU(s) — {', '.join(sorted(denied))}")
 
     # duplicates within one supplier feed would double-count qty at merge
     before = len(df)

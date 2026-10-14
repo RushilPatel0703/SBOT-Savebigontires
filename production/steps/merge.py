@@ -45,18 +45,42 @@ def run(ctx):
 
         price_expr = config.sql_price_expr("price", rules, suppliers=staged_suppliers)
 
+        # winning_supplier is the ONE supplier whose priced row the min() below
+        # actually picks — not the same thing as `sources`, which lists every
+        # supplier that stocked the SKU that run. Shop OS needs to know who to
+        # reorder from, and that isn't recoverable from a pipe-joined sources
+        # list once more than one supplier carries a SKU.
         result = ctx.wh.run_sql(f"""
-            insert into merged_snapshot (run_id, product_type, sku, merged_price, merged_qty, sources)
+            with ranked as (
+                select
+                    product_type, sku, supplier,
+                    row_number() over (
+                        partition by product_type, sku
+                        order by {price_expr}, supplier
+                    ) as rn
+                from supplier_staging
+                where run_id = {ctx.run_id} and price > 0
+            ),
+            best as (
+                select product_type, sku, supplier as winning_supplier
+                from ranked where rn = 1
+            )
+            insert into merged_snapshot
+                (run_id, product_type, sku, merged_price, merged_qty, sources, winning_supplier)
             select
                 {ctx.run_id},
-                product_type,
-                sku,
+                supplier_staging.product_type,
+                supplier_staging.sku,
                 min({price_expr}) filter (where price > 0),
                 sum(qty),
-                string_agg(distinct supplier, '|' order by supplier)
+                string_agg(distinct supplier, '|' order by supplier),
+                best.winning_supplier
             from supplier_staging
-            where run_id = {ctx.run_id}
-            group by product_type, sku;
+            left join best
+              on best.product_type = supplier_staging.product_type
+             and best.sku = supplier_staging.sku
+            where supplier_staging.run_id = {ctx.run_id}
+            group by supplier_staging.product_type, supplier_staging.sku, best.winning_supplier;
         """)
         # run_sql returns CommandOk for INSERT; count separately
         counts = ctx.wh.select(f"""

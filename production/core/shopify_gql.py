@@ -432,6 +432,63 @@ class ShopifyGQL:
             "handle": product["handle"],
         }
 
+    # ── product removal ────────────────────────────────────────────────────────
+    # Only prune_products.py calls these. The weekly sync never deletes: it
+    # zeroes quantities, which is reversible, and a delete is not.
+    def lookup_products_by_sku(self, skus, batch_size=25):
+        """{sku: {product_id, variant_id, title, status}} read live from Shopify.
+
+        Deliberately not read from the catalog mirror. The mirror is a snapshot,
+        and acting on a snapshot is fine for a price write that the next run
+        corrects but not for a delete that nothing corrects — if a SKU has been
+        reassigned to a different product since the last catalog refresh, the
+        mirror would name the wrong product and it would be gone before anyone
+        noticed. Matching is re-checked here against what Shopify returns now.
+        """
+        query = """
+        query($q: String!) {
+          productVariants(first: 250, query: $q) {
+            nodes { id sku product { id title status } }
+          }
+        }"""
+        found = {}
+        wanted = [s for s in skus if s]
+        for i in range(0, len(wanted), batch_size):
+            batch = wanted[i:i + batch_size]
+            # Quoting each term keeps SKUs containing '-' from being read as
+            # the query language's negation operator.
+            q = " OR ".join(f'sku:"{s}"' for s in batch)
+            data = self.execute(query, {"q": q}, label="lookup_products_by_sku")
+            for node in data["productVariants"]["nodes"]:
+                sku = (node.get("sku") or "").strip()
+                # The search is a match, not an equality test, so confirm the
+                # SKU actually is one we asked for before offering it up.
+                if sku in batch and sku not in found:
+                    found[sku] = {
+                        "product_id": node["product"]["id"],
+                        "variant_id": node["id"],
+                        "title": node["product"]["title"],
+                        "status": node["product"]["status"],
+                    }
+        return found
+
+    PRODUCT_DELETE_MUTATION = """
+    mutation($input: ProductDeleteInput!) {
+      productDelete(input: $input) {
+        deletedProductId
+        userErrors { field message }
+      }
+    }"""
+
+    def delete_product(self, product_gid):
+        """Permanently delete one product. Returns the deleted product gid."""
+        data = self.execute(self.PRODUCT_DELETE_MUTATION,
+                            {"input": {"id": product_gid}}, label="delete_product")
+        result = data["productDelete"]
+        if result["userErrors"]:
+            raise ShopifyError(f"productDelete userErrors: {result['userErrors']}")
+        return result["deletedProductId"]
+
     # ── sales-channel publishing ───────────────────────────────────────────────
     def online_store_publication_id(self):
         """Publication gid of the Online Store channel, or None if the token

@@ -146,7 +146,7 @@ def run(ctx, shopify, dry_run):
                         vendor=definition.get("Vendor") or "Save Big On Tires",
                         product_type=config.SHOPIFY_PRODUCT_TYPE[product_type],
                         tags=_split_tags(definition.get("Tags")),
-                        handle=definition["URL Handle"],
+                        handle=definition["Handle"],
                         sku=sku, price=price, qty=row["qty"],
                         location_gid=location_gid,
                         image_url=(definition.get("Image Src") or "").strip() or None,
