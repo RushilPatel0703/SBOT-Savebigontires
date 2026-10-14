@@ -242,6 +242,7 @@ def main():
     minos = finalize_bundle(version)
     with tempfile.TemporaryDirectory(prefix="sbot-test-") as tmp:
         home = Path(tmp) / "SaveBigOnTires"
+        home.mkdir()            # the app makes its own folders inside; cwd must exist first
         selftest(home)
         e2e(home)
         if not args.skip_ui:
