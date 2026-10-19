@@ -2566,8 +2566,15 @@ def audit_free_fields():
     verbatim (same methodology already used to size this whole design) so
     the numbers in ENRICHMENT_APPROVAL.md and gap_report_output.md never
     diverge. Returns {(supplier, type, field): {"raw": n, "cleaned": n_or_None}}.
+
+    monitoring/ is gitignored, so gap_report.py exists only on a dev machine;
+    anywhere else (a fresh clone, the client's Mac app) the audit is empty.
     """
-    sys.path.insert(0, os.path.join(ROOT, "monitoring"))
+    gap_dir = os.path.join(ROOT, "monitoring")
+    if not os.path.isfile(os.path.join(gap_dir, "gap_report.py")):
+        print("Free-field audit skipped: monitoring/gap_report.py is not on this machine.")
+        return {}
+    sys.path.insert(0, gap_dir)
     import gap_report as gr
 
     by_stage = {}   # (supplier, type, field) -> {"raw": n, "cleaned": n}
@@ -2752,6 +2759,7 @@ def write_approval_report(designation_rows, image_rows, free_audit, total_needs_
         "number above came from `--field all` with no `--live` flag."
     )
 
+    os.makedirs(os.path.dirname(APPROVAL_MD), exist_ok=True)
     with open(APPROVAL_MD, "w", encoding="utf-8") as fh:
         fh.write("\n".join(lines))
     print(f"\nApproval report written to: {APPROVAL_MD}")
@@ -2797,6 +2805,8 @@ def report(fields, supplier_filter=None, budget_hint=5000, apply_cache=False, wr
     verdict = "WITHIN budget" if total_needs_paid <= budget_hint else "EXCEEDS budget — prioritize"
     print(f"vs proposed budget {budget_hint}: {verdict}")
 
+    # monitoring/ is gitignored, so a fresh checkout or install has none.
+    os.makedirs(os.path.dirname(MANIFEST), exist_ok=True)
     with open(MANIFEST, "w", encoding="utf-8") as fh:
         json.dump([{k: v for k, v in c.items()} for c in manifest], fh, indent=2, default=str)
     print(f"\nFull query manifest written to: {MANIFEST}")

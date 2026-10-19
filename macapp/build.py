@@ -131,6 +131,9 @@ def stage():
 
     leaked = [p for p in PAYLOAD.rglob("*.py") if p.name != "dashboard.py"]
     assert not leaked, f"source in payload: {leaked}"
+    # The developer's own supplier logins, gitignored but on disk in a local checkout.
+    cookies = list(PAYLOAD.rglob("session_cookies.json*"))
+    assert not cookies, f"session cookies in payload: {cookies}"
     print(f"staged {len(files)} files ({len(py_files)} compiled), "
           f"{len(imports)} imports, version {version}")
     return version

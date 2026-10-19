@@ -36,6 +36,36 @@ def test_unreadable_store_falls_back_to_default(store):
     assert store.get("formula", "literal") == "literal"
 
 
+def test_put_never_erases_other_suppliers_when_store_is_unreadable(store):
+    """A store that exists but can't be read must stop the write, not be
+    replaced by a one-key store that drops every other supplier's cookie."""
+    store.STORE.parent.mkdir(parents=True)
+    store.STORE.write_text("{not json", encoding="utf-8")
+    with pytest.raises(ValueError):
+        store.put("wheelsmart", {"PHPSESSID": "abc"})
+    assert store.STORE.read_text(encoding="utf-8") == "{not json"
+    assert list(store.STORE.parent.iterdir()) == [store.STORE]     # no temp file left
+
+
+def test_put_retries_a_briefly_locked_store(store, monkeypatch):
+    """Windows: another process holding the file open makes os.replace raise
+    PermissionError for a moment. The write must wait it out, not fail."""
+    store.put("nc", "old")
+    real_replace, calls = store.os.replace, []
+
+    def flaky_replace(src, dst):
+        calls.append(1)
+        if len(calls) < 3:
+            raise PermissionError("in use")
+        real_replace(src, dst)
+
+    monkeypatch.setattr(store.os, "replace", flaky_replace)
+    monkeypatch.setattr(store, "_RETRY_SLEEP", 0)
+    store.put("formula", "fresh")
+    assert store.get("nc") == "old" and store.get("formula") == "fresh"
+    assert list(store.STORE.parent.iterdir()) == [store.STORE]
+
+
 def test_refresh_saves_to_the_store_not_the_scrapers(store, monkeypatch):
     sys.path.insert(0, str(_PIPELINES))
     pytest.importorskip("playwright")

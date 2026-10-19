@@ -19,19 +19,49 @@ strings) and wheelsmart (a dict of cookie names to values).
 import json
 import os
 import threading
+import time
 from pathlib import Path
 
 STORE = Path(__file__).resolve().parent / "Data" / "session_cookies.json"
 
 _LOCK = threading.Lock()
 
+# Windows refuses to open or replace a file another process has open
+# (PermissionError). It clears in milliseconds, so retry before giving up.
+_RETRIES = 20
+_RETRY_SLEEP = 0.05
 
-def _read():
+
+def _retry(fn):
+    for attempt in range(_RETRIES):
+        try:
+            return fn()
+        except PermissionError:
+            if attempt == _RETRIES - 1:
+                raise
+            time.sleep(_RETRY_SLEEP)
+
+
+def _read(strict=False):
+    """The store as a dict, {} when it doesn't exist yet.
+
+    A store that exists but can't be read is {} for a reader, which then uses
+    its scraper's literal, but an error for a writer (strict): writing {key}
+    over it would erase every other supplier's cookie.
+    """
     try:
-        doc = json.loads(STORE.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
+        doc = json.loads(_retry(lambda: STORE.read_text(encoding="utf-8")))
+    except FileNotFoundError:
         return {}
-    return doc if isinstance(doc, dict) else {}
+    except (OSError, ValueError):
+        if strict:
+            raise
+        return {}
+    if not isinstance(doc, dict):
+        if strict:
+            raise ValueError(f"{STORE} does not hold a JSON object")
+        return {}
+    return doc
 
 
 def get(key, default=None):
@@ -44,9 +74,12 @@ def put(key, value):
     """Save the cookie for `key`. Written via a temp file so a scraper reading
     concurrently never sees a half-written store."""
     with _LOCK:
-        doc = _read()
+        doc = _read(strict=True)
         doc[key] = value
         STORE.parent.mkdir(parents=True, exist_ok=True)
         tmp = STORE.with_name(STORE.name + f".{os.getpid()}.tmp")
-        tmp.write_text(json.dumps(doc, indent=2), encoding="utf-8")
-        os.replace(tmp, STORE)
+        try:
+            tmp.write_text(json.dumps(doc, indent=2), encoding="utf-8")
+            _retry(lambda: os.replace(tmp, STORE))
+        finally:
+            tmp.unlink(missing_ok=True)

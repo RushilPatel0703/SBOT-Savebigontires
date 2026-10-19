@@ -59,7 +59,7 @@ coverage/
 
 # Supplier session cookies written by refresh_cookies.py (shared/cookie_store.py).
 # Short-lived and per-machine; the scrapers fall back to their own literals.
-pipelines/shared/Data/session_cookies.json
+pipelines/shared/Data/session_cookies.json*
 
 # Mac app build output (macapp/build.py).
 macapp/build/
