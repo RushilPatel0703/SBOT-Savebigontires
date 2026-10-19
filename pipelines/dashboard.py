@@ -492,8 +492,10 @@ def _markup_summary(rules: dict) -> str:
     parts = []
     for key, cfg in PIPELINES.items():
         rule = rules.get(markup_key_for(key), {"mode": markup.DOLLAR, "value": 0.0})
+        # Escaped: Streamlit labels are Markdown, and two bare $ signs make
+        # everything between them a LaTeX formula.
         amount = (f"{rule['value']:.0f}%" if rule["mode"] == markup.PERCENT
-                  else f"${rule['value']:.2f}")
+                  else f"\\${rule['value']:.2f}")
         parts.append(f"{cfg['label']} {amount}")
     return " · ".join(parts)
 
