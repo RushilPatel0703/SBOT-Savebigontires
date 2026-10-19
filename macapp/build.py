@@ -57,6 +57,15 @@ EXCLUDE = (
     re.compile(r"\.md$"),
 )
 
+# Fallback credentials in shared/config.py that belong to the developer, not the
+# client, and that nothing the client build runs needs: the dev store's admin
+# token (the dashboard always skips every Shopify-writing step) and the dev
+# SerpAPI key (paid searches use SBOT_SERPAPI_KEY_CLIENT). Strings in a .pyc are
+# readable, so they are blanked before compiling. The client's own key and
+# supplier logins stay; the app needs them.
+CONFIG = "pipelines/shared/config.py"
+DEV_ONLY_SECRETS = ("SBOT_SHOPIFY_TOKEN", "SBOT_SERPAPI_KEY_DEV")
+
 DASHBOARD_STUB = '''\
 # Save Big On Tires dashboard. The dashboard ships compiled, as dashboard_app.pyc
 # beside this file; Streamlit needs a .py to run, so this runs that on every rerun
@@ -104,18 +113,48 @@ def imported_modules(py_files):
     return sorted(found)
 
 
+def strip_dev_secrets(source):
+    """config.py's source with each DEV_ONLY_SECRETS fallback replaced by "".
+
+    Returns (new_source, removed_values). The literal is spliced out in place,
+    so every line number — and so every traceback — stays as in the source.
+    """
+    lines = source.splitlines(keepends=True)
+    found = []
+    for node in ast.walk(ast.parse(source)):
+        if (isinstance(node, ast.Call) and getattr(node.func, "id", None) == "_secret"
+                and len(node.args) == 2 and isinstance(node.args[0], ast.Constant)
+                and node.args[0].value in DEV_ONLY_SECRETS):
+            lit = node.args[1]
+            assert isinstance(lit, ast.Constant) and lit.lineno == lit.end_lineno, \
+                f"{CONFIG}: {node.args[0].value} fallback is not a one-line literal"
+            found.append(lit)
+    assert len(found) == len(DEV_ONLY_SECRETS), f"{CONFIG}: expected fallbacks for {DEV_ONLY_SECRETS}"
+    for lit in sorted(found, key=lambda n: (n.lineno, n.col_offset), reverse=True):
+        line = lines[lit.lineno - 1].encode()   # ast offsets are UTF-8 byte offsets
+        lines[lit.lineno - 1] = (line[:lit.col_offset] + b'""' + line[lit.end_col_offset:]).decode()
+    return "".join(lines), [lit.value for lit in found if lit.value]
+
+
 def stage():
     shutil.rmtree(PAYLOAD, ignore_errors=True)
     files = pipeline_files()
     py_files = [f for f in files if f.endswith(".py")]
+    removed = []
     for f in files:
         src = ROOT / f
         if f.endswith(".py"):
             rel = "pipelines/dashboard_app.pyc" if f == "pipelines/dashboard.py" else f[:-3] + ".pyc"
             dst = PAYLOAD / rel
             dst.parent.mkdir(parents=True, exist_ok=True)
+            if f == CONFIG:
+                text, removed = strip_dev_secrets(src.read_text(encoding="utf-8"))
+                src = BUILD / "config_client.py"
+                src.write_text(text, encoding="utf-8")
             py_compile.compile(str(src), cfile=str(dst), dfile=f, doraise=True,
                                invalidation_mode=py_compile.PycInvalidationMode.UNCHECKED_HASH)
+            if f == CONFIG:
+                src.unlink()
         else:
             dst = PAYLOAD / f
             dst.parent.mkdir(parents=True, exist_ok=True)
@@ -134,6 +173,10 @@ def stage():
     # The developer's own supplier logins, gitignored but on disk in a local checkout.
     cookies = list(PAYLOAD.rglob("session_cookies.json*"))
     assert not cookies, f"session cookies in payload: {cookies}"
+    # The stripped values must not survive anywhere: another module could copy them.
+    holders = [p.relative_to(PAYLOAD).as_posix() for p in PAYLOAD.rglob("*") if p.is_file()
+               and any(v.encode() in p.read_bytes() for v in removed)]
+    assert not holders, f"developer credential still in payload: {holders}"
     print(f"staged {len(files)} files ({len(py_files)} compiled), "
           f"{len(imports)} imports, version {version}")
     return version

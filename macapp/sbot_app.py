@@ -413,16 +413,20 @@ def selftest(args: list[str]) -> int:
                               capture_output=True, text=True, timeout=900)
         return proc.returncode, proc.stdout + proc.stderr
 
+    # The workspace is fresh, so neither has input yet. Each must get far enough
+    # to say so itself — proof the compiled script ran, not just that nothing
+    # raised (a script the dispatcher can't find exits 2 without a traceback).
     code_root = ENGINE / "pipelines"
     rc, out = run(code_root / "shared", "upload_bundle.py", "--dry-run")
-    if "Traceback" in out:
-        failures.append("upload_bundle.py --dry-run raised:\n" + out[-3000:])
-    print(f"[selftest] upload_bundle.py --dry-run exit {rc}")
+    if "Traceback" in out or (rc != 0 and "No Shopify CSV files found" not in out):
+        failures.append("upload_bundle.py --dry-run did not run:\n" + out[-3000:])
+    print(f"[selftest] upload_bundle.py --dry-run exit {rc} (no CSVs yet)")
 
     rc, out = run(code_root / "dttire", "run_pipeline.py", "--only", "clean_tires")
-    if "STEP: clean_tires" not in out or "Traceback" in out:
+    if ("STEP: clean_tires" not in out or "Traceback" in out
+            or (rc != 0 and "No file matching" not in out)):
         failures.append("nested dispatch through run_pipeline.py failed:\n" + out[-3000:])
-    print(f"[selftest] dttire run_pipeline.py --only clean_tires exit {rc}")
+    print(f"[selftest] dttire run_pipeline.py --only clean_tires exit {rc} (no raw CSV yet)")
 
     if "--skip-browser" not in args:
         if not ensure_browser():
