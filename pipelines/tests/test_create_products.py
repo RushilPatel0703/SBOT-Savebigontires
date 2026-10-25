@@ -84,8 +84,10 @@ class FakeCtx:
 
 
 class FakeShopify:
-    def __init__(self):
+    def __init__(self, taken=None, fail_with=None):
         self.created = []
+        self.taken = taken or {}          # handle → {product_id, title, skus}
+        self.fail_with = fail_with        # exception every create_product raises
 
     def primary_location_id(self):
         return "gid://shopify/Location/1"
@@ -93,7 +95,12 @@ class FakeShopify:
     def online_store_publication_id(self):
         return None                       # token without the publication scopes
 
+    def lookup_products_by_handle(self, handles):
+        return {h: self.taken[h] for h in handles if h in self.taken}
+
     def create_product(self, **kw):
+        if self.fail_with:
+            raise self.fail_with
         self.created.append(kw)
         n = len(self.created)
         return {"product_id": f"gid://shopify/Product/{n}",
@@ -140,3 +147,85 @@ def test_live_branch_skips_sku_without_seo_definition(create_products, tmp_path)
     assert create_products.run(ctx, shopify, dry_run=False) == 0
     assert shopify.created == []
     assert ctx.step_obj.details["no_seo_definition"] == 1
+
+
+# ── taken handles (run #11) ──────────────────────────────────────────────────
+# Run #11 tripped the circuit breaker on 94 creates that Shopify refused because
+# another product already held the handle: 72 imported wheels with no SKU and
+# 22 tires listed under a different supplier's SKU. Those are skips, not
+# failures, and the breaker must not count them.
+
+def _seo_row(handle, sku, title="T"):
+    return f"{handle},{title},,Falken,,Tires,,TRUE,{sku},1,,,"
+
+
+def test_sku_whose_handle_a_store_product_holds_is_skipped_not_sent(create_products, tmp_path):
+    _write_seo(tmp_path, [_seo_row("held", "111"), _seo_row("free", "222")])
+    ctx = FakeCtx([{"product_type": "tires", "sku": "111", "price": 200.0, "qty": 4},
+                   {"product_type": "tires", "sku": "222", "price": 200.0, "qty": 4}])
+    shopify = FakeShopify(taken={"held": {"product_id": "gid://shopify/Product/9",
+                                          "title": "T", "skus": [""]}})
+
+    assert create_products.run(ctx, shopify, dry_run=False) == 1
+
+    assert [kw["sku"] for kw in shopify.created] == ["222"]
+    skipped = ctx.actions[0]
+    assert (skipped["sku"], skipped["status"]) == ("111", "skipped")
+    assert skipped["error"].startswith("handle taken: held")
+    assert "gid://shopify/Product/9" in skipped["error"] and "no SKU" in skipped["error"]
+    details = ctx.step_obj.details
+    assert details["skipped_handle_taken"] == 1
+    assert details["handle_held_by_product_without_sku"] == 1
+    assert details["failed"] == 0
+
+
+def test_second_sku_sharing_a_handle_within_the_run_is_skipped(create_products, tmp_path):
+    # 10905NX and 10905NXS map to one handle; whichever sorts first claims it.
+    _write_seo(tmp_path, [_seo_row("nexen-winspike", "10905NX"),
+                          _seo_row("nexen-winspike", "10905NXS")])
+    ctx = FakeCtx([{"product_type": "tires", "sku": "10905NX", "price": 200.0, "qty": 4},
+                   {"product_type": "tires", "sku": "10905NXS", "price": 200.0, "qty": 4}])
+    shopify = FakeShopify()
+
+    assert create_products.run(ctx, shopify, dry_run=False) == 1
+
+    assert [kw["sku"] for kw in shopify.created] == ["10905NX"]
+    assert ctx.actions[1]["status"] == "skipped"
+    assert "SKU 10905NX, earlier in this run" in ctx.actions[1]["error"]
+
+
+def test_dry_run_previews_the_handle_skips(create_products, tmp_path):
+    # Run #10's dry run said all 2,873 creates were fine. Run #11 then failed on
+    # 94 of them.
+    _write_seo(tmp_path, [_seo_row("held", "111"), _seo_row("free", "222")])
+    ctx = FakeCtx([{"product_type": "tires", "sku": "111", "price": 200.0, "qty": 4},
+                   {"product_type": "tires", "sku": "222", "price": 200.0, "qty": 4}])
+    shopify = FakeShopify(taken={"held": {"product_id": "gid://shopify/Product/9",
+                                          "title": "T", "skus": ["OTHER-SKU"]}})
+
+    assert create_products.run(ctx, shopify, dry_run=True) == 1
+
+    assert shopify.created == []
+    assert [a["status"] for a in ctx.actions] == ["skipped", "dry_run"]
+    assert "OTHER-SKU" in ctx.actions[0]["error"]
+
+
+def test_tripped_breaker_still_records_and_logs_every_attempt(create_products, tmp_path, caplog):
+    # The breaker used to raise before the final flush, which threw away the
+    # pending batch (up to 99 actions) along with the failures that tripped it.
+    # Failed creates were never logged either.
+    _write_seo(tmp_path, [_seo_row(f"h{i}", f"{1000 + i}") for i in range(60)])
+    ctx = FakeCtx([{"product_type": "tires", "sku": f"{1000 + i}", "price": 200.0, "qty": 4}
+                   for i in range(60)])
+    shopify = FakeShopify(fail_with=create_products.ShopifyError("productSet userErrors: boom"))
+
+    with caplog.at_level(logging.WARNING, logger="test_create_products"):
+        with pytest.raises(RuntimeError, match="circuit breaker tripped: 50/50"):
+            create_products.run(ctx, shopify, dry_run=False)
+
+    assert len(ctx.actions) == 50                  # the tripping attempt included
+    assert {a["status"] for a in ctx.actions} == {"failed"}
+    assert ctx.actions[-1]["sku"] == "1049"
+    failed_lines = [r.message for r in caplog.records if "create failed SKU" in r.message]
+    assert len(failed_lines) == 50 and "boom" in failed_lines[0]
+    assert ctx.step_obj.details["failed"] == 50

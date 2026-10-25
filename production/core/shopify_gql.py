@@ -319,14 +319,25 @@ class ShopifyGQL:
         inventorySetQuantities, there is no all-or-nothing batch here, so one bad
         SKU cannot take out the rest of its batch.
         """
+        return self.update_variants_batched(
+            [(sku, product_gid, {"id": variant_gid, "price": f"{price:.2f}"})
+             for sku, product_gid, variant_gid, price in items],
+            batch_size, label="update_prices_batched")
+
+    def update_variants_batched(self, items, batch_size=None, label=None):
+        """items: list of (key, product_gid, variant_input), where variant_input
+        is one ProductVariantsBulkInput dict (it must carry the variant "id").
+        Returns [(key, ok, error)] in input order. The aliasing behind
+        update_prices_batched, for any variant field.
+        """
         batch_size = batch_size or config.PRICE_ALIAS_BATCH
         results = []
         for i in range(0, len(items), batch_size):
             batch = items[i:i + batch_size]
             parts, variables = [], {}
-            for j, (_sku, product_gid, variant_gid, price) in enumerate(batch):
+            for j, (_key, product_gid, variant_input) in enumerate(batch):
                 variables[f"p{j}"] = product_gid
-                variables[f"v{j}"] = [{"id": variant_gid, "price": f"{price:.2f}"}]
+                variables[f"v{j}"] = [variant_input]
                 parts.append(
                     f"u{j}: productVariantsBulkUpdate(productId: $p{j}, variants: $v{j}) "
                     f"{{ userErrors {{ field message }} }}")
@@ -335,15 +346,15 @@ class ShopifyGQL:
             query = f"mutation({var_decls}) {{ {' '.join(parts)} }}"
 
             try:
-                data = self.execute(query, variables, label="update_prices_batched")
+                data = self.execute(query, variables, label=label or "update_variants_batched")
             except ShopifyError as e:
                 # A transport/throttle failure kills the whole request, so mark
                 # every SKU in it failed rather than silently reporting success.
-                results.extend((sku, False, str(e)[:500]) for sku, *_ in batch)
+                results.extend((key, False, str(e)[:500]) for key, *_ in batch)
                 continue
-            for j, (sku, *_rest) in enumerate(batch):
+            for j, (key, *_rest) in enumerate(batch):
                 errs = data[f"u{j}"]["userErrors"]
-                results.append((sku, False, str(errs)[:500]) if errs else (sku, True, None))
+                results.append((key, False, str(errs)[:500]) if errs else (key, True, None))
         return results
 
     INVENTORY_MUTATION = """
@@ -431,6 +442,39 @@ class ShopifyGQL:
             "inventory_item_id": variant["inventoryItem"]["id"],
             "handle": product["handle"],
         }
+
+    def lookup_products_by_handle(self, handles, batch_size=50):
+        """{handle: {product_id, title, skus}} for each handle a store product
+        holds right now. Free handles are absent from the result.
+
+        productSet refuses a handle that another product already has. The
+        catalog mirror can't say whether a handle is taken, because it is keyed
+        on SKU and a product whose variant has no SKU never gets into it. That
+        is how 1,184 imported wheels made run #11 fail. So this asks Shopify:
+        one aliased productByIdentifier per handle, an exact lookup rather than
+        a search.
+        """
+        found = {}
+        wanted = list(dict.fromkeys(h for h in handles if h))
+        for i in range(0, len(wanted), batch_size):
+            batch = wanted[i:i + batch_size]
+            parts = [f"h{j}: productByIdentifier(identifier: {{handle: $h{j}}}) "
+                     f"{{ id title variants(first: 5) {{ nodes {{ sku }} }} }}"
+                     for j in range(len(batch))]
+            var_decls = ", ".join(f"$h{j}: String!" for j in range(len(batch)))
+            data = self.execute(f"query({var_decls}) {{ {' '.join(parts)} }}",
+                                {f"h{j}": h for j, h in enumerate(batch)},
+                                label="lookup_products_by_handle")
+            for j, handle in enumerate(batch):
+                node = data.get(f"h{j}")
+                if node:
+                    found[handle] = {
+                        "product_id": node["id"],
+                        "title": node["title"],
+                        "skus": [(v.get("sku") or "").strip()
+                                 for v in node["variants"]["nodes"]],
+                    }
+        return found
 
     # ── product removal ────────────────────────────────────────────────────────
     # Only prune_products.py calls these. The weekly sync never deletes: it
