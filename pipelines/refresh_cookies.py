@@ -17,6 +17,8 @@ import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
+import requests
+from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
 BASE_DIR = Path(__file__).parent
@@ -150,55 +152,55 @@ async def login_costar(supplier: dict) -> str | None:
         return cookie_str
 
 
+def _login_wheelsmart_sync(supplier: dict) -> dict | None:
+    """Post WheelMart's Yii2 login form directly and return {_identity, PHPSESSID}.
+
+    Not a browser: by 2026-10 a Playwright click on "Sign In" sent no request
+    at all, yet the old check passed because the login page itself hands out
+    a PHPSESSID — every refresh saved a logged-out session and the scrapers
+    wrote header-only CSVs. Success now means an _identity cookie (only set by
+    a real rememberMe login) AND the product list actually loading.
+    """
+    name = supplier["name"]
+    sess = requests.Session()
+    sess.headers["User-Agent"] = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                                  "(KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36")
+    try:
+        print(f"  [{name}] fetching login page...")
+        resp = sess.get(supplier["login_url"], timeout=30)
+        resp.raise_for_status()
+        csrf = BeautifulSoup(resp.text, "html.parser").find("input", {"name": "_csrf"})
+        if not csrf or not csrf.get("value"):
+            print(f"  [{name}] no _csrf field on {resp.url} — login page changed?")
+            return None
+
+        print(f"  [{name}] submitting credentials...")
+        sess.post(supplier["login_url"], timeout=30, data={
+            "_csrf": csrf["value"],
+            "LoginForm[email]": supplier["username"],
+            "LoginForm[password]": supplier["password"],
+            "LoginForm[rememberMe]": "1",
+            "login-button": "",
+        })
+        probe = sess.get(f"{supplier['base_url']}/product/tires",
+                         params={"page": 1, "per-page": 1}, timeout=30)
+    except requests.RequestException as e:
+        print(f"  [{name}] request failed: {e}")
+        return None
+
+    named = sess.cookies.get_dict()
+    if not named.get("_identity") or "/auth/login" in probe.url:
+        print(f"  [{name}] login rejected — no _identity cookie or product list still "
+              f"redirects to login (cookies: {sorted(named)})")
+        return None
+
+    print(f"  [{name}] login OK — product list reachable")
+    return {"_identity": named["_identity"], "PHPSESSID": named.get("PHPSESSID", "")}
+
+
 async def login_wheelsmart(supplier: dict) -> dict | None:
     """Log into WheelMart and return fresh {_identity, PHPSESSID} dict."""
-    async with async_playwright() as pw:
-        browser = await pw.chromium.launch(headless=not _HEADED)
-        ctx = await browser.new_context()
-        page = await ctx.new_page()
-
-        print(f"  [{supplier['name']}] navigating to login page...")
-        try:
-            await page.goto(supplier["login_url"], timeout=30000)
-            await page.wait_for_load_state("networkidle", timeout=15000)
-        except Exception as e:
-            print(f"  [{supplier['name']}] goto failed: {e}")
-            await browser.close()
-            return None
-
-        # WheelMart Yii2: /auth/login with LoginForm[email] + LoginForm[password]
-        try:
-            await page.wait_for_selector('#loginform-email', timeout=10000)
-        except Exception:
-            print(f"  [{supplier['name']}] #loginform-email not found — page: {page.url}")
-            await browser.close()
-            return None
-
-        await page.fill('#loginform-email', supplier["username"])
-        await page.fill('#loginform-password', supplier["password"])
-
-        print(f"  [{supplier['name']}] submitting credentials...")
-        # WheelMart: click the named submit button directly
-        await page.click('button[name="login-button"]')
-        try:
-            await page.wait_for_load_state("networkidle", timeout=20000)
-        except Exception:
-            pass
-
-        # NOTE: WheelMart URL stays on /auth/login after login — only page content changes.
-        # Check for the _identity cookie to confirm success, not the URL.
-        cookies = await ctx.cookies()
-        named = {c["name"]: c["value"] for c in cookies}
-
-        if "_identity" not in named and "PHPSESSID" not in named:
-            print(f"  [{supplier['name']}] session cookies not found: {list(named.keys())}")
-            await browser.close()
-            return None
-
-        print(f"  [{supplier['name']}] login OK — identity/session captured")
-        await browser.close()
-        return {"_identity": named.get("_identity", ""),
-                "PHPSESSID": named.get("PHPSESSID", "")}
+    return await asyncio.to_thread(_login_wheelsmart_sync, supplier)
 
 
 def update_costar_files(supplier: dict, cookie_str: str):

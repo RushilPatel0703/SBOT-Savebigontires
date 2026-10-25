@@ -156,6 +156,12 @@ def parse_rows(soup):
 def fetch_page(session, page):
     resp = session.get(PRODUCT_URL, params={"page": page, "per-page": PER_PAGE}, timeout=30)
     resp.raise_for_status()
+    # A dead session is a 302 to the login page, which answers 200 with no
+    # product rows — without this the run "succeeds" with a header-only CSV.
+    if "/auth/login" in resp.url:
+        print(f"\nFATAL: page {page} redirected to the login page — WheelMart session is "
+              f"not logged in. Run  python refresh_cookies.py --supplier wheelsmart  from pipelines/.")
+        sys.exit(1)
     return BeautifulSoup(resp.text, "html.parser")
 
 
