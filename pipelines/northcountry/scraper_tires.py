@@ -24,6 +24,10 @@ sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath
 from costar_session import CostarSessionGuard, SessionDeathError, all_zero_batch
 import cookie_store
 from costar_images import measure_and_build_image_map
+from scrape_journal import (Halt, Journal, done_terms, fetch_batches, state_dir,
+                            trailing_zero_terms)
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
 
 BASE_URL     = "https://online.northcountrytire.ca/WebOrder/CostarApi"
 _SIGNING_KEY = "5318f4ce4b9bab05c09df20c3d5d8d4c26570542501b1d58231159cd42e65505"
@@ -471,20 +475,8 @@ def flatten_product(p: dict) -> dict:
     }
 
 
-CHECKPOINT_EVERY = 25   # dump all_products to the checkpoint CSV every N terms
+JOURNAL_FILE     = state_dir(_HERE) / "northcountry_tires_progress.jsonl"
 ZERO_TERMS_CACHE = "Data/raw/zero_terms_tires_cache.json"
-
-
-def _write_checkpoint(products: list, path: str) -> None:
-    """Overwrite the checkpoint CSV so a crash/hang never loses the whole run.
-    Lacks the spec_* columns added in the ProductInfo pass — recovery data only.
-    """
-    tmp = path + ".tmp"
-    with open(tmp, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=list(products[0].keys()))
-        writer.writeheader()
-        writer.writerows(products)
-    os.replace(tmp, path)
 
 
 def _load_zero_terms_cache() -> set:
@@ -518,26 +510,41 @@ def main():
     parser = argparse.ArgumentParser(description="NC Tire Scraper")
     parser.add_argument("--full", action="store_true",
                         help="Search all terms ignoring zero-terms cache (rebuilds cache)")
+    parser.add_argument("--resume", action="store_true",
+                        help="Carry on from the progress a paused or interrupted run left "
+                             "in Data/run_state/ instead of starting over")
     args = parser.parse_args()
 
     os.makedirs("Data/raw", exist_ok=True)
-    output_file     = f"Data/raw/northcountry_tires_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-    checkpoint_file = "Data/raw/northcountry_tires_checkpoint.csv"
 
     # ── Zero-terms cache ───────────────────────────────────────────────────────
     cached_zero = set()
     if not args.full:
         cached_zero = _load_zero_terms_cache()
-        if cached_zero:
-            print(f"Zero-terms cache: {len(cached_zero)} terms skipped (--full to rebuild cache)")
 
-    effective_terms = [t for t in SEARCH_TERMS if t not in cached_zero]
+    # ── Progress journal (pause / resume, see shared/scrape_journal.py) ───────
+    # On resume the journal's own meta wins: same output file, same term list.
+    journal = Journal.begin(JOURNAL_FILE, resume=args.resume, meta={
+        "output_file": f"Data/raw/northcountry_tires_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+        "full":        args.full,
+        "terms":       [t for t in SEARCH_TERMS if t not in cached_zero],
+    })
+    output_file     = journal.meta["output_file"]
+    effective_terms = journal.meta["terms"]
+    if journal.meta["full"]:
+        cached_zero = set()
+    elif cached_zero:
+        print(f"Zero-terms cache: {len(cached_zero)} terms skipped (--full to rebuild cache)")
     skipped = len(SEARCH_TERMS) - len(effective_terms)
+    halt    = Halt(_HERE)
 
-    seen_guids   = set()
-    all_products = []
-    cap_hits     = []
-    term_counts  = {}   # term → result count, used to update cache
+    done         = done_terms(journal)
+    all_products = [p for e in done.values() for p in e["products"]]
+    seen_guids   = {p["product_guid"] for p in all_products}
+    term_counts  = {t: e["count"] for t, e in done.items()}   # used to update cache
+    cap_hits     = [t for t, c in term_counts.items() if c >= SEARCH_CAP]
+    for e in done.values():
+        STILL_CAPPED.extend(e["still_capped"])
 
     total = len(effective_terms)
     print(f"Starting scrape — {total} search terms ({MAX_WORKERS} workers)"
@@ -545,33 +552,49 @@ def main():
     print(f"  Metric terms  : {len(_WIDTHS) * len(_RATIOS)}")
     print(f"  Flotation     : {len(_FLOTATION)}")
     print(f"  LT-prefix     : {len(_LT_TERMS)}")
+    if done:
+        print(f"  Resuming      : {len(done)} terms already searched, "
+              f"{len(all_products)} products so far")
+    journal.phase("term", "Search", total, "terms")
 
     lock      = threading.Lock()
-    completed = [0]
+    completed = [len(done)]
 
     def process(term: str):
-        results = search_with_drilldown(term)
+        if halt():
+            return
+        capped_before = len(STILL_CAPPED)   # exact with MAX_WORKERS = 1
+        try:
+            results = search_with_drilldown(term)
+        except BaseException:
+            halt.stop()
+            raise
         with lock:
-            new = [r for r in results if r.get("productGuid") not in seen_guids]
-            for r in new:
-                seen_guids.add(r["productGuid"])
-                all_products.append(flatten_product(r))
+            new = []
+            for r in results:
+                if r.get("productGuid") not in seen_guids:
+                    seen_guids.add(r["productGuid"])
+                    new.append(flatten_product(r))
+            all_products.extend(new)
             completed[0] += 1
             term_counts[term] = len(results)
             if len(results) >= SEARCH_CAP:
                 cap_hits.append(term)
+            journal.add("term", term=term, count=len(results), products=new,
+                        still_capped=STILL_CAPPED[capped_before:])
             print(f"  [{completed[0]}/{total}] '{term}': {len(results)} results, "
                   f"{len(new)} new (total: {len(all_products)})")
-            if all_products and completed[0] % CHECKPOINT_EVERY == 0:
-                _write_checkpoint(all_products, checkpoint_file)
 
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        futures = [executor.submit(process, term) for term in effective_terms]
-        for f in as_completed(futures):
-            f.result()
-
-    if all_products:
-        _write_checkpoint(all_products, checkpoint_file)
+    try:
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            futures = [executor.submit(process, term) for term in effective_terms
+                       if term not in done]
+            for f in as_completed(futures):
+                f.result()
+    except SessionDeathError:
+        journal.add("session_death", retry=trailing_zero_terms(term_counts))
+        raise
+    halt.exit_if_paused(f"{completed[0]} of {total} search terms")
 
     # ── Update zero-terms cache ────────────────────────────────────────────────
     new_zero    = {t for t, c in term_counts.items() if c == 0}
@@ -599,7 +622,9 @@ def main():
     if not all_products:
         if total == 0:
             print("No search terms to run (all terms cached as zero) — nothing to scrape.")
+            journal.finish()
             return
+        journal.add("session_death", retry=list(term_counts))
         raise SessionDeathError(
             f"Search phase found 0 products across {total} search terms. NC always has "
             f"tire stock — a whole-run zero is not a legitimate result and was not caught "
@@ -611,35 +636,32 @@ def main():
           f"batch size {PRODUCT_INFO_BATCH_SIZE}, {MAX_WORKERS} workers)...")
     guid_map       = {p["product_guid"]: i for i, p in enumerate(all_products) if p["product_guid"]}
     guids          = list(guid_map.keys())
-    batches        = [guids[i:i + PRODUCT_INFO_BATCH_SIZE]
-                      for i in range(0, len(guids), PRODUCT_INFO_BATCH_SIZE)]
     images_found   = 0
     specs_found    = 0
     all_spec_codes = set()
     all_guid_specs = {}
 
-    def _fetch_batch(batch):
-        try:
-            return get_product_info(batch)
-        except Exception as e:
-            print(f"  WARNING: ProductInfo batch failed: {e}")
-            return {}, {}
+    def _apply_info(result):
+        nonlocal images_found, specs_found
+        guid_to_image, guid_to_specs = result
+        for guid, image_url in guid_to_image.items():
+            if guid in guid_map and image_url:
+                all_products[guid_map[guid]]["image_url"] = image_url
+                images_found += 1
+        for guid, specs in guid_to_specs.items():
+            all_spec_codes.update(specs.keys())
+            all_guid_specs[guid] = specs
+            specs_found += 1
 
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-        for guid_to_image, guid_to_specs in pool.map(_fetch_batch, batches):
-            for guid, image_url in guid_to_image.items():
-                if guid in guid_map and image_url:
-                    all_products[guid_map[guid]]["image_url"] = image_url
-                    images_found += 1
-            for guid, specs in guid_to_specs.items():
-                all_spec_codes.update(specs.keys())
-                all_guid_specs[guid] = specs
-                specs_found += 1
+    fetch_batches(journal, "info", "Images + specs", guids, PRODUCT_INFO_BATCH_SIZE,
+                  get_product_info, _apply_info, halt, MAX_WORKERS)
+    halt.exit_if_paused(f"fetching images + specs for {specs_found} of {len(guids)} products")
 
     print(f"Images found : {images_found} / {len(all_products)}")
     print(f"Specs found  : {specs_found} / {len(all_products)}")
 
     if all_zero_batch(images_found, specs_found):
+        journal.add("session_death", discard="info")
         raise SessionDeathError(
             f"ProductInfo phase yielded 0 images AND 0 specs across all {len(all_products)} "
             f"products, even after per-batch re-auth retries. This is the exact failure mode "
@@ -652,23 +674,21 @@ def main():
           f"batch size {PRODUCT_INFO_BATCH_SIZE}, {MAX_WORKERS} workers)...")
     cost_found = 0
 
-    def _fetch_cost_batch(batch):
-        try:
-            return get_cost_prices(batch)
-        except Exception as e:
-            print(f"  WARNING: Cost price batch failed: {e}")
-            return {}
+    def _apply_cost(guid_to_cost):
+        nonlocal cost_found
+        for guid, cost in guid_to_cost.items():
+            if guid in guid_map and cost not in (None, ""):
+                all_products[guid_map[guid]]["cost_price"] = cost
+                cost_found += 1
 
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-        for guid_to_cost in pool.map(_fetch_cost_batch, batches):
-            for guid, cost in guid_to_cost.items():
-                if guid in guid_map and cost not in (None, ""):
-                    all_products[guid_map[guid]]["cost_price"] = cost
-                    cost_found += 1
+    fetch_batches(journal, "cost", "Cost prices", guids, PRODUCT_INFO_BATCH_SIZE,
+                  get_cost_prices, _apply_cost, halt, MAX_WORKERS)
+    halt.exit_if_paused(f"fetching cost prices for {cost_found} of {len(guids)} products")
 
     print(f"Cost prices found: {cost_found} / {len(all_products)}")
 
     if all_zero_batch(cost_found):
+        journal.add("session_death", discard="cost")
         raise SessionDeathError(
             f"Cost-price phase yielded 0 prices across all {len(all_products)} products, "
             f"even after per-batch re-auth retries."
@@ -683,11 +703,15 @@ def main():
             for code in sorted_codes:
                 product[f"spec_{code.lower()}"] = specs.get(code, "")
 
+    # Written beside and swapped in, so a crash mid-write can't leave a short
+    # file that clean.py would take as the latest scrape.
     fieldnames = list(all_products[0].keys())
-    with open(output_file, "w", newline="", encoding="utf-8") as f:
+    with open(output_file + ".tmp", "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(all_products)
+    os.replace(output_file + ".tmp", output_file)
+    journal.finish()
 
     print(f"\nDone. {len(all_products)} products → {output_file}")
     print(f"Next: run  python verify_coverage.py  to audit scrape completeness.")
@@ -698,4 +722,5 @@ if __name__ == "__main__":
         main()
     except SessionDeathError as e:
         print(f"\nFATAL: {e}")
+        print("Progress is saved: once the session is fixed, --resume carries on from here.")
         sys.exit(1)

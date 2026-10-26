@@ -48,6 +48,11 @@ pipelines/.enrich_result.json
 # nothing was paid for it, but it is 3,615 image downloads, and a scan that
 # has to rebuild it reports near-zero image gaps until it finishes.
 
+# Pause/resume state of a run in progress (shared/scrape_journal.py): progress
+# journals, the step reached and the PAUSE flag. Machine-local and short-lived;
+# the .json in here must not fall under the tracked-cache rule above.
+pipelines/*/Data/run_state/
+
 # Quarantined no-cost-price rows are regenerated every run (data, not source)
 no price detected/*.csv
 

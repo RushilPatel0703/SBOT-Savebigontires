@@ -28,6 +28,13 @@ _markup_spec = _ilu.spec_from_file_location(
 markup = _ilu.module_from_spec(_markup_spec)
 _markup_spec.loader.exec_module(markup)
 
+# Pause/resume for the long North Country run: the PAUSE flag, the paused exit
+# code and the recorded progress all come from the module the scrapers use.
+_journal_spec = _ilu.spec_from_file_location(
+    "_sbot_scrape_journal", str(Path(__file__).parent / "shared" / "scrape_journal.py"))
+scrape_journal = _ilu.module_from_spec(_journal_spec)
+_journal_spec.loader.exec_module(scrape_journal)
+
 # ── Constants ──────────────────────────────────────────────────────────────────
 BASE        = Path(__file__).parent
 STATUS_FILE = BASE / ".dashboard_status.json"
@@ -114,6 +121,9 @@ PIPELINES = {
         # always scrapes fresh (zero-terms cache trims dead search terms);
         # "Full scrape" checkbox adds --full to re-check them all
         "full_option":  True,
+        # Hours long, so it can be paused and resumed (shared/scrape_journal.py);
+        # a crash or power cut resumes the same way.
+        "resumable":    True,
         "color":        "green",
         "icon":         "🟢",
     },
@@ -203,9 +213,11 @@ def is_running(key: str, status: dict) -> bool:
 def _wait_and_finish(key: str, proc: subprocess.Popen, f):
     proc.wait()
     f.close()
+    rc = proc.returncode
     _update_status(key, {
         "pid":      None,
-        "status":   "success" if proc.returncode == 0 else "failed",
+        "status":   ("success" if rc == 0 else
+                     "paused" if rc == scrape_journal.PAUSE_EXIT else "failed"),
         "finished": datetime.now().isoformat(),
     })
 
@@ -384,6 +396,7 @@ def parse_log_progress(log_path: str | None) -> dict:
         "current":    current,
         "complete":   any("Pipeline complete." in ln for ln in lines),
         "failed":     any("failed (exit" in ln for ln in lines),
+        "paused":     any("Paused " in ln and "--resume" in ln for ln in lines),
         "step_list":  step_list,
     }
 
@@ -437,6 +450,8 @@ def sidebar_status():
             dot, tail = ":green[●]", " — done"
         elif s.get("status") == "failed":
             dot, tail = ":red[●]", " — failed"
+        elif s.get("status") == "paused":
+            dot, tail = ":orange[●]", " — paused"
         else:
             dot, tail = ":gray[○]", ""
         st.sidebar.markdown(f"{dot} {label}{tail}")
@@ -598,6 +613,37 @@ def pipeline_args(key: str, cfg: dict) -> list:
     return (["--skip"] + skip_steps if skip_steps else []) \
          + (["--full"] if full else [])
 
+@st.cache_data(show_spinner=False)
+def _journal_summary(path: str, mtime: float) -> str | None:
+    # mtime is only the cache key: a journal is re-read when it has changed.
+    return scrape_journal.summary(path)
+
+def resume_point(cfg: dict) -> str | None:
+    """What a paused or interrupted run left to resume, in words, or None.
+
+    Read from disk rather than the dashboard's status file, because a power
+    cut leaves that saying "running" for a process that no longer exists.
+    """
+    if not cfg.get("resumable"):
+        return None
+    progress = scrape_journal.load_progress(cfg["dir"])
+    if not progress or not progress.get("current"):
+        return None
+    state    = scrape_journal.state_dir(cfg["dir"])
+    recorded = scrape_journal.progress_file(cfg["dir"]).stat().st_mtime
+    journals = [p for p in state.glob("*.jsonl") if p.stat().st_mtime >= recorded]
+    detail   = None
+    if journals:
+        latest = max(journals, key=lambda p: p.stat().st_mtime)
+        detail = _journal_summary(str(latest), latest.stat().st_mtime)
+    stopped = max([recorded] + [p.stat().st_mtime for p in journals])
+    hours   = (datetime.now().timestamp() - stopped) / 3600
+    ago     = f"{hours:.0f} h ago" if hours >= 1 else f"{hours * 60:.0f} min ago"
+    where   = "after" if progress["current"] in progress.get("done", []) else "during"
+    return (f"Stopped {where} {progress['current'].replace('_', ' ')}, {ago}"
+            + (f" ({detail})" if detail else "")
+            + ". **Resume** carries on from there; **Start over** discards it.")
+
 @st.fragment(run_every=2)
 def step2_section():
     status = load_status()
@@ -665,16 +711,32 @@ def step2_section():
                         help="Reuse the existing raw CSV from the last scrape instead of re-downloading",
                     )
             with cols[2]:
-                extra = pipeline_args(key, cfg)
+                extra  = pipeline_args(key, cfg)
+                resume = None if running else resume_point(cfg)
                 if running:
+                    if cfg.get("resumable"):
+                        # Finishes the search term or batch in hand, then stops
+                        # with everything so far saved.
+                        pausing = scrape_journal.pause_requested(cfg["dir"])
+                        if st.button("Pausing…" if pausing else "Pause", key=f"pause_{key}",
+                                     width="stretch", disabled=pausing):
+                            scrape_journal.request_pause(cfg["dir"])
+                            st.rerun()
                     # Secondary: stopping a run is a correction, not the action
                     # this tab is for.
                     if st.button("Cancel", key=f"cancel_{key}", width="stretch"):
                         _kill_pipeline(key, status)
                         st.rerun()
+                elif resume:
+                    if st.button("Resume", key=f"resume_{key}", width="stretch", type="primary"):
+                        launch(key, [sys.executable, cfg["script"], "--resume"], cfg["dir"])
+                    if st.button("Start over", key=f"btn_{key}", width="stretch"):
+                        launch(key, [sys.executable, cfg["script"]] + extra, cfg["dir"])
                 else:
                     if st.button("Run", key=f"btn_{key}", width="stretch", type="primary"):
                         launch(key, [sys.executable, cfg["script"]] + extra, cfg["dir"])
+            if resume:
+                st.caption(resume)
 
         # Progress bar — outside the container so it always renders. Its text no
         # longer repeats the supplier name: the card immediately above it is the
@@ -691,6 +753,8 @@ def step2_section():
                 bar_txt = f"Step {completed} of {total} — {prog['current']}"
             elif prog.get("complete"):
                 bar_txt = f"All {total} steps complete"
+            elif prog.get("paused"):
+                bar_txt = f"Paused at step {completed + 1} of {total} ({prog.get('current', '?')})"
             elif prog.get("failed"):
                 bar_txt = f"Failed at step {completed + 1} of {total} (last: {prog.get('current', '?')})"
             else:
@@ -700,6 +764,8 @@ def step2_section():
             st.progress(0.0, text="Starting…")
         elif pipe_status == "failed":
             st.progress(0.0, text="Failed — see the log below")
+        elif pipe_status == "paused":
+            st.progress(0.0, text="Paused")
         elif pipe_status == "success":
             st.progress(1.0, text="Complete")
 

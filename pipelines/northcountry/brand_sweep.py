@@ -40,13 +40,16 @@ try:
     from scraper_tires import (
         COOKIE_STRING, HEADERS, SPEC_CATEGORY_GUIDS, SEARCH_CAP,
         _RIM_SIZES, _sign, api_post, flatten_product, get_product_info,
-        PRODUCT_INFO_BATCH_SIZE,
+        get_cost_prices, PRODUCT_INFO_BATCH_SIZE,
     )
 except ImportError as e:
     print(f"ERROR importing scraper_tires: {e}")
     sys.exit(1)
+from scrape_journal import Halt, Journal, state_dir   # shared/ is on sys.path via scraper_tires
 
 MAX_WORKERS = 1   # sequential — server can't handle concurrent load without timeouts
+_HERE        = os.path.dirname(os.path.abspath(__file__))
+JOURNAL_FILE = state_dir(_HERE) / "northcountry_brand_sweep_progress.jsonl"
 
 
 # ── Core API helpers (re-uses scraper_tires internals) ───────────────────────
@@ -131,6 +134,9 @@ def main():
     parser.add_argument("--file",  default=None, help="Raw CSV to compare against")
     parser.add_argument("--merge", action="store_true",
                         help="Merge gap products into the raw CSV in-place")
+    parser.add_argument("--resume", action="store_true",
+                        help="Carry on from the brands a paused or interrupted sweep of the "
+                             "same base file already searched")
     args = parser.parse_args()
 
     csv_path = args.file or find_latest_raw()
@@ -142,25 +148,44 @@ def main():
     print(f"Brand sweep    : {sorted(brands)[:10]}{'...' if len(brands) > 10 else ''}")
 
     # ── Brand sweep ───────────────────────────────────────────────────────────
+    # Journaled per brand (see shared/scrape_journal.py). A resume only replays
+    # a sweep of this same base file; a newer scrape starts the sweep over.
+    journal = Journal.begin(JOURNAL_FILE, resume=args.resume, match=("base_file",),
+                            meta={"base_file": os.path.abspath(csv_path)})
     brand_pool: dict[str, dict] = {}  # guid → product from brand search
+    swept = set()
+    for e in journal.entries("brand"):
+        _merge(brand_pool, e["results"])
+        swept.add(e["brand"])
+    halt      = Halt(_HERE)
     lock      = threading.Lock()
-    completed = [0]
+    completed = [len(swept)]
     total     = len(brands)
 
     def sweep(brand: str):
-        results = brand_search_with_drilldown(brand)
+        if halt():
+            return
+        try:
+            results = brand_search_with_drilldown(brand)
+        except BaseException:
+            halt.stop()
+            raise
         with lock:
             added = _merge(brand_pool, results)
             completed[0] += 1
+            journal.add("brand", brand=brand, results=results)
             print(f"  [{completed[0]}/{total}] brand='{brand}': "
                   f"{len(results)} results, {added} new to brand pool "
                   f"(pool size: {len(brand_pool)})")
 
-    print(f"\nStarting brand sweep ({total} brands, {MAX_WORKERS} workers)...")
+    print(f"\nStarting brand sweep ({total} brands, {MAX_WORKERS} workers)..."
+          + (f" [{len(swept)} already swept]" if swept else ""))
+    journal.phase("brand", "Brand sweep", total, "brands")
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        futures = [executor.submit(sweep, b) for b in sorted(brands)]
+        futures = [executor.submit(sweep, b) for b in sorted(brands) if b not in swept]
         for f in as_completed(futures):
             f.result()
+    halt.exit_if_paused(f"{completed[0]} of {total} brands")
 
     # ── Gap analysis ──────────────────────────────────────────────────────────
     gap_guids    = set(brand_pool.keys()) - known_guids
@@ -176,6 +201,7 @@ def main():
 
     if not gap_guids:
         print("\nRESULT: No gaps found. Brand sweep confirms size-based scrape is complete.")
+        journal.finish()
         return
 
     gap_products = [brand_pool[g] for g in gap_guids]
@@ -208,6 +234,22 @@ def main():
         except Exception as e:
             print(f"  WARNING: ProductInfo batch failed: {e}")
         time.sleep(0.5)
+
+    # clean.py quarantines every row without a cost price. Without this pass all
+    # 772 products the 10 October sweep found were merged and then dropped.
+    print(f"Fetching cost prices for {len(gap_flat)} gap products...")
+    cost_found = 0
+    for batch_start in range(0, len(guids), PRODUCT_INFO_BATCH_SIZE):
+        batch = guids[batch_start:batch_start + PRODUCT_INFO_BATCH_SIZE]
+        try:
+            for guid, cost in get_cost_prices(batch).items():
+                if guid in guid_map and cost not in (None, ""):
+                    gap_flat[guid_map[guid]]["cost_price"] = cost
+                    cost_found += 1
+        except Exception as e:
+            print(f"  WARNING: cost price batch failed: {e}")
+        time.sleep(0.5)
+    print(f"  Cost prices found: {cost_found} / {len(gap_flat)}")
 
     sorted_codes = sorted(all_spec_codes)
     for product in gap_flat:
@@ -253,11 +295,14 @@ def main():
             for k in seen_extra:
                 r.setdefault(k, "")
 
+        # Written beside and swapped in: this file is the whole size scrape, and
+        # a crash halfway through rewriting it in place would truncate it.
         merged_rows = rows + gap_flat
-        with open(csv_path, "w", newline="", encoding="utf-8") as f:
+        with open(csv_path + ".tmp", "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=all_fields, extrasaction="ignore")
             writer.writeheader()
             writer.writerows(merged_rows)
+        os.replace(csv_path + ".tmp", csv_path)
 
         print(f"Merged. Total rows now: {len(merged_rows)} (was {len(rows)})")
         print(f"Run verify_coverage.py to confirm gaps are resolved.")
@@ -265,6 +310,7 @@ def main():
         print(f"\nTo merge gaps into the base CSV, re-run with --merge flag:")
         print(f"  python brand_sweep.py --merge")
 
+    journal.finish()
     print(f"\nVERDICT: {'COMPLETE' if not gap_guids else f'{len(gap_guids)} GAP PRODUCTS FOUND'}")
 
 
