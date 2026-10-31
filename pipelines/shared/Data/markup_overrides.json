@@ -2,7 +2,7 @@
   "suppliers": {
     "dttire": {
       "mode": "dollar",
-      "value": 46.5
+      "value": 55.0
     },
     "emerge": {
       "mode": "dollar",
@@ -10,15 +10,15 @@
     },
     "formula": {
       "mode": "dollar",
-      "value": 46.5
+      "value": 45.0
     },
     "northcountry": {
       "mode": "dollar",
-      "value": 46.5
+      "value": 55.0
     },
     "wheelsmart": {
       "mode": "dollar",
-      "value": 36.5
+      "value": 45.0
     },
     "wheelspro": {
       "mode": "dollar",

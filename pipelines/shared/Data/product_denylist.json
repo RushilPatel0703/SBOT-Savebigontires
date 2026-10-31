@@ -1,0 +1,78 @@
+{
+  "_comment": [
+    "Products the client has decided not to sell. Read by pipelines/shared/product_denylist.py",
+    "and enforced on BOTH roads to the storefront: production/steps/ingest.py (weekly sync) and",
+    "pipelines/shared/upload_bundle.py (hand-uploaded dashboard bundle).",
+    "",
+    "Key on the SKU as Shopify holds it, i.e. WITH Emerge's EMRG- prefix.",
+    "",
+    "This list is only for products no size rule can express. Commercial, trailer, ATV, UTV and",
+    "golf-cart fitments are already excluded by size_parser.is_consumer_tire_size() and must NOT",
+    "be added here — two places expressing one rule is how they drift apart."
+  ],
+  "skus": [
+    {
+      "sku": "EMRG-80614504",
+      "supplier": "emergetires",
+      "product": "DOUBLE UNICONTROL EV 235/40R19",
+      "reason": "Client removed 2026-09-30 (storefront image review): no correct product image exists for this line anywhere; not stocked.",
+      "added": "2026-09-30"
+    },
+    {
+      "sku": "EMRG-80614498",
+      "supplier": "emergetires",
+      "product": "WARRIOR Unicontrol EV 245/50ZR18",
+      "reason": "Client removed 2026-09-30 (storefront image review): no correct product image exists for this line anywhere; not stocked.",
+      "added": "2026-09-30"
+    },
+    {
+      "sku": "EMRG-80447047",
+      "supplier": "emergetires",
+      "product": "WARRIOR AT-PLUS 265/70R16",
+      "reason": "Client removed 2026-09-30 (storefront image review): no correct product image exists for this line anywhere; not stocked.",
+      "added": "2026-09-30"
+    },
+    {
+      "sku": "EMRG-80416264",
+      "supplier": "emergetires",
+      "product": "DOUBLE DC-32 205/55R17",
+      "reason": "Client removed 2026-09-30 (storefront image review): supplier code with no identifiable named product; not stocked.",
+      "added": "2026-09-30"
+    },
+    {
+      "sku": "EMRG-80601022",
+      "supplier": "emergetires",
+      "product": "DOUBLE R700 EV 215/55R18",
+      "reason": "Client removed 2026-09-30 (storefront image review): supplier code with no identifiable named product; not stocked.",
+      "added": "2026-09-30"
+    },
+    {
+      "sku": "EMRG-80521947",
+      "supplier": "emergetires",
+      "product": "DOUBLE TOUR D06 205/65R15",
+      "reason": "Client removed 2026-09-30 (storefront image review): supplier code with no identifiable named product; not stocked.",
+      "added": "2026-09-30"
+    },
+    {
+      "sku": "4268500",
+      "supplier": "northcountry",
+      "product": "Pirelli P-ZERO (PZ4)-SPORT 315/30R22",
+      "reason": "Client removed 2026-09-30 (storefront image review): only images available are the wrong P Zero family member.",
+      "added": "2026-09-30"
+    },
+    {
+      "sku": "KR183-2860BM38",
+      "supplier": "northcountry",
+      "product": "SPECTRA 183BM wheel, 20x8.5 5-110/5-127",
+      "reason": "Client removed 2026-09-30 (storefront image review): not stocked. Not live today, but no size filter covers wheels, so only this list stops a re-scrape re-creating it.",
+      "added": "2026-09-30"
+    },
+    {
+      "sku": "KM69198512735",
+      "supplier": "northcountry",
+      "product": "KMC KM691 SPIN wheel, 19x8.5 5on4.5",
+      "reason": "Client removed 2026-09-30 (storefront image review): not stocked. Not live today, but no size filter covers wheels, so only this list stops a re-scrape re-creating it.",
+      "added": "2026-09-30"
+    }
+  ]
+}

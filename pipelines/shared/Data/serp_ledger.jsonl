@@ -2684,3 +2684,25 @@
 {"event": "ok", "id": "7f708fd43a4e", "usable": false, "ts": "2026-09-08T18:36:21+00:00"}
 {"event": "sent", "id": "065f547ccc6e", "field": "specs", "key": "specs:|lt|33125018118-10", "query": "LT 33125018118-10 tire size load index speed rating", "ts": "2026-09-08T18:36:21+00:00"}
 {"event": "ok", "id": "065f547ccc6e", "usable": false, "ts": "2026-09-08T18:36:23+00:00"}
+{"event": "sent", "id": "370ff1e6e920", "field": "image", "key": "image:pirelli|cinturatoweatheractive|", "query": "Pirelli CINTURATO WEATHERACTIVE tire product photo", "ts": "2026-09-17T21:40:19+00:00"}
+{"event": "ok", "id": "370ff1e6e920", "usable": true, "ts": "2026-09-17T21:40:43+00:00"}
+{"event": "sent", "id": "066f8bf17d20", "field": "image", "key": "image:toyo|proxesa37|", "query": "Toyo Proxes A37 tire product photo", "ts": "2026-09-17T21:40:43+00:00"}
+{"event": "ok", "id": "066f8bf17d20", "usable": true, "ts": "2026-09-17T21:40:48+00:00"}
+{"event": "sent", "id": "4cc757793b11", "field": "image", "key": "image:pirelli|scorpionweatheractive|", "query": "Pirelli SCORPION WEATHERACTIVE tire product photo", "ts": "2026-09-17T21:40:48+00:00"}
+{"event": "ok", "id": "4cc757793b11", "usable": true, "ts": "2026-09-17T21:41:01+00:00"}
+{"event": "sent", "id": "d8f393b7cb58", "field": "image", "key": "image:yokohama|avidgts35c|", "query": "Yokohama AVID GT S35C tire product photo", "ts": "2026-09-17T21:41:01+00:00"}
+{"event": "ok", "id": "d8f393b7cb58", "usable": true, "ts": "2026-09-17T21:41:03+00:00"}
+{"event": "sent", "id": "6d9aa0319e05", "field": "image", "key": "image:maxtrek|trekm8|", "query": "Maxtrek TREK M8 tire product photo", "ts": "2026-09-17T21:41:03+00:00"}
+{"event": "ok", "id": "6d9aa0319e05", "usable": true, "ts": "2026-09-17T21:41:23+00:00"}
+{"event": "sent", "id": "354f400301b5", "field": "image", "key": "image:predator|dirtrebelats|", "query": "Predator DIRT REBEL ATS tire product photo", "ts": "2026-09-17T21:41:23+00:00"}
+{"event": "ok", "id": "354f400301b5", "usable": true, "ts": "2026-09-17T21:41:35+00:00"}
+{"event": "sent", "id": "d441be867505", "field": "image", "key": "image:hankook|iht01|", "query": "Hankook IHT01 tire product photo", "ts": "2026-09-17T21:41:35+00:00"}
+{"event": "ok", "id": "d441be867505", "usable": true, "ts": "2026-09-17T21:41:45+00:00"}
+{"event": "sent", "id": "0d74a8f34420", "field": "image", "key": "image:hankook|ah37|", "query": "Hankook AH37 tire product photo", "ts": "2026-09-17T21:41:45+00:00"}
+{"event": "ok", "id": "0d74a8f34420", "usable": true, "ts": "2026-09-17T21:41:51+00:00"}
+{"event": "sent", "id": "e8b8e2677810", "field": "image", "key": "image:firestone|transforceht2|", "query": "Firestone TRANSFORCE HT2 tire product photo", "ts": "2026-09-17T21:41:51+00:00"}
+{"event": "ok", "id": "e8b8e2677810", "usable": true, "ts": "2026-09-17T21:42:03+00:00"}
+{"event": "sent", "id": "221ba830c8ad", "field": "image", "key": "image:predator|dirtrebelats10pr|", "query": "Predator DIRT REBEL ATS -10PR tire product photo", "ts": "2026-09-17T21:42:03+00:00"}
+{"event": "ok", "id": "221ba830c8ad", "usable": true, "ts": "2026-09-17T21:42:12+00:00"}
+{"event": "sent", "id": "8fa850005493", "field": "specs", "key": "specs:predator|dirtrebelatsblk|33x12.50r20lt f", "query": "Predator DIRT REBEL ATS BLK 33X12.50R20LT F tire size load index speed rating", "ts": "2026-09-17T21:42:20+00:00"}
+{"event": "ok", "id": "8fa850005493", "usable": true, "ts": "2026-09-17T21:42:21+00:00"}

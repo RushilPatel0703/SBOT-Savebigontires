@@ -165,6 +165,17 @@ class TestParseLogProgress:
         # only 'scraper' completed before failure
         assert r["completed"] == 1
 
+    def test_paused_flag_set(self, dashboard, tmp_path):
+        p = tmp_path / "paused.log"
+        p.write_text(
+            "Paused in step scraper_tires. Resume with: python run_pipeline.py --resume\n",
+            encoding="utf-8",
+        )
+        assert dashboard.parse_log_progress(str(p))["paused"] is True
+
+    def test_paused_flag_clear_on_a_normal_log(self, dashboard, sample_log_good):
+        assert dashboard.parse_log_progress(str(sample_log_good))["paused"] is False
+
     def test_empty_log_no_exception(self, dashboard, tmp_path):
         p = tmp_path / "empty.log"
         p.write_text("", encoding="utf-8")

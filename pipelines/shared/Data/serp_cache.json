@@ -25445,5 +25445,241 @@
     "ts": "2026-09-08T18:36:21+00:00",
     "call": "7f708fd43a4e",
     "supplier": "wheelsmart"
+  },
+  "image:pirelli|cinturatoweatheractive|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/pirelli/pirelli-cinturato-weatheractive-b-aaa-1.jpg",
+    "query": "Pirelli CINTURATO WEATHERACTIVE tire product photo",
+    "ts": "2026-09-17T21:40:43+00:00",
+    "call": "370ff1e6e920",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/pirelli/pirelli-cinturato-weatheractive-b-aaa-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.1279,
+        "face_on": false
+      }
+    ]
+  },
+  "image:toyo|proxesa37|": {
+    "image": "https://images.simpletire.com/image/upload/v1715661454/line-images/20582/20582-sidetread.png",
+    "query": "Toyo Proxes A37 tire product photo",
+    "ts": "2026-09-17T21:40:48+00:00",
+    "call": "066f8bf17d20",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://images.simpletire.com/image/upload/v1596734614/line-images/17737/17737-sidetread.png",
+        "domain": "SimpleTire",
+        "status": "demoted: face-on, tread not visible",
+        "width": 2000,
+        "height": 2000,
+        "core_bg_frac": 0.3837,
+        "face_on": true
+      },
+      {
+        "url": "https://images.simpletire.com/image/upload/v1715661454/line-images/20582/20582-sidetread.png",
+        "domain": "SimpleTire",
+        "status": "accepted",
+        "width": 2000,
+        "height": 2000,
+        "core_bg_frac": 0.13,
+        "face_on": false
+      }
+    ]
+  },
+  "image:pirelli|scorpionweatheractive|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/pirelli/pirelli-scorpion-weatheractive-b-aaa-1.jpg",
+    "query": "Pirelli SCORPION WEATHERACTIVE tire product photo",
+    "ts": "2026-09-17T21:41:01+00:00",
+    "call": "4cc757793b11",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/pirelli/pirelli-scorpion-weatheractive-b-aaa-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.1007,
+        "face_on": false
+      }
+    ]
+  },
+  "image:yokohama|avidgts35c|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/yokohama/yokohama-avid-gt-s35c-b-aaa-1.jpg",
+    "query": "Yokohama AVID GT S35C tire product photo",
+    "ts": "2026-09-17T21:41:03+00:00",
+    "call": "d8f393b7cb58",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/yokohama/yokohama-avid-gt-s35c-b-aaa-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.0482,
+        "face_on": false
+      }
+    ]
+  },
+  "image:maxtrek|trekm8|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/maxtrek/maxtrek-hill-tracker-b-aaa-1.jpg",
+    "query": "Maxtrek TREK M8 tire product photo",
+    "ts": "2026-09-17T21:41:23+00:00",
+    "call": "6d9aa0319e05",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/maxtrek/maxtrek-hill-tracker-b-aaa-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1580,
+        "core_bg_frac": 0.2226,
+        "face_on": false
+      }
+    ]
+  },
+  "image:predator|dirtrebelats|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/predator/predator-new-mutant-rt-trail-b-aaa-1.jpg",
+    "query": "Predator DIRT REBEL ATS tire product photo",
+    "ts": "2026-09-17T21:41:35+00:00",
+    "call": "354f400301b5",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/predator/predator-new-mutant-rt-trail-b-aaa-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.0296,
+        "face_on": false
+      }
+    ]
+  },
+  "image:hankook|iht01|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/hankook/hankook-ion-ht-b-aaa-1.jpg",
+    "query": "Hankook IHT01 tire product photo",
+    "ts": "2026-09-17T21:41:45+00:00",
+    "call": "d441be867505",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires-website-02/hankook/hankook-ion-ht-b-aaa-1.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.0334,
+        "face_on": false
+      }
+    ]
+  },
+  "image:hankook|ah37|": {
+    "image": "https://images.simpletire.com/images/q_auto/f_auto,q_auto,h_3840/line-images/14343/14343-sidetread/hankook-dh37.jpg",
+    "query": "Hankook AH37 tire product photo",
+    "ts": "2026-09-17T21:41:50+00:00",
+    "call": "0d74a8f34420",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://images.simpletire.com/images/q_auto/f_auto,q_auto,h_3840/line-images/14343/14343-sidetread/hankook-dh37.jpg",
+        "domain": "SimpleTire",
+        "status": "accepted",
+        "width": 3379,
+        "height": 3840,
+        "core_bg_frac": 0.0769,
+        "face_on": false
+      }
+    ]
+  },
+  "image:firestone|transforceht2|": {
+    "image": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/firestone/firestone-transforce-ht2-w-aaa1-2.jpg",
+    "query": "Firestone TRANSFORCE HT2 tire product photo",
+    "ts": "2026-09-17T21:42:03+00:00",
+    "call": "e8b8e2677810",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://backend.prioritytire.com/media/catalog/product/cache/89bfd9074608e40851f4cbb9f524ef74/tires/firestone/firestone-transforce-ht2-w-aaa1-2.jpg",
+        "domain": "Priority Tire",
+        "status": "accepted",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.0319,
+        "face_on": false
+      }
+    ]
+  },
+  "image:predator|dirtrebelats10pr|": {
+    "image": "https://i5-richmedia.walmartimages.com/asr-rm/4f971cc4-cba6-4a51-8ec0-1bc4eac39e65_360_merchant_manual_18.jpg",
+    "query": "Predator DIRT REBEL ATS -10PR tire product photo",
+    "ts": "2026-09-17T21:42:12+00:00",
+    "call": "221ba830c8ad",
+    "supplier": "northcountry",
+    "verified": [
+      {
+        "url": "https://i5-richmedia.walmartimages.com/asr-rm/4f971cc4-cba6-4a51-8ec0-1bc4eac39e65_360_merchant_manual_18.jpg",
+        "domain": "Walmart",
+        "status": "demoted: face-on, tread not visible",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.6653,
+        "face_on": true
+      },
+      {
+        "url": "https://i5-richmedia.walmartimages.com/asr-rm/4f971cc4-cba6-4a51-8ec0-1bc4eac39e65_360_merchant_manual_16.jpg",
+        "domain": "Walmart",
+        "status": "demoted: face-on, tread not visible",
+        "width": 1500,
+        "height": 1500,
+        "core_bg_frac": 0.368,
+        "face_on": true
+      },
+      {
+        "url": "https://wheelwiz.ca/cdn/shop/files/public_4e65b789112d4c3aa2a12a5d74f18af1_4a9726bb-e6ff-42cf-9fe7-4cd93ce26e4a_5000x.png?v=1785540575",
+        "domain": "Wheelwiz",
+        "status": "demoted: face-on, tread not visible",
+        "width": 3794,
+        "height": 3764,
+        "core_bg_frac": 1.0,
+        "face_on": true
+      },
+      {
+        "url": "https://wheelwiz.ca/cdn/shop/files/public_6e82839487de4c3a89676ae285ad327f_5000x.png?v=1785540575",
+        "domain": "Wheelwiz",
+        "status": "unusable: image exceeds 12582912 bytes"
+      },
+      {
+        "url": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=122277621662029295",
+        "domain": "Facebook",
+        "status": "unusable: decode failed: UnidentifiedImageError: cannot identify image file <_io.BytesIO object at 0x00000182687C3970>"
+      },
+      {
+        "url": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=1465994405535352",
+        "domain": "Facebook",
+        "status": "unusable: decode failed: UnidentifiedImageError: cannot identify image file <_io.BytesIO object at 0x00000182687C3970>"
+      }
+    ]
+  },
+  "specs:predator|dirtrebelatsblk|33x12.50r20lt f": {
+    "specs": {
+      "load_index": "109",
+      "speed_rating": "R"
+    },
+    "query": "Predator DIRT REBEL ATS BLK 33X12.50R20LT F tire size load index speed rating",
+    "tried": [
+      "load_index",
+      "speed_rating"
+    ],
+    "ts": "2026-09-17T21:42:21+00:00",
+    "call": "8fa850005493",
+    "supplier": "northcountry"
   }
 }

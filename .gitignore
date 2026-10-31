@@ -48,6 +48,11 @@ pipelines/.enrich_result.json
 # nothing was paid for it, but it is 3,615 image downloads, and a scan that
 # has to rebuild it reports near-zero image gaps until it finishes.
 
+# Pause/resume state of a run in progress (shared/scrape_journal.py): progress
+# journals, the step reached and the PAUSE flag. Machine-local and short-lived;
+# the .json in here must not fall under the tracked-cache rule above.
+pipelines/*/Data/run_state/
+
 # Quarantined no-cost-price rows are regenerated every run (data, not source)
 no price detected/*.csv
 
@@ -56,3 +61,25 @@ no price detected/*.csv
 # class as monitoring/: run output and analysis, regenerated on demand from the
 # store and the raw scrapes, not part of the app the client runs.
 coverage/
+
+# Supplier session cookies written by refresh_cookies.py (shared/cookie_store.py).
+# Short-lived and per-machine; the scrapers fall back to their own literals.
+pipelines/shared/Data/session_cookies.json*
+
+# Mac app build output (macapp/build.py).
+macapp/build/
+macapp/dist/
+
+# Store inventory exports and the import files inventory_csv.py writes from them.
+# Run output at 30 MB apiece, regenerated from a fresh Shopify export every time.
+/inventory_*.csv
+
+# Deploy bundles: scp to a host with no ":path" writes a local file of that name.
+/sbot@*
+
+# One-off image and model-match audit output from September; nothing reads these.
+/audit_rows.json
+/dead_images.json
+/final_buckets.json
+/reclass.json
+/tiers.json

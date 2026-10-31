@@ -95,9 +95,15 @@ create table if not exists merged_snapshot (
                                                     -- so it is applied inside the min() at merge —
                                                     -- do NOT add markup again downstream.
     merged_qty   integer not null,
-    sources      text not null,
+    sources      text not null,                    -- every supplier that stocked this SKU this
+                                                    -- run, pipe-joined ('formula|northcountry')
+    winning_supplier text,                          -- the ONE supplier whose (cost + markup) is
+                                                    -- merged_price. NULL iff merged_price is NULL.
+                                                    -- Not derivable from sources when >1 supplier
+                                                    -- stocked the SKU.
     primary key (run_id, product_type, sku)
 );
+alter table merged_snapshot add column if not exists winning_supplier text;
 
 -- ── Shopify catalog mirror (replaces sku_map.json / handle_map.json) ──────────
 create table if not exists shopify_products (

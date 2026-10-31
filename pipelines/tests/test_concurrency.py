@@ -52,8 +52,34 @@ if "streamlit" not in sys.modules:
             return fn
         return _wrap
 
-    _st.cache_data = lambda *a, **kw: (lambda f: f)
-    _st.fragment   = _fragment_deco
+    _RESOURCE_CACHE = {}
+
+    def _make_cache_deco(memoize):
+        # See conftest._make_cache_decorator - the lock these tests exercise now
+        # comes from @st.cache_resource, so this stub MUST return the same
+        # object on every call, and across a re-exec of the module, or the
+        # tests below prove nothing.
+        def _wrap(fn):
+            if not memoize:
+                return fn
+            key = getattr(fn, "__qualname__", None) or getattr(fn, "__name__", repr(fn))
+
+            def _cached(*a, **kw):
+                if key not in _RESOURCE_CACHE:
+                    _RESOURCE_CACHE[key] = fn(*a, **kw)
+                return _RESOURCE_CACHE[key]
+            return _cached
+
+        def _deco(*a, **kw):
+            if len(a) == 1 and callable(a[0]) and not kw:
+                return _wrap(a[0])
+            return _wrap
+        return _deco
+
+    _st.cache_data     = _make_cache_deco(memoize=False)
+    _st.cache_resource = _make_cache_deco(memoize=True)
+    _st.runtime        = types.SimpleNamespace(exists=lambda: False)
+    _st.fragment       = _fragment_deco
     _st.__getattr__ = lambda n: _noop   # type: ignore[assignment]
     for _a in ("set_page_config","title","header","caption","divider","button",
                "checkbox","columns","container","expander","progress","info",
@@ -272,6 +298,58 @@ class TestConcurrentStatusWrites:
         except json.JSONDecodeError as e:
             pytest.fail(f"Status file is not valid JSON after concurrent writes: {e}")
         assert isinstance(data, dict)
+
+
+class TestLockSurvivesRerun:
+    """The status lock must be the same object across a full Streamlit rerun.
+
+    Regression test for the original bug: `_STATUS_LOCK = threading.Lock()` at
+    module level. Streamlit exec()s the main script into a fresh module on every
+    full rerun, so that handed out a NEW lock each time while the watcher threads
+    started by earlier runs still held the old one. Two writers holding different
+    locks is the same as no lock, and _update_status is a read-modify-write on a
+    shared JSON file - the loser's write vanished. When that write was a pid, the
+    supplier card fell back to "Not yet run", the Run button re-enabled, and a
+    second scrape of the same supplier could be launched over the first one.
+
+    The single-import test suite could never catch this: it only ever exec'd the
+    module once, which is exactly the case where the old code looked correct.
+    """
+
+    def test_lock_identical_across_two_execs(self):
+        second = _import_dashboard()
+        assert _dashboard._status_lock() is second._status_lock(), (
+            "status lock differs between two exec()s of dashboard.py - "
+            "a rerun would leave watcher threads locking against nothing"
+        )
+
+    def test_update_status_uses_that_lock(self, tmp_path):
+        """A second exec's writes must serialise against the first exec's."""
+        second = _import_dashboard()
+        status_file = tmp_path / ".dashboard_status.json"
+        errors = []
+
+        def worker(mod, key):
+            try:
+                mod._update_status(key, {"value": key})
+            except Exception as exc:
+                errors.append(str(exc))
+
+        orig_a, orig_b = _dashboard.STATUS_FILE, second.STATUS_FILE
+        _dashboard.STATUS_FILE = second.STATUS_FILE = status_file
+        try:
+            _run_threads(
+                [lambda i=i: worker(_dashboard if i % 2 else second, f"k_{i}")
+                 for i in range(20)]
+            )
+            assert not errors, f"Threads raised: {errors}"
+            final = _dashboard.load_status()
+        finally:
+            _dashboard.STATUS_FILE, second.STATUS_FILE = orig_a, orig_b
+
+        assert len(final) == 20, (
+            f"Expected 20 keys, got {len(final)}: {sorted(final)}"
+        )
 
 
 class TestCrashRecovery:

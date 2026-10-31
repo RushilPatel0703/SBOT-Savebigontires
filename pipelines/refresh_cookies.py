@@ -2,7 +2,8 @@
 """
 Cookie refresh utility — programmatic login for all 4 suppliers.
 Run from: pipelines/
-Updates COOKIE_STRING (or COOKIES dict) in every scraper file.
+Saves each fresh session to shared/Data/session_cookies.json (see
+shared/cookie_store.py), which every scraper reads at startup.
 
 Usage:
     python refresh_cookies.py              # refresh all
@@ -16,11 +17,14 @@ import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
+import requests
+from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 
 BASE_DIR = Path(__file__).parent
 sys.path.insert(0, str(BASE_DIR / "shared"))
 from tls_chain import browser_needs_chain_bypass  # noqa: E402
+import cookie_store  # noqa: E402
 _HEADED = False
 
 # ── Supplier configs ──────────────────────────────────────────────────────────
@@ -32,12 +36,6 @@ SUPPLIERS = {
         "username": "12656",
         "password": "torque",
         "platform": "costar",
-        "files": [
-            "formula_distributors/scraper.py",
-            "formula_distributors/scraper_wheels.py",
-            "formula_distributors/check_coverage.py",
-            "formula_distributors/check_coverage_wheels.py",
-        ],
     },
     "nc": {
         "name": "North Country",
@@ -46,10 +44,6 @@ SUPPLIERS = {
         "username": "4s011",
         "password": "5069362",
         "platform": "costar",
-        "files": [
-            "northcountry/scraper_tires.py",
-            "northcountry/scraper_wheels.py",
-        ],
     },
     "emerge": {
         "name": "Emerge Tires",
@@ -58,11 +52,6 @@ SUPPLIERS = {
         "username": "SAVEB",
         "password": "saveburnaby604",
         "platform": "costar",
-        "files": [
-            "emergetires/scraper_tires.py",
-            "emergetires/scraper_wheels.py",
-            "emergetires/check_coverage.py",
-        ],
     },
     "wheelsmart": {
         "name": "WheelMart Canada",
@@ -71,10 +60,6 @@ SUPPLIERS = {
         "username": "savebigontiresburnaby@gmail.com",
         "password": "123456",
         "platform": "wheelsmart",
-        "files": [
-            "wheelsmart/scraper_tires.py",
-            "wheelsmart/scraper_rims.py",
-        ],
     },
 }
 
@@ -167,117 +152,86 @@ async def login_costar(supplier: dict) -> str | None:
         return cookie_str
 
 
+def _login_wheelsmart_sync(supplier: dict) -> dict | None:
+    """Post WheelMart's Yii2 login form directly and return {_identity, PHPSESSID}.
+
+    Not a browser: by 2026-10 a Playwright click on "Sign In" sent no request
+    at all, yet the old check passed because the login page itself hands out
+    a PHPSESSID — every refresh saved a logged-out session and the scrapers
+    wrote header-only CSVs. Success now means an _identity cookie (only set by
+    a real rememberMe login) AND the product list actually loading.
+    """
+    name = supplier["name"]
+    sess = requests.Session()
+    sess.headers["User-Agent"] = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                                  "(KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36")
+    try:
+        print(f"  [{name}] fetching login page...")
+        resp = sess.get(supplier["login_url"], timeout=30)
+        resp.raise_for_status()
+        csrf = BeautifulSoup(resp.text, "html.parser").find("input", {"name": "_csrf"})
+        if not csrf or not csrf.get("value"):
+            print(f"  [{name}] no _csrf field on {resp.url} — login page changed?")
+            return None
+
+        print(f"  [{name}] submitting credentials...")
+        sess.post(supplier["login_url"], timeout=30, data={
+            "_csrf": csrf["value"],
+            "LoginForm[email]": supplier["username"],
+            "LoginForm[password]": supplier["password"],
+            "LoginForm[rememberMe]": "1",
+            "login-button": "",
+        })
+        probe = sess.get(f"{supplier['base_url']}/product/tires",
+                         params={"page": 1, "per-page": 1}, timeout=30)
+    except requests.RequestException as e:
+        print(f"  [{name}] request failed: {e}")
+        return None
+
+    named = sess.cookies.get_dict()
+    if not named.get("_identity") or "/auth/login" in probe.url:
+        print(f"  [{name}] login rejected — no _identity cookie or product list still "
+              f"redirects to login (cookies: {sorted(named)})")
+        return None
+
+    print(f"  [{name}] login OK — product list reachable")
+    return {"_identity": named["_identity"], "PHPSESSID": named.get("PHPSESSID", "")}
+
+
 async def login_wheelsmart(supplier: dict) -> dict | None:
     """Log into WheelMart and return fresh {_identity, PHPSESSID} dict."""
-    async with async_playwright() as pw:
-        browser = await pw.chromium.launch(headless=not _HEADED)
-        ctx = await browser.new_context()
-        page = await ctx.new_page()
-
-        print(f"  [{supplier['name']}] navigating to login page...")
-        try:
-            await page.goto(supplier["login_url"], timeout=30000)
-            await page.wait_for_load_state("networkidle", timeout=15000)
-        except Exception as e:
-            print(f"  [{supplier['name']}] goto failed: {e}")
-            await browser.close()
-            return None
-
-        # WheelMart Yii2: /auth/login with LoginForm[email] + LoginForm[password]
-        try:
-            await page.wait_for_selector('#loginform-email', timeout=10000)
-        except Exception:
-            print(f"  [{supplier['name']}] #loginform-email not found — page: {page.url}")
-            await browser.close()
-            return None
-
-        await page.fill('#loginform-email', supplier["username"])
-        await page.fill('#loginform-password', supplier["password"])
-
-        print(f"  [{supplier['name']}] submitting credentials...")
-        # WheelMart: click the named submit button directly
-        await page.click('button[name="login-button"]')
-        try:
-            await page.wait_for_load_state("networkidle", timeout=20000)
-        except Exception:
-            pass
-
-        # NOTE: WheelMart URL stays on /auth/login after login — only page content changes.
-        # Check for the _identity cookie to confirm success, not the URL.
-        cookies = await ctx.cookies()
-        named = {c["name"]: c["value"] for c in cookies}
-
-        if "_identity" not in named and "PHPSESSID" not in named:
-            print(f"  [{supplier['name']}] session cookies not found: {list(named.keys())}")
-            await browser.close()
-            return None
-
-        print(f"  [{supplier['name']}] login OK — identity/session captured")
-        await browser.close()
-        return {"_identity": named.get("_identity", ""),
-                "PHPSESSID": named.get("PHPSESSID", "")}
+    return await asyncio.to_thread(_login_wheelsmart_sync, supplier)
 
 
 def update_costar_files(supplier: dict, cookie_str: str):
-    """Replace COOKIE_STRING in all files for a Costar supplier."""
-    # The COOKIE_STRING spans multiple lines with string concatenation:
-    #   COOKIE_STRING = (
-    #       "part1; "
-    #       "part2"
-    #   )
-    # Replace the whole block with a single-line version.
-    pattern = re.compile(
-        r'(COOKIE_STRING\s*=\s*)(\([^)]*\)|"[^"]*")',
-        re.DOTALL
-    )
-    new_value = f'"{cookie_str}"'
+    """Save a Costar supplier's fresh COOKIE_STRING to shared/cookie_store.
 
-    updated = []
-    for rel_path in supplier["files"]:
-        path = BASE_DIR / rel_path
-        if not path.exists():
-            print(f"  [skip] {rel_path} not found")
-            continue
-        text = path.read_text(encoding="utf-8")
-        new_text, n = pattern.subn(lambda m: m.group(1) + new_value, text)
-        if n:
-            path.write_text(new_text, encoding="utf-8")
-            print(f"  [updated] {rel_path}")
-            updated.append(rel_path)
-        else:
-            print(f"  [no match] {rel_path} — COOKIE_STRING pattern not found")
-    return updated
+    The scrapers read the store at startup (falling back to their own literal),
+    so nothing here edits a scraper's source any more. The name is kept because
+    costar_session and backfill_costar_images call it."""
+    cookie_store.put(_store_key(supplier), cookie_str)
+    print(f"  [saved] {supplier['name']} cookie -> {cookie_store.STORE.name}")
+    return [cookie_store.STORE.name]
 
 
 def update_wheelsmart_files(supplier: dict, cookies: dict):
-    """Replace _identity and PHPSESSID in WheelMart scraper files."""
-    updated = []
-    for rel_path in supplier["files"]:
-        path = BASE_DIR / rel_path
-        if not path.exists():
-            print(f"  [skip] {rel_path} not found")
-            continue
-        text = path.read_text(encoding="utf-8")
-        original = text
-        if cookies.get("_identity"):
-            text = re.sub(
-                r'("_identity"\s*:\s*)"[^"]*"',
-                lambda m: m.group(1) + f'"{cookies["_identity"]}"',
-                text
-            )
-        if cookies.get("PHPSESSID"):
-            text = re.sub(
-                r'("PHPSESSID"\s*:\s*)"[^"]*"',
-                lambda m: m.group(1) + f'"{cookies["PHPSESSID"]}"',
-                text
-            )
-        if text != original:
-            path.write_text(text, encoding="utf-8")
-            print(f"  [updated] {rel_path}")
-            updated.append(rel_path)
-        else:
-            print(f"  [no match] {rel_path}")
-    return updated
+    """Save WheelMart's _identity / PHPSESSID to shared/cookie_store."""
+    kept = {k: v for k, v in cookies.items() if k in ("_identity", "PHPSESSID") and v}
+    if not kept:
+        print(f"  [no change] {supplier['name']} - login returned no cookies")
+        return []
+    current = cookie_store.get("wheelsmart", {}) or {}
+    cookie_store.put("wheelsmart", {**current, **kept})
+    print(f"  [saved] {supplier['name']} cookies -> {cookie_store.STORE.name}")
+    return [cookie_store.STORE.name]
+
+
+def _store_key(supplier: dict) -> str:
+    """SUPPLIERS key for a supplier config dict (the store is keyed the same way)."""
+    for key, cfg in SUPPLIERS.items():
+        if cfg is supplier or cfg["name"] == supplier["name"]:
+            return key
+    raise KeyError(f"unknown supplier {supplier.get('name')!r}")
 
 
 async def refresh_supplier(key: str):

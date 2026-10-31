@@ -193,20 +193,37 @@ def test_merge_sql_applies_markup_inside_the_min(wh):
                   "when 'dttire' then price + 46.50 "
                   "when 'wheelsmart' then price * 1.220000 end)::numeric, 2)")
     wh.run_sql(f"""
-        insert into merged_snapshot (run_id, product_type, sku, merged_price, merged_qty, sources)
-        select {run_id}, product_type, sku,
+        with ranked as (
+            select product_type, sku, supplier,
+                   row_number() over (
+                       partition by product_type, sku order by {price_expr}, supplier
+                   ) as rn
+            from supplier_staging where run_id = {run_id} and price > 0
+        ),
+        best as (
+            select product_type, sku, supplier as winning_supplier from ranked where rn = 1
+        )
+        insert into merged_snapshot
+            (run_id, product_type, sku, merged_price, merged_qty, sources, winning_supplier)
+        select {run_id}, supplier_staging.product_type, supplier_staging.sku,
                min({price_expr}) filter (where price > 0),
                sum(qty),
-               string_agg(distinct supplier, '|' order by supplier)
-        from supplier_staging where run_id = {run_id}
-        group by product_type, sku;
+               string_agg(distinct supplier, '|' order by supplier),
+               best.winning_supplier
+        from supplier_staging
+        left join best
+          on best.product_type = supplier_staging.product_type
+         and best.sku = supplier_staging.sku
+        where supplier_staging.run_id = {run_id}
+        group by supplier_staging.product_type, supplier_staging.sku, best.winning_supplier;
     """)
     row = wh.select_one(
-        f"select merged_price::double as p, merged_qty, sources "
+        f"select merged_price::double as p, merged_qty, sources, winning_supplier "
         f"from merged_snapshot where run_id = {run_id}")
     assert row["p"] == pytest.approx(128.10)      # wheelsmart, not dttire's 146.50
     assert row["merged_qty"] == 8                 # quantities sum across suppliers
     assert row["sources"] == "dttire|wheelsmart"
+    assert row["winning_supplier"] == "wheelsmart"  # the one that actually won the min()
 
 
 def test_merge_sql_ignores_zero_priced_rows(wh):
@@ -222,15 +239,33 @@ def test_merge_sql_ignores_zero_priced_rows(wh):
     price_expr = ("round((case supplier when 'dttire' then price + 46.50 "
                   "when 'wheelsmart' then price * 1.220000 end)::numeric, 2)")
     wh.run_sql(f"""
-        insert into merged_snapshot (run_id, product_type, sku, merged_price, merged_qty, sources)
-        select {run_id}, product_type, sku,
+        with ranked as (
+            select product_type, sku, supplier,
+                   row_number() over (
+                       partition by product_type, sku order by {price_expr}, supplier
+                   ) as rn
+            from supplier_staging where run_id = {run_id} and price > 0
+        ),
+        best as (
+            select product_type, sku, supplier as winning_supplier from ranked where rn = 1
+        )
+        insert into merged_snapshot
+            (run_id, product_type, sku, merged_price, merged_qty, sources, winning_supplier)
+        select {run_id}, supplier_staging.product_type, supplier_staging.sku,
                min({price_expr}) filter (where price > 0), sum(qty),
-               string_agg(distinct supplier, '|' order by supplier)
-        from supplier_staging where run_id = {run_id} group by product_type, sku;
+               string_agg(distinct supplier, '|' order by supplier),
+               best.winning_supplier
+        from supplier_staging
+        left join best
+          on best.product_type = supplier_staging.product_type
+         and best.sku = supplier_staging.sku
+        where supplier_staging.run_id = {run_id} group by supplier_staging.product_type, supplier_staging.sku, best.winning_supplier;
     """)
     row = wh.select_one(
-        f"select merged_price::double as p from merged_snapshot where run_id = {run_id}")
+        f"select merged_price::double as p, winning_supplier from merged_snapshot where run_id = {run_id}")
     assert row["p"] == pytest.approx(128.10)
+    # the zero-priced dttire row must not win, even though it's alphabetically first
+    assert row["winning_supplier"] == "wheelsmart"
 
 
 # ── the sync diff ─────────────────────────────────────────────────────────────

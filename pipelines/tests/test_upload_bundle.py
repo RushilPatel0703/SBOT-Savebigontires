@@ -337,3 +337,74 @@ class TestNewProductsOnlyBuild:
         assert files[0].name == "shopify_upload.csv"
         assert "(new products)" not in files[0].parent.name
         assert len(pd.read_csv(files[0], dtype=str)) == 2
+
+
+# ── Supplier tag ──────────────────────────────────────────────────────────────
+class TestSupplierTag:
+    """Every product in a bundle carries the tag naming its supplier. The client
+    filters the store by it, so a row without one cannot be traced back."""
+
+    @staticmethod
+    def _csv(tmp_path, supplier, rows):
+        d = tmp_path / supplier / "Data" / "shopify"
+        d.mkdir(parents=True)
+        path = d / "Shopify_SEO_wheels_20260101_000000.csv"
+        pd.DataFrame(rows).to_csv(path, index=False)
+        return path
+
+    def test_missing_tag_is_added_from_the_supplier_directory(self, tmp_path):
+        path = self._csv(tmp_path, "dttire", [
+            {"Title": "A", "Tags": "Brand_X,WheelDia_17"},
+            {"Title": "B", "Tags": ""},
+        ])
+        frame = pd.read_csv(path, dtype=str, keep_default_na=False)
+        out, added = UB.ensure_supplier_tag(frame, path)
+        assert added == 2
+        assert list(out["Tags"]) == ["Brand_X,WheelDia_17,Supplier_Dttire", "Supplier_Dttire"]
+
+    def test_existing_supplier_tag_is_left_alone(self, tmp_path):
+        path = self._csv(tmp_path, "northcountry", [
+            {"Title": "A", "Tags": "Brand_X,Supplier_Northcountry"},
+        ])
+        frame = pd.read_csv(path, dtype=str, keep_default_na=False)
+        out, added = UB.ensure_supplier_tag(frame, path)
+        assert added == 0
+        assert out.loc[0, "Tags"] == "Brand_X,Supplier_Northcountry"
+
+    def test_image_only_rows_are_not_tagged(self, tmp_path):
+        path = self._csv(tmp_path, "wheelsmart", [
+            {"Title": "A", "Tags": "Brand_X"},
+            {"Title": "",  "Tags": ""},
+        ])
+        frame = pd.read_csv(path, dtype=str, keep_default_na=False)
+        out, added = UB.ensure_supplier_tag(frame, path)
+        assert added == 1
+        assert out.loc[1, "Tags"] == ""
+
+    def test_bundle_rows_all_carry_a_supplier_tag(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(UB, "stale_sources", lambda s: [])
+        self._csv(tmp_path, "emergetires", [
+            {"Handle": "a", "Variant SKU": "EMRG-1", "Title": "A", "Tags": "Brand_X"},
+        ])
+        self._csv(tmp_path, "formula_distributors", [
+            {"Handle": "b", "Variant SKU": "2", "Title": "B", "Tags": "Supplier_Formulatires"},
+        ])
+        files, err = UB.prepare_upload_files(
+            [tmp_path / "emergetires", tmp_path / "formula_distributors"],
+            out_root=tmp_path / "out")
+        assert err == ""
+        written = pd.read_csv(files[0], dtype=str, keep_default_na=False)
+        assert dict(zip(written["Variant SKU"], written["Tags"])) == {
+            "EMRG-1": "Brand_X,Supplier_Emergetires",
+            "2": "Supplier_Formulatires",
+        }
+
+    def test_augment_steps_write_the_same_tags(self):
+        """The augment steps write the tag first; this module only backfills.
+        Both must agree, or one supplier's products split across two tags."""
+        pipelines = Path(UB.__file__).resolve().parent.parent
+        for supplier, tag in UB.SUPPLIER_TAGS.items():
+            sources = [p.read_text(encoding="utf-8")
+                       for p in (pipelines / supplier).glob("augment*.py")]
+            assert sources, supplier
+            assert all(tag in s for s in sources), f"{supplier}: augment does not write {tag}"

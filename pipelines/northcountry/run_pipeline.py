@@ -37,6 +37,15 @@ Usage:
   python run_pipeline.py --only augment_wheels        # just one step
   python run_pipeline.py --from clean_wheels          # resume from a step
   python run_pipeline.py --dry-run                    # preview create steps only
+  python run_pipeline.py --resume                     # carry on a paused/interrupted run
+
+Pause and resume (see shared/scrape_journal.py): the run records the step it
+has reached in Data/run_state/pipeline_progress.json, and the three network
+steps journal every finished unit. Creating Data/run_state/PAUSE (the
+dashboard's Pause button) stops the run after the unit in hand, with exit code
+75. --resume restarts at the step that was running, with the original run's
+steps and flags, and that step replays its journal. A crash or power cut
+leaves the same state behind as a pause, so it resumes the same way.
 """
 
 import sys
@@ -45,6 +54,10 @@ import argparse
 import logging
 import os
 from datetime import datetime
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(_HERE, "..", "shared"))
+import scrape_journal  # noqa: E402
 
 os.makedirs("logs", exist_ok=True)
 ts = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -81,11 +94,18 @@ STEPS = [
 
 DRY_RUN_STEPS = {"create_products", "update_images", "create_wheels", "update_images_wheels"}
 FULL_STEPS    = {"scraper_tires", "scraper_wheels"}  # steps that accept --full (rebuild zero-terms cache)
+RESUME_STEPS  = {"scraper_tires", "brand_sweep", "scraper_wheels"}  # journaled; accept --resume
 
 STEP_NAMES = [n for n, _, _ in STEPS]
 
 
-def run_step(name, script, extra_args, dry_run=False, full=False):
+def _pause_exit(where):
+    scrape_journal.clear_pause(_HERE)
+    log.info(f"Paused {where}. Resume with: python run_pipeline.py --resume")
+    sys.exit(scrape_journal.PAUSE_EXIT)
+
+
+def run_step(name, script, extra_args, dry_run=False, full=False, resume=False):
     log.info("=" * 55)
     log.info(f"STEP: {name} ({script})")
     log.info("=" * 55)
@@ -94,9 +114,14 @@ def run_step(name, script, extra_args, dry_run=False, full=False):
         args.append("--dry-run")
     if full and name in FULL_STEPS:
         args.append("--full")
+    if resume and name in RESUME_STEPS:
+        args.append("--resume")
     result = subprocess.run([sys.executable, script] + args, env=_UTF8_ENV)
+    if result.returncode == scrape_journal.PAUSE_EXIT:
+        _pause_exit(f"during step '{name}'")
     if result.returncode != 0:
         log.error(f"Step '{name}' failed (exit {result.returncode}). Pipeline stopped.")
+        log.error("Fix the cause, then carry on with: python run_pipeline.py --resume")
         sys.exit(result.returncode)
     log.info(f"Step '{name}' — OK\n")
 
@@ -113,6 +138,9 @@ def main():
                         help="Pass --dry-run to create_products step (no Shopify writes)")
     parser.add_argument("--full", action="store_true",
                         help="Pass --full to scraper steps (search all terms, rebuild zero-terms cache)")
+    parser.add_argument("--resume", action="store_true",
+                        help="Carry on a paused or interrupted run from the step it reached, "
+                             "with that run's steps and flags (other options are ignored)")
     parser.add_argument("--enable-enrich", action="store_true",
                         help="No longer needed — enrich_tires/enrich_wheels run by default "
                              "(free cache-apply, zero network calls). Kept as a no-op so old "
@@ -120,8 +148,26 @@ def main():
     args = parser.parse_args()
 
     steps_to_run = STEPS
+    resume_step  = None
+    # A PAUSE left over from a run that finished before honouring it.
+    scrape_journal.clear_pause(_HERE)
 
-    if args.only:
+    if args.resume:
+        progress = scrape_journal.load_progress(_HERE)
+        if not progress:
+            log.error("Nothing to resume: no paused or interrupted run is recorded in "
+                      "Data/run_state/. Start a normal run instead.")
+            sys.exit(1)
+        remaining = [n for n in progress["planned"] if n not in progress["done"]]
+        steps_to_run = [(n, s, a) for n, s, a in STEPS if n in remaining]
+        # Only a step that was cut off mid-way replays its journal. One the run
+        # never reached starts clean, whatever an older run may have left.
+        if progress.get("current") in remaining:
+            resume_step = progress["current"]
+        args.full, args.dry_run = progress["full"], progress["dry_run"]
+        log.info(f"Resuming the run started {progress['started'][:16].replace('T', ' ')}"
+                 f" ({len(progress['done'])} step(s) already done)")
+    elif args.only:
         steps_to_run = [(n, s, a) for n, s, a in STEPS if n == args.only]
         if not steps_to_run:
             log.error(f"Unknown step: {args.only}. Valid: {STEP_NAMES}")
@@ -145,9 +191,34 @@ def main():
     if args.full:
         log.info("FULL: scrapers will search all terms and rebuild the zero-terms cache.")
 
-    for name, script, extra_args in steps_to_run:
-        run_step(name, script, extra_args, dry_run=args.dry_run, full=args.full)
+    # Which step this run has reached, so a pause, crash or power cut can be
+    # resumed from it. Saved as each step starts and again as it finishes, so
+    # a finished step is never repeated and an unfinished one never skipped.
+    # A one-off --only run leaves it alone: it has no later steps to resume,
+    # and recording it would overwrite the resume point of a paused full run.
+    track = not args.only
+    if args.resume:
+        progress["resumed"] = datetime.now().isoformat()
+    else:
+        progress = {"started": datetime.now().isoformat(), "full": args.full,
+                    "dry_run": args.dry_run, "done": [],
+                    "planned": [n for n, _, _ in steps_to_run]}
 
+    for name, script, extra_args in steps_to_run:
+        if scrape_journal.pause_requested(_HERE):
+            _pause_exit(f"before step '{name}'")
+        progress["current"] = name
+        if track:
+            scrape_journal.save_progress(_HERE, progress)
+        run_step(name, script, extra_args, dry_run=args.dry_run, full=args.full,
+                 resume=(name == resume_step))
+        progress["done"].append(name)
+        if track:
+            scrape_journal.save_progress(_HERE, progress)
+
+    if track:
+        scrape_journal.clear_progress(_HERE)
+    scrape_journal.clear_pause(_HERE)
     log.info("=" * 55)
     log.info("Pipeline complete.")
     log.info("=" * 55)

@@ -51,6 +51,7 @@ from pathlib import Path
 import pandas as pd
 
 from size_parser import consumer_size_filter, size_from_tags
+from product_denylist import denied_flags
 
 CSV_TARGET_MB = 14.5          # safety margin under Shopify's hard 15 MB limit
 _TS_SUFFIX = re.compile(r"_\d{8}_\d{6}$")
@@ -58,7 +59,9 @@ _TS_SUFFIX = re.compile(r"_\d{8}_\d{6}$")
 _HERE = Path(__file__).resolve().parent
 PIPELINES_DIR = _HERE.parent
 REPO_ROOT = PIPELINES_DIR.parent
-UPLOAD_READY = REPO_ROOT / "upload_ready"
+# The packaged Mac app keeps its code and data out of sight and points this at a
+# folder the client can see (SBOT_UPLOAD_READY); everywhere else it is the repo root.
+UPLOAD_READY = Path(os.environ.get("SBOT_UPLOAD_READY") or REPO_ROOT / "upload_ready")
 
 # Supplier directories that hold a Data/shopify folder. Kept here rather than
 # imported from dashboard.py so this module stays importable without Streamlit.
@@ -69,6 +72,20 @@ SUPPLIER_DIRS = [
     PIPELINES_DIR / "wheelsmart",
     PIPELINES_DIR / "emergetires",
 ]
+
+
+# The tag that says which supplier a product came from, keyed by supplier
+# directory. Each augment step already writes it; the bundle re-checks because
+# the client filters the store by it (the storefront widget's supplier dropdown
+# matches these exact strings), so a row without one is a product nobody can
+# trace back to a supplier. Do not rename these - the live store is keyed on them.
+SUPPLIER_TAGS = {
+    "formula_distributors": "Supplier_Formulatires",
+    "northcountry":         "Supplier_Northcountry",
+    "dttire":               "Supplier_Dttire",
+    "wheelsmart":           "Supplier_Wheelsmart",
+    "emergetires":          "Supplier_Emergetires",
+}
 
 
 def collect_source_csvs(supplier_dirs=None):
@@ -259,6 +276,48 @@ def filter_consumer_tires(frame, path):
     return kept, len(frame) - len(kept), ""
 
 
+def filter_denylisted(frame):
+    """Drop rows for products the client has struck off by name.
+
+    The companion to filter_consumer_tires() above, and here for the same
+    reason: this is the road the client's hand-uploaded bundle takes, and a
+    product excluded only on the sync road comes straight back the next time
+    this button is pressed. Applies to wheels as well as tires.
+
+    Returns (kept_frame, {sku: reason}).
+    """
+    if SKU_COLUMN not in frame.columns:
+        return frame, {}
+    keep, denied = denied_flags(frame[SKU_COLUMN].astype(str))
+    if not denied:
+        return frame, {}
+    return frame[pd.Series(keep, index=frame.index)], denied
+
+
+def ensure_supplier_tag(frame, path):
+    """Give every product row its supplier's tag. Returns (frame, rows_tagged).
+
+    The supplier is read from where the file lives (<supplier>/Data/shopify/),
+    not from the file's contents, so a row that lost its tag upstream still gets
+    the right one. Rows that already carry any Supplier_ tag are left alone.
+    Only product rows are touched: in a Shopify import a row with no Title is an
+    extra image row for the product above it, and tags there mean nothing.
+    """
+    tag = SUPPLIER_TAGS.get(Path(path).resolve().parents[2].name)
+    if tag is None:
+        return frame, 0
+    frame = frame.copy()
+    if "Tags" not in frame.columns:
+        frame["Tags"] = ""
+    tags = frame["Tags"].fillna("").astype(str)
+    is_product = (frame["Title"].fillna("").astype(str).str.strip() != ""
+                  if "Title" in frame.columns else pd.Series(True, index=frame.index))
+    missing = is_product & ~tags.str.contains(r"(?:^|,)\s*Supplier_", regex=True)
+    frame.loc[missing, "Tags"] = tags[missing].map(
+        lambda t: f"{t.rstrip(', ')},{tag}" if t.strip(", ") else tag)
+    return frame, int(missing.sum())
+
+
 def filter_new_products(frame, exclude_skus):
     """Rows whose SKU is not already in the store. Returns (kept, dropped_count).
 
@@ -317,6 +376,7 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None,
     frames, manifest = [], []
     total_dropped = 0
     total_non_consumer = 0
+    all_denied = {}
     for path in sources:
         try:
             frame = pd.read_csv(path, dtype=str, keep_default_na=False)
@@ -324,10 +384,16 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None,
             return [], f"Error reading {path.name}: {exc}"
         source_rows = len(frame)
         dropped = 0
+        frame, tagged = ensure_supplier_tag(frame, path)
+        if tagged:
+            print(f"NOTE: {path.name}: added the supplier tag to {tagged:,} row(s) "
+                  f"that were missing it")
         frame, non_consumer, refusal = filter_consumer_tires(frame, path)
         if refusal:
             print(f"WARNING: non-consumer size filter {refusal}")
         total_non_consumer += non_consumer
+        frame, denied = filter_denylisted(frame)
+        all_denied.update(denied)
         if exclude_skus is not None:
             if SKU_COLUMN not in frame.columns:
                 return [], (f"{path.name} has no '{SKU_COLUMN}' column, so new-vs-existing "
@@ -351,6 +417,10 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None,
         print("")
         print(f"Non-consumer size filter: {total_non_consumer:,} ATV/UTV/golf-cart/"
               f"commercial row(s) excluded.")
+    if all_denied:
+        print("")
+        print(f"Product denylist: {len(all_denied):,} SKU(s) excluded — "
+              f"{', '.join(sorted(all_denied))}")
 
     if exclude_skus is not None:
         print(f"\nNew-products-only: {total_dropped:,} row(s) skipped as already in the "
@@ -416,6 +486,9 @@ def prepare_upload_files(supplier_dirs=None, dry_run=False, out_root=None,
              f"Handle collisions disambiguated: {handle_fixes}"]
     if total_non_consumer:
         lines += [f"Rows excluded as ATV/UTV/golf-cart/commercial: {total_non_consumer:,}"]
+    if all_denied:
+        lines += [f"SKUs excluded by the product denylist: {len(all_denied):,}"]
+        lines += [f"  {sku}  {reason}" for sku, reason in sorted(all_denied.items())]
     if exclude_skus is not None:
         lines += [f"Rows skipped as already in the store: {total_dropped:,}",
                   f"Store SKUs compared against: {len(exclude_skus):,}"]

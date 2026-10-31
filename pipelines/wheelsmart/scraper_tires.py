@@ -5,14 +5,20 @@ import re
 from datetime import datetime
 from bs4 import BeautifulSoup
 
+import sys
+sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+import cookie_store
+
 BASE_URL = "https://wheelmartcanada.ca"
 PRODUCT_URL = f"{BASE_URL}/product/tires"
 API_URL = f"{BASE_URL}/v1/tires/?api_client_id=5&api_key=IhSkw9YNImRW3QKIZowLePXeSvxFqM"
 
 COOKIES = {
     "_identity": "93dfc22644ea3f5d23a9bea988a54528628d4965f14521883bf5d2d624ab36a2a%3A2%3A%7Bi%3A0%3Bs%3A9%3A%22_identity%22%3Bi%3A1%3Bs%3A48%3A%22%5B409%2C%22HnB5HZV0OHwmNe9vml8upqll2EmRCmCk%22%2C2592000%5D%22%3B%7D",
-    "PHPSESSID": "a85364c64146c2cc60ad1259cfa158f1",
+    "PHPSESSID": "c0108e21cdda3a59196bbb03d6575b3a",
 }
+# A refreshed cookie (refresh_cookies.py) wins over the literal above.
+COOKIES = cookie_store.get("wheelsmart", COOKIES)
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
 }
@@ -150,6 +156,12 @@ def parse_rows(soup):
 def fetch_page(session, page):
     resp = session.get(PRODUCT_URL, params={"page": page, "per-page": PER_PAGE}, timeout=30)
     resp.raise_for_status()
+    # A dead session is a 302 to the login page, which answers 200 with no
+    # product rows — without this the run "succeeds" with a header-only CSV.
+    if "/auth/login" in resp.url:
+        print(f"\nFATAL: page {page} redirected to the login page — WheelMart session is "
+              f"not logged in. Run  python refresh_cookies.py --supplier wheelsmart  from pipelines/.")
+        sys.exit(1)
     return BeautifulSoup(resp.text, "html.parser")
 
 

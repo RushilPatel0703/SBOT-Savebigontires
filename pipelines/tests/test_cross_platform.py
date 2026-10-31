@@ -94,8 +94,9 @@ class TestGlobCaseSensitivity:
     def test_lowercase_glob_platform_behaviour(self, tmp_path):
         """
         Document case-sensitivity: 'shopify_*.csv' vs file named 'Shopify_*.csv'.
-        On Linux this will return 0 matches (case-sensitive).
-        On Windows/macOS this will return 1 match (case-insensitive FS).
+        Only Windows matches it. Python's glob matches case-sensitively on every
+        POSIX system, macOS included, even though the Mac's disk itself ignores
+        case - so a wrong-case pattern finds nothing on the client's Mac either.
         The test records the platform behaviour as a known fact; it does NOT assert
         that the dashboard handles both — that would require a code change.
         """
@@ -103,15 +104,15 @@ class TestGlobCaseSensitivity:
         d.mkdir()
         (d / "Shopify_SEO_tires_20260709_083000.csv").write_text("h\n", encoding="utf-8")
         matches = list(d.glob("shopify_SEO_*.csv"))  # wrong case on capital S
-        if sys.platform in ("win32", "darwin"):
-            # Case-insensitive FS: glob finds it anyway
+        if sys.platform == "win32":
+            # Windows: glob matching is case-insensitive, finds it anyway
             assert len(matches) == 1, (
-                "Expected case-insensitive match on Windows/macOS"
+                "Expected case-insensitive match on Windows"
             )
         else:
-            # Linux: case-sensitive FS — expected to return nothing
+            # macOS and Linux: glob matching is case-sensitive — returns nothing
             assert len(matches) == 0, (
-                "Expected case-sensitive miss on Linux — "
+                "Expected case-sensitive miss on macOS/Linux — "
                 "production code must use exact case 'Shopify_SEO_*.csv'"
             )
 
