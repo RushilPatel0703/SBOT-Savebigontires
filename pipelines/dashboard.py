@@ -8,15 +8,31 @@ import base64
 import json
 import mimetypes
 import os
+import re
 import subprocess
 import sys
 import threading
+import time
 from datetime import datetime
 from pathlib import Path
 
 import streamlit as st
 
-_STATUS_LOCK = threading.Lock()
+
+# NOT a module-level `threading.Lock()`. Streamlit exec()s this script into a
+# FRESH __main__ module on every full rerun, so a plain module-level lock is a
+# new object each time - while the _wait_and_finish threads started by earlier
+# runs still hold the old one. Two writers holding different locks is the same
+# as no lock, and _update_status is a read-modify-write on a shared JSON file:
+# the loser's write silently disappears. Losing a "pid" is the bad one - the
+# card falls back to "Not yet run", the Run button re-enables, and a second
+# scrape of the same supplier launches against the same Data/raw/ CSVs.
+#
+# st.cache_resource is the one module-level binding that outlives a rerun, and
+# it is shared across browser tabs as well.
+@st.cache_resource
+def _status_lock() -> threading.Lock:
+    return threading.Lock()
 
 # Per-supplier markup lives in shared/markup.py — the same module the supplier
 # pipelines and the production run price from, so what the client saves here is
@@ -75,29 +91,59 @@ def _logo_data_uri(path: Path) -> str:
 #   macOS/Linux: start_new_session=True (os.setsid) detaches into its own
 #   session so the terminal closing (SIGHUP) doesn't propagate to the child.
 if sys.platform == "win32":
-    _POPEN_FLAGS        = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_BREAKAWAY_FROM_JOB
-    _START_NEW_SESSION   = False  # POSIX-only kwarg, irrelevant here
-
-    import ctypes
-    ES_CONTINUOUS       = 0x80000000
-    ES_SYSTEM_REQUIRED  = 0x00000001
-    # Keep the machine from idle-sleeping for as long as the dashboard is open —
-    # scrapes run unattended for hours and idle sleep would kill them mid-run.
-    ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
+    _POPEN_FLAGS       = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_BREAKAWAY_FROM_JOB
+    _START_NEW_SESSION = False  # POSIX-only kwarg, irrelevant here
 else:
     _POPEN_FLAGS       = 0
     _START_NEW_SESSION = True
 
-    if sys.platform == "darwin" and not os.environ.get("_SBOT_CAFFEINATED"):
-        # Same idle-sleep prevention as Windows, via caffeinate. -w ties its
-        # lifetime to this process so it exits on its own when the dashboard closes.
-        # This module re-runs on every interaction; the env flag keeps it to one
-        # caffeinate per server rather than one per click.
+ES_CONTINUOUS      = 0x80000000
+ES_SYSTEM_REQUIRED = 0x00000001
+
+
+@st.cache_resource
+def _keep_awake():
+    """Stop the machine idle-sleeping out from under a running scrape.
+
+    Held from a cached, long-lived thread rather than inline at module level.
+    SetThreadExecutionState is per-THREAD, and module-level code here runs on
+    Streamlit's per-session ScriptRunner thread - which exits when the session
+    is torn down, i.e. when the client does exactly what Step 2 and Step 5 tell
+    them they may do and closes the browser tab. Windows released the flag with
+    that thread, so the guard was gone for precisely the unattended overnight
+    run it exists to protect (the 2026-09-10 North Country run took 5h46m).
+
+    st.cache_resource is shared across sessions and lives as long as the server
+    process, so the thread it owns outlives any one tab. The thread is a daemon,
+    so the flag is still released when the dashboard itself exits.
+    """
+    if sys.platform == "win32":
+        import ctypes  # noqa: PLC0415
+
+        def _hold():
+            while True:
+                ctypes.windll.kernel32.SetThreadExecutionState(
+                    ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
+                time.sleep(60)
+
+        t = threading.Thread(target=_hold, daemon=True, name="sbot-keep-awake")
+        t.start()
+        return t
+
+    if sys.platform == "darwin":
+        # -w ties caffeinate's lifetime to this process. Cached for the second
+        # reason too: at module level this spawned a fresh caffeinate on every
+        # full rerun, and they accumulated for the life of the session.
         try:
-            subprocess.Popen(["caffeinate", "-i", "-w", str(os.getpid())])
-            os.environ["_SBOT_CAFFEINATED"] = "1"
+            return subprocess.Popen(["caffeinate", "-i", "-w", str(os.getpid())])
         except FileNotFoundError:
-            pass
+            return None
+    return None
+
+
+# Guarded so a bare `import dashboard` (the tests do this) starts no threads.
+if st.runtime.exists():
+    _keep_awake()
 
 PIPELINES = {
     # always_skip: applied on every run — create/image steps (client uploads CSV manually)
@@ -171,8 +217,10 @@ def save_status(status: dict):
     tmp.write_text(json.dumps(status, indent=2), encoding="utf-8")
     os.replace(tmp, STATUS_FILE)
 
-def _update_status(key: str, update: dict):
-    with _STATUS_LOCK:
+def _update_status(key: str, update: dict, lock: threading.Lock | None = None):
+    # Background threads pass their lock in: they run without a ScriptRunContext,
+    # and reaching for an st.* API from one is a warning at best.
+    with (lock or _status_lock()):
         s = load_status()
         s.setdefault(key, {}).update(update)
         save_status(s)
@@ -210,16 +258,18 @@ def is_running(key: str, status: dict) -> bool:
     return s.get("status") == "running" and pid_alive(s.get("pid"))
 
 # ── Process runner ─────────────────────────────────────────────────────────────
-def _wait_and_finish(key: str, proc: subprocess.Popen, f):
-    proc.wait()
-    f.close()
+def _wait_and_finish(key: str, proc: subprocess.Popen, f, lock: threading.Lock):
+    try:
+        proc.wait()
+    finally:
+        f.close()
     rc = proc.returncode
     _update_status(key, {
         "pid":      None,
         "status":   ("success" if rc == 0 else
                      "paused" if rc == scrape_journal.PAUSE_EXIT else "failed"),
         "finished": datetime.now().isoformat(),
-    })
+    }, lock=lock)
 
 def _kill_pipeline(key: str, status: dict):
     """Kill a running pipeline and its child processes, then mark as failed."""
@@ -268,18 +318,32 @@ def launch(key: str, cmd: list, cwd: Path):
     env["PYTHONUNBUFFERED"] = "1"
     f = open(log_path, "w", encoding="utf-8")
     try:
-        proc = subprocess.Popen(
-            cmd, stdout=f, stderr=subprocess.STDOUT, cwd=str(cwd), env=env,
-            creationflags=_POPEN_FLAGS, start_new_session=_START_NEW_SESSION,
-        )
-    except OSError:
-        # Current console's Job Object may disallow breakaway — fall back to a
-        # plain new process group so the pipeline can still launch.
-        proc = subprocess.Popen(
-            cmd, stdout=f, stderr=subprocess.STDOUT, cwd=str(cwd), env=env,
-            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if sys.platform == "win32" else 0,
-            start_new_session=_START_NEW_SESSION,
-        )
+        try:
+            proc = subprocess.Popen(
+                cmd, stdout=f, stderr=subprocess.STDOUT, cwd=str(cwd), env=env,
+                creationflags=_POPEN_FLAGS, start_new_session=_START_NEW_SESSION,
+            )
+        except OSError:
+            # Current console's Job Object may disallow breakaway - fall back to
+            # a plain new process group so the pipeline can still launch.
+            proc = subprocess.Popen(
+                cmd, stdout=f, stderr=subprocess.STDOUT, cwd=str(cwd), env=env,
+                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if sys.platform == "win32" else 0,
+                start_new_session=_START_NEW_SESSION,
+            )
+    except OSError as e:
+        # Both spawns failed. Without this the exception escaped with the log
+        # file still open and no status written - and it escaped from inside a
+        # run_every=2 fragment, so the traceback re-rendered every two seconds.
+        f.close()
+        _update_status(key, {
+            "pid":      None,
+            "status":   "failed",
+            "finished": datetime.now().isoformat(),
+            "log":      str(log_path),
+        })
+        st.error(f"Could not start {key}: {e}")
+        return
     _update_status(key, {
         "pid":      proc.pid,
         "status":   "running",
@@ -287,7 +351,9 @@ def launch(key: str, cmd: list, cwd: Path):
         "log":      str(log_path),
         "finished": None,
     })
-    threading.Thread(target=_wait_and_finish, args=(key, proc, f), daemon=False).start()
+    # Lock resolved here, on the script thread, and handed to the watcher.
+    threading.Thread(target=_wait_and_finish,
+                     args=(key, proc, f, _status_lock()), daemon=False).start()
 
 PRODUCTION = BASE.parent / "production"
 
@@ -344,61 +410,123 @@ def status_badge(s: dict, running: bool):
     else:
         st.caption("Not yet run")
 
+LOG_TAIL_BYTES = 256 * 1024   # ~2,000 lines - far more than show_log renders
+
+
+def _read_log_tail(path: Path, max_bytes: int = LOG_TAIL_BYTES) -> str | None:
+    """Last max_bytes of a log, or None if it cannot be read.
+
+    show_log only ever renders the final 150 lines, so reading the whole file
+    to throw nearly all of it away is wasted I/O on every 2-second refresh -
+    and it is unbounded if a scraper ever turns chatty.
+    """
+    try:
+        with open(path, "rb") as fh:
+            fh.seek(0, os.SEEK_END)
+            size = fh.tell()
+            fh.seek(max(0, size - max_bytes))
+            raw = fh.read()
+    except OSError:
+        return None
+    text = raw.decode("utf-8", errors="replace")
+    if size > max_bytes:
+        # A mid-file seek can land inside a line; drop the partial first one.
+        text = text.split("\n", 1)[-1]
+    return text
+
+
 def show_log(s: dict, label: str = "View log", expanded: bool = False):
     log_p = s.get("log")
     if not log_p:
         return
     with st.expander(label, expanded=expanded):
-        try:
-            content = Path(log_p).read_text(encoding="utf-8", errors="replace")
-            lines   = content.strip().split("\n")
-            st.code("\n".join(lines[-150:]), language="")
-            if len(lines) > 150:
-                st.caption(f"Showing last 150 of {len(lines)} lines — full log: {log_p}")
-        except FileNotFoundError:
+        content = _read_log_tail(Path(log_p))
+        if content is None:
             st.caption("Log file not found.")
+            return
+        lines = content.strip().split("\n")
+        st.code("\n".join(lines[-150:]), language="")
+        if len(lines) > 150:
+            st.caption(f"Showing the last 150 lines — full log: {log_p}")
+
+
+# Compiled once instead of per line. The completed-step list used to run
+# re.search TWICE on every line of every log (once in the comprehension's
+# filter, once in its expression), and the three scans walked the file three
+# times over.
+_RE_PIPELINE_START = re.compile(r"Pipeline start — (\d+) step\(s\): \[(.+?)\]")
+_RE_STEP_OK        = re.compile(r"Step '(.+?)' — OK")
+_RE_STEP_CURRENT   = re.compile(r"STEP: (\S+)")
+
 
 def parse_log_progress(log_path: str | None) -> dict:
     """Parse a pipeline log file and return step progress info."""
-    import re
     if not log_path:
         return {}
     try:
-        content = Path(log_path).read_text(encoding="utf-8", errors="replace")
-    except FileNotFoundError:
+        stat = os.stat(log_path)
+    except OSError:
         return {}
-    lines = content.split("\n")
+    # Keyed on size+mtime so a finished supplier's log is parsed once and then
+    # served from cache. step2_section refreshes every 2s and re-read all five
+    # supplier logs each time, four of which never change again after their run
+    # ends. A log still being written changes size, so it correctly misses.
+    return _parse_log_cached(str(log_path), stat.st_size, stat.st_mtime_ns)
+
+
+@st.cache_data(show_spinner=False, max_entries=64)
+def _parse_log_cached(log_path: str, _size: int, _mtime_ns: int) -> dict:
+    try:
+        content = Path(log_path).read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return {}
 
     total, step_list = None, []
-    for line in lines:
-        m = re.search(r"Pipeline start — (\d+) step\(s\): \[(.+?)\]", line)
-        if m:
-            total     = int(m.group(1))
-            step_list = [s.strip().strip("'\"") for s in m.group(2).split(",")]
-            break
+    done_names, current = [], None
+    complete = failed = paused = False
 
-    completed_names = [
-        re.search(r"Step '(.+?)' — OK", ln).group(1)
-        for ln in lines if re.search(r"Step '(.+?)' — OK", ln)
-    ]
-
-    current = None
-    for line in reversed(lines):
-        m = re.search(r"STEP: (\S+)", line)
+    for line in content.split("\n"):
+        if total is None:
+            m = _RE_PIPELINE_START.search(line)
+            if m:
+                total     = int(m.group(1))
+                step_list = [s.strip().strip("'\"") for s in m.group(2).split(",")]
+        m = _RE_STEP_OK.search(line)
         if m:
-            current = m.group(1)
-            break
+            done_names.append(m.group(1))
+        m = _RE_STEP_CURRENT.search(line)
+        if m:
+            current = m.group(1)      # last one wins - same as the old reversed() scan
+        if "Pipeline complete." in line:
+            complete = True
+        if "failed (exit" in line:
+            failed = True
+        if "Paused " in line and "--resume" in line:
+            paused = True
 
     return {
         "total":      total or len(step_list),
-        "completed":  len(completed_names),
-        "done_names": completed_names,
+        "completed":  len(done_names),
+        "done_names": done_names,
         "current":    current,
-        "complete":   any("Pipeline complete." in ln for ln in lines),
-        "failed":     any("failed (exit" in ln for ln in lines),
-        "paused":     any("Paused " in ln and "--resume" in ln for ln in lines),
+        "complete":   complete,
+        "failed":     failed,
+        "paused":     paused,
         "step_list":  step_list,
     }
+
+
+def _prune_session_keys(prefix: str, keep: str):
+    """Drop stale prefixed session_state entries, keeping only `keep`.
+
+    These caches are keyed on a timestamp precisely so a new run can never
+    inherit the previous one's value, which also means they accumulate for as
+    long as the tab stays open. Widget keys are left alone - those are
+    Streamlit's to manage.
+    """
+    for k in [k for k in st.session_state
+              if isinstance(k, str) and k.startswith(prefix) and k != keep]:
+        del st.session_state[k]
 
 # ── Page config + theme ────────────────────────────────────────────────────────
 st.set_page_config(
@@ -810,10 +938,15 @@ def step3_section():
     # imports this module with a stubbed streamlit that executes fragment
     # bodies directly, and an import should never spawn a subprocess.
     sig = _pipelines_signature(status)
+    # The guard lives in the status file, not in session_state: the scan spawns
+    # a process and writes a file shared by every viewer, but session_state is
+    # per browser tab - so a second tab, or a hard refresh, fired a duplicate
+    # scan. Recorded AFTER the launch so a failed spawn is retried rather than
+    # marked done by a sentinel that was set before the work started.
     if sig and not busy and st.runtime.exists() \
-            and st.session_state.get("_enrich_scanned_for") != sig:
-        st.session_state["_enrich_scanned_for"] = sig
+            and status.get("enrich_scan", {}).get("signature") != sig:
         launch("enrich_scan", [sys.executable, ENRICH_RUNNER, "--scan"], BASE)
+        _update_status("enrich_scan", {"signature": sig})
         scanning = busy = True
 
     done_count = sum(1 for k in PIPELINES if status.get(k, {}).get("status") == "success")
@@ -822,8 +955,8 @@ def step3_section():
     c1, c2 = st.columns([2, 5])
     with c1:
         if st.button("Recheck counts", disabled=busy, width="stretch"):
-            st.session_state["_enrich_scanned_for"] = sig
             launch("enrich_scan", [sys.executable, ENRICH_RUNNER, "--scan"], BASE)
+            _update_status("enrich_scan", {"signature": sig})
     with c2:
         if scanning:
             st.markdown(":blue[**Counting what needs enrichment…**]")
@@ -1079,7 +1212,11 @@ def step3_section():
 
 CSV_LIMIT_MB  = 15.0   # Shopify hard limit per import file
 CSV_TARGET_MB = 14.5   # split target — safety margin under the hard limit
-sys.path.append(str(BASE / "shared"))
+# Guarded: Streamlit re-executes this module on every full rerun, so a bare
+# append added a duplicate entry per rerun for the life of the server process.
+_SHARED_DIR = str(BASE / "shared")
+if _SHARED_DIR not in sys.path:
+    sys.path.append(_SHARED_DIR)
 import upload_bundle as _upload_bundle
 
 # Project root, easy for the client to find; the Mac app moves it to a visible
@@ -1105,6 +1242,25 @@ def prepare_upload_files(exclude_skus=None) -> tuple[list[Path], str]:
     return _upload_bundle.prepare_upload_files(
         [cfg["dir"] for cfg in PIPELINES.values()], exclude_skus=exclude_skus)
 
+
+def _run_folders() -> list[Path]:
+    """upload_ready/ run folders, newest first.
+
+    Sorted on mtime rather than folder name: names like "9 July" sort after
+    "10 July" alphabetically. stat() is guarded because a folder can be deleted
+    between the glob and the stat, which took the whole page down with it.
+    """
+    if not UPLOAD_READY.exists():
+        return []
+    stamped = []
+    for p in UPLOAD_READY.glob("*/"):
+        try:
+            stamped.append((p.stat().st_mtime, p))
+        except OSError:
+            continue
+    return [p for _, p in sorted(stamped, key=lambda t: t[0], reverse=True)]
+
+
 def _store_sku_set() -> tuple[set, dict | None, str | None]:
     """SKUs already in the store, read from the catalog mirror via production/.
 
@@ -1125,12 +1281,18 @@ def _store_sku_set() -> tuple[set, dict | None, str | None]:
 
 def _open_folder(path: Path):
     """Open a folder in the OS file browser — dashboard runs on the same machine as the browser."""
-    if sys.platform == "win32":
-        os.startfile(str(path))  # noqa: S606
-    elif sys.platform == "darwin":
-        subprocess.Popen(["open", str(path)])
-    else:
-        subprocess.Popen(["xdg-open", str(path)])
+    if not path.exists():
+        st.error(f"That folder is gone — `{path.name}` was moved or deleted.")
+        return
+    try:
+        if sys.platform == "win32":
+            os.startfile(str(path))  # noqa: S606
+        elif sys.platform == "darwin":
+            subprocess.Popen(["open", str(path)])
+        else:
+            subprocess.Popen(["xdg-open", str(path)])
+    except OSError as e:
+        st.error(f"Could not open {path}: {e}")
 
 def _render_run_files(run_dir: Path, collapsed: bool = False):
     """Render the file list for one upload_ready run folder."""
@@ -1141,7 +1303,10 @@ def _render_run_files(run_dir: Path, collapsed: bool = False):
     label = f"**{run_dir.name}**" if collapsed else f"**Latest — {run_dir.name}**"
     st.markdown(label)
     for i, f in enumerate(files, 1):
-        size_mb = f.stat().st_size / (1024 * 1024)
+        try:
+            size_mb = f.stat().st_size / (1024 * 1024)
+        except OSError:
+            continue    # deleted between the glob and here
         c1, c2, c3 = st.columns([1, 5, 2], vertical_alignment="center")
         with c1:
             st.caption(f"File {i} of {len(files)}" if len(files) > 1 else "File")
@@ -1156,8 +1321,7 @@ def _render_run_files(run_dir: Path, collapsed: bool = False):
 
 def step4_section():
 
-    # Show existing upload_ready folders — sort by actual mtime, not folder name (names like "9 July" sort after "10 July" alphabetically)
-    existing_runs = sorted(UPLOAD_READY.glob("*/"), key=lambda p: p.stat().st_mtime, reverse=True) if UPLOAD_READY.exists() else []
+    existing_runs = _run_folders()
 
     # Which products go in the bundle. "New only" is the default because an import
     # exists to CREATE products: re-uploading the ~15.6k that already exist changes
@@ -1176,6 +1340,14 @@ def step4_section():
                  "catalog mirror that the Sync button refreshes on every run.",
         )
         new_only = bundle_mode.startswith("New")
+
+    # Rendered BEFORE the button that produces it, because st.rerun() below halts
+    # the run and throws away the frame the message was written to - so both the
+    # success line and, worse, a bundling failure were invisible. pop() so it shows
+    # once rather than on every subsequent rerun.
+    _bundle_result = st.session_state.pop("bundle_result", None)
+    if _bundle_result:
+        (st.error if _bundle_result[0] == "error" else st.success)(_bundle_result[1])
 
     col_btn, col_info = st.columns([2, 5])
     with col_btn:
@@ -1196,11 +1368,11 @@ def step4_section():
                 with st.spinner("Merging CSVs…"):
                     files, err = prepare_upload_files(
                         exclude_skus=exclude if new_only else None)
-                if err:
-                    st.error(err)
-                else:
-                    kind = "new product" if new_only else "product"
-                    st.success(f"Ready — {len(files)} {kind} file(s) generated.")
+                kind = "new product" if new_only else "product"
+                st.session_state["bundle_result"] = (
+                    ("error", err) if err
+                    else ("success", f"Ready — {len(files)} {kind} file(s) generated.")
+                )
                 st.rerun()
         if new_only:
             st.caption(
@@ -1237,21 +1409,34 @@ def step4_section():
             # would re-import products that already exist — harmless (Shopify matches
             # on Handle and updates) but slow and confusing. Say it up front.
             if new_only:
-                _mirror = st.session_state.get("bundle_mirror_meta")
+                # Keyed on the last sync's finish time. Step 5's catalog export is
+                # what refreshes the mirror, so that is exactly when this reading
+                # goes stale - under a fixed key the refresh warning outlived the
+                # client actually running a sync, for the life of the tab. None
+                # (not {}) marks a failed read, so one transient timeout no longer
+                # silently hides the panel for the whole session.
+                _sync_fin   = load_status().get("sync", {}).get("finished") or "never"
+                _mirror_key = f"bundle_mirror_meta::{_sync_fin}"
+                if _mirror_key not in st.session_state:
+                    _meta, _meta_err = _production_json("store_skus.py", [], timeout=120)
+                    st.session_state[_mirror_key] = None if _meta_err else _meta
+                    _prune_session_keys("bundle_mirror_meta::", keep=_mirror_key)
+                _mirror = st.session_state[_mirror_key]
                 if _mirror is None:
-                    _mirror, _ = _production_json("store_skus.py", [], timeout=120)
-                    st.session_state["bundle_mirror_meta"] = _mirror or {}
-                _age = (_mirror or {}).get("age_hours")
-                _count = (_mirror or {}).get("count")
-                if _count:
-                    _line = f"Comparing against {_count:,} SKUs in `{_mirror.get('shop','the store')}`"
-                    if _age is not None:
-                        _line += f", last refreshed {_age} h ago."
-                    if _age is not None and _age > 24:
-                        st.warning(_line + " Run Preview on the Sync tab to refresh it, or "
-                                           "products created since will be bundled as new again.")
-                    else:
-                        st.caption(_line)
+                    st.caption("Could not read the catalog mirror — the new-vs-existing "
+                               "comparison will still run, but its freshness is unknown.")
+                else:
+                    _age   = _mirror.get("age_hours")
+                    _count = _mirror.get("count")
+                    if _count:
+                        _line = f"Comparing against {_count:,} SKUs in `{_mirror.get('shop','the store')}`"
+                        if _age is not None:
+                            _line += f", last refreshed {_age} h ago."
+                        if _age is not None and _age > 24:
+                            st.warning(_line + " Run Preview on the Sync tab to refresh it, or "
+                                               "products created since will be bundled as new again.")
+                        else:
+                            st.caption(_line)
         else:
             st.caption("No supplier CSVs found yet — run the Suppliers tab first.")
 
@@ -1357,9 +1542,6 @@ def sync_section():
 
     # ── run ────────────────────────────────────────────────────────────────────
     st.markdown("##### 3 · Run")
-    if not types:
-        st.info("Pick at least one product type above.")
-        return
 
     def _cmd(dry: bool) -> list:
         # create_products is skipped: new products still go through Step 4's CSV
@@ -1373,35 +1555,41 @@ def sync_section():
             cmd.append("--force")
         return cmd
 
-    run1, run2 = st.columns(2)
-    with run1:
-        if st.button("Preview changes (writes nothing)", disabled=running,
-                     width="stretch", type="primary"):
-            launch(_SYNC_KEY, _cmd(dry=True), PRODUCTION)
-            st.rerun()
-        st.caption("Runs the whole sync and records every change it *would* make.")
+    # An empty selection blocks the run buttons but must NOT skip the status and
+    # log below it: this used to `return`, so clearing the multiselect while a
+    # sync was in flight hid that run's progress and its log completely.
+    if not types:
+        st.info("Pick at least one product type above.")
+    else:
+        run1, run2 = st.columns(2)
+        with run1:
+            if st.button("Preview changes (writes nothing)", disabled=running,
+                         width="stretch", type="primary"):
+                launch(_SYNC_KEY, _cmd(dry=True), PRODUCTION)
+                st.rerun()
+            st.caption("Runs the whole sync and records every change it *would* make.")
 
-    with run2:
-        # A preview is cheap and reversible; an apply is neither. Require an
-        # explicit tick, and a second one when the target is not the dev store.
-        confirm = st.checkbox("I want to write these changes to the store",
-                              disabled=running, key="sync_confirm")
-        live_ok = True
-        if is_dev is False:
-            live_ok = st.checkbox(
-                f"Yes — write to the LIVE store ({shop_name})",
-                disabled=running, key="sync_confirm_live")
-        elif is_dev is None:
-            live_ok = False
+        with run2:
+            # A preview is cheap and reversible; an apply is neither. Require an
+            # explicit tick, and a second one when the target is not the dev store.
+            confirm = st.checkbox("I want to write these changes to the store",
+                                  disabled=running, key="sync_confirm")
+            live_ok = True
+            if is_dev is False:
+                live_ok = st.checkbox(
+                    f"Yes — write to the LIVE store ({shop_name})",
+                    disabled=running, key="sync_confirm_live")
+            elif is_dev is None:
+                live_ok = False
 
-        if st.button("Apply to store", disabled=running or not (confirm and live_ok),
-                     width="stretch"):
-            launch(_SYNC_KEY, _cmd(dry=False), PRODUCTION)
-            st.rerun()
-        if is_dev is None:
-            st.caption("Run the readiness check first — it confirms which store this writes to.")
-        else:
-            st.caption("Sends the changes for real. Preview first.")
+            if st.button("Apply to store", disabled=running or not (confirm and live_ok),
+                         width="stretch"):
+                launch(_SYNC_KEY, _cmd(dry=False), PRODUCTION)
+                st.rerun()
+            if is_dev is None:
+                st.caption("Run the readiness check first — it confirms which store this writes to.")
+            else:
+                st.caption("Sends the changes for real. Preview first.")
 
     # ── progress + result ──────────────────────────────────────────────────────
     st.divider()
@@ -1420,6 +1608,7 @@ def sync_section():
         cache_key = f"sync_summary::{s.get('finished')}"
         if cache_key not in st.session_state:
             st.session_state[cache_key] = _production_json("report.py", [], timeout=90)
+            _prune_session_keys("sync_summary::", keep=cache_key)
         summary, err = st.session_state[cache_key]
         if err:
             st.caption("Could not read the run summary.")
@@ -1429,7 +1618,8 @@ def sync_section():
             return
         mode_label = "PREVIEW — nothing was written" if run.get("mode") == "dry_run" \
                      else "APPLIED to the store"
-        st.markdown(f"**Last run #{run['run_id']}** — {run['status']} · {mode_label}")
+        st.markdown(f"**Last run #{run.get('run_id', '?')}** — "
+                    f"{run.get('status', 'unknown')} · {mode_label}")
 
         counts = {}
         for a in summary.get("actions", []):

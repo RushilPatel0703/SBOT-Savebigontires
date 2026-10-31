@@ -14,6 +14,48 @@ from pathlib import Path
 import pytest
 
 # ── Streamlit stub — must happen before any import of dashboard ───────────────
+# Keyed on __qualname__ and held OUTSIDE the decorator, so the cache survives
+# the module being exec'd again. That is the behaviour that matters: Streamlit
+# re-executes the main script into a fresh module on every full rerun, and the
+# real st.cache_resource keeps returning the same object across those runs. A
+# stub that cached in a closure cell would hand each re-exec its own object and
+# quietly reintroduce the exact bug dashboard.py uses cache_resource to avoid.
+_RESOURCE_CACHE = {}
+
+
+def _make_cache_decorator(memoize):
+    """Stand-in for st.cache_data / st.cache_resource.
+
+    Accepts both `@st.cache_X` and `@st.cache_X(ttl=..., ...)`.
+
+    memoize=True matters for correctness, not just speed: dashboard.py gets its
+    status-file lock from an @st.cache_resource function, and the whole point of
+    that decorator there is that every caller receives the SAME Lock - across
+    reruns and across browser sessions. A stub that handed back a fresh object
+    per call would let the concurrency tests pass against a lock that protects
+    nothing.
+    """
+    def _wrap(fn):
+        if not memoize:
+            return fn
+        key = getattr(fn, "__qualname__", None) or getattr(fn, "__name__", repr(fn))
+
+        def _cached(*args, **kwargs):
+            if key not in _RESOURCE_CACHE:
+                _RESOURCE_CACHE[key] = fn(*args, **kwargs)
+            return _RESOURCE_CACHE[key]
+
+        _cached.__name__ = getattr(fn, "__name__", "_cached")
+        _cached.clear = lambda: _RESOURCE_CACHE.pop(key, None)
+        return _cached
+
+    def _decorator(*a, **kw):
+        if len(a) == 1 and callable(a[0]) and not kw:
+            return _wrap(a[0])          # bare @st.cache_X
+        return _wrap                     # @st.cache_X(...)
+    return _decorator
+
+
 def _make_st_stub():
     """
     Build a minimal streamlit module stub that absorbs all attribute access.
@@ -64,8 +106,9 @@ def _make_st_stub():
             return fn
         return _wrap
 
-    st.cache_data = lambda *a, **kw: (lambda f: f)
-    st.fragment   = _fragment_decorator
+    st.cache_data     = _make_cache_decorator(memoize=False)
+    st.cache_resource = _make_cache_decorator(memoize=True)
+    st.fragment       = _fragment_decorator
 
     # A real dict, not a _Noop: dashboard.py both reads and WRITES session state
     # (e.g. the enrichment auto-scan guard), and _Noop has no __setitem__.
@@ -73,6 +116,11 @@ def _make_st_stub():
 
     # Everything else: delegate to the noop absorber via __getattr__
     st.__getattr__ = lambda name: noop  # type: ignore[assignment]
+
+    # st.runtime.exists() must be falsy on a bare import: it is what stops the
+    # keep-awake thread from starting and the enrichment auto-scan from
+    # spawning a subprocess during a test run.
+    st.runtime = types.SimpleNamespace(exists=lambda: False)
 
     # Explicit attrs so they resolve before __getattr__ is consulted
     for attr in (
@@ -118,6 +166,17 @@ def _import_dashboard():
 @pytest.fixture(scope="session")
 def dashboard():
     """Imported dashboard module (Streamlit stubbed).  Shared across all tests."""
+    return _import_dashboard()
+
+
+@pytest.fixture(scope="session")
+def dashboard_reexec():
+    """A SECOND exec of dashboard.py, as Streamlit does on every full rerun.
+
+    Streamlit exec()s the main script into a brand-new __main__ module each full
+    rerun, so anything bound at module level is rebuilt. Tests that care whether
+    state survives a rerun need two separately-exec'd modules to say anything.
+    """
     return _import_dashboard()
 
 
