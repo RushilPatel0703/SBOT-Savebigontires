@@ -51088,5 +51088,4301 @@
     "h": 600,
     "verdict": "ok",
     "reason": ""
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/744a6b4c-958e-49ed-a96f-67bc3eb07411.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a305112b-6148-49d0-b0ba-44105060bcae.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/aedc56ae-c3df-4669-b679-21aeab110ebe.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/12db1ae3-120b-4f6c-bfc1-a8542c02f974.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0995d150-de41-4518-9b4b-f5ebc4adc57f.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/38e53325-fec0-43ed-8f2d-8795d0148aff.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e89a7ece-2bfb-4227-93c0-5a80e4fb17b2.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/200502b8-7c76-4e2b-b3b5-ba7e206a6350.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/26b334bc-5583-492c-b429-c0ecdf6cbd57.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/136b71a5-d75a-4c92-a2db-1989ade02f97.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ab7b94c0-6b05-478f-8d9a-8bc00671c773.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5b6c69e4-3522-4305-b7f9-3b3a20323293.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/02c32244-1183-4d07-ae2a-10907b20e253.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b0014a1b-9aae-4dba-bfe1-aca2a4b7ec63.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ed76553f-12f3-4705-8493-3c73b596c44a.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f6d97e07-d86a-4eef-a2bc-62c1fb39f3e3.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1f743599-3041-4955-88b8-94190a38f151.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ea4784e9-d862-40ef-a6f2-a276f14c6ae5.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/64a6f59e-666b-4a20-811c-deb99241f7ac.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ab4bdcd1-e45d-4afa-8ccd-d8612ff1e492.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b3609ea0-fa07-4ded-ac69-0a158d33d6c9.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e3f0c48e-aad2-4ffb-973d-58fd011e3e03.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/3fca6035-6395-4b59-81ec-041bbc8c3a42.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/05494ff2-c2a4-4757-9833-efab51646966.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ce654e56-6d35-4c06-836e-01384f8a2866.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/48788ff0-7a6a-4deb-9525-7f7016288a6c.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/51bc0e93-b395-4c8f-ba79-6101e3aee88a.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6fc93c99-9c54-40ce-858e-6f02dd29779f.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/cbca486c-c7cb-4885-ac16-140180d8ec20.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f5cc6c5c-9934-4fe8-bfbb-d6fb420e529e.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f97ae31d-ae30-425a-a10f-473d62054b4a.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ca5f60e3-7934-42f1-8edb-e79747d1af89.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/120cb41f-aca7-4f61-a995-f1d2001f333f.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0c5ec404-6d89-4163-8dcc-da7b725ebf05.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/3cd78aeb-4295-40b9-b252-c8ff9bc71c8a.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/2c7ca042-3657-4b75-afeb-3ac41094a6f3.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ecd3d138-d43e-4c9f-8069-a33a3929c3cf.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4e79aaee-1e5d-4a84-9fb4-1749e13b5487.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5c439788-4527-43d2-8d57-c09eac316b06.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4e741383-c951-458f-ab30-753a017bcec5.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8f65fbaa-5c68-41ea-a3c3-09d73133a469.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/3798d3fb-6106-4bea-9101-25dd91eb3949.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ae482cfe-6474-4f9d-84b0-8fa8a09201cb.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7de596d3-801f-49f8-a5fb-4d985e728b96.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/33301379-c1b7-4b38-9e47-bed98073c01e.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fb7fb34b-df7b-492b-b179-64fe0a0fa23b.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/9dd1c515-a4b5-4fa8-ad70-dfa6d0d0bd19.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/66e55f8c-e520-45bf-9e57-0473a3f6d74c.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/41e70cdb-4587-44b3-835e-2a59dc049ee5.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/42a9a69f-486f-47dd-a252-4eaa55f86465.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ff054c1b-2e86-4d1e-9069-32b8966027cb.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0518854f-c6a2-41fd-a40a-6938095c3864.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/560df598-105d-498a-81c3-625d0901dab5.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1c163d7c-d731-4c31-b43c-7e3a15a1d65e.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e9da55f1-2ff8-4a53-b2af-1499f2ef45e3.jfif": {
+    "w": 225,
+    "h": 225,
+    "verdict": "low_res",
+    "reason": "225x225 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/dc9b91e9-05dc-4fd1-be9f-e638d449e3b0.jfif": {
+    "w": 225,
+    "h": 225,
+    "verdict": "low_res",
+    "reason": "225x225 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0d3edcff-dd9d-475d-90bd-9f5b71ea9ed5.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/cdbcf9fd-46fc-4f2c-8090-659becb0eb9e.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/60ec34a0-c5c2-43bd-9f3e-658233c40b1c.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e27339e4-0d85-47c5-adf8-743dfc1dcdae.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0b019b90-c7a4-4f35-a6a2-fcdae93d41d0.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/294ec0c0-fdc7-46d6-b8bb-eae1e91e7fe9.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1039129c-b06c-4f4a-ae28-098b6064a890.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/01bb45b0-8ff2-4128-82dd-c636b0e85925.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/41dc5bc5-8207-40a8-9783-f2e2bb011969.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fbf15e78-b2fe-48d9-a013-b4cc7b248b10.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f9f33534-bf85-4600-90a7-a750bdcaab89.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6962367c-f5b9-45e1-8cff-e7b0c00d417a.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/2374b3c0-3424-40c0-8049-02923491bc6f.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7c0b4e6e-1abd-4e60-81e5-79564ec79ee5.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/cd63f897-c014-4ba0-b51c-c3f217b8d6c2.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e4220a71-f1b4-48fd-8923-158c4bec3ad5.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/183e4db4-cf63-472e-b0d1-a96f9eaabbd8.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/2e90008a-c296-4ca5-b056-cb5e86cc3f4b.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1bbaa280-5f8a-4d5b-b102-c2223178e02d.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/da31fd38-519e-4fb1-bc6b-baeaa92f7076.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4ef988c4-f4d0-4512-8950-458cfe406072.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/976685d0-51a9-4571-ab28-cf276b288c4b.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ba9ea62a-9567-4276-94cc-73745f676d13.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ff94cdb7-9523-4e19-9e00-854894ed7ec5.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/249598fe-4346-4bea-a113-15e38b73ad49.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/def6de55-74fe-45e6-93e7-77735e50fc23.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/479c5db0-5e51-49f7-a8d9-a8e5f2226d33.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/04451272-be88-4db9-8e8c-6402171928c0.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/aa086666-a093-4c44-b69e-cb2294cd06dc.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b49807bf-2098-451b-a4a8-1fa19b9fed5c.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/c71193f0-895a-4b07-af35-7be665613f4a.jfif": {
+    "w": 225,
+    "h": 225,
+    "verdict": "low_res",
+    "reason": "225x225 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5ab69c7d-b9d2-4b3d-9e9c-d48a3e44a18f.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/66c4640a-1340-44e1-ab5a-c3af2fe598a7.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0ac15714-6b85-48d4-9611-53cf54eeb208.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/2734de0c-458d-4047-901b-1c83981ba19a.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d613040e-605b-4287-b837-8e073af5552c.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d1d663c8-28ce-494e-bf8e-1294533885d9.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/37f292ab-ec7b-450b-a66e-c983c7d10fe7.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/34f91357-1036-4489-b5a8-a8bc7ffe124a.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/be846c4d-a23c-4b1b-94c4-bc69bba0e950.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/dfb8912a-80b5-4737-a158-a50012d6e868.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ee2b6f72-c980-4674-a5e2-2e767e49f745.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a6264220-de3a-46e0-bade-f696d5e91dfd.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/dc1126df-5d2c-455c-9f81-b10c04a5c0ae.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4dc2c99d-b2b5-43be-aa23-49032ddd6620.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8f036944-9630-4e0c-955d-b07507a64c2b.jpg": {
+    "w": 960,
+    "h": 1280,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b60b3ac1-6c4d-4bfb-9b4a-f4f421b3cfc9.jpg": {
+    "w": 819,
+    "h": 460,
+    "verdict": "low_res",
+    "reason": "819x460 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/9a645e18-192b-408c-9400-e4aabb072ea4.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8a010a71-1164-4e4c-8602-a2fc8bd4eb6c.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/62d5a226-f7dc-4a5c-ba9b-53fb238fdaf0.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/57a97fee-925d-4eac-b597-c149aa1ac11a.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b1eda11c-97a5-40ab-a5f6-da8740715c94.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f5845a31-cf60-4af9-93ba-48c973448502.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7dfe7a77-e5f8-4107-bd72-83a78bf4b717.png": {
+    "w": 1730,
+    "h": 1726,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://wheelmartcanada.ca/uploads/products/e17d35be-0103-4912-b793-9aee3c33c8b1.jpg": {
+    "w": 700,
+    "h": 700,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://www.wheelmartcanada.ca/uploads/products/4e77dbc6-9d36-4e3e-8e13-7e5bf511033d.jpg": {
+    "w": 365,
+    "h": 408,
+    "verdict": "low_res",
+    "reason": "365x408 < 600px"
+  },
+  "https://www.wheelmartcanada.ca/uploads/products/0ccc56a2-9ee9-4f3b-be78-f01f8c11a281.jpg": {
+    "w": 1004,
+    "h": 1004,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/c9713c0d-9520-438e-a257-0518d2df0c5a.jpg": {
+    "w": 1280,
+    "h": 1280,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6f5a39f6-53dc-44fc-9c96-98d80a962cf3.png": {
+    "w": 250,
+    "h": 435,
+    "verdict": "low_res",
+    "reason": "250x435 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/db46fdb9-26f4-46a8-8b29-eb8dd9f294ac.png": {
+    "w": 500,
+    "h": 500,
+    "verdict": "low_res",
+    "reason": "500x500 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4d3269e9-e399-42f5-b80d-0ab0d25e98d8.png": {
+    "w": 500,
+    "h": 500,
+    "verdict": "low_res",
+    "reason": "500x500 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7876513a-0696-404a-9809-27e5eb241aeb.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5ffdbc81-75a8-4d3e-979c-3a10c499bdbe.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d426ab64-ddb0-4dc9-b237-61a891681a16.jpg": {
+    "w": 1280,
+    "h": 1280,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/9e0dab57-6b41-4fa3-9685-b15956aa4f78.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5a54d8af-27af-4691-806a-6b75aa42c9fa.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a76b7fab-d7e5-4b62-a9d3-341ac30a1a67.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/39906e1a-6b74-4b78-a619-d56a1f9cb41c.jpg": {
+    "w": 600,
+    "h": 597,
+    "verdict": "low_res",
+    "reason": "600x597 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/925500cd-56c6-491c-93d3-df73f5678fa9.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d353e968-e07e-4959-bc1e-047dbce209de.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/eacf2b5e-4775-41b1-a4ac-2343d88113f0.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5a4ef8a6-4a82-4d7f-8ea5-ff06841f6ac7.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b2de407e-e63c-4c85-962f-7f873bb541e7.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e05a2cfa-aa71-4589-be56-aca59496c9dd.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/424148db-3065-49f2-ae7d-13675f31777c.png": {
+    "w": 229,
+    "h": 225,
+    "verdict": "low_res",
+    "reason": "229x225 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/63d79199-5061-4f90-a51b-c5c833f9ff49.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a1c2d199-2739-4776-87ab-2791ce50e29b.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e0000ec0-e742-4f4d-bf87-df40b58c3d06.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d9240ef1-a33c-42cf-a553-30968ce930aa.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/40c7e2d4-6688-4be9-b1e3-349a00b0eded.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/81aed302-a7fc-4ecd-a2a4-a6703de2df37.png": {
+    "w": 229,
+    "h": 225,
+    "verdict": "low_res",
+    "reason": "229x225 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1d36318b-e2cf-4eba-94cb-2a51275a87b5.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/221266c6-9756-4fbe-a1a4-579c52d396a5.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a1619012-bc2b-42aa-bd05-6e05e5e5ba86.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/32a5eec5-2888-4e29-9263-d251ce79c754.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0d162877-5e1d-4d1b-86eb-83d5ca09c206.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a954937d-b0b6-400c-9674-80fd2cf956d3.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a282e447-8ba2-40bb-bf6c-3cdd35af6262.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e91ffe75-bbae-414c-b54c-b83ae4d3d038.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a4a5dd58-c5ce-4960-a08f-318b0c2761b8.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/231796ba-93ff-4a3d-8433-c2dfe3cd319a.jpg": {
+    "w": 600,
+    "h": 416,
+    "verdict": "low_res",
+    "reason": "600x416 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/389aa4f5-7cce-44fc-a1cb-6481d756a3d7.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/3eb7b17c-10aa-47ed-8b33-4c7873a7303c.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4650e119-1956-43b3-adb7-6cf69c2e9e38.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b43552ef-effb-489a-9147-c1c50f5a7fe3.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/2e10b5ad-d544-482d-bf59-0c0210aa3050.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6b9c4c75-d3d8-4c79-9483-9e39b3887fa9.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/94801dd5-8d8c-4405-a156-4ea77a040ca0.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/afe17fcb-014a-4c2a-b65c-0c9b772cdb11.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0672ed06-21eb-4b68-9130-12512047ea7d.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/cf7293c8-ec90-4676-bd10-76cd850a55d9.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/928b585b-3a9c-4ace-93b1-d4dc48cab94e.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/eac959d0-8da5-4d7e-8d0f-3f0180fe01da.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/56ccc7b7-b1ca-4cbb-a90b-acb23a40ebe2.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/9416fc8f-cd41-4258-a9f5-4c84646cdd9c.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/2494af3a-7414-486c-a581-28d58b085911.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/df6c7106-e3cc-4e41-ad29-b3b280a7fe80.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/97f8a074-3f90-4e7e-9f7c-33858a7c4f1b.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5cb0e323-95f3-4b88-a916-ec5cd39b77ab.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/210c5fd6-250f-4049-9d6c-b481caff6dd9.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5877d188-8f4f-41fb-90f8-b1aaa1dd69f9.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ccab404a-37e0-4633-8097-ee3fa8e22ab2.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/10249e75-6b5f-4857-8dce-d1e45898edf8.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/78c6917b-d28f-4260-81f2-6bb53970cdc7.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a1d31570-b8ba-42c9-8c0c-0ac1dfe78c4d.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b662263d-b169-408b-a564-09fe92baad1a.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fd2dd071-7164-49a1-ae4d-7ad8342284ff.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/5803feb1-c7f2-40cd-98cb-3f851c80e866.png": {
+    "w": 1100,
+    "h": 732,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/dd91fb31-b62c-4e97-b40c-29605b985451.png": {
+    "w": 1102,
+    "h": 733,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/79e07b49-2001-48f6-9ce5-d3d510cc7373.png": {
+    "w": 1303,
+    "h": 1303,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/fb6d11d6-9b59-4fe6-87f3-45be2c7e96a8.png": {
+    "w": 1099,
+    "h": 732,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/cb1fbe33-b91d-4b1a-92eb-08707317b802.png": {
+    "w": 1309,
+    "h": 1309,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/a35034d8-19c9-45ba-989a-21bee64b7c6b.png": {
+    "w": 1098,
+    "h": 728,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/dcad27ab-497e-4e8f-875d-447b46cdc6e1.png": {
+    "w": 1254,
+    "h": 1254,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/dc190442-4a01-4de9-8419-fa351e85ec03.png": {
+    "w": 1100,
+    "h": 732,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/a0c8ea76-85e2-431c-8a3f-0d0b1912a0e3.png": {
+    "w": 1307,
+    "h": 1307,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/42c02c21-44ab-4810-9bec-5ff8f5088a30.png": {
+    "w": 1254,
+    "h": 1254,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/5e1158a4-8ad0-4a48-a179-12029e1b1b43.png": {
+    "w": 1100,
+    "h": 732,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/10824b08-5f56-4a8f-b471-f1cfab579a5a.png": {
+    "w": 1254,
+    "h": 1254,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/77c3dbe1-efdd-44dc-bded-56d0c739dfe0.png": {
+    "w": 1102,
+    "h": 730,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/1cad161a-8fd2-461a-9f08-3bb7f567eabf.png": {
+    "w": 1254,
+    "h": 1254,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1cd96c3a-13a8-4aef-8b61-4ba65b9d8e3d.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0fc69e80-c3dc-4ca4-8ce1-19acf1ce342c.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/066948bb-3c0d-4495-b71e-ba3a1e8621c8.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f47c3495-9fcc-43c0-a62c-9138f6706854.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a550e2b5-8f24-4766-abf3-848ad641a0c7.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/70926d49-18b6-4dc0-b620-24629471016e.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/9dc0b6ce-ab3d-4be5-90a1-ba28e9d53602.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b1682806-dc12-485b-82ab-742362feb16c.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/188559e3-3edd-4dc9-9bfe-42725e4d7562.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8b207f7b-5a1e-4af0-ae90-1ad0d0be3882.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fb9a935b-e7b7-4317-a8f8-fccb7d0a0a5c.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4ae4fb2a-8424-4d8c-a89f-577b00fda9d9.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b7d3079c-2598-4c31-b176-f9db440a5b22.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/72f48d2f-e536-4290-9c90-8005efd279f4.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/9fa4c425-931d-4080-b572-0fc45623d984.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/196421ac-7c51-4b9e-9737-744b4747b6da.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/828c2a80-15b9-f111-ba81-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/838c2a80-15b9-f111-ba81-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1eec855f-1848-4805-929a-82708e28b553.jfif": {
+    "w": 225,
+    "h": 225,
+    "verdict": "low_res",
+    "reason": "225x225 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/38ba4375-81b4-4e24-b2c0-c7699eb76e0f.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b5106fd5-dc60-4fb1-af90-b57f9f2c721f.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e8f41f19-66a1-49d1-ae11-2f55486b9893.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/488bdfde-8f36-4ed6-bbe0-a3e96242f1c3.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/574c5e6c-0f50-46ee-8f81-b5a02427738d.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/9b1cceb6-cf0f-4c23-987e-38066d3f3a91.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/9f79e2f5-37b5-4961-8f0d-0be4fb40938a.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4c39165f-2fab-4e0c-9654-8be0246006d9.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/bec95b65-3ef6-4ef1-a6c2-67c05d73c35c.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/2321a046-70dc-4683-a80d-cbb7f20cccf4.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e8b702e6-83fb-45a2-8fd5-a73fa6e78994.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7c57a664-6d6f-4155-8538-a8209ab9bb4b.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e82067d4-00a6-47b8-acbb-f50356f54576.jfif": {
+    "w": 225,
+    "h": 225,
+    "verdict": "low_res",
+    "reason": "225x225 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e6c00106-a017-40bf-8835-7254c3b00641.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e3dbaf05-7b00-462f-8ba6-d5b3f36c8f75.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/28b82bbb-f849-435b-8afa-c84a9ef3b17b.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f6123098-ab6e-4dfa-a0c9-4108fde886d8.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7cfa60aa-cbe9-49a2-a666-65d7f67195c0.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e047970c-e227-41fc-b215-2b7617fd20be.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1275047a-d987-440e-9cc9-dbfcfdea822a.jpg": {
+    "w": 960,
+    "h": 1280,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/db00cd57-a75e-441e-ba0c-b673930c80f0.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f0158862-1f0a-4d63-b2f8-ef820858d928.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/da152d29-074c-4df7-b7ff-0d21a127bbfe.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/74c1f69e-f715-49bc-b9d3-f325fdb43eb6.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/02edc6b1-da8c-4bd6-a4ba-966996296e69.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/bbc26d5b-8836-4bb9-81df-0fcc68ea121e.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b566db80-c316-4f8b-b658-c15898d01851.jfif": {
+    "w": 201,
+    "h": 251,
+    "verdict": "low_res",
+    "reason": "201x251 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/725fc8ba-30e2-44c6-a1fa-74ee799c15fd.jfif": {
+    "w": 201,
+    "h": 251,
+    "verdict": "low_res",
+    "reason": "201x251 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fc0a705e-59b5-4e1d-83a1-c3c3110fcd3f.jfif": {
+    "w": 225,
+    "h": 225,
+    "verdict": "low_res",
+    "reason": "225x225 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/99343e63-8301-4710-acaf-a194922b9623.jfif": {
+    "w": 225,
+    "h": 225,
+    "verdict": "low_res",
+    "reason": "225x225 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7d6352dd-8a33-40cc-9527-2b99e1bf017b.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/36bd2673-8055-446a-b227-5b5402c21fe1.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/cd2e20b2-bd0b-4898-a847-87df42c5777c.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7283d1d1-d54b-47e3-991f-3917b7063753.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1b5926e6-06f9-4487-bd82-60ffd9c378b8.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/38b42215-a518-4558-8b77-1ea96e71a3ef.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6591fa37-222a-4e14-8ab7-e53c1a48cf64.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/45c41e05-bdcd-487f-918f-26495b7933a4.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/2d50bad0-6ad1-4e2f-8b1c-18be52f7e787.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a6b4406a-e9ff-477c-893b-e4fdaf888721.jpeg": {
+    "w": 656,
+    "h": 648,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/cea096b9-3434-49f7-847e-2cc7f4c3bb7d.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b1b461d0-eafe-4550-a403-775c523df135.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/91394288-8d7a-48c5-8366-443d2c87da60.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/632a58c4-0832-401c-921e-02f1ca6eec95.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4a56ee9c-5aa6-4098-8dd1-6d96c002cc48.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/43d209a1-7a77-4cec-aa49-1c9b8c1444f0.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/c1d4febd-31c3-45d9-bcee-3104f4b786ec.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4bee39d2-fc70-4c9d-acfd-e2d10fbe622f.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b7fa51b1-1341-400c-8213-421aae1ad271.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/3ab7afa8-4f63-4fff-aed5-bc8d82554363.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b4ea3881-88ba-45d9-9782-05e9d3e7d13f.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/c3701aa9-337d-452c-a074-b6b3a38767fd.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/84fd602c-367d-4625-83b3-08175c0d7534.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/46e8bbd9-de1d-4d4e-9be5-de7ccb851029.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/dea3f982-7dd0-4ebc-b6b7-4dd15b55cf90.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fb8f7df3-2525-4649-8544-1ea8bf3fa7d7.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/bc16cf65-f86b-41d0-800c-c22c7c806581.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8cfd3edd-f7f4-4a6f-96f7-fcf53ba785eb.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://dttirehub.ca/touchettestorefront/medias/sys_master/images/h82/hfa/9723395506206/600-conversionFormat_base-conversionFormat_0000001844_ISO_XL_Pirelli_P_Zero_Trofeo/0000001844-ISO-XL-Pirelli-P-Zero-Trofeo.png": {
+    "w": 600,
+    "h": 600,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://dttirehub.ca/touchettestorefront/medias/sys_master/images/h93/h03/14788747296798/600-conversionFormat_base-conversionFormat_0000002934_ISO_XL_ROVELO_EXHAUL_ST_2/0000002934-ISO-XL-ROVELO-EXHAUL-ST-2.png": {
+    "w": 600,
+    "h": 600,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://dttirehub.ca/touchettestorefront/medias/sys_master/images/h5c/hc3/11667118882846/600-conversionFormat_base-conversionFormat_0000004373_ISO_XL_YOKOHAMA_GEOLANDAR_G91L/0000004373-ISO-XL-YOKOHAMA-GEOLANDAR-G91L.png": {
+    "w": 600,
+    "h": 600,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://dttirehub.ca/touchettestorefront/medias/sys_master/images/he0/h9a/14712213733406/600-conversionFormat_base-conversionFormat_0000006276_ISO_XL_FIRESTONE_HLT/0000006276-ISO-XL-FIRESTONE-HLT.png": {
+    "w": 600,
+    "h": 600,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://dttirehub.ca/touchettestorefront/medias/sys_master/images/hc7/h57/14271168774174/600-conversionFormat_base-conversionFormat_005493.BRID_ISO_XL_BRIDGESTONE_DUELER_AT_RHS_OEM/005493.BRID-ISO-XL-BRIDGESTONE-DUELER-AT-RHS-OEM.png": {
+    "w": 600,
+    "h": 600,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://dttirehub.ca/touchettestorefront/medias/sys_master/images/h64/h08/14376648146974/600-conversionFormat_base-conversionFormat_723351001.GDYR_ISO_XL_Wrangler_Territory_RT_SCT_D/723351001.GDYR-ISO-XL-Wrangler-Territory-RT-SCT-D.png": {
+    "w": 600,
+    "h": 600,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://dttirehub.ca/touchettestorefront/medias/sys_master/images/h2b/h20/14642302025758/600-conversionFormat_base-conversionFormat_0000003358_ISO_XL_Kumho_Crugen_HT51_Commercial/0000003358-ISO-XL-Kumho-Crugen-HT51-Commercial.png": {
+    "w": 600,
+    "h": 600,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://dttirehub.ca/touchettestorefront/medias/sys_master/images/h35/h1d/13329155358750/600-conversionFormat_base-conversionFormat_0000009109_ISO_XL_BRIDGESTONE_POTENZA_SPORT_EVO/0000009109-ISO-XL-BRIDGESTONE-POTENZA-SPORT-EVO.png": {
+    "w": 600,
+    "h": 600,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://dttirehub.ca/touchettestorefront/medias/sys_master/images/h58/h0b/11631532638238/600-conversionFormat_base-conversionFormat_0000006731_ISO_XL_Pirelli_Cinturato_Winter_2_SI_ELT/0000006731-ISO-XL-Pirelli-Cinturato-Winter-2-SI-ELT.png": {
+    "w": 600,
+    "h": 600,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://dttirehub.ca/touchettestorefront/medias/sys_master/images/h28/hdf/14469347901470/600-conversionFormat_base-conversionFormat_EN01-1880-65BT+40F661.FAST_ISO_XL_ENV_EN01_18X8.0_5x114.3/EN01-1880-65BT-40F661.FAST-ISO-XL-ENV-EN01-18X8.0-5x114.3.png": {
+    "w": 600,
+    "h": 600,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://dttirehub.ca/touchettestorefront/medias/sys_master/images/h63/hb1/13017628213278/600-conversionFormat_base-conversionFormat_A229397.FAST_ISO_XL_746MB_CD_Elite_20X8_5/A229397.FAST-ISO-XL-746MB-CD-Elite-20X8-5.png": {
+    "w": 600,
+    "h": 600,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://wheelmartcanada.ca/uploads/products/a81ce1fd-cbf8-4fdc-93cf-e242cda0c994.jpg": {
+    "w": 736,
+    "h": 510,
+    "verdict": "low_res",
+    "reason": "736x510 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/4f7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/4e7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/507c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/8c7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/8b7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/8d7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/8e7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/8f7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/4c7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/4b7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/4d7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/917c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/907c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/927c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/647c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/637c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/657c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/947c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/937c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/957c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/ea7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/e97b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/eb7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/ed7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/ec7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/ee7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/687c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/677c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/697c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/6d7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/6c7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/6e7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/e9830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/e8830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/ea830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/617c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/607c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/627c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/548c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/538c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/558c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/ad8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/ac8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/7c7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/7b7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/7d7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/d77b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/d67b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/d87b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/5b7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/5a7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/5c7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/e07b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/df7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/e17b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/dd7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/dc7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/de7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/e37b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/e27b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/e47b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/5e7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/5d7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/5f7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/707c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/6f7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/717c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/737c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/727c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/747c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/ed870b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/ec870b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/ee870b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/837c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/827c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/847c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/03880b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/04880b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/5a893dec-91a5-40e7-8348-dc5191d2879e.png": {
+    "w": 1097,
+    "h": 733,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://weborder.formuladistributors.com/CostarPublicCache/WebOrder/7e2024bb-6139-4646-883b-928d4a101daf.png": {
+    "w": 1254,
+    "h": 1254,
+    "verdict": "ok",
+    "reason": ""
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e0830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e2830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e1830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/00770b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ff760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/01770b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/737c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/727c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/747c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4a8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/498f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4b8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/06770b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/05770b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/07770b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fa760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f8760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f9760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/768b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/758b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/748b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8c8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/718f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/728f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/028f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/048f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ba8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d9760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d8760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/da760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8a8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8b8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/bb8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b98e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/038f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/648b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/638b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/658b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/848e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/858e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0a840b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/08840b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/09840b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/02840b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/00840b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/01840b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/178c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/168c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/188c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fc810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fb810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fd810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/02820b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/01820b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/03820b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/057c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/047c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/067c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d3800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d2800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d4800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/c7800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/c8800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f08e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f18e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f7760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f6760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fb760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7d810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7c810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7e810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/947c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/937c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/957c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/718e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/708e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/728e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4b7d0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4a7d0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4c7d0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ed7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ec7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ee7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/19810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/18810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1b810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6d830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6c830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6e830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8b8c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/898c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8a8c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/858c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/838c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/848c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/76830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/75830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/77830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0d7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0c7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0e7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ae800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ad800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b2800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/14770b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/13770b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/15770b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/758e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/768e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/18840b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/17840b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/19840b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d77b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d67b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d87b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/938e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/928e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/948e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/86810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/85810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/87810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/008f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ff8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/018f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4539c2f0-03bb-4b7b-8a75-36e37fc640a9.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/76364706-9677-4aaa-99f3-80d18f4c144a.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/08820b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/07820b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/09820b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1beadb34-6884-47d0-8ae0-7df53562e753.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8ad82d7a-83c5-40f6-b51b-87e06efb6b9f.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fd8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fc8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fe8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1a8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/198f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1b8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6e810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6d810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6f810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0c6ce5cc-54a4-4825-bb2c-42095678777f.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f0c15d19-8e83-410c-ae0c-733ae599de3f.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/087c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/077c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/097c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/608c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5f8c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/618c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/3e8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/3f8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/dc760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/db760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e0760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f6810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f5810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f7810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/118c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/108c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/128c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/478f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/468f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/488f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7c8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7b8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7d8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/378f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/388f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/107c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0f7c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/117c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f9810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f8810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/fa810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/2d8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/2e8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d3760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d2760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d4760b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b4800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b3800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b5800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/45810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/44810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/46810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/07ed8655-0826-4e98-8bf2-fa98a0393953.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/453681c4-d50c-40bc-a209-04bc97c70fb2.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/298f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/2a8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d68e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d78e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d88e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d98e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/418e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/408e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/428e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/328c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/318c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/338c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/638e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/628e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/648e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5b8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/598e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5a8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a98e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a78e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a88e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/da7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d97b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/db7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/68810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/67810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/69810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/968e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/958e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/978e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/87e6e702-1328-4396-a80e-7bf7dbf91cfe.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/23420e80-76ad-4402-a56c-1dd0e54913a1.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/c9890b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/c8890b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ca890b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/157c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/147c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/167c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ec7d0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/eb7d0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ed7d0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6b810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6a810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6c810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/71810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/70810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/72810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8c7f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8d7f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/2b8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/2c8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/018a0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/008a0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/028a0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/157b5441-e0f3-43f1-9802-abce0c2a584e.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/31b40fc2-463e-4649-8796-05bbd18b2ab1.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/3067b99e-9c92-4e04-9aad-744e79d59195.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/dc07fb9c-bc89-4e09-ab4c-b6ab89c06094.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/80810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7f810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/81810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/cc7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/cb7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/cd7b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5b7f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5a7f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5c7f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/cb8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/cc8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/998e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/988e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/9a8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/9f800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a3800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/dd800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/de800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d0800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/cf800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d1800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e4830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e3830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e5830b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f3800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f0800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f4800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4c8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4b8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4d8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/728b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/718b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/738b0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e4810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e3810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e5810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/9c8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/9b8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/9d8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1c8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1d8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/10810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0f810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/11810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/268a0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/258a0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/278a0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b0890b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/af890b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/b1890b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/bf8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/be8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/c08e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/1b065ff6-cc01-4360-8a34-9ccdcbbc4ece.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/3954a2bb-9510-457f-b4f6-5c7dd24ea1df.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/979f5d1a-9dd5-4416-9ca9-4b2722eb39dd.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/c4f488e7-eee9-4fbd-ae61-fabc4e748699.jpg": {
+    "w": 531,
+    "h": 470,
+    "verdict": "low_res",
+    "reason": "531x470 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5d8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5e8f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8d8c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8c8c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8e8c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/878c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/868c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/888c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f48e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f58e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/148c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/138c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/158c0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f78e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f68e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f88e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5d8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5c8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5e8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/478e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/468e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/488e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e1810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e0810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e2810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/908a0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/8f8a0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/918a0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/528e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/518e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/538e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4f8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/4e8e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/508e0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a58f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/a68f0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0a810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/09810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0b810b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e97d0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/e87d0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 400,
+    "h": 580,
+    "verdict": "low_res",
+    "reason": "400x580 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/ea7d0b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/c5800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 200,
+    "h": 290,
+    "verdict": "low_res",
+    "reason": "200x290 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/c6800b23-a0d3-f111-ba87-00505601505f.jpg": {
+    "w": 54,
+    "h": 54,
+    "verdict": "low_res",
+    "reason": "54x54 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/c9d9dbe4-2a6a-45ad-9ce7-2a7d6574de7a.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/efb6e212-7f80-4633-993f-b00d23e342c7.jpg": {
+    "w": 600,
+    "h": 597,
+    "verdict": "low_res",
+    "reason": "600x597 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f0cf7127-4cb3-4162-a5bf-b896a6304cac.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/5125be60-9e12-4d7f-89ee-bdc08f206119.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/d2ebdc05-43cf-426a-97bf-a0a586e8b720.png": {
+    "w": 229,
+    "h": 225,
+    "verdict": "low_res",
+    "reason": "229x225 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/f793e538-721b-4214-a639-3f42d74f8c3a.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/c5dbc309-2841-41dd-a37a-12d854ddafd2.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/0da54f1c-ee51-415d-a892-d76e7a189653.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6aad4312-db21-4cf2-88a1-3594255e1bc7.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/6c04534b-b238-44f8-bf8b-c0ea784fd9ed.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/612bcb8f-d70f-4447-bf5a-f3ecdc01dae1.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/704b07a4-ad06-4fa2-afed-75c4bfe0a247.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/7bd28259-454a-40fb-b8af-388fa868ec63.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/98cb7e65-f3a3-4021-ad08-ef626631e167.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
+  },
+  "https://online.northcountrytire.ca/CostarPublicCache/WebOrder/21d39220-ec24-48c0-9551-1d56771697a7.jpg": {
+    "w": 200,
+    "h": 200,
+    "verdict": "low_res",
+    "reason": "200x200 < 600px"
   }
 }
