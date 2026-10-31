@@ -69,3 +69,17 @@ pipelines/shared/Data/session_cookies.json*
 # Mac app build output (macapp/build.py).
 macapp/build/
 macapp/dist/
+
+# Store inventory exports and the import files inventory_csv.py writes from them.
+# Run output at 30 MB apiece, regenerated from a fresh Shopify export every time.
+/inventory_*.csv
+
+# Deploy bundles: scp to a host with no ":path" writes a local file of that name.
+/sbot@*
+
+# One-off image and model-match audit output from September; nothing reads these.
+/audit_rows.json
+/dead_images.json
+/final_buckets.json
+/reclass.json
+/tiers.json
