@@ -52,8 +52,27 @@ HASURA_BASE_URL         = HASURA_GRAPHQL_ENDPOINT.rsplit("/v1/graphql", 1)[0]
 # Switching to the live store = set these to the live shop + its Admin API token.
 SHOPIFY_SHOP  = os.environ.get("SHOPIFY_SHOP")  or os.environ.get("SBOT_SHOPIFY_SHOP", "")
 SHOPIFY_TOKEN = os.environ.get("SHOPIFY_TOKEN") or os.environ.get("SBOT_SHOPIFY_TOKEN", "")
+# A Dev Dashboard app's credentials. When both are set they win over
+# SHOPIFY_TOKEN: core/shopify_auth.py exchanges them for a 24-hour token and
+# renews it itself.
+# The box's env file uses the SBOT_ names, so they are read here as well.
+SHOPIFY_CLIENT_ID     = (os.environ.get("SHOPIFY_CLIENT_ID")
+                         or os.environ.get("SBOT_SHOPIFY_CLIENT_ID", ""))
+SHOPIFY_CLIENT_SECRET = (os.environ.get("SHOPIFY_CLIENT_SECRET")
+                         or os.environ.get("SBOT_SHOPIFY_CLIENT_SECRET", ""))
 SHOPIFY_API_VERSION = (os.environ.get("SHOPIFY_API_VERSION")
                        or os.environ.get("SBOT_SHOPIFY_API_VERSION", "2026-01"))
+
+# The one location supplier stock is written to. It must be the store's primary
+# location (preflight and primary_location_id() refuse to write otherwise). Every
+# other location is a store, which holds no stock of its own: Shopify adds the
+# locations together, so units left at a store show up as extra stock online.
+# The same layout inventory_csv.py uses. Set it empty to skip the name check.
+SHOPIFY_STOCK_LOCATION = (os.environ.get("SHOPIFY_STOCK_LOCATION")
+                          or os.environ.get("SBOT_SHOPIFY_STOCK_LOCATION")
+                          or "Supplier Ordering Stock").strip()
+# Set a supplier SKU's quantity to 0 at every non-stock location that holds any.
+ZERO_STORE_LOCATIONS = True
 SHOPIFY_GRAPHQL_URL = f"https://{SHOPIFY_SHOP}/admin/api/{SHOPIFY_API_VERSION}/graphql.json"
 
 # Shops that are safe to write to without an extra confirmation. Anything else
@@ -194,6 +213,9 @@ MAX_PRICE               = 5000.0 #   and the SKU is skipped at sync
 MAX_PRICE_SWING_PCT     = 60.0   # per-SKU price change vs live Shopify price → warning
 MAX_SYNC_FAILURE_PCT    = 5.0    # sync circuit breaker: abort remaining pushes
 MAX_NEW_PRODUCTS_PER_RUN = 3000  # create_products cap → error (bad merge would flood the store)
+MAX_CATALOG_SHRINK_PCT  = 20.0   # store export smaller than the mirror by more than this → error,
+                                 #   raised before the mirror is overwritten (an empty export
+                                 #   once wiped all 15,170 rows and the run still said success)
 
 # ── API client tuning ──────────────────────────────────────────────────────────
 HASURA_INSERT_CHUNK       = 1000  # rows per insert mutation

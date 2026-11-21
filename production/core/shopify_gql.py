@@ -18,6 +18,7 @@ import time
 import requests
 
 import config
+from core.shopify_auth import ShopifyAuthError, default_provider
 
 
 class ShopifyError(Exception):
@@ -29,15 +30,21 @@ class ShopifyThrottled(Exception):
 
 
 class ShopifyGQL:
-    def __init__(self, logger=None):
+    def __init__(self, logger=None, token_provider=None):
         self.url = config.SHOPIFY_GRAPHQL_URL
-        self.headers = {
-            "X-Shopify-Access-Token": config.SHOPIFY_TOKEN,
-            "Content-Type": "application/json",
-        }
+        self.auth = token_provider or default_provider()
         self.log = logger
         self.cost_log = []          # per-request cost/throttle samples
         self.throttle_waits = []    # seconds slept on THROTTLED
+
+    @property
+    def headers(self):
+        # Read per request: a client-credentials token is renewed mid-run.
+        try:
+            token = self.auth.get()
+        except ShopifyAuthError as e:
+            raise ShopifyError(str(e)) from e
+        return {"X-Shopify-Access-Token": token, "Content-Type": "application/json"}
 
     # ── core execute with throttle handling ────────────────────────────────────
     #
@@ -56,6 +63,7 @@ class ShopifyGQL:
     def execute(self, query, variables=None, label=None):
         last_err = None
         attempt = 0
+        renewed = False
         while attempt < config.SHOPIFY_RETRIES:
             try:
                 r = requests.post(self.url, headers=self.headers,
@@ -67,6 +75,13 @@ class ShopifyGQL:
                 time.sleep(2 ** attempt)
                 continue
 
+            # A minted token revoked or expired early: renew once and retry.
+            # A second 401 is a real credentials problem and falls through.
+            if r.status_code == 401 and not renewed and self.auth.invalidate():
+                renewed = True
+                if self.log:
+                    self.log.info("Shopify returned 401 - renewing the access token")
+                continue
             if r.status_code == 429:                      # rare on GraphQL, but honour it
                 time.sleep(max(2.0, float(r.headers.get("Retry-After", 2))))
                 continue                                   # doesn't burn a retry attempt
@@ -178,6 +193,12 @@ class ShopifyGQL:
             raise ShopifyError(
                 f"Multiple locations report isPrimary=true: "
                 f"{[n['name'] for n in primary]} — ambiguous, refusing to guess.")
+        want = config.SHOPIFY_STOCK_LOCATION
+        if want and primary[0]["name"].strip() != want:
+            raise ShopifyError(
+                f"The primary location is '{primary[0]['name']}', but stock is meant to go to "
+                f"'{want}' (SHOPIFY_STOCK_LOCATION). Make '{want}' primary in the store, or "
+                f"change the setting — refusing to write stock to a store location.")
         if self.log:
             self.log.info(f"Shopify primary location: {primary[0]['name']} ({primary[0]['id']})")
         return primary[0]["id"]
@@ -215,6 +236,66 @@ class ShopifyGQL:
         Returns (products, variants): lists of JSONL objects; variant objects
         carry __parentId referencing their product's gid.
         """
+        products, variants = [], []
+        for obj in self._run_bulk_query(self.CATALOG_QUERY, "catalog"):
+            if obj.get("__parentId"):
+                variants.append(obj)
+            else:
+                products.append(obj)
+        if self.log:
+            self.log.info(f"Bulk export downloaded: {len(products)} products, {len(variants)} variants")
+        return products, variants
+
+    # Per-location stock. ProductVariant.inventoryQuantity is the total over
+    # every location, so the sync can't tell the stock location's units from a
+    # store's. A bulk query allows only two levels of nested connections, which
+    # rules out products → variants → inventoryLevels; locations → inventoryLevels
+    # fits.
+    INVENTORY_LEVELS_QUERY = """
+    {
+      locations(includeInactive: false) {
+        edges {
+          node {
+            id
+            name
+            isPrimary
+            inventoryLevels {
+              edges {
+                node {
+                  item { id }
+                  quantities(names: ["available"]) { name quantity }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    """
+
+    def fetch_inventory_levels(self):
+        """Returns (locations, levels): locations is [{id, name, isPrimary}],
+        levels maps inventory item gid → {location gid: available}. An item
+        that isn't stocked at a location has no entry for it."""
+        locations, levels = [], {}
+        for obj in self._run_bulk_query(self.INVENTORY_LEVELS_QUERY, "inventory levels"):
+            parent = obj.get("__parentId")
+            if not parent:
+                locations.append({k: obj.get(k) for k in ("id", "name", "isPrimary")})
+                continue
+            item = (obj.get("item") or {}).get("id")
+            if not item:
+                continue
+            qty = next((q.get("quantity") for q in obj.get("quantities") or []
+                        if q.get("name") == "available"), 0)
+            levels.setdefault(item, {})[parent] = int(qty or 0)
+        if self.log:
+            self.log.info(f"Inventory levels downloaded: {len(locations)} locations, "
+                          f"{sum(len(v) for v in levels.values())} levels")
+        return locations, levels
+
+    def _run_bulk_query(self, query, what):
+        """Start a bulk query, wait for it, and return its JSONL objects."""
         self._ensure_no_running_bulk_query()
 
         start = """
@@ -224,33 +305,25 @@ class ShopifyGQL:
             userErrors { field message }
           }
         }"""
-        data = self.execute(start, {"query": self.CATALOG_QUERY},
-                            label="bulkOperationRunQuery")
+        data = self.execute(start, {"query": query}, label="bulkOperationRunQuery")
         errs = data["bulkOperationRunQuery"]["userErrors"]
         if errs:
             raise ShopifyError(f"bulkOperationRunQuery userErrors: {errs}")
         op_id = data["bulkOperationRunQuery"]["bulkOperation"]["id"]
         if self.log:
-            self.log.info(f"Bulk catalog export started: {op_id}")
+            self.log.info(f"Bulk {what} export started: {op_id}")
 
         url = self._poll_bulk(op_id)
-        if url is None:                                    # empty store
-            return [], []
+        if url is None:                                    # nothing to export
+            return []
 
-        products, variants = [], []
+        objs = []
         with requests.get(url, stream=True, timeout=300) as r:
             r.raise_for_status()
             for line in r.iter_lines():
-                if not line:
-                    continue
-                obj = json.loads(line)
-                if obj.get("__parentId"):
-                    variants.append(obj)
-                else:
-                    products.append(obj)
-        if self.log:
-            self.log.info(f"Bulk export downloaded: {len(products)} products, {len(variants)} variants")
-        return products, variants
+                if line:
+                    objs.append(json.loads(line))
+        return objs
 
     def _ensure_no_running_bulk_query(self):
         """A shop may run only ONE bulk query at a time. A previous run that was
@@ -382,6 +455,38 @@ class ShopifyGQL:
         errs = data["inventorySetQuantities"]["userErrors"]
         if errs:
             raise ShopifyError(f"inventorySetQuantities userErrors: {errs}")
+
+    def activate_inventory_batched(self, location_gid, items, batch_size=None):
+        """Stock items at a location they aren't stocked at yet, with a starting
+        available quantity. items: list of (inventory_item_gid, qty).
+        Returns [(inventory_item_gid, ok, error)] in input order.
+
+        inventorySetQuantities refuses such items with ITEM_NOT_STOCKED_AT_LOCATION,
+        and inventoryActivate has no bulk form, so this aliases it the same way
+        update_variants_batched aliases price updates. Each alias succeeds or
+        fails on its own. In 2026-04 inventoryActivate requires an @idempotent
+        key; 2026-01 doesn't.
+        """
+        batch_size = batch_size or config.PRICE_ALIAS_BATCH
+        results = []
+        for i in range(0, len(items), batch_size):
+            batch = items[i:i + batch_size]
+            parts, decls, variables = [], [], {}
+            for j, (gid, qty) in enumerate(batch):
+                variables.update({f"i{j}": gid, f"l{j}": location_gid, f"q{j}": int(qty)})
+                decls.append(f"$i{j}: ID!, $l{j}: ID!, $q{j}: Int")
+                parts.append(f"a{j}: inventoryActivate(inventoryItemId: $i{j}, locationId: $l{j}, "
+                             f"available: $q{j}) {{ inventoryLevel {{ id }} userErrors {{ field message }} }}")
+            query = f"mutation({', '.join(decls)}) {{ {' '.join(parts)} }}"
+            try:
+                data = self.execute(query, variables, label="activate_inventory_batched")
+            except ShopifyError as e:
+                results.extend((gid, False, str(e)[:500]) for gid, _ in batch)
+                continue
+            for j, (gid, _qty) in enumerate(batch):
+                errs = data[f"a{j}"]["userErrors"]
+                results.append((gid, False, str(errs)[:500]) if errs else (gid, True, None))
+        return results
 
     # ── product creation ───────────────────────────────────────────────────────
     PRODUCT_SET_MUTATION = """

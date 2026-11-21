@@ -38,10 +38,13 @@ def check_store():
     """Shop reachable, token valid, scopes sufficient, primary location unambiguous."""
     from core.shopify_gql import ShopifyGQL, ShopifyError
 
-    if not config.SHOPIFY_SHOP or not config.SHOPIFY_TOKEN:
+    from core.shopify_auth import default_provider
+
+    if not default_provider().configured:
         return [_check("shopify_credentials", FAIL,
-                       "SHOPIFY_SHOP / SHOPIFY_TOKEN are not set (production/.env, or the "
-                       "SBOT_SHOPIFY_* names used by pipelines/shared/config.py).")]
+                       "SHOPIFY_SHOP plus either SHOPIFY_CLIENT_ID + SHOPIFY_CLIENT_SECRET or "
+                       "SHOPIFY_TOKEN must be set (production/.env, or the SBOT_SHOPIFY_* "
+                       "names used by pipelines/shared/config.py).")]
 
     results = []
     client = ShopifyGQL()
@@ -68,7 +71,10 @@ def check_store():
     scopes = sorted(s["handle"] for s in data["currentAppInstallation"]["accessScopes"])
     required = {"read_products", "write_products", "read_inventory",
                 "write_inventory", "read_locations"}
-    missing = sorted(required - set(scopes))
+    # Shopify lists only what was granted, and write_X implies read_X, so an
+    # app granted write_products reports no read_products handle at all.
+    held = set(scopes) | {"read_" + s[len("write_"):] for s in scopes if s.startswith("write_")}
+    missing = sorted(required - held)
     results.append(_check(
         "shopify_scopes", FAIL if missing else OK,
         f"missing scope(s): {missing}" if missing else f"{len(scopes)} scopes, all required present",
@@ -78,11 +84,19 @@ def check_store():
     # second location appearing is exactly what broke inventory writes before.
     nodes = data["locations"]["nodes"]
     primary = [n for n in nodes if n.get("isPrimary")]
-    if len(primary) == 1:
+    want = config.SHOPIFY_STOCK_LOCATION
+    if len(primary) == 1 and want and primary[0]["name"].strip() != want:
+        results.append(_check(
+            "shopify_location", FAIL,
+            f"'{primary[0]['name']}' is primary, but stock goes to '{want}' "
+            f"(SHOPIFY_STOCK_LOCATION) — make '{want}' primary, or change the setting."))
+    elif len(primary) == 1:
         others = [n["name"] for n in nodes if not n.get("isPrimary")]
         detail = f"'{primary[0]['name']}' is primary"
         if others:
-            detail += f" (inventory will NOT be written to: {', '.join(others)})"
+            detail += (f" (supplier SKUs are set to 0 at: {', '.join(others)})"
+                       if config.ZERO_STORE_LOCATIONS else
+                       f" (inventory will NOT be written to: {', '.join(others)})")
         results.append(_check("shopify_location", OK, detail,
                               location=primary[0]["name"], all_locations=[n["name"] for n in nodes]))
     else:

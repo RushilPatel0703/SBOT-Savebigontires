@@ -87,6 +87,7 @@ def main():
 
     ctx = RunContext(mode="dry_run" if args.dry_run else "live",
                      product_types=args.type, logger=log)
+    ctx.force = args.force            # the catalog shrink gate honours --force too
     shopify = ShopifyGQL(logger=log)
     ingest_meta = []
     status, notes = "success", None
