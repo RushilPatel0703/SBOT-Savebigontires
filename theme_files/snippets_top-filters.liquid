@@ -244,13 +244,13 @@
             <option value="">All Types</option>
             {% assign type_tags = '' %}
             {% for tag in collections['tires'].all_tags %}
-              {% if tag contains 'Type_' %}
+              {% if tag contains 'Type_' or tag contains 'Terrain_' %}
                 {% if type_tags == '' %}{% assign type_tags = tag %}{% else %}{% assign type_tags = type_tags | append: ',' | append: tag %}{% endif %}
               {% endif %}
             {% endfor %}
             {% assign type_tags_array = type_tags | split: ',' | sort %}
             {% for tag in type_tags_array %}
-              {% assign type_val = tag | remove: 'Type_' %}
+              {% assign type_val = tag | remove: 'Type_' | remove: 'Terrain_' %}{% if tag contains 'Terrain_' %}{% assign type_val = type_val | replace: '-', ' ' %}{% endif %}
               <option value="{{ tag }}" {% if current_tags contains tag %}selected{% endif %}>{{ type_val }}</option>
             {% endfor %}
           </select>

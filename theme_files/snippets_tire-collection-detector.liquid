@@ -33,7 +33,7 @@
 {% comment %} Check collection tags for tire-related tags {% endcomment %}
 {% unless is_tire_collection %}
   {% for tag in collection.all_tags %}
-    {% if tag contains 'Type_Winter' or tag contains 'Type_Summer' or tag contains 'Type_All Season' or tag contains 'Type_All Weather' or tag contains 'Type_All Terrain' or tag contains 'Type_Mud Terrain' or tag contains 'Type_Performance' %}
+    {% if tag contains 'Type_Winter' or tag contains 'Type_Summer' or tag contains 'Type_All Season' or tag contains 'Type_All Weather' or tag contains 'Type_All Terrain' or tag contains 'Type_Mud Terrain' or tag contains 'Type_Performance' or tag contains 'Type_All-Season' or tag contains 'Type_All-Weather' or tag contains 'Terrain_' %}
       {% assign is_tire_collection = true %}
       {% break %}
     {% endif %}

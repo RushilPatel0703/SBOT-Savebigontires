@@ -1363,7 +1363,7 @@
           {% endif %}
           
           {% for tag in product.tags %}
-            {% if tag == 'Type_Winter' or tag == 'Type_Summer' or tag == 'Type_All Season' or tag == 'Type_All Weather' %}
+            {% if tag == 'Type_Winter' or tag == 'Type_Summer' or tag == 'Type_All Season' or tag == 'Type_All Weather' or tag == 'Type_All-Season' or tag == 'Type_All-Weather' or tag == 'Terrain_All-Terrain' or tag == 'Terrain_Mud-Terrain' %}
               {% assign is_tire_product = true %}
               {% break %}
             {% endif %}
@@ -1436,7 +1436,7 @@
           {% endif %}
 
           {% for tag in product.tags %}
-            {% if tag == 'Type_Winter' or tag == 'Type_Summer' or tag == 'Type_All-Season' or tag == 'Type_All-Weather' or tag == 'Type_All-Terrain' or tag == 'Type_Mud-Terrain' or tag == 'Type_Mud-Snow' or tag == 'Type_All-Summer' %}
+            {% if tag == 'Type_Winter' or tag == 'Type_Summer' or tag == 'Type_All-Season' or tag == 'Type_All-Weather' or tag == 'Type_All-Terrain' or tag == 'Type_Mud-Terrain' or tag == 'Terrain_All-Terrain' or tag == 'Terrain_Mud-Terrain' or tag == 'Type_Mud-Snow' or tag == 'Type_All-Summer' %}
               {% assign is_tire_product = true %}
               {% break %}
             {% endif %}

@@ -15,6 +15,7 @@ from datetime import datetime
 from config import find_latest, get_logger, price_with_markup
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from terrain import terrain_tag
 from size_parser import parse_tire_size, coerce_load_index
 from dedupe import dedupe_titles
 
@@ -173,6 +174,9 @@ def build_tags(row):
     designation = str(row.get("designation", "")).strip()
     if designation in DESIGNATION_MAP:
         parts.append(f"Type_{DESIGNATION_MAP[designation]}")
+    _terr = terrain_tag(row.get("model", ""), row.get("performance", ""), row.get("service_desc", ""))
+    if _terr:
+        parts.append(_terr)
 
     pfx_m = re.match(r'^(LT|ST|P)', size_tag, re.IGNORECASE)
     pfx = pfx_m.group(1).upper() if pfx_m else ""

@@ -34,6 +34,7 @@ from config import price_with_markup
 STALE_INPUT_WARN_HOURS = 24
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from terrain import terrain_tag
 from size_parser import parse_tire_size, default_passenger_load_range
 
 # ── Constants ─────────────────────────────────────────────────────────────────
@@ -509,6 +510,7 @@ def build_tags(
     designation: str,
     speed_rating: str,
     load_range: str,
+    description: str = "",
 ) -> str:
     parts = []
 
@@ -553,6 +555,9 @@ def build_tags(
 
     if designation != "Unknown":
         parts.append(f"Type_{designation}")
+    _terr = terrain_tag(description)
+    if _terr:
+        parts.append(_terr)
 
     pfx_m = re.match(r'^(LT|ST|P)', size_tag, re.IGNORECASE)
     pfx = pfx_m.group(1).upper() if pfx_m else ""
@@ -740,6 +745,7 @@ def main():
             designation  = df.at[i, "_designation"],
             speed_rating = df.at[i, "_speed_rating"],
             load_range   = df.at[i, "_load_range"],
+            description  = df.at[i, "description"],
         )
         for i in df.index
     ]

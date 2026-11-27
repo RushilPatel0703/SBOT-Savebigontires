@@ -1019,8 +1019,8 @@
             {% for tag in current_tags %}
               {% if tag contains 'Brand_' %}
                 {% assign brand_name = tag | remove_first: 'Brand_' | upcase %}
-              {% elsif tag contains 'Type_' %}
-                {% assign type_name = tag | remove_first: 'Type_' %}
+              {% elsif tag contains 'Type_' or tag contains 'Terrain_' %}
+                {% assign type_name = tag | remove_first: 'Type_' | remove_first: 'Terrain_' %}
               {% endif %}
             {% endfor %}
             
@@ -1060,8 +1060,8 @@
           {% for tag in current_tags %}
             {% if tag contains 'Brand_' %}
               {% assign brand_name = tag | remove_first: 'Brand_' | upcase %}
-            {% elsif tag contains 'Type_' %}
-              {% assign type_name = tag | remove_first: 'Type_' %}
+            {% elsif tag contains 'Type_' or tag contains 'Terrain_' %}
+              {% assign type_name = tag | remove_first: 'Type_' | remove_first: 'Terrain_' %}
             {% endif %}
           {% endfor %}
           

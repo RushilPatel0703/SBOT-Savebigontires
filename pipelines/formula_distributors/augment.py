@@ -14,6 +14,7 @@ from datetime import datetime
 from config import price_with_markup
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from terrain import terrain_tag, detect_terrain
 from size_parser import (parse_tire_size, parse_load_speed, default_passenger_load_range,
                          coerce_load_index)
 
@@ -293,8 +294,16 @@ def build_tags(row):
                     parts.append(f"RimDia_{parsed['rim_tag']}")
 
     designation = str(row.get("designation", "")).strip()
-    type_tag = DESIGNATION_MAP.get(designation, "All-Season")
+    # Terrain is its own axis (Terrain_ tag, shared/terrain.py); a terrain
+    # designation says nothing about season, so it falls back to All-Season.
+    _season = {"All Terrain": "All-Season", "Mud Terrain": "All-Season"}
+    type_tag = _season.get(designation) or DESIGNATION_MAP.get(designation, "All-Season")
     parts.append(f"Type_{type_tag}")
+    _terr = terrain_tag(row.get("model", ""), row.get("description", ""))
+    if not _terr and designation in ("All Terrain", "Mud Terrain"):
+        _terr = "Terrain_" + designation.replace(" ", "-")
+    if _terr:
+        parts.append(_terr)
 
     pfx_m = re.match(r'^(LT|ST|P)', size_tag, re.IGNORECASE)
     pfx = pfx_m.group(1).upper() if pfx_m else ""

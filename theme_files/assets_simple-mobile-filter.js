@@ -166,7 +166,7 @@
           
           for (const tag of tags) {
             // Handle both 'Type_' and 'type_' formats (case insensitive)
-            if (tag.startsWith('Type_') || tag.startsWith('type_')) {
+            if (tag.startsWith('Type_') || tag.startsWith('type_') || tag.startsWith('Terrain_')) {
               console.log('🔍 Looking for Type tag:', tag);
               
               // Try to find exact match first

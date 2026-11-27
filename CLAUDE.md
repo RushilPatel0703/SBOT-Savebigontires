@@ -70,6 +70,20 @@ Steps: `catalog → ingest → merge → validate → create_products → sync_p
 - Shopify access is GraphQL only (`core/shopify_gql.py`), using bulk ops for catalog export and `inventorySetQuantities` for absolute, replay-safe quantities.
 - When checking a completeness or approval figure, call the executing function and compare it with the reported number. The reporting layer and the acting layer are separate code paths here and have disagreed before.
 
+### Mac app (`macapp/`)
+
+The client runs the dashboard as a sealed PyInstaller app, "Save Big On Tires.app". `macapp/build.py` (macOS only; `--stage-only` works anywhere) stages `pipelines/` into `macapp/build/payload/` as sourceless `.pyc`. It takes tracked plus untracked-but-not-ignored files, so a new module only needs to exist, not be committed. It then freezes from `SaveBigOnTires.spec`, runs a self-test, a DT Tire e2e on `fixtures/` and a browser UI smoke (`ui_smoke.py`), and zips the result into `macapp/dist/SaveBigOnTires-mac.zip`. CI does the same on `macos-14` when the `mac-app` branch gets a push (`.github/workflows/build-mac.yml`).
+
+```bash
+pip install -r requirements.txt -r macapp/requirements-build.txt && python -m playwright install chromium
+python macapp/build.py              # full build + tests; --skip-ui to skip the browser smoke
+python macapp/build.py --stage-only && python macapp/sbot_app.py --sbot-serve   # unfrozen, fast iteration
+```
+
+- `sbot_app.py` is one executable with four roles chosen by argv: launch (no args), `--sbot-serve`, `<script>.py` (every pipeline step re-enters the binary as `sys.executable`), and `--sbot-selftest`.
+- At runtime the workspace is `~/SaveBigOnTires/` (`SBOT_HOME` overrides it): `.engine/` holds the payload and its `Data/`, and `Uploads/` holds the import files. Logs go to `.engine/app_logs/launcher.log` and `server.log`. Under `Data/`, files are seeded once and then belong to the client, except those in `ALWAYS_UPDATE`.
+- The build blanks the developer-only secrets (`DEV_ONLY_SECRETS`) in `shared/config.py` and refuses a payload that contains source or `session_cookies.json`. `production/` and duckdb are not shipped, and the dashboard hides the Sync tab under `SBOT_CLIENT_BUILD=1`.
+
 ### Other directories
 
 - `theme_files/` is Shopify Liquid/CSS/JS. It can't be deployed via API and is uploaded manually in the theme editor. The filename `snippets_foo.liquid` maps to `snippets/foo.liquid`.

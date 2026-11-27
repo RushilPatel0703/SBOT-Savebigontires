@@ -145,10 +145,10 @@
           {% comment %} Hardcoded tire type options with selection logic {% endcomment %}
           {% assign current_tags_string = current_tags | join: '|' %}
           
-          <option value="Type_All Season"{% if current_tags_string contains 'Type_All Season' %} selected{% endif %}>All Season</option>
-          <option value="Type_All Terrain"{% if current_tags_string contains 'Type_All Terrain' %} selected{% endif %}>All Terrain</option>
-          <option value="Type_All Weather"{% if current_tags_string contains 'Type_All Weather' %} selected{% endif %}>All Weather</option>
-          <option value="Type_Mud Terrain"{% if current_tags_string contains 'Type_Mud Terrain' %} selected{% endif %}>Mud Terrain</option>
+          <option value="Type_All-Season"{% if current_tags_string contains 'Type_All-Season' %} selected{% endif %}>All Season</option>
+          <option value="Terrain_All-Terrain"{% if current_tags_string contains 'Terrain_All-Terrain' %} selected{% endif %}>All Terrain</option>
+          <option value="Type_All-Weather"{% if current_tags_string contains 'Type_All-Weather' %} selected{% endif %}>All Weather</option>
+          <option value="Terrain_Mud-Terrain"{% if current_tags_string contains 'Terrain_Mud-Terrain' %} selected{% endif %}>Mud Terrain</option>
           <option value="Type_Performance"{% if current_tags_string contains 'Type_Performance' %} selected{% endif %}>Performance</option>
           <option value="Type_Summer"{% if current_tags_string contains 'Type_Summer' %} selected{% endif %}>Summer</option>
           <option value="Type_Winter"{% if current_tags_string contains 'Type_Winter' %} selected{% endif %}>Winter</option>

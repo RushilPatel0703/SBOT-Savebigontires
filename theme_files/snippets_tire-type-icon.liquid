@@ -95,47 +95,47 @@
 
 {% assign tire_svg_file = '' %}
 {% assign tire_label = '' %}
+{% assign season_svg = '' %}
+{% assign season_label = '' %}
+{% assign terrain_svg = '' %}
+{% assign terrain_label = '' %}
 {% assign is_performance = false %}
 
-{% comment %} First pass: find primary seasonal/terrain designation from tags {% endcomment %}
+{% comment %}
+  Season and terrain are independent: a Trail Blade A/T with the snowflake is
+  BOTH All Terrain and All Weather. Season comes from Type_*, terrain from
+  Terrain_* (legacy Type_All-Terrain / Type_Mud-Terrain still honoured). One
+  pass over every tag; the old loop stopped at the first hit, so whichever tag
+  sorted first hid the other.
+{% endcomment %}
 {% for tag in product.tags %}
-  {% if tag == 'Type_Winter' %}
-    {% assign tire_svg_file = 'Winter.svg' %}
-    {% assign tire_label = 'Winter' %}
-    {% break %}
-  {% elsif tag == 'Type_Summer' or tag == 'Type_All-Summer' %}
-    {% assign tire_svg_file = 'Summer.svg' %}
-    {% assign tire_label = 'Summer' %}
-    {% break %}
-  {% elsif tag == 'Type_All-Season' or tag == 'Type_All Season' %}
-    {% assign tire_svg_file = 'All-season.svg' %}
-    {% assign tire_label = 'All Season' %}
-    {% break %}
-  {% elsif tag == 'Type_All-Weather' or tag == 'Type_All Weather' %}
-    {% assign tire_svg_file = 'All-weather.svg' %}
-    {% assign tire_label = 'All Weather' %}
-    {% break %}
-  {% elsif tag == 'Type_All-Terrain' or tag == 'Type_All Terrain' %}
-    {% assign tire_svg_file = 'All-terrain.svg' %}
-    {% assign tire_label = 'All Terrain' %}
-    {% break %}
-  {% elsif tag == 'Type_Mud-Terrain' or tag == 'Type_Mud Terrain' or tag == 'Type_Mud-Snow' %}
-    {% assign tire_svg_file = 'Mud-terrain.svg' %}
-    {% assign tire_label = 'Mud Terrain' %}
-    {% break %}
-  {% endif %}
+  {% case tag %}
+    {% when 'Type_Winter' %}
+      {% assign season_svg = 'Winter.svg' %}{% assign season_label = 'Winter' %}
+    {% when 'Type_Summer', 'Type_All-Summer' %}
+      {% if season_label != 'Winter' %}{% assign season_svg = 'Summer.svg' %}{% assign season_label = 'Summer' %}{% endif %}
+    {% when 'Type_All-Weather', 'Type_All Weather' %}
+      {% if season_label != 'Winter' %}{% assign season_svg = 'All-weather.svg' %}{% assign season_label = 'All Weather' %}{% endif %}
+    {% when 'Type_All-Season', 'Type_All Season' %}
+      {% if season_label == '' %}{% assign season_svg = 'All-season.svg' %}{% assign season_label = 'All Season' %}{% endif %}
+    {% when 'Terrain_Mud-Terrain', 'Type_Mud-Terrain', 'Type_Mud Terrain', 'Type_Mud-Snow' %}
+      {% assign terrain_svg = 'Mud-terrain.svg' %}{% assign terrain_label = 'Mud Terrain' %}
+    {% when 'Terrain_All-Terrain', 'Type_All-Terrain', 'Type_All Terrain' %}
+      {% if terrain_label == '' %}{% assign terrain_svg = 'All-terrain.svg' %}{% assign terrain_label = 'All Terrain' %}{% endif %}
+    {% when 'Type_Performance' %}
+      {% assign is_performance = true %}
+  {% endcase %}
 {% endfor %}
 
-{% comment %} Second pass: check for Performance tag (stacks with seasonal) {% endcomment %}
-{% for tag in product.tags %}
-  {% if tag == 'Type_Performance' %}
-    {% assign is_performance = true %}
-    {% break %}
-  {% endif %}
-{% endfor %}
-
-{% comment %} Fallback: no matching tag found {% endcomment %}
-{% if tire_svg_file == blank %}
+{% if terrain_label != '' %}
+  {% assign tire_svg_file = terrain_svg %}
+  {% assign tire_label = terrain_label %}
+  {% if season_label != '' %}{% assign tire_label = tire_label | append: ' · ' | append: season_label %}{% endif %}
+{% elsif season_label != '' %}
+  {% assign tire_svg_file = season_svg %}
+  {% assign tire_label = season_label %}
+{% else %}
+  {% comment %} Fallback: no matching tag found {% endcomment %}
   {% assign tire_svg_file = 'All-season.svg' %}
   {% assign tire_label = 'All Season' %}
 {% endif %}

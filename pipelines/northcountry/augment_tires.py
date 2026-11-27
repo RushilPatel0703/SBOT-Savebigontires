@@ -16,6 +16,7 @@ from datetime import datetime
 from config import price_with_markup
 
 sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'shared')))
+from terrain import terrain_tag
 from size_parser import (parse_tire_size, parse_load_speed, coerce_load_index,
                          default_passenger_load_range)
 from dedupe import dedupe_titles
@@ -217,6 +218,9 @@ def build_tags(row, designation):
                     parts.append(f"RimDia_{rim_tag}")
 
     parts.append(f"Type_{DESIGNATION_MAP[designation]}")
+    _terr = terrain_tag(row.get("model", ""), row.get("description", ""))
+    if _terr:
+        parts.append(_terr)
 
     pfx_m = re.match(r'^(LT|ST|P)', size_tag, re.IGNORECASE)
     pfx = pfx_m.group(1).upper() if pfx_m else ""
